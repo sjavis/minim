@@ -1,9 +1,9 @@
-#ifndef LINALG_H
-#define LINALG_H
+#ifndef VEC_H
+#define VEC_H
 
 #include <vector>
 
-namespace linalg {
+namespace vec {
 
   std::vector<double> sum(double a, std::vector<double> b);
   std::vector<double> sum(std::vector<double> a, double b);
@@ -18,6 +18,7 @@ namespace linalg {
 
   double dotProduct(std::vector<double> a, std::vector<double> b);
 
+  double norm(std::vector<double> a);
 }
 
 #endif

@@ -14,6 +14,7 @@ class Lbfgs : public Minimiser {
   private:
     int m;
     int i_cycle;
+    double init_hessian = 1e-4;
     std::vector<double> g;
     std::vector<double> rho;
     std::vector<std::vector<double>> s;

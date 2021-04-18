@@ -3,7 +3,7 @@
 #include "System.h"
 #include "Minimiser.h"
 #include "GradDescent.h"
-#include "linalg.h"
+#include "vec.h"
 
 
 GradDescent::GradDescent(System &sys, double a, int maxIter)
@@ -21,7 +21,7 @@ void GradDescent::iteration() {
 
 bool GradDescent::checkConvergence() {
   sys.gradient(g);
-  double sum = linalg::dotProduct(g, g);
+  double sum = vec::dotProduct(g, g);
   double rms = sqrt(sum / sys.ndof);
 
   return (rms < sys.convergence_rms);

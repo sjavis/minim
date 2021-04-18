@@ -1,10 +1,11 @@
+#include <cmath>
 #include <vector>
 #include <numeric>
 #include <algorithm>
 #include <functional>
-#include "linalg.h"
+#include "vec.h"
 
-namespace linalg {
+namespace vec {
 
 
   // Sum
@@ -60,6 +61,12 @@ namespace linalg {
   // Dot Product
   double dotProduct(std::vector<double> a, std::vector<double> b) {
     return  std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
+  }
+
+
+  // Norm
+  double norm(std::vector<double> a) {
+    return  sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
   }
 
 
