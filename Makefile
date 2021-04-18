@@ -1,7 +1,14 @@
-all:
-	gcc -c src/Minimiser.cpp -o bin/Minimiser.o
-	gcc -c src/GradDescent.cpp -o bin/GradDescent.o
-	gcc -c src/Lbfgs.cpp -o bin/Lbfgs.o
-	gcc -c src/System.cpp -o bin/System.o
-	gcc -c src/vec.cpp -o bin/vec.o
-	ar -rcs bin/libminimiser.a bin/Minimiser.o bin/GradDescent.o bin/Lbfgs.o bin/System.o bin/vec.o
+OBJ_ = Minimiser.o GradDescent.o Lbfgs.o System.o vec.o
+OBJ = $(OBJ_:%=bin/%)
+
+CXX      = gcc       # C++ compiler
+CXXFLAGS = -Iinclude # Flags for the C++ compiler
+
+all: $(OBJ)
+	ar -rcs bin/libminim.a $(OBJ)
+
+bin/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm bin/*.o bin/libminim.a

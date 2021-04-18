@@ -1,4 +1,11 @@
-lib='../..'
+ROOT_DIR = ../..
+INC = $(ROOT_DIR)/include
+BIN = $(ROOT_DIR)/bin
+LIBS = -lminim
+
+CXX = g++
+CXXFLAGS = -I$(INC) -L$(BIN) $(LIBS)
+CXXFLAGS = -I$(INC) -L$(BIN) $(LIBS)
 
 all:
-	g++ -g Toy2d.cpp -I${lib}/src -L${lib}/bin -lminimiser -o run.exe
+	$(CXX) Toy2d.cpp -o run.exe $(CXXFLAGS)
