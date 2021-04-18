@@ -1,16 +1,12 @@
+#include <vector>
 #include "System.h"
 
 
-System::System(int ndof_) : ndof(ndof_) {
-  state = new double[ndof_]();
-}
-
-
-System::System(int ndof_, double* state_)
- : ndof(ndof_), state(state_)
+System::System(int ndof_)
+: ndof(ndof_), state(ndof)
 {}
 
 
-System::~System() {
-  //delete this->state;
-}
+System::System(int ndof_, std::vector<double> state_)
+: ndof(ndof_), state(state_)
+{}

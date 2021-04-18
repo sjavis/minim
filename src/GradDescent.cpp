@@ -1,36 +1,28 @@
-#include <math.h>
+#include <cmath>
+#include <vector>
 #include "System.h"
 #include "Minimiser.h"
 #include "GradDescent.h"
+#include "linalg.h"
 
 
 GradDescent::GradDescent(System &sys, double a, int maxIter)
- : Minimiser(sys, maxIter), alpha(a)
+: Minimiser(sys, maxIter), alpha(a), g(sys.ndof)
 {}
 
 
 void GradDescent::iteration() {
-  double *g = new double[sys.ndof];
   sys.gradient(g);
-  
   for (int i=0; i<sys.ndof; i++) {
-    sys.state[i] -= alpha * g[i]; 
+    sys.state[i] -= alpha * g[i];
   }
-
-  delete g;
 }
 
 
 bool GradDescent::checkConvergence() {
-  double *g = new double[sys.ndof];
   sys.gradient(g);
+  double sum = linalg::dotProduct(g, g);
+  double rms = sqrt(sum / sys.ndof);
 
-  double sum = 0;
-  for (int i=0; i<sys.ndof; i++) {
-    sum += g[i]*g[i];
-  }
-  double rms = sqrt(sum/sys.ndof);
-
-  delete g;
-  return (rms < 1e-6);
+  return (rms < sys.convergence_rms);
 }

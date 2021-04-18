@@ -1,6 +1,8 @@
 #ifndef GRADDESCENT_H
 #define GRADDESCENT_H
 
+#include <vector>
+
 
 // Gradient desecent minimisation
 class GradDescent : public Minimiser {
@@ -12,6 +14,9 @@ class GradDescent : public Minimiser {
 
     void iteration();
     bool checkConvergence();
+
+  private:
+    std::vector<double> g;
 };
 
 #endif
