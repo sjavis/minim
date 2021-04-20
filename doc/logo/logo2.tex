@@ -1,0 +1,33 @@
+\documentclass[tikz,convert]{standalone}
+
+\begin{document}
+\begin{tikzpicture}
+  \def\l{0.5}
+  \def\w{0.2*\l}
+  \def\a{0.707*\w}
+  \def\s{0.2*\w}
+  
+  \def\d{0.707*\w}
+  \def\r{1.414*\w}
+  
+  \coordinate (a) at (0, 0);
+  \coordinate (b) at (0, \l);
+  \coordinate (c) at (\l/2, \l/2);
+  \coordinate (d) at (\l/2+\a, \l/2+\a);
+  \coordinate (e) at (\l/2+\a, \l/2-\d-\a);
+  \coordinate (f) at (\l/2-\d-\a, \l/2-\d-\a);
+  \coordinate (g) at (\l/2-\d, \l/2-\d);
+  \coordinate (h) at (\w, \l-\w-\r);
+  \coordinate (i) at (\w, 0);
+  
+  \coordinate (j) at (\l, 0);
+  \coordinate (k) at (\l-\w, 0);
+  \coordinate (l) at (\l-\w, \l-\w-\r);
+  \coordinate (m) at (\l/2+\a+\s, \l/2-\r+\a+\s);
+  \coordinate (n) at (\l/2+\a+\s, \l/2+\a+\s);
+  \coordinate (o) at (\l, \l);
+  
+  \fill[white] (a)--(b)--(c)--(d)--(e)--(f)--(g)--(h)--(i)--(a);
+  \fill[white] (j)--(k)--(l)--(m)--(n)--(o)--(j);
+\end{tikzpicture}
+\end{document}
