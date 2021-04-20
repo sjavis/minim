@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>L-BFGS &mdash; Minim  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Algorithms" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Minim
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">L-BFGS</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Minim</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Algorithms</a> &raquo;</li>
+        
+      <li>L-BFGS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/algorithms/lbfgs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="l-bfgs">
+<span id="algorithms-lbfgs"></span><h1>L-BFGS<a class="headerlink" href="#l-bfgs" title="Permalink to this headline">¶</a></h1>
+<dl class="cpp class">
+<dt id="_CPPv45Lbfgs">
+<span id="_CPPv35Lbfgs"></span><span id="_CPPv25Lbfgs"></span><span id="Lbfgs"></span><span class="target" id="classLbfgs"></span><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Lbfgs</span></code> <span class="pre">:</span> <em class="property"><span class="pre">public</span></em> <span class="pre">Minimiser</span><a class="headerlink" href="#_CPPv45Lbfgs" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>LBFGS minimisation algorithm </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N5Lbfgs5LbfgsER6Systemii">
+<span id="_CPPv3N5Lbfgs5LbfgsER6Systemii"></span><span id="_CPPv2N5Lbfgs5LbfgsER6Systemii"></span><span id="Lbfgs::Lbfgs__SystemR.i.i"></span><span class="target" id="classLbfgs_1a351d253e57bb15621a07b7c807dd6419"></span><code class="sig-name descname"><span class="pre">Lbfgs</span></code><span class="sig-paren">(</span><span class="pre">System</span> <span class="pre">&amp;</span><em><span class="pre">sys</span></em>, <span class="pre">int</span> <em><span class="pre">m</span></em> <span class="pre">=</span> <span class="pre">5</span>, <span class="pre">int</span> <em><span class="pre">maxIter</span></em> <span class="pre">=</span> <span class="pre">10000</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs5LbfgsER6Systemii" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5LbfgsD0Ev">
+<span id="_CPPv3N5LbfgsD0Ev"></span><span id="_CPPv2N5LbfgsD0Ev"></span><span id="Lbfgs::~Lbfgs"></span><span class="target" id="classLbfgs_1af646024188b33a703b1b2a358efd9879"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">~Lbfgs</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5LbfgsD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Lbfgs9iterationEv">
+<span id="_CPPv3N5Lbfgs9iterationEv"></span><span id="_CPPv2N5Lbfgs9iterationEv"></span><span id="Lbfgs::iteration"></span><span class="target" id="classLbfgs_1a13c572aaa69fd38dba886e1da0aa9a51"></span><em class="property"><span class="pre">virtual</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">iteration</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs9iterationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N5Lbfgs16checkConvergenceEv">
+<span id="_CPPv3N5Lbfgs16checkConvergenceEv"></span><span id="_CPPv2N5Lbfgs16checkConvergenceEv"></span><span id="Lbfgs::checkConvergence"></span><span class="target" id="classLbfgs_1ad1a21188486ab070d3ca4ff9492580ce"></span><em class="property"><span class="pre">virtual</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">checkConvergence</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs16checkConvergenceEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="index.html" class="btn btn-neutral float-left" title="Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Sam Avis.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
