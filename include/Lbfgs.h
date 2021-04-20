@@ -1,8 +1,16 @@
+/**
+ * \file Lbfgs.h
+ * \author Sam Avis
+ *
+ * This file contains the class for the LBFGS algorithm.
+ */
+
 #ifndef LBFGS_H
 #define LBFGS_H
 
 
-// L-BFGS minimisation
+//! \class Lbfgs
+//! LBFGS minimisation algorithm
 class Lbfgs : public Minimiser {
   public:
     Lbfgs(System &sys, int m = 5, int maxIter = 10000);

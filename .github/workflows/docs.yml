@@ -1,0 +1,32 @@
+name: Docs
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Requirements
+      run: brew install doxygen
+        && brew install sphinx-doc
+        && pip3 install sphinx-rtd-theme
+        && pip3 install breathe
+        && pip3 install sphinx-sitemap
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Build docs
+      run: cd doc
+        && make html
+        && cd _build/html
+        && touch .nojekyll
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: doc/_build/html # The folder the action should deploy.

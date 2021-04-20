@@ -13,4 +13,4 @@ Minim is a C++ library for minimisation problems. It contains a variety of algor
    :caption: Contents:
 
    quickstart
-   algorithms
+   algorithms/index

@@ -15,6 +15,12 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 
+# -- Run doxygen -------------------------------------------------------------
+
+import subprocess
+subprocess.call("doxygen Doxyfile.in", shell=True)
+
+
 # -- Project information -----------------------------------------------------
 
 project = 'Minim'
@@ -37,6 +43,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+highlight_language = 'c++'
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -53,5 +61,6 @@ html_static_path = ['_static']
 
 # -- Options for breathe -----------------------------------------------------
 
-breathe_projects = {'minim': '../doxygen/xml/'}
+breathe_projects = {'minim': '_build/xml/'}
 breathe_default_project = 'minim'
+breathe_default_members = ('members', 'undoc-members')

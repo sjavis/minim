@@ -1,3 +1,1 @@
-doxygen/*
-!doxygen/Doxyfile
-sphinx/_build
+_build
