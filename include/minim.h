@@ -9,4 +9,5 @@
 #include "GradDescent.h"
 #include "Lbfgs.h"
 
-#include "System.h"
+#include "State.h"
+#include "Potential.h"
