@@ -2,7 +2,6 @@
 #define POTENTIAL_H
 
 #include <vector>
-#include <iostream>
 
 class State;
 

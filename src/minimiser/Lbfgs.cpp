@@ -6,12 +6,33 @@
 #include "vec.h"
 
 
-Lbfgs::Lbfgs(State &state, int m, int maxIter)
-  : Minimiser(state, maxIter), _m(m), _rho(m),
-    _s(m, std::vector<double>(state.ndof)),
-    _y(m, std::vector<double>(state.ndof)),
+Lbfgs::Lbfgs(State &state)
+  : Minimiser(state), _m(5), _rho(_m),
+    _s(_m, std::vector<double>(state.ndof)),
+    _y(_m, std::vector<double>(state.ndof)),
     _g0(state.ndof), _g1(state.ndof), _step(state.ndof)
 {}
+
+Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
+  : Minimiser(state, adjustModel), _rho(_m),
+    _s(_m, std::vector<double>(state.ndof)),
+    _y(_m, std::vector<double>(state.ndof)),
+    _g0(state.ndof), _g1(state.ndof), _step(state.ndof)
+{}
+
+
+Lbfgs& Lbfgs::setM(int m) {
+  _m = m;
+  _rho.resize(m);
+  _s.resize(m, std::vector<double>(state.ndof));
+  _y.resize(m, std::vector<double>(state.ndof));
+  return *this;
+}
+
+Lbfgs& Lbfgs::setMaxIter(int maxIter) {
+  Minimiser::setMaxIter(maxIter);
+  return *this;
+}
 
 
 void Lbfgs::iteration() {

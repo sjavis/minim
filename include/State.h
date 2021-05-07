@@ -11,6 +11,7 @@ class State {
 
   public:
     Vector coords;
+    Args &args;
     const int ndof;
     double convergence = 1e-6;
 
@@ -27,7 +28,6 @@ class State {
 
   private:
     Potential &_pot;
-    Args &_args;
 };
 
 #endif

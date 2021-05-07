@@ -7,14 +7,16 @@
 // Gradient desecent minimisation
 class GradDescent : public Minimiser {
   public:
-    double alpha;
-
-    GradDescent(State &state, double alpha = 1e-3, int maxIter = 10000);
+    GradDescent(State &state);
     ~GradDescent() {};
+
+    GradDescent& setAlpha(double alpha);
+    GradDescent& setMaxIter(int maxIter);
 
     void iteration();
 
   private:
+    double _alpha = 1e-3;
     std::vector<double> _g;
 };
 

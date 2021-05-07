@@ -4,7 +4,7 @@
 
 
 State::State(Potential &pot, std::vector<double> coords, Args &args)
-: _pot(pot), _args(args), coords(coords), ndof(coords.size())
+: _pot(pot), coords(coords), args(args), ndof(coords.size())
 {}
 
 
@@ -13,7 +13,7 @@ double State::energy() {
 }
 
 double State::energy(std::vector<double> coords) {
-  return _pot.energy(coords, _args);
+  return _pot.energy(coords, args);
 }
 
 
@@ -22,7 +22,7 @@ std::vector<double> State::gradient() {
 }
 
 std::vector<double> State::gradient(std::vector<double> coords) {
-  return _pot.gradient(coords, _args);
+  return _pot.gradient(coords, args);
 }
 
 

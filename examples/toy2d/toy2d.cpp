@@ -21,7 +21,7 @@ int main() {
   State state = potential.newState({1,4});
   state.convergence = 1e-4;
 
-  //GradDescent min = GradDescent(state, 1e-3);
+  //GradDescent min = GradDescent(state);
   Lbfgs min = Lbfgs(state);
   min.minimise();
 

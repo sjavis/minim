@@ -13,8 +13,12 @@
 //! LBFGS minimisation algorithm
 class Lbfgs : public Minimiser {
   public:
-    Lbfgs(State &state, int m = 5, int maxIter = 10000);
+    Lbfgs(State &state);
+    Lbfgs(State &state, AdjustFunc adjustModel);
     ~Lbfgs() {};
+
+    Lbfgs& setM(int m);
+    Lbfgs& setMaxIter(int maxIter);
 
     void iteration();
 
