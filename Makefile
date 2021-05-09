@@ -5,8 +5,8 @@ INC = $(addprefix -I, $(SRC_DIR) include)
 
 VPATH = $(SRC_DIR)
 
-CXX      = gcc       # C++ compiler
-CXXFLAGS = $(INC) # Flags for the C++ compiler
+CXX      = mpic++       # C++ compiler
+CXXFLAGS = $(INC) -DPARALLEL # Flags for the C++ compiler
 
 all: $(OBJ)
 	ar -rcs bin/libminim.a $(OBJ)

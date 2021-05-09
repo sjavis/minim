@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include "Minimiser.h"
 #include "State.h"
 #include "vec.h"

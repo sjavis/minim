@@ -4,7 +4,8 @@ BIN = $(ROOT_DIR)/bin
 LIBS = -lminim
 
 CXX = g++
-CXXFLAGS = -I$(INC) -L$(BIN) $(LIBS)
+CXX = mpic++
+CXXFLAGS = -I$(INC) -L$(BIN) $(LIBS) -DPARALLEL
 
 all:
 	$(CXX) toy2d.cpp -o run.exe $(CXXFLAGS)

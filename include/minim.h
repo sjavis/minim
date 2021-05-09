@@ -11,3 +11,5 @@
 
 #include "State.h"
 #include "Potential.h"
+
+#include "communicator.h"

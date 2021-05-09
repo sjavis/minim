@@ -1,7 +1,6 @@
 #ifndef LJ3D_H
 #define LJ3D_H
 
-#include <cmath>
 #include "Potential.h"
 
 

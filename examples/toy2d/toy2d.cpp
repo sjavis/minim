@@ -2,6 +2,7 @@
 #include <vector>
 #include "minim.h"
 
+
 class Toy2d : public Potential {
   public:
     double energy(std::vector<double> coords, Args &args) override {
@@ -16,7 +17,11 @@ class Toy2d : public Potential {
     }
 };
 
-int main() {
+
+int main(int argc, char **argv) {
+  mpiInit(&argc, &argv);
+  std::cout << "Number of processors: " << minim::mpi.size << "; Rank: " << minim::mpi.rank << std::endl;
+
   Toy2d potential = Toy2d();
   State state = potential.newState({1,4});
   state.convergence = 1e-4;

@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Lj3d.h"
 #include "State.h"
 
