@@ -37,6 +37,6 @@ bool Minimiser::checkConvergence() {
 
 void Minimiser::adjustModel() {
   if (_adjustModel) {
-    _adjustModel(iter, state.coords, state.args);
+    _adjustModel(iter, state);
   }
 }

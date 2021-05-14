@@ -1,12 +1,10 @@
 #include "Potential.h"
 #include "State.h"
-#include <iostream>
 
 typedef std::vector<double> Vector;
 
 
 double Potential::energy(Vector coords, Args &args) {
-  std::cout << "Lj3d" << std::endl;
   return _energy(coords, args);
 }
 

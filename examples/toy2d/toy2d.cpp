@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
   state.convergence = 1e-4;
 
   //GradDescent min = GradDescent(state);
-  Lbfgs min = Lbfgs(state);
+  Lbfgs min = Lbfgs(state).setMaxIter(100);
+
   min.minimise();
 
   std::cout << min.iter << " " << state[0] << " " << state[1] << std::endl;

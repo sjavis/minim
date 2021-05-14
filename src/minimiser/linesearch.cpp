@@ -12,12 +12,12 @@ void backtrackingLinesearch(State &state, std::vector<double> &step, double slop
   double e0 = state.energy();
 
   for (int i=0; i<10; i++) {
-    double e = state.energy(vec::sum(state.coords, step));
+    double e = state.energy(vec::sum(state.blockCoords(), step));
     if (e0-e >= t) break;
 
     step = vec::multiply(step, tau);
     t = t * tau;
   }
 
-  state.coords = vec::sum(state.coords, step);
+  state.blockCoords(vec::sum(state.blockCoords(), step));
 }

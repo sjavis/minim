@@ -24,8 +24,6 @@ GradDescent& GradDescent::setMaxIter(int maxIter) {
 
 
 void GradDescent::iteration() {
-  _g = state.gradient();
-  for (int i=0; i<state.ndof; i++) {
-    state.coords[i] -= _alpha * _g[i];
-  }
+  auto step = vec::multiply(-_alpha, state.gradient());
+  state.blockCoords(vec::sum(state.blockCoords(), step));
 }

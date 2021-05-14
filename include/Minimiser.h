@@ -4,7 +4,6 @@
 #include <vector>
 
 class State;
-class Args;
 
 
 // Abstract class for minimisation proceedures
@@ -12,8 +11,7 @@ class Minimiser {
   public:
     int maxIter = 10000;
 
-    typedef std::vector<double> Vector;
-    typedef void (*AdjustFunc)(int, Vector&, Args&);
+    typedef void (*AdjustFunc)(int, State&);
     int iter;
     State &state;
 
