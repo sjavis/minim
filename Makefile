@@ -1,4 +1,4 @@
-SRC_DIR = src/minimiser src/model src/utils
+SRC_DIR = src/core src/minimisers src/potentials src/utils
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
 OBJ = $(patsubst %.cpp,bin/%.o,$(notdir $(SRC)))
 INC = $(addprefix -I, $(SRC_DIR) include)
