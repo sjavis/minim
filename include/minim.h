@@ -6,10 +6,12 @@
  */
 
 #include "Minimiser.h"
+#include "State.h"
+#include "Potential.h"
+
 #include "GradDescent.h"
 #include "Lbfgs.h"
 
-#include "State.h"
-#include "Potential.h"
+#include "Lj3d.h"
 
 #include "minimMpi.h"

@@ -8,7 +8,15 @@ class State;
 
 class Args {
   public:
+    struct Element {
+      int type;
+      int id;
+      std::vector<int> idof;
+      std::vector<double> parameters;
+    };
+
     const int ndof;
+    std::vector<Element> elements;
 
     Args(int ndof) : ndof(ndof) {};
     ~Args() {};
