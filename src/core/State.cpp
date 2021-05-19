@@ -6,7 +6,7 @@
 
 
 State::State(Potential &pot, std::vector<double> coords, Args &args)
-  : _pot(pot), args(args), ndof(coords.size()), comm(ndof) {
+  : _pot(pot), args(args), ndof(coords.size()), comm(ndof,args) {
   setCoords(coords);
 }
 
@@ -37,7 +37,7 @@ double State::operator[](int i) {
 
 
 std::vector<double> State::getCoords() {
-  return comm.gather(_coords);
+  return comm.gather(_coords, ndof);
 }
 
 void State::setCoords(std::vector<double> in) {

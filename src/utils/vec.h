@@ -19,6 +19,11 @@ namespace vec {
   double dotProduct(std::vector<double> a, std::vector<double> b);
 
   double norm(std::vector<double> a);
+
+  bool any(std::vector<bool> a);
+  bool all(std::vector<bool> a);
+
+  void insert_unique(std::vector<int> &vec, int value);
 }
 
 #endif

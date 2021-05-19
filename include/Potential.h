@@ -17,6 +17,7 @@ class Args {
 
     const int ndof;
     std::vector<Element> elements;
+    std::vector<Element> elements_halo;
 
     Args(int ndof) : ndof(ndof) {};
     ~Args() {};

@@ -70,4 +70,24 @@ namespace vec {
   }
 
 
+  // Logical
+  bool any(std::vector<bool> a) {
+    return  std::any_of(a.begin(), a.end(), [](bool i){ return i; });
+  }
+
+  bool all(std::vector<bool> a) {
+    return  std::all_of(a.begin(), a.end(), [](bool i){ return i; });
+  }
+
+
+  // Insert
+  void insert_unique(std::vector<int> &vec, int value) {
+    for (int i=0; i<vec.size(); i++) {
+      if (value <= vec[i]) {
+        if (value != vec[i]) vec.insert(vec.begin()+i, value);
+        return;
+      }
+    }
+    vec.push_back(value);
+  }
 }

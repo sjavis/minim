@@ -4,8 +4,8 @@
 #include "Potential.h"
 
 
-Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
-  : Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon) {
+Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon) :
+  Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon) {
 
   // Generate energy elements
   int id = 0;
@@ -21,8 +21,8 @@ Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
 
 double Lj3d::energy(std::vector<double> coords, Args &args_tmp) {
   Lj3dArgs &args = static_cast <Lj3dArgs&> (args_tmp);
-
   double energy = 0;
+
   for (Args::Element el : args.elements) {
     double dx = coords[el.idof[0]] - coords[el.idof[3]];
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
@@ -38,9 +38,13 @@ double Lj3d::energy(std::vector<double> coords, Args &args_tmp) {
 
 std::vector<double> Lj3d::gradient(std::vector<double> coords, Args &args_tmp) {
   Lj3dArgs &args = static_cast <Lj3dArgs&> (args_tmp);
+  std::vector<double> g(coords.size());
 
-  std::vector<double> g(args.ndof);
-  for (Args::Element el : args.elements) {
+  int ne1 = args.elements.size();
+  int ne2 = args.elements_halo.size();
+  for (int ie=0; ie<(ne1+ne2); ie++) {
+    auto el = (ie<ne1) ? args.elements[ie] : args.elements_halo[ie-ne1];
+
     double dx = coords[el.idof[0]] - coords[el.idof[3]];
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
     double dz = coords[el.idof[2]] - coords[el.idof[5]];

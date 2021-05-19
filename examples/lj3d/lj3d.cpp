@@ -8,13 +8,17 @@ int main(int argc, char **argv) {
   std::cout << "Number of processors: " << minim::mpi.size << "; Rank: " << minim::mpi.rank << std::endl;
 
   Lj3d potential = Lj3d();
-  State state = potential.newState({0,0,0,2,0,0});
+  State state = potential.newState({0,0,0, 2,0,0, 1,1,0});
   state.convergence = 1e-4;
 
   GradDescent min = GradDescent(state);
   min.minimise();
+  auto result = state.getCoords();
 
-  std::cout << min.iter << std::endl;
-  std::cout << state[0] << " " << state[1] << " " << state[2] << std::endl;
-  std::cout << state[3] << " " << state[4] << " " << state[5] << std::endl;
+  if (minim::mpi.rank == 0) {
+    std::cout << min.iter << std::endl;
+    std::cout << result[0] << " " << result[1] << " " << result[2] << std::endl;
+    std::cout << result[3] << " " << result[4] << " " << result[5] << std::endl;
+    std::cout << result[6] << " " << result[7] << " " << result[8] << std::endl;
+  }
 }
