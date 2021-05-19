@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
   //GradDescent min = GradDescent(state);
   Lbfgs min = Lbfgs(state).setMaxIter(100);
 
-  min.minimise();
+  auto result = min.minimise();
 
-  std::cout << min.iter << " " << state[0] << " " << state[1] << std::endl;
+  std::cout << min.iter << " " << result[0] << " " << result[1] << std::endl;
 }

@@ -21,7 +21,7 @@ class Minimiser {
 
     void setMaxIter(int maxIter);
 
-    void minimise();
+    std::vector<double> minimise();
     virtual void iteration() = 0;
     virtual bool checkConvergence();
     void adjustModel();

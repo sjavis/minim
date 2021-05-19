@@ -12,8 +12,7 @@ int main(int argc, char **argv) {
   state.convergence = 1e-4;
 
   GradDescent min = GradDescent(state);
-  min.minimise();
-  auto result = state.getCoords();
+  auto result = min.minimise();
 
   if (minim::mpi.rank == 0) {
     std::cout << min.iter << std::endl;
