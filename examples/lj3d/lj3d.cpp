@@ -5,10 +5,9 @@
 
 int main(int argc, char **argv) {
   mpiInit(&argc, &argv);
-  std::cout << "Number of processors: " << minim::mpi.size << "; Rank: " << minim::mpi.rank << std::endl;
 
   Lj3d potential = Lj3d();
-  State state = potential.newState({0,0,0, 2,0,0, 1,1,0});
+  State state = potential.newState({0,0,0, 2,0,0, 1,1,0, 5,1,1});
   state.convergence = 1e-4;
 
   GradDescent min = GradDescent(state);
@@ -19,5 +18,6 @@ int main(int argc, char **argv) {
     std::cout << result[0] << " " << result[1] << " " << result[2] << std::endl;
     std::cout << result[3] << " " << result[4] << " " << result[5] << std::endl;
     std::cout << result[6] << " " << result[7] << " " << result[8] << std::endl;
+    std::cout << result[9] << " " << result[10] << " " << result[11] << std::endl;
   }
 }

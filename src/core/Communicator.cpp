@@ -91,29 +91,41 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
   }
   priv->ntot = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
-  // Store elements for this proc
+  std::vector<int> nelements(mpi.size);
   std::vector<Args::Element> elements_tmp;
   for (int ie=0; ie<args.elements.size(); ie++) {
-    if (! vec::any(in_block[ie])) continue;
-    Args::Element e = args.elements[ie];
-    // Update element.idof with local index
-    for (int i=0; i<e.idof.size(); i++) {
-      if (in_block[ie][i]) {
-        e.idof[i] = e.idof[i] - priv->iblock[mpi.rank];
-      } else {
-        int block = blocks[ie][i];
-        for (int j=0; j<priv->nrecv[block]; j++) {
-          if (e.idof[i] == recv_lists[block][j]) {
-            e.idof[i] = priv->irecv[block] + j;
+    // Assign each element to a proc
+    int proc = blocks[ie][0];
+    int fewest_elements = nelements[proc];
+    for (int i : blocks[ie]) {
+      if (nelements[i] < fewest_elements) {
+        proc = i;
+        fewest_elements = nelements[i];
+      }
+    }
+    nelements[proc] ++;
+
+    // Store the elements for this proc
+    if (vec::any(in_block[ie])) {
+      Args::Element e = args.elements[ie];
+      // Update element.idof with local index
+      for (int i=0; i<e.idof.size(); i++) {
+        if (in_block[ie][i]) {
+          e.idof[i] = e.idof[i] - priv->iblock[mpi.rank];
+        } else {
+          int block = blocks[ie][i];
+          for (int j=0; j<priv->nrecv[block]; j++) {
+            if (e.idof[i] == recv_lists[block][j]) {
+              e.idof[i] = priv->irecv[block] + j;
+            }
           }
         }
       }
-    }
-    // Store
-    if (in_block[ie][0]) {
-      elements_tmp.push_back(e);
-    } else {
-      args.elements_halo.push_back(e);
+      if (proc == mpi.rank) {
+        elements_tmp.push_back(e);
+      } else {
+        args.elements_halo.push_back(e);
+      }
     }
   }
   args.elements = elements_tmp;
