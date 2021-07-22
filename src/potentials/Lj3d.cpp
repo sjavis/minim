@@ -64,7 +64,6 @@ std::vector<double> Lj3d::gradient(std::vector<double> coords, Args &args_tmp) {
 }
 
 
-State Lj3d::newState(std::vector<double> coords) {
-  Args *args = new Lj3dArgs(coords.size());
-  return State(*this, coords, *args);
+Args* Lj3d::newArgs(int ndof) {
+  return new Lj3dArgs(ndof);
 }

@@ -23,8 +23,8 @@ class Lj3d : public Potential {
 
     std::vector<double> gradient(std::vector<double> coords, Args &args) override;
 
-    using Potential::newState;
-    State newState(std::vector<double> coords) override;
+    using Potential::newArgs;
+    Args* newArgs(int ndof) override;
 };
 
 #endif

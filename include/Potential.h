@@ -37,7 +37,8 @@ class Potential {
     virtual double energy(Vector coords, Args &args);
     virtual Vector gradient(Vector coords, Args &args);
 
-    virtual State newState(Vector coords);
+    virtual Args* newArgs(int ndof);
+    State newState(Vector coords);
     State newState(int ndof);
 
   protected:

@@ -14,8 +14,13 @@ Vector Potential::gradient(Vector coords, Args &args) {
 }
 
 
+Args* Potential::newArgs(int ndof) {
+  return new Args(ndof);
+}
+
+
 State Potential::newState(Vector coords) {
-  Args *args = new Args(coords.size());
+  Args *args = newArgs(coords.size());
   return State(*this, coords, *args);
 }
 
