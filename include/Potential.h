@@ -9,8 +9,8 @@ class State;
 class Args {
   public:
     struct Element {
-      int type;
       int id;
+      int type;
       std::vector<int> idof;
       std::vector<double> parameters;
     };
@@ -20,6 +20,9 @@ class Args {
     std::vector<Element> elements_halo;
 
     Args(int ndof) : ndof(ndof) {};
+    Args(int ndof, std::vector<std::vector<int>> idofs);
+    Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
+         std::vector<std::vector<double>> parameters);
     ~Args() {};
 };
 

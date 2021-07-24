@@ -4,14 +4,14 @@
 #include "Potential.h"
 
 
-Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon) :
-  Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon) {
+Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
+  : Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon) {
 
   // Generate energy elements
   int id = 0;
   for (int i=0; i<n_particle; i++) {
     for (int j=i+1; j<n_particle; j++) {
-      Args::Element el = {0, id, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}};
+      Args::Element el = {id, 0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}};
       elements.push_back(el);
       id++;
     }
