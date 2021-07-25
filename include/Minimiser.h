@@ -23,7 +23,7 @@ class Minimiser {
 
     std::vector<double> minimise();
     virtual void iteration() = 0;
-    virtual bool checkConvergence() { false };
+    virtual bool checkConvergence() { false; };
     void adjustModel();
 
   private:

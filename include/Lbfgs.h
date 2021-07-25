@@ -13,8 +13,7 @@
 //! LBFGS minimisation algorithm
 class Lbfgs : public Minimiser {
   public:
-    Lbfgs(State &state);
-    Lbfgs(State &state, AdjustFunc adjustModel);
+    Lbfgs(State &state, AdjustFunc adjustModel=NULL);
     ~Lbfgs() {};
 
     Lbfgs& setM(int m);
@@ -22,7 +21,7 @@ class Lbfgs : public Minimiser {
 
     void iteration();
 
-    override bool checkConvergence();
+    bool checkConvergence() override;
 
   private:
     int _m;

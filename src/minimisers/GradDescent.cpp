@@ -6,8 +6,8 @@
 #include "vec.h"
 
 
-GradDescent::GradDescent(State &state)
-: Minimiser(state), _g(state.ndof)
+GradDescent::GradDescent(State &state, AdjustFunc adjustModel)
+  : Minimiser(state, adjustModel), _g(state.ndof)
 {}
 
 
@@ -24,7 +24,7 @@ GradDescent& GradDescent::setMaxIter(int maxIter) {
 
 
 void GradDescent::iteration() {
-  _g = state.gradient()
+  _g = state.gradient();
   auto step = vec::multiply(-_alpha, _g);
   state.blockCoords(vec::sum(state.blockCoords(), step));
 }

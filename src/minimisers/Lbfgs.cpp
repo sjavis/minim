@@ -1,4 +1,5 @@
 #include <vector>
+#include <math.h>
 #include "State.h"
 #include "Minimiser.h"
 #include "Lbfgs.h"
@@ -7,15 +8,8 @@
 #include "vec.h"
 
 
-Lbfgs::Lbfgs(State &state)
-  : Minimiser(state), _m(5), _rho(_m),
-    _s(_m, std::vector<double>(state.nblock)),
-    _y(_m, std::vector<double>(state.nblock)),
-    _g0(state.nblock), _g1(state.nblock), _step(state.nblock)
-{}
-
 Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
-  : Minimiser(state, adjustModel), _rho(_m),
+  : Minimiser(state, adjustModel), _m(5), _rho(_m),
     _s(_m, std::vector<double>(state.nblock)),
     _y(_m, std::vector<double>(state.nblock)),
     _g0(state.nblock), _g1(state.nblock), _step(state.nblock)
