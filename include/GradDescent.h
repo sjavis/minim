@@ -15,6 +15,8 @@ class GradDescent : public Minimiser {
 
     void iteration();
 
+    override bool checkConvergence();
+
   private:
     double _alpha = 1e-3;
     std::vector<double> _g;

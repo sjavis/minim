@@ -23,14 +23,6 @@ std::vector<double> Minimiser::minimise() {
 }
 
 
-bool Minimiser::checkConvergence() {
-  std::vector<double> g = state.gradient();
-  double sum = vec::dotProduct(g, g);
-  double rms = sqrt(sum/state.ndof);
-  return (rms < state.convergence);
-}
-
-
 void Minimiser::adjustModel() {
   if (_adjustModel) {
     _adjustModel(iter, state);

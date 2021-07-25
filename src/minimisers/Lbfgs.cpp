@@ -85,3 +85,10 @@ void Lbfgs::getDirection() {
     _step = vec::sum(_step, vec::multiply(alpha[i]-beta, _s[i]));
   }
 }
+
+
+bool Lbfgs::checkConvergence() {
+  double sum = vec::dotProduct(_g0, _g0);
+  double rms = sqrt(sum/state.ndof);
+  return (rms < state.convergence);
+}

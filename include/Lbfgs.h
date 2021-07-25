@@ -22,6 +22,8 @@ class Lbfgs : public Minimiser {
 
     void iteration();
 
+    override bool checkConvergence();
+
   private:
     int _m;
     int _i_cycle;
