@@ -34,6 +34,8 @@ class State {
     Vector blockCoords();
     void blockCoords(Vector in);
 
+    void communicate();
+
   private:
     int _istart;
     int _iend;

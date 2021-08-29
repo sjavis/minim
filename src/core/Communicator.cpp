@@ -19,7 +19,8 @@ class Priv {
       iblock(mpi.size),
       nrecv(mpi.size),
       irecv(mpi.size),
-      send(mpi.size)
+      send(mpi.size),
+      recv_lists(mpi.size)
     {
       ntot = nblock[mpi.rank];
     };
@@ -28,8 +29,9 @@ class Priv {
     std::vector<int> nblock; // Size of each block
     std::vector<int> iblock; // Global index for the start of each block
     std::vector<int> nrecv;  // Number of halo coordinates to recieve from each proc
-    std::vector<int> irecv;  // Starting indicies in for each proc in halo
+    std::vector<int> irecv;  // Starting indicies for each proc in halo
     std::vector<bool> send;  // States if data is to be sent to each proc
+    std::vector<std::vector<int>> recv_lists; // List of indicies to recieve from each proc
 #ifdef PARALLEL
     // MPI derived datatype to send to each proc
     std::vector<MPI_Datatype> sendtype = std::vector<MPI_Datatype>(mpi.size);
@@ -54,7 +56,6 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
 
   // Identify halo coordinates based upon the list of energy elements
   std::vector<std::vector<int>> send_lists(mpi.size);
-  std::vector<std::vector<int>> recv_lists(mpi.size);
   std::vector<std::vector<int>> blocks(args.elements.size());
   std::vector<std::vector<bool>> in_block(args.elements.size());
   for (int ie=0; ie<args.elements.size(); ie++) {
@@ -74,7 +75,7 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
     // Populate lists of indicies being sent to and received from each proc
     for (int i=0; i<e_ndof; i++) {
       if (in_block[ie][i]) continue;
-      vec::insert_unique(recv_lists[blocks[ie][i]], e.idof[i]);
+      vec::insert_unique(priv->recv_lists[blocks[ie][i]], e.idof[i]);
       for (int j=0; j<e_ndof; j++) {
         if (in_block[ie][j]) {
           vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - priv->iblock[mpi.rank]);
@@ -86,7 +87,7 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
   // Store number and starting indicies of coords being recieved from each proc
   priv->irecv[0] = priv->nblock[mpi.rank];
   for (int i=0; i<mpi.size; i++) {
-    priv->nrecv[i] = recv_lists[i].size();
+    priv->nrecv[i] = priv->recv_lists[i].size();
     if (i < mpi.size-1) priv->irecv[i+1] = priv->irecv[i] + priv->nrecv[i];
   }
   priv->ntot = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
@@ -115,7 +116,7 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
         } else {
           int block = blocks[ie][i];
           for (int j=0; j<priv->nrecv[block]; j++) {
-            if (e.idof[i] == recv_lists[block][j]) {
+            if (e.idof[i] == priv->recv_lists[block][j]) {
               e.idof[i] = priv->irecv[block] + j;
             }
           }
@@ -219,5 +220,25 @@ std::vector<double> Communicator::gather(std::vector<double> block, int ndof) {
   return gathered;
 #else
   return block;
+#endif
+}
+
+
+std::vector<double> Communicator::scatter(std::vector<double> &data) {
+#ifdef PARALLEL
+  std::vector<double> scattered(priv->ntot);
+  // Scatter the main blocks
+  MPI_Scatterv(&data[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE,
+               &scattered[0], priv->nblock[mpi.rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  // Assign the halo regions
+  for (int i=0; i<mpi.size; i++) {
+    for (int j=0; j<priv->nrecv[i]; j++) {
+      scattered[priv->irecv[i]+j] = data[priv->recv_lists[i][j]];
+    }
+  }
+  return scattered;
+
+#else
+  return data;
 #endif
 }

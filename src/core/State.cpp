@@ -41,9 +41,7 @@ std::vector<double> State::getCoords() {
 }
 
 void State::setCoords(std::vector<double> in) {
-  _coords = comm.assignBlock(in);
-  // Simple but inefficient method for setting halo regions
-  comm.communicate(_coords);
+  _coords = comm.scatter(in);
 }
 
 
@@ -53,4 +51,9 @@ std::vector<double> State::blockCoords() {
 
 void State::blockCoords(std::vector<double> in) {
   _coords = in;
+}
+
+
+void State::communicate() {
+  comm.communicate(_coords);
 }

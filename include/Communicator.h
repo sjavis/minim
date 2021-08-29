@@ -18,6 +18,7 @@ class Communicator {
     double get(std::vector<double> vector, int i);
     double dotProduct(std::vector<double> a, std::vector<double> b);
     std::vector<double> gather(std::vector<double> block, int ndof);
+    std::vector<double> scatter(std::vector<double> &data);
 
   private:
     Priv *priv;
