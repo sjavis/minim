@@ -37,7 +37,7 @@ double State::operator[](int i) {
 
 
 std::vector<double> State::getCoords() {
-  return comm.gather(_coords, ndof);
+  return comm.gather(_coords, -1);
 }
 
 void State::setCoords(std::vector<double> in) {

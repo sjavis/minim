@@ -15,6 +15,7 @@ using minim::mpi;
 class Priv {
   public:
     Priv(int ndof) :
+      ndof(ndof),
       nblock(mpi.size,ndof/mpi.size),
       iblock(mpi.size),
       nrecv(mpi.size),
@@ -25,6 +26,7 @@ class Priv {
       ntot = nblock[mpi.rank];
     };
 
+    int ndof; // Total size over all procs
     int ntot; // Size of block + halo
     std::vector<int> nblock; // Size of each block
     std::vector<int> iblock; // Global index for the start of each block
@@ -156,7 +158,7 @@ Communicator::~Communicator() {
 }
 
 
-std::vector<double> Communicator::assignBlock(std::vector<double> in) {
+std::vector<double> Communicator::assignBlock(const std::vector<double> &in) {
   std::vector<double> out = std::vector<double>(priv->ntot);
   for (int i=0; i<priv->nblock[mpi.rank]; i++) {
     out[i] = in[priv->iblock[mpi.rank]+i];
@@ -185,7 +187,7 @@ void Communicator::communicate(std::vector<double> &vector) {
 }
 
 
-double Communicator::get(std::vector<double> vector, int loc) {
+double Communicator::get(const std::vector<double> &vector, int loc) {
   double value;
 
   if (mpi.size == 1) {
@@ -202,7 +204,7 @@ double Communicator::get(std::vector<double> vector, int loc) {
 }
 
 
-double Communicator::dotProduct(std::vector<double> a, std::vector<double> b) {
+double Communicator::dotProduct(const std::vector<double> &a, const std::vector<double> &b) {
   double result = std::inner_product(a.begin(), a.begin()+priv->nblock[mpi.rank], b.begin(), 0.0);
 #ifdef PARALLEL
   MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -211,12 +213,20 @@ double Communicator::dotProduct(std::vector<double> a, std::vector<double> b) {
 }
 
 
-std::vector<double> Communicator::gather(std::vector<double> block, int ndof) {
+std::vector<double> Communicator::gather(const std::vector<double> &block, int root) {
 #ifdef PARALLEL
-  std::vector<double> gathered(ndof);
-  MPI_Allgatherv(&block[0], priv->nblock[mpi.rank], MPI_DOUBLE,
-                 &gathered[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE,
-                 MPI_COMM_WORLD);
+  std::vector<double> gathered;
+  if (root == -1) {
+    gathered = std::vector<double>(priv->ndof);
+    MPI_Allgatherv(&block[0], priv->nblock[mpi.rank], MPI_DOUBLE,
+                   &gathered[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE,
+                   MPI_COMM_WORLD);
+  } else {
+    if (mpi.rank==0) gathered = std::vector<double>(priv->ndof);
+    MPI_Gatherv(&block[0], priv->nblock[mpi.rank], MPI_DOUBLE,
+                &gathered[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE, root,
+                MPI_COMM_WORLD);
+  }
   return gathered;
 #else
   return block;
@@ -224,21 +234,41 @@ std::vector<double> Communicator::gather(std::vector<double> block, int ndof) {
 }
 
 
-std::vector<double> Communicator::scatter(std::vector<double> &data) {
+std::vector<double> Communicator::scatter(const std::vector<double> &data, int root) {
 #ifdef PARALLEL
-  std::vector<double> scattered(priv->ntot);
-  // Scatter the main blocks
-  MPI_Scatterv(&data[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE,
-               &scattered[0], priv->nblock[mpi.rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  // Get copy of data on processor
+  std::vector<double> data_copy;
+  if (root == -1) {
+    data_copy = data;
+  } else {
+    data_copy = std::vector<double>(priv->ndof);
+    bcast(data_copy, root);
+  }
+  // Assign the main blocks
+  std::vector<double> scattered = assignBlock(data_copy);
   // Assign the halo regions
   for (int i=0; i<mpi.size; i++) {
     for (int j=0; j<priv->nrecv[i]; j++) {
-      scattered[priv->irecv[i]+j] = data[priv->recv_lists[i][j]];
+      scattered[priv->irecv[i]+j] = data_copy[priv->recv_lists[i][j]];
     }
   }
   return scattered;
 
 #else
   return data;
+#endif
+}
+
+
+void Communicator::bcast(double &value, int root) {
+#ifdef PARALLEL
+  MPI_Bcast(&value, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+#endif
+}
+
+
+void Communicator::bcast(std::vector<double> &vector, int root) {
+#ifdef PARALLEL
+  MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, MPI_COMM_WORLD);
 #endif
 }
