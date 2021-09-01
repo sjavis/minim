@@ -13,11 +13,11 @@ Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
   : Minimiser(state, adjustModel), _m(5)
 {
   if (minim::mpi.rank == 0) {
-    _s = std::vector<std::vector<double>>(_m, std::vector<double>(state.nblock));
-    _y = std::vector<std::vector<double>>(_m, std::vector<double>(state.nblock));
+    _s = std::vector<std::vector<double>>(_m, std::vector<double>(state.ndof));
+    _y = std::vector<std::vector<double>>(_m, std::vector<double>(state.ndof));
     _rho = std::vector<double>(_m);
-    _g0 = std::vector<double>(state.nblock);
-    _g1 = std::vector<double>(state.nblock);
+    _g0 = std::vector<double>(state.ndof);
+    _g1 = std::vector<double>(state.ndof);
   }
 }
 
@@ -26,8 +26,8 @@ Lbfgs& Lbfgs::setM(int m) {
   _m = m;
   if (minim::mpi.rank == 0) {
     _rho.resize(m);
-    _s.resize(m, std::vector<double>(state.nblock));
-    _y.resize(m, std::vector<double>(state.nblock));
+    _s.resize(m, std::vector<double>(state.ndof));
+    _y.resize(m, std::vector<double>(state.ndof));
   }
   return *this;
 }

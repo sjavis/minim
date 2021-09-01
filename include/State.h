@@ -12,7 +12,6 @@ class State {
 
   public:
     int ndof;
-    int nblock;
     double convergence = 1e-6;
     Args &args;
     Communicator comm;

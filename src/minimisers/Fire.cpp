@@ -10,7 +10,7 @@
 Fire::Fire(State &state, AdjustFunc adjustModel)
   : Minimiser(state, adjustModel), _v(state.ndof), _g(state.ndof) {
   _g = state.gradient();
-  _dt_max = 0.1 / sqrt(vec::norm(_g));
+  _dt_max = 0.1 / sqrt(sqrt(state.comm.dotProduct(_g, _g)));
 }
 
 
@@ -29,13 +29,14 @@ void Fire::iteration() {
   if (iter == 0) {
     _dt = _dt_max;
     _g = state.gradient();
-    _gnorm = vec::norm(_g);
+    _gnorm = sqrt(state.comm.dotProduct(_g, _g));
   }
-  double p = - vec::dotProduct(_v, _g);
+  double p = - state.comm.dotProduct(_v, _g);
 
   // Update velocity
   if (p > 0) {
-    _v = vec::diff( vec::multiply(1-_a, _v), vec::multiply(_a*vec::norm(_v)/_gnorm + _dt, _g) );
+    double vnorm = sqrt(state.comm.dotProduct(_v, _v));
+    _v = vec::diff( vec::multiply(1-_a, _v), vec::multiply(_a*vnorm/_gnorm + _dt, _g) );
     _n_steps++;
   } else {
     _v = vec::multiply(-1*_dt, _g);
@@ -56,7 +57,7 @@ void Fire::iteration() {
   auto step = vec::multiply(_dt, _v);
   state.blockCoords(vec::sum(state.blockCoords(), step));
   _g = state.gradient();
-  _gnorm = vec::norm(_g);
+  _gnorm = sqrt(state.comm.dotProduct(_g, _g));
 }
 
 
