@@ -137,8 +137,20 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
   for (int i=0; i<mpi.size; i++) {
     if (send_lists[i].empty()) continue;
     priv->send[i] = true;
+    std::vector<int> blocklens;
+    std::vector<int> disps = {send_lists[i][0]};
+    int previous = send_lists[i][0];
+    for (int current : send_lists[i]) {
+      if (current-previous > 1) {
+        disps.push_back(current);
+        blocklens.push_back(disps.back() - *std::prev(disps.end(), 2));
+      }
+      previous = current;
+    }
+    blocklens.push_back(send_lists[i].back() + 1 - disps.back());
 #ifdef PARALLEL
-    MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
+    //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
+    MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &priv->sendtype[i]);
     MPI_Type_commit(&priv->sendtype[i]);
 #endif
   }
