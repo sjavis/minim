@@ -34,7 +34,7 @@ class Lbfgs : public Minimiser {
     std::vector<std::vector<double>> _s;
     std::vector<std::vector<double>> _y;
 
-    void getDirection();
+    std::vector<double> getDirection();
 };
 
 #endif

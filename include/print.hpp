@@ -25,6 +25,20 @@ namespace minim {
     }
   }
 
+  template <typename T, typename ... Args>
+  void printAll(T first, Args ... args) {
+    std::cout << first << " ";
+    printAll(args...);
+  }
+
+  template <typename T, typename ... Args>
+  void printAll(std::vector<T> first, Args ... args) {
+    for (auto elem : first) {
+      std::cout << elem << " ";
+    }
+    printAll(args...);
+  }
+
 }
 
 #endif

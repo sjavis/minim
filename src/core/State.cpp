@@ -41,7 +41,7 @@ std::vector<double> State::getCoords() {
 }
 
 void State::setCoords(std::vector<double> in) {
-  _coords = comm.scatter(in);
+  _coords = comm.scatter(in, -1);
 }
 
 

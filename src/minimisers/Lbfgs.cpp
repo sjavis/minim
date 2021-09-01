@@ -6,21 +6,29 @@
 #include "linesearch.h"
 #include "Communicator.h"
 #include "vec.h"
+#include "minimMpi.h"
 
 
 Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
-  : Minimiser(state, adjustModel), _m(5), _rho(_m),
-    _s(_m, std::vector<double>(state.nblock)),
-    _y(_m, std::vector<double>(state.nblock)),
-    _g0(state.nblock), _g1(state.nblock), _step(state.nblock)
-{}
+  : Minimiser(state, adjustModel), _m(5)
+{
+  if (minim::mpi.rank == 0) {
+    _s = std::vector<std::vector<double>>(_m, std::vector<double>(state.nblock));
+    _y = std::vector<std::vector<double>>(_m, std::vector<double>(state.nblock));
+    _rho = std::vector<double>(_m);
+    _g0 = std::vector<double>(state.nblock);
+    _g1 = std::vector<double>(state.nblock);
+  }
+}
 
 
 Lbfgs& Lbfgs::setM(int m) {
   _m = m;
-  _rho.resize(m);
-  _s.resize(m, std::vector<double>(state.nblock));
-  _y.resize(m, std::vector<double>(state.nblock));
+  if (minim::mpi.rank == 0) {
+    _rho.resize(m);
+    _s.resize(m, std::vector<double>(state.nblock));
+    _y.resize(m, std::vector<double>(state.nblock));
+  }
   return *this;
 }
 
@@ -31,58 +39,74 @@ Lbfgs& Lbfgs::setMaxIter(int maxIter) {
 
 
 void Lbfgs::iteration() {
-  if (iter == 0) _g0 = state.gradient();
+  if (iter == 0) _g0 = state.comm.gather(state.gradient(), 0);
   _i_cycle = iter % _m;
 
-  // Find and take step
-  getDirection();
-  backtrackingLinesearch(state, _step, state.comm.dotProduct(_g0, _step));
+  // Find minimisation direction
+  std::vector<double> step = getDirection();
+  std::vector<double> step_block = state.comm.scatter(step, 0);
+
+  // Perform linesearch
+  double slope;
+  if (minim::mpi.rank==0) slope = vec::dotProduct(_g0, step);
+  state.comm.bcast(slope);
+  double step_multiplier = backtrackingLinesearch(state, step_block, slope);
 
   // Get new gradient
-  _g1 = state.gradient();
+  _g1 = state.comm.gather(state.gradient(), 0);
 
   // Store the changes required for LBFGS
-  _s[_i_cycle] = _step;
-  _y[_i_cycle] = vec::diff(_g1, _g0);
-  _rho[_i_cycle] = 1 / state.comm.dotProduct(_step, _y[_i_cycle]);
+  if (minim::mpi.rank == 0) {
+    _s[_i_cycle] = vec::multiply(step_multiplier, step);
+    _y[_i_cycle] = vec::diff(_g1, _g0);
+    _rho[_i_cycle] = 1 / vec::dotProduct(_s[_i_cycle], _y[_i_cycle]);
+  }
 
   _g0 = _g1;
 }
 
 
-void Lbfgs::getDirection() {
-  double alpha[_m] = {0};
-  int m_tmp = (_m < iter) ? _m : iter;
+std::vector<double> Lbfgs::getDirection() {
+  std::vector<double> step;
 
-  if (iter == 0) {
-    _step = vec::multiply(-_init_hessian, _g0);
-    return;
-  } else {
-    _step = vec::multiply(-1, _g0);
-  }
+  // Compute the step on the main processor
+  if (minim::mpi.rank == 0) {
+    double alpha[_m] = {0};
+    int m_tmp = (_m < iter) ? _m : iter;
 
-  for (int i1=0; i1<m_tmp; i1++) {
-    int i = (_i_cycle - 1 - i1 + _m) % _m;
-    alpha[i] = _rho[i] * state.comm.dotProduct(_step, _s[i]);
-    for (int j=0; j<state.ndof; j++) {
-      _step[j] -= alpha[i] * _y[i][j];
+    if (iter == 0) {
+      step = vec::multiply(-_init_hessian, _g0);
+      return step;
+    } else {
+      step = vec::multiply(-1, _g0);
+    }
+
+    for (int i1=0; i1<m_tmp; i1++) {
+      int i = (_i_cycle - 1 - i1 + _m) % _m;
+      alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
+      for (int j=0; j<state.ndof; j++) {
+        step[j] -= alpha[i] * _y[i][j];
+      }
+    }
+
+    int i = (_i_cycle - 1 + _m) % _m;
+    double gamma = 1 / (_rho[i] * vec::dotProduct(_y[i], _y[i]));
+    step = vec::multiply(gamma, step);
+
+    for (int i1=0; i1<m_tmp; i1++) {
+      int i = (_i_cycle - m_tmp + i1 + _m) % _m;
+      double beta = _rho[i] * vec::dotProduct(step, _y[i]);
+      step = vec::sum(step, vec::multiply(alpha[i]-beta, _s[i]));
     }
   }
 
-  int i = (_i_cycle - 1 + _m) % _m;
-  double gamma = 1 / (_rho[i] * state.comm.dotProduct(_y[i], _y[i]));
-  _step = vec::multiply(gamma, _step);
-
-  for (int i1=0; i1<m_tmp; i1++) {
-    int i = (_i_cycle - m_tmp + i1 + _m) % _m;
-    double beta = _rho[i] * state.comm.dotProduct(_step, _y[i]);
-    _step = vec::sum(_step, vec::multiply(alpha[i]-beta, _s[i]));
-  }
+  return step;
 }
 
 
 bool Lbfgs::checkConvergence() {
-  double sum = vec::dotProduct(_g0, _g0);
-  double rms = sqrt(sum/state.ndof);
+  double rms;
+  if (minim::mpi.rank == 0) rms = sqrt(vec::dotProduct(_g0, _g0) / state.ndof);
+  state.comm.bcast(rms);
   return (rms < state.convergence);
 }

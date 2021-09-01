@@ -241,7 +241,7 @@ std::vector<double> Communicator::scatter(const std::vector<double> &data, int r
   if (root == -1) {
     data_copy = data;
   } else {
-    data_copy = std::vector<double>(priv->ndof);
+    data_copy = (mpi.rank==0) ? data : std::vector<double>(priv->ndof);
     bcast(data_copy, root);
   }
   // Assign the main blocks

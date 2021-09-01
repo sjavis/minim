@@ -19,7 +19,7 @@ class Communicator {
     double dotProduct(const std::vector<double> &a, const std::vector<double> &b);
 
     std::vector<double> gather(const std::vector<double> &block, int root=-1);
-    std::vector<double> scatter(const std::vector<double> &data, int root=0);
+    std::vector<double> scatter(const std::vector<double> &data, int root=-1);
     void bcast(double &value, int root=0);
     void bcast(std::vector<double> &value, int root=0);
 

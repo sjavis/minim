@@ -3,6 +3,6 @@
 
 class State;
 
-void backtrackingLinesearch(State &state, std::vector<double> &step, double slope);
+double backtrackingLinesearch(State &state, std::vector<double> &step, double slope);
 
 #endif

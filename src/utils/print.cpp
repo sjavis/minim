@@ -10,4 +10,8 @@ namespace minim {
     }
   }
 
+  void printAll() {
+    std::cout << std::endl;
+  }
+
 }
