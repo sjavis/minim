@@ -31,7 +31,7 @@ void GradDescent::iteration() {
 
 
 bool GradDescent::checkConvergence() {
-  double sum = vec::dotProduct(_g, _g);
+  double sum = state.comm.dotProduct(_g, _g);
   double rms = sqrt(sum/state.ndof);
   return (rms < state.convergence);
 }

@@ -48,7 +48,7 @@ void Lbfgs::iteration() {
 
   // Perform linesearch
   double slope;
-  if (minim::mpi.rank==0) slope = vec::dotProduct(_g0, step);
+  if (minim::mpi.rank==0) slope = vec::dotProduct(_g0, step) / vec::norm(step);
   state.comm.bcast(slope);
   double step_multiplier = backtrackingLinesearch(state, step_block, slope);
 
