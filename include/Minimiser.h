@@ -19,7 +19,7 @@ class Minimiser {
     Minimiser(State &state, AdjustFunc adjustModel);
     virtual ~Minimiser() {};
 
-    void setMaxIter(int maxIter);
+    virtual Minimiser& setMaxIter(int maxIter);
 
     std::vector<double> minimise();
     virtual void iteration() = 0;

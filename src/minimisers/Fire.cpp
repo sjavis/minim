@@ -19,6 +19,11 @@ Fire::Fire(State &state, double dt_max, AdjustFunc adjustModel)
 {}
 
 
+Fire& Fire::setMaxIter(int maxIter) {
+  Minimiser::setMaxIter(maxIter);
+  return *this;
+}
+
 Fire& Fire::setDtMax(double dt_max) {
   _dt_max = dt_max;
   return *this;

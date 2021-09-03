@@ -14,22 +14,17 @@ using minim::mpi;
 
 class Priv {
   public:
-    Priv(int ndof) :
-      ndof(ndof),
-      nblock(mpi.size,ndof/mpi.size),
-      iblock(mpi.size),
+    Priv() :
+      nblocks(mpi.size),
+      iblocks(mpi.size),
       nrecv(mpi.size),
       irecv(mpi.size),
       send(mpi.size),
       recv_lists(mpi.size)
-    {
-      ntot = nblock[mpi.rank];
-    };
+    {};
 
-    int ndof; // Total size over all procs
-    int ntot; // Size of block + halo
-    std::vector<int> nblock; // Size of each block
-    std::vector<int> iblock; // Global index for the start of each block
+    std::vector<int> nblocks; // Size of each block
+    std::vector<int> iblocks; // Global index for the start of each block
     std::vector<int> nrecv;  // Number of halo coordinates to recieve from each proc
     std::vector<int> irecv;  // Starting indicies for each proc in halo
     std::vector<bool> send;  // States if data is to be sent to each proc
@@ -41,20 +36,24 @@ class Priv {
 
     int getBlock(int loc) {
       for (int i=mpi.size-1; i>=0; i--) {
-        if (loc >= iblock[i]) return i;
+        if (loc >= iblocks[i]) return i;
       }
     }
 };
 
 
-Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
+Communicator::Communicator(int ndof, Args &args)
+  : priv(new Priv()), ndof(ndof), nproc(ndof), nblock(ndof)
+{
+  priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
   if (mpi.size == 1) return;
 
   // Get size and index of each block
   for (int i=0; i<mpi.size-1; i++) {
-    if (i < ndof % mpi.size) priv->nblock[i]++;
-    priv->iblock[i+1] = priv->iblock[i] + priv->nblock[i];
+    if (i < ndof % mpi.size) priv->nblocks[i]++;
+    priv->iblocks[i+1] = priv->iblocks[i] + priv->nblocks[i];
   }
+  nblock = priv->nblocks[mpi.rank];
 
   // Identify halo coordinates based upon the list of energy elements
   std::vector<std::vector<int>> send_lists(mpi.size);
@@ -80,19 +79,19 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
       vec::insert_unique(priv->recv_lists[blocks[ie][i]], e.idof[i]);
       for (int j=0; j<e_ndof; j++) {
         if (in_block[ie][j]) {
-          vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - priv->iblock[mpi.rank]);
+          vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - priv->iblocks[mpi.rank]);
         }
       }
     }
   } //end for elements
 
   // Store number and starting indicies of coords being recieved from each proc
-  priv->irecv[0] = priv->nblock[mpi.rank];
+  priv->irecv[0] = nblock;
   for (int i=0; i<mpi.size; i++) {
     priv->nrecv[i] = priv->recv_lists[i].size();
     if (i < mpi.size-1) priv->irecv[i+1] = priv->irecv[i] + priv->nrecv[i];
   }
-  priv->ntot = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
+  nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
   std::vector<int> nelements(mpi.size);
   std::vector<Args::Element> elements_tmp;
@@ -114,7 +113,7 @@ Communicator::Communicator(int ndof, Args &args) : priv(new Priv(ndof)) {
       // Update element.idof with local index
       for (int i=0; i<e.idof.size(); i++) {
         if (in_block[ie][i]) {
-          e.idof[i] = e.idof[i] - priv->iblock[mpi.rank];
+          e.idof[i] = e.idof[i] - priv->iblocks[mpi.rank];
         } else {
           int block = blocks[ie][i];
           for (int j=0; j<priv->nrecv[block]; j++) {
@@ -171,9 +170,9 @@ Communicator::~Communicator() {
 
 
 std::vector<double> Communicator::assignBlock(const std::vector<double> &in) {
-  std::vector<double> out = std::vector<double>(priv->ntot);
-  for (int i=0; i<priv->nblock[mpi.rank]; i++) {
-    out[i] = in[priv->iblock[mpi.rank]+i];
+  std::vector<double> out = std::vector<double>(nproc);
+  for (int i=0; i<nblock; i++) {
+    out[i] = in[priv->iblocks[mpi.rank]+i];
   }
   return out;
 }
@@ -191,7 +190,7 @@ void Communicator::communicate(std::vector<double> &vector) {
     // Receive
     if (priv->nrecv[i] > 0) {
       int tag = i*mpi.size + mpi.rank;
-      int irecv = std::accumulate(priv->nrecv.begin(), priv->nrecv.begin()+i, priv->nblock[mpi.rank]);
+      int irecv = std::accumulate(priv->nrecv.begin(), priv->nrecv.begin()+i, nblock);
       MPI_Recv(&vector[irecv], priv->nrecv[i], MPI_DOUBLE, i, tag, MPI_COMM_WORLD, NULL);
     }
   }
@@ -207,7 +206,7 @@ double Communicator::get(const std::vector<double> &vector, int loc) {
   } else {
 #ifdef PARALLEL
     int i = priv->getBlock(loc);
-    value = vector[loc-priv->iblock[i]];
+    value = vector[loc-priv->iblocks[i]];
     MPI_Bcast(&value, 1, MPI_DOUBLE, i, MPI_COMM_WORLD);
 #endif
   }
@@ -217,7 +216,7 @@ double Communicator::get(const std::vector<double> &vector, int loc) {
 
 
 double Communicator::dotProduct(const std::vector<double> &a, const std::vector<double> &b) {
-  double result = std::inner_product(a.begin(), a.begin()+priv->nblock[mpi.rank], b.begin(), 0.0);
+  double result = std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0);
 #ifdef PARALLEL
   MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #endif
@@ -229,14 +228,14 @@ std::vector<double> Communicator::gather(const std::vector<double> &block, int r
 #ifdef PARALLEL
   std::vector<double> gathered;
   if (root == -1) {
-    gathered = std::vector<double>(priv->ndof);
-    MPI_Allgatherv(&block[0], priv->nblock[mpi.rank], MPI_DOUBLE,
-                   &gathered[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE,
+    gathered = std::vector<double>(ndof);
+    MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
+                   &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
                    MPI_COMM_WORLD);
   } else {
-    if (mpi.rank==0) gathered = std::vector<double>(priv->ndof);
-    MPI_Gatherv(&block[0], priv->nblock[mpi.rank], MPI_DOUBLE,
-                &gathered[0], &priv->nblock[0], &priv->iblock[0], MPI_DOUBLE, root,
+    if (mpi.rank==0) gathered = std::vector<double>(ndof);
+    MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
+                &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
                 MPI_COMM_WORLD);
   }
   return gathered;
@@ -253,7 +252,7 @@ std::vector<double> Communicator::scatter(const std::vector<double> &data, int r
   if (root == -1) {
     data_copy = data;
   } else {
-    data_copy = (mpi.rank==0) ? data : std::vector<double>(priv->ndof);
+    data_copy = (mpi.rank==0) ? data : std::vector<double>(ndof);
     bcast(data_copy, root);
   }
   // Assign the main blocks
@@ -268,6 +267,13 @@ std::vector<double> Communicator::scatter(const std::vector<double> &data, int r
 
 #else
   return data;
+#endif
+}
+
+
+void Communicator::bcast(int &value, int root) {
+#ifdef PARALLEL
+  MPI_Bcast(&value, 1, MPI_INT, root, MPI_COMM_WORLD);
 #endif
 }
 

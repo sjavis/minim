@@ -6,7 +6,8 @@
 
 
 State::State(Potential &pot, std::vector<double> coords, Args &args)
-  : _pot(pot), args(args), ndof(coords.size()), comm(ndof,args) {
+  : _pot(pot), args(args), ndof(coords.size()), comm(ndof,args)
+{
   setCoords(coords);
 }
 

@@ -8,6 +8,7 @@ class Fire : public Minimiser {
     Fire(State &state, double dt_max, AdjustFunc adjustModel=NULL);
     ~Fire() {};
 
+    Fire& setMaxIter(int maxIter);
     Fire& setDtMax(double dt_max);
 
     void iteration();

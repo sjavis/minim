@@ -7,8 +7,9 @@ Minimiser::Minimiser(State &state) : state(state), _adjustModel(NULL) {}
 Minimiser::Minimiser(State &state, AdjustFunc adjustModel) : state(state), _adjustModel(adjustModel) {}
 
 
-void Minimiser::setMaxIter(int maxIter) {
+Minimiser& Minimiser::setMaxIter(int maxIter) {
   this->maxIter = maxIter;
+  return *this;
 }
 
 

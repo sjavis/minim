@@ -9,6 +9,10 @@ class Priv;
 
 class Communicator {
   public:
+    int ndof;
+    int nproc;
+    int nblock;
+
     Communicator(int ndof, Args &args);
     ~Communicator();
 
@@ -20,6 +24,8 @@ class Communicator {
 
     std::vector<double> gather(const std::vector<double> &block, int root=-1);
     std::vector<double> scatter(const std::vector<double> &data, int root=-1);
+
+    void bcast(int &value, int root=0);
     void bcast(double &value, int root=0);
     void bcast(std::vector<double> &value, int root=0);
 
