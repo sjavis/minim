@@ -12,6 +12,7 @@
 #include "GradDescent.h"
 #include "Lbfgs.h"
 #include "Fire.h"
+#include "Anneal.h"
 
 #include "Lj3d.h"
 
