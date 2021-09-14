@@ -1,75 +1,34 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>L-BFGS &mdash; Minim  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Gradient Descent" href="grad_descent.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html">
-          
-
-          
-            
             <img src="../_static/logo2_text.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,18 +36,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
@@ -99,161 +47,102 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Minim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Algorithms</a> &raquo;</li>
-        
       <li>L-BFGS</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/algorithms/lbfgs.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="l-bfgs">
-<span id="algorithms-lbfgs"></span><h1>L-BFGS<a class="headerlink" href="#l-bfgs" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="l-bfgs">
+<span id="algorithms-lbfgs"></span><h1>L-BFGS<a class="headerlink" href="#l-bfgs" title="Permalink to this headline"></a></h1>
 <dl class="cpp class">
 <dt class="sig sig-object cpp" id="_CPPv45Lbfgs">
-<span id="_CPPv35Lbfgs"></span><span id="_CPPv25Lbfgs"></span><span id="Lbfgs"></span><span class="target" id="classLbfgs"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Lbfgs</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">Minimiser</span></span><a class="headerlink" href="#_CPPv45Lbfgs" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv35Lbfgs"></span><span id="_CPPv25Lbfgs"></span><span id="Lbfgs"></span><span class="target" id="classLbfgs"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Lbfgs</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">Minimiser</span></span><a class="headerlink" href="#_CPPv45Lbfgs" title="Permalink to this definition"></a><br /></dt>
 <dd><p>LBFGS minimisation algorithm </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5Lbfgs5LbfgsER5State10AdjustFunc">
-<span id="_CPPv3N5Lbfgs5LbfgsER5State10AdjustFunc"></span><span id="_CPPv2N5Lbfgs5LbfgsER5State10AdjustFunc"></span><span id="Lbfgs::Lbfgs__StateR.AdjustFunc"></span><span class="target" id="classLbfgs_1ad9497dfdbcae16deb33a0656850a6b36"></span><span class="sig-name descname"><span class="n"><span class="pre">Lbfgs</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">State</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">AdjustFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">adjustModel</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">NULL</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs5LbfgsER5State10AdjustFunc" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5Lbfgs5LbfgsER5State10AdjustFunc"></span><span id="_CPPv2N5Lbfgs5LbfgsER5State10AdjustFunc"></span><span id="Lbfgs::Lbfgs__StateR.AdjustFunc"></span><span class="target" id="classLbfgs_1ad9497dfdbcae16deb33a0656850a6b36"></span><span class="sig-name descname"><span class="n"><span class="pre">Lbfgs</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">State</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">AdjustFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">adjustModel</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">NULL</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs5LbfgsER5State10AdjustFunc" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5LbfgsD0Ev">
-<span id="_CPPv3N5LbfgsD0Ev"></span><span id="_CPPv2N5LbfgsD0Ev"></span><span id="Lbfgs::~Lbfgs"></span><span class="target" id="classLbfgs_1af646024188b33a703b1b2a358efd9879"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~Lbfgs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5LbfgsD0Ev" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5LbfgsD0Ev"></span><span id="_CPPv2N5LbfgsD0Ev"></span><span id="Lbfgs::~Lbfgs"></span><span class="target" id="classLbfgs_1af646024188b33a703b1b2a358efd9879"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~Lbfgs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5LbfgsD0Ev" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5Lbfgs4setMEi">
-<span id="_CPPv3N5Lbfgs4setMEi"></span><span id="_CPPv2N5Lbfgs4setMEi"></span><span id="Lbfgs::setM__i"></span><span class="target" id="classLbfgs_1abb417d4bb3865ab3b177dfa25fc8adae"></span><a class="reference internal" href="#_CPPv45Lbfgs" title="Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setM</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">m</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs4setMEi" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5Lbfgs4setMEi"></span><span id="_CPPv2N5Lbfgs4setMEi"></span><span id="Lbfgs::setM__i"></span><span class="target" id="classLbfgs_1abb417d4bb3865ab3b177dfa25fc8adae"></span><a class="reference internal" href="#_CPPv45Lbfgs" title="Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setM</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">m</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs4setMEi" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5Lbfgs10setMaxIterEi">
-<span id="_CPPv3N5Lbfgs10setMaxIterEi"></span><span id="_CPPv2N5Lbfgs10setMaxIterEi"></span><span id="Lbfgs::setMaxIter__i"></span><span class="target" id="classLbfgs_1a7f4c22fb37ae5eccddd9eb64fcc7a02b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv45Lbfgs" title="Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs10setMaxIterEi" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5Lbfgs10setMaxIterEi"></span><span id="_CPPv2N5Lbfgs10setMaxIterEi"></span><span id="Lbfgs::setMaxIter__i"></span><span class="target" id="classLbfgs_1a7f4c22fb37ae5eccddd9eb64fcc7a02b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv45Lbfgs" title="Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs10setMaxIterEi" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5Lbfgs9iterationEv">
-<span id="_CPPv3N5Lbfgs9iterationEv"></span><span id="_CPPv2N5Lbfgs9iterationEv"></span><span id="Lbfgs::iteration"></span><span class="target" id="classLbfgs_1a13c572aaa69fd38dba886e1da0aa9a51"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs9iterationEv" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5Lbfgs9iterationEv"></span><span id="_CPPv2N5Lbfgs9iterationEv"></span><span id="Lbfgs::iteration"></span><span class="target" id="classLbfgs_1a13c572aaa69fd38dba886e1da0aa9a51"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5Lbfgs9iterationEv" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N5Lbfgs16checkConvergenceEv">
-<span id="_CPPv3N5Lbfgs16checkConvergenceEv"></span><span id="_CPPv2N5Lbfgs16checkConvergenceEv"></span><span id="Lbfgs::checkConvergence"></span><span class="target" id="classLbfgs_1abef9edc9ad2c890a4b5481d751fe0d92"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5Lbfgs16checkConvergenceEv" title="Permalink to this definition">¶</a><br /></dt>
+<span id="_CPPv3N5Lbfgs16checkConvergenceEv"></span><span id="_CPPv2N5Lbfgs16checkConvergenceEv"></span><span id="Lbfgs::checkConvergence"></span><span class="target" id="classLbfgs_1abef9edc9ad2c890a4b5481d751fe0d92"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5Lbfgs16checkConvergenceEv" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="grad_descent.html" class="btn btn-neutral float-left" title="Gradient Descent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Sam Avis.
-
-    </p>
+    <p>&#169; Copyright 2021, Sam Avis.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
