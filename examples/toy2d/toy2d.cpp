@@ -5,11 +5,11 @@
 
 class Toy2d : public Potential {
   public:
-    double energy(std::vector<double> coords, Args &args) override {
+    double energy(const std::vector<double> &coords, const Args &args) override {
       return coords[0]*coords[0] + coords[1]*coords[1] + coords[0]*coords[0]*coords[0]*coords[0] + coords[1]*coords[1]*coords[1]*coords[1];
     }
 
-    std::vector<double> gradient(std::vector<double> coords, Args &args) override {
+    std::vector<double> gradient(const std::vector<double> &coords, const Args &args) override {
       std::vector<double> g(args.ndof);
       g[0] = 2*coords[0] + 4*coords[0]*coords[0]*coords[0];
       g[1] = 2*coords[1] + 4*coords[1]*coords[1]*coords[1];
@@ -27,7 +27,9 @@ int main(int argc, char **argv) {
   state.convergence = 1e-4;
 
   //GradDescent min = GradDescent(state);
-  Lbfgs min = Lbfgs(state).setMaxIter(100);
+  //Lbfgs min = Lbfgs(state).setMaxIter(100);
+  //Fire min = Fire(state);
+  Anneal min = Anneal(state, 100, 1);
 
   auto result = min.minimise();
 

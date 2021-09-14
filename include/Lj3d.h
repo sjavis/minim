@@ -19,9 +19,9 @@ class Lj3d : public Potential {
     Lj3d() {};
     ~Lj3d() {};
 
-    double energy(std::vector<double> coords, Args &args) override;
+    double energy(const std::vector<double> &coords, const Args &args) override;
 
-    std::vector<double> gradient(std::vector<double> coords, Args &args) override;
+    std::vector<double> gradient(const std::vector<double> &coords, const Args &args) override;
 
     using Potential::newArgs;
     Args* newArgs(int ndof) override;

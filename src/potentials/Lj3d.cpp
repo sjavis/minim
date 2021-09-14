@@ -19,8 +19,8 @@ Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
 }
 
 
-double Lj3d::energy(std::vector<double> coords, Args &args_tmp) {
-  Lj3dArgs &args = static_cast <Lj3dArgs&> (args_tmp);
+double Lj3d::energy(const std::vector<double> &coords, const Args &args_tmp) {
+  const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
   double energy = 0;
 
   for (Args::Element el : args.elements) {
@@ -36,8 +36,8 @@ double Lj3d::energy(std::vector<double> coords, Args &args_tmp) {
 }
 
 
-std::vector<double> Lj3d::gradient(std::vector<double> coords, Args &args_tmp) {
-  Lj3dArgs &args = static_cast <Lj3dArgs&> (args_tmp);
+std::vector<double> Lj3d::gradient(const std::vector<double> &coords, const Args &args_tmp) {
+  const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
   std::vector<double> g(coords.size());
 
   int ne1 = args.elements.size();

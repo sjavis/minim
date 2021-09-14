@@ -26,12 +26,12 @@ Args::Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types
 }
 
 
-double Potential::energy(Vector coords, Args &args) {
+double Potential::energy(const Vector &coords, const Args &args) {
   return _energy(coords, args);
 }
 
 
-Vector Potential::gradient(Vector coords, Args &args) {
+Vector Potential::gradient(const Vector &coords, const Args &args) {
   return _gradient(coords, args);
 }
 

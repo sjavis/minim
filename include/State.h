@@ -16,22 +16,22 @@ class State {
     Args &args;
     Communicator comm;
 
-    State(Potential &pot, Vector coords, Args &args);
+    State(Potential &pot, const Vector &coords, Args &args);
     ~State() {};
 
     double energy();
-    double energy(Vector coords);
+    double energy(const Vector &coords);
 
     Vector gradient();
-    Vector gradient(Vector coords);
+    Vector gradient(const Vector &coords);
 
     double operator[](int i);
 
     Vector getCoords();
-    void setCoords(Vector in);
+    void setCoords(const Vector &in);
 
     Vector blockCoords();
-    void blockCoords(Vector in);
+    void blockCoords(const Vector &in);
 
     void communicate();
 
