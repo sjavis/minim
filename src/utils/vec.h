@@ -17,6 +17,7 @@ namespace vec {
   std::vector<double> multiply(std::vector<double> a, double b);
 
   double dotProduct(std::vector<double> a, std::vector<double> b);
+  std::vector<double> crossProduct(std::vector<double> a, std::vector<double> b);
 
   double norm(std::vector<double> a);
 

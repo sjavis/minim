@@ -1,5 +1,6 @@
 #include <math.h>
 #include <vector>
+#include <cassert>
 #include <numeric>
 #include <algorithm>
 #include <functional>
@@ -60,23 +61,35 @@ namespace vec {
 
   // Dot Product
   double dotProduct(std::vector<double> a, std::vector<double> b) {
-    return  std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
+    return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
+  }
+
+
+  // Cross Product
+  std::vector<double> crossProduct(std::vector<double> a, std::vector<double> b) {
+    assert(a.size()==3);
+    assert(b.size()==3);
+    std::vector<double> c(3);
+    c[0] = a[1]*b[2] - a[2]*b[1];
+    c[1] = a[2]*b[0] - a[0]*b[2];
+    c[2] = a[0]*b[1] - a[1]*b[0];
+    return c;
   }
 
 
   // Norm
   double norm(std::vector<double> a) {
-    return  sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
+    return sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
   }
 
 
   // Logical
   bool any(std::vector<bool> a) {
-    return  std::any_of(a.begin(), a.end(), [](bool i){ return i; });
+    return std::any_of(a.begin(), a.end(), [](bool i){ return i; });
   }
 
   bool all(std::vector<bool> a) {
-    return  std::all_of(a.begin(), a.end(), [](bool i){ return i; });
+    return std::all_of(a.begin(), a.end(), [](bool i){ return i; });
   }
 
 

@@ -15,6 +15,7 @@
 #include "Anneal.h"
 
 #include "Lj3d.h"
+#include "BarAndHinge.h"
 
 #include "minimMpi.h"
 #include "print.h"
