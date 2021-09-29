@@ -75,44 +75,10 @@
              
   <section id="gradient-descent">
 <span id="graddescent"></span><h1>Gradient Descent<a class="headerlink" href="#gradient-descent" title="Permalink to this headline"></a></h1>
-<dl class="cpp class">
-<dt class="sig sig-object cpp" id="_CPPv411GradDescent">
-<span id="_CPPv311GradDescent"></span><span id="_CPPv211GradDescent"></span><span id="GradDescent"></span><span class="target" id="classGradDescent"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GradDescent</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">Minimiser</span></span><a class="headerlink" href="#_CPPv411GradDescent" title="Permalink to this definition"></a><br /></dt>
-<dd><div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescent11GradDescentER5State10AdjustFunc">
-<span id="_CPPv3N11GradDescent11GradDescentER5State10AdjustFunc"></span><span id="_CPPv2N11GradDescent11GradDescentER5State10AdjustFunc"></span><span id="GradDescent::GradDescent__StateR.AdjustFunc"></span><span class="target" id="classGradDescent_1a46335bb42a490c5ed708ea6b2e135f3d"></span><span class="sig-name descname"><span class="n"><span class="pre">GradDescent</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">State</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">AdjustFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">adjustModel</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">NULL</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11GradDescent11GradDescentER5State10AdjustFunc" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescentD0Ev">
-<span id="_CPPv3N11GradDescentD0Ev"></span><span id="_CPPv2N11GradDescentD0Ev"></span><span id="GradDescent::~GradDescent"></span><span class="target" id="classGradDescent_1ab1b48f14f0a3ba687e5a5a7b5a42def5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~GradDescent</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11GradDescentD0Ev" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescent8setAlphaEd">
-<span id="_CPPv3N11GradDescent8setAlphaEd"></span><span id="_CPPv2N11GradDescent8setAlphaEd"></span><span id="GradDescent::setAlpha__double"></span><span class="target" id="classGradDescent_1acb0759250a38c7bab9495d460d110de3"></span><a class="reference internal" href="#_CPPv411GradDescent" title="GradDescent"><span class="n"><span class="pre">GradDescent</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setAlpha</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">alpha</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11GradDescent8setAlphaEd" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescent10setMaxIterEi">
-<span id="_CPPv3N11GradDescent10setMaxIterEi"></span><span id="_CPPv2N11GradDescent10setMaxIterEi"></span><span id="GradDescent::setMaxIter__i"></span><span class="target" id="classGradDescent_1a59cc0bbb538b68d8003644f77a8aad88"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv411GradDescent" title="GradDescent"><span class="n"><span class="pre">GradDescent</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11GradDescent10setMaxIterEi" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescent9iterationEv">
-<span id="_CPPv3N11GradDescent9iterationEv"></span><span id="_CPPv2N11GradDescent9iterationEv"></span><span id="GradDescent::iteration"></span><span class="target" id="classGradDescent_1aa55d373ca2b7205c821b1a0d11a27696"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N11GradDescent9iterationEv" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N11GradDescent16checkConvergenceEv">
-<span id="_CPPv3N11GradDescent16checkConvergenceEv"></span><span id="_CPPv2N11GradDescent16checkConvergenceEv"></span><span id="GradDescent::checkConvergence"></span><span class="target" id="classGradDescent_1a4c45d3ec3590fdef0b6304f2857d9405"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N11GradDescent16checkConvergenceEv" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>doxygenclass: Cannot find class “GradDescent” in doxygen xml output for project “minim” from directory: _build/xml/</p>
 </div>
-</dd></dl>
-
 </section>
 
 
