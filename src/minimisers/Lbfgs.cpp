@@ -47,10 +47,10 @@ void Lbfgs::iteration() {
   std::vector<double> step_block = state.comm.scatter(step, 0);
 
   // Perform linesearch
-  double slope;
-  if (minim::mpi.rank==0) slope = vec::dotProduct(_g0, step) / vec::norm(step);
-  state.comm.bcast(slope);
-  double step_multiplier = backtrackingLinesearch(state, step_block, slope);
+  double de0;
+  if (minim::mpi.rank==0) de0 = vec::dotProduct(_g0, step);
+  state.comm.bcast(de0);
+  double step_multiplier = backtrackingLinesearch(state, step_block, de0);
 
   // Get new gradient
   _g1 = state.comm.gather(state.gradient(), 0);
@@ -77,10 +77,9 @@ std::vector<double> Lbfgs::getDirection() {
     if (iter == 0) {
       step = vec::multiply(-_init_hessian, _g0);
       return step;
-    } else {
-      step = vec::multiply(-1, _g0);
     }
 
+    step = vec::multiply(-1, _g0);
     for (int i1=0; i1<m_tmp; i1++) {
       int i = (_i_cycle - 1 - i1 + _m) % _m;
       alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
@@ -98,6 +97,8 @@ std::vector<double> Lbfgs::getDirection() {
       double beta = _rho[i] * vec::dotProduct(step, _y[i]);
       step = vec::sum(step, vec::multiply(alpha[i]-beta, _s[i]));
     }
+
+    if (vec::dotProduct(step, _g0) > 0) step = vec::multiply(-1, step);
   }
 
   return step;

@@ -1,14 +1,13 @@
 #include "State.h"
 #include "linesearch.h"
-
 #include "vec.h"
 
 
-double backtrackingLinesearch(State &state, std::vector<double> &step, double slope) {
+double backtrackingLinesearch(State &state, std::vector<double> &step, double de0) {
   const double c = 0.5; // Armijo control parameter
   const double tau = 0.5; // Shrink factor
 
-  double t = - c * slope;
+  double t = - c * de0;
   double e0 = state.energy();
   double step_multiplier = 1;
 

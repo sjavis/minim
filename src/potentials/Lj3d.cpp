@@ -49,16 +49,17 @@ std::vector<double> Lj3d::gradient(const std::vector<double> &coords, const Args
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
     double dz = coords[el.idof[2]] - coords[el.idof[5]];
     double r2 = dx*dx + dy*dy + dz*dz;
+    double r = sqrt(r2);
 
     double lj6 = pow(args.sigma, 6) / pow(r2, 3);
-    double dedr = 12 * args.epsilon * (-lj6*lj6 + lj6) / r2;
+    double dedr = -24 * args.epsilon * (2*lj6*lj6 - lj6) / r;
 
-    g[el.idof[0]] += 2 * dx * dedr;
-    g[el.idof[1]] += 2 * dy * dedr;
-    g[el.idof[2]] += 2 * dz * dedr;
-    g[el.idof[3]] -= 2 * dx * dedr;
-    g[el.idof[4]] -= 2 * dy * dedr;
-    g[el.idof[5]] -= 2 * dz * dedr;
+    g[el.idof[0]] += dx/r * dedr;
+    g[el.idof[1]] += dy/r * dedr;
+    g[el.idof[2]] += dz/r * dedr;
+    g[el.idof[3]] -= dx/r * dedr;
+    g[el.idof[4]] -= dy/r * dedr;
+    g[el.idof[5]] -= dz/r * dedr;
   }
   return g;
 }
