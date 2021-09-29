@@ -2,6 +2,7 @@
 #include <vector>
 #include "minim.h"
 
+using namespace minim;
 
 class Toy2d : public Potential {
   public:
@@ -20,7 +21,7 @@ class Toy2d : public Potential {
 
 int main(int argc, char **argv) {
   mpiInit(&argc, &argv);
-  std::cout << "Number of processors: " << minim::mpi.size << "; Rank: " << minim::mpi.rank << std::endl;
+  print("Number of processors:", mpi.size, "; Rank:", mpi.rank);
 
   Toy2d potential = Toy2d();
   State state = potential.newState({1,4});
@@ -33,5 +34,5 @@ int main(int argc, char **argv) {
 
   auto result = min.minimise();
 
-  std::cout << min.iter << " " << result[0] << " " << result[1] << std::endl;
+  print(min.iter, result);
 }

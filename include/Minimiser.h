@@ -3,31 +3,33 @@
 
 #include <vector>
 
-class State;
+namespace minim {
+  class State;
 
+  // Abstract class for minimisation proceedures
+  class Minimiser {
+    public:
+      int maxIter = 10000;
 
-// Abstract class for minimisation proceedures
-class Minimiser {
-  public:
-    int maxIter = 10000;
+      typedef void (*AdjustFunc)(int, State&);
+      int iter;
+      State &state;
 
-    typedef void (*AdjustFunc)(int, State&);
-    int iter;
-    State &state;
+      Minimiser(State &state);
+      Minimiser(State &state, AdjustFunc adjustModel);
+      virtual ~Minimiser() {};
 
-    Minimiser(State &state);
-    Minimiser(State &state, AdjustFunc adjustModel);
-    virtual ~Minimiser() {};
+      virtual Minimiser& setMaxIter(int maxIter);
 
-    virtual Minimiser& setMaxIter(int maxIter);
+      std::vector<double> minimise();
+      virtual void iteration() = 0;
+      virtual bool checkConvergence() { false; };
+      void adjustModel();
 
-    std::vector<double> minimise();
-    virtual void iteration() = 0;
-    virtual bool checkConvergence() { false; };
-    void adjustModel();
+    private:
+      AdjustFunc _adjustModel;
+  };
 
-  private:
-    AdjustFunc _adjustModel;
-};
+}
 
 #endif

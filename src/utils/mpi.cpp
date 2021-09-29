@@ -7,24 +7,24 @@
 #include <iostream>
 
 
-void mpiInit() {
-  minim::mpi.init(0, 0);
-}
-
-void mpiInit(int *argc, char ***argv) {
-  minim::mpi.init(argc, argv);
-}
-
-
 namespace minim {
 
+  void mpiInit() {
+    minim::mpi.init(0, 0);
+  }
+
+  void mpiInit(int *argc, char ***argv) {
+    minim::mpi.init(argc, argv);
+  }
+
+
   Mpi mpi;
-  
+
   Mpi::Mpi() {
     size = 1;
     rank = 0;
   }
-  
+
 
   void Mpi::init(int *argc, char ***argv) {
 #ifdef PARALLEL
@@ -36,7 +36,7 @@ namespace minim {
     std::cerr << "Warning: MPI not initialised. -DPARALLEL flag must be passed to the compiler." << std::endl;
 #endif
   }
-  
+
 
   Mpi::~Mpi() {
 #ifdef PARALLEL
@@ -46,7 +46,7 @@ namespace minim {
 #endif
   }
 
-  
+
   double Mpi::sum(double summand) {
     if ((_init = true) && (size > 1)) {
       double sum;

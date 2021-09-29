@@ -3,8 +3,10 @@
 
 #include <vector>
 
-class State;
-
-double backtrackingLinesearch(State &state, std::vector<double> &step, double de0);
+namespace minim {
+  class State;
+  
+  double backtrackingLinesearch(State &state, std::vector<double> &step, double de0);
+}
 
 #endif

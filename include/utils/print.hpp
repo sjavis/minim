@@ -5,7 +5,6 @@
 #include <iostream>
 #include "mpi.h"
 
-
 namespace minim {
 
   template <typename T, typename ... Args>

@@ -3,24 +3,27 @@
 #include "State.h"
 #include "vec.h"
 
+namespace minim {
 
-double backtrackingLinesearch(State &state, std::vector<double> &step, double de0) {
-  const double c = 0.5; // Armijo control parameter
-  const double tau = 0.5; // Shrink factor
+  double backtrackingLinesearch(State &state, std::vector<double> &step, double de0) {
+    const double c = 0.5; // Armijo control parameter
+    const double tau = 0.5; // Shrink factor
 
-  double t = - c * de0;
-  double e0 = state.energy();
-  double step_multiplier = 1;
+    double t = - c * de0;
+    double e0 = state.energy();
+    double step_multiplier = 1;
 
-  for (int i=0; i<10; i++) {
-    double e = state.energy(vec::sum(state.blockCoords(), step));
-    if (e0-e >= t) break;
+    for (int i=0; i<10; i++) {
+      double e = state.energy(vec::sum(state.blockCoords(), step));
+      if (e0-e >= t) break;
 
-    step = vec::multiply(step, tau);
-    step_multiplier = step_multiplier * tau;
-    t = t * tau;
+      step = vec::multiply(step, tau);
+      step_multiplier = step_multiplier * tau;
+      t = t * tau;
+    }
+
+    state.blockCoords(vec::sum(state.blockCoords(), step));
+    return step_multiplier;
   }
 
-  state.blockCoords(vec::sum(state.blockCoords(), step));
-  return step_multiplier;
 }
