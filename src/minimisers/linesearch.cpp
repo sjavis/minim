@@ -1,5 +1,6 @@
-#include "State.h"
 #include "linesearch.h"
+
+#include "State.h"
 #include "vec.h"
 
 

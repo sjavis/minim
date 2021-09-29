@@ -28,10 +28,10 @@ class Args {
 
 
 class Potential {
-
-  typedef std::vector<double> Vector;
-  typedef double (*EFunc)(const Vector&, const Args&);
-  typedef Vector (*GFunc)(const Vector&, const Args&);
+  private:
+    typedef std::vector<double> Vector;
+    typedef double (*EFunc)(const Vector&, const Args&);
+    typedef Vector (*GFunc)(const Vector&, const Args&);
 
   public:
     Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};

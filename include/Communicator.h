@@ -8,6 +8,10 @@ class Priv;
 
 
 class Communicator {
+  private:
+   typedef std::vector<double> Vector;
+   Priv *priv;
+
   public:
     int ndof;
     int nproc;
@@ -16,21 +20,18 @@ class Communicator {
     Communicator(int ndof, Args &args);
     ~Communicator();
 
-    std::vector<double> assignBlock(const std::vector<double> &in);
+    Vector assignBlock(const Vector &in);
 
-    void communicate(std::vector<double> &vector);
-    double get(const std::vector<double> &vector, int i);
-    double dotProduct(const std::vector<double> &a, const std::vector<double> &b);
+    void communicate(Vector &vector);
+    double get(const Vector &vector, int i);
+    double dotProduct(const Vector &a, const Vector &b);
 
-    std::vector<double> gather(const std::vector<double> &block, int root=-1);
-    std::vector<double> scatter(const std::vector<double> &data, int root=-1);
+    Vector gather(const Vector &block, int root=-1);
+    Vector scatter(const Vector &data, int root=-1);
 
     void bcast(int &value, int root=0);
     void bcast(double &value, int root=0);
-    void bcast(std::vector<double> &value, int root=0);
-
-  private:
-    Priv *priv;
+    void bcast(Vector &value, int root=0);
 };
 
 #endif

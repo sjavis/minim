@@ -1,5 +1,7 @@
+#include "utils/print.h"
+
 #include <iostream>
-#include "minimMpi.h"
+#include "utils/mpi.h"
 
 
 namespace minim {

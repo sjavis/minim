@@ -1,10 +1,11 @@
+#include "Anneal.h"
+
 #include <math.h>
 #include <vector>
 #include <time.h>
-#include "minimMpi.h"
 #include "State.h"
 #include "Minimiser.h"
-#include "Anneal.h"
+#include "utils/mpi.h"
 
 
 Anneal::Anneal(State &state, double temp_init, double displacement, AdjustFunc adjustModel)

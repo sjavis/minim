@@ -1,4 +1,5 @@
 #include "Minimiser.h"
+
 #include "State.h"
 #include "vec.h"
 

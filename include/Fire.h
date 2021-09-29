@@ -1,6 +1,9 @@
 #ifndef FIRE_H
 #define FIRE_H
 
+#include <vector>
+#include "Minimiser.h"
+
 
 class Fire : public Minimiser {
   public:

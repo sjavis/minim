@@ -1,8 +1,9 @@
 #ifndef MINIM_PRINT_HPP
 #define MINIM_PRINT_HPP
 
+#include <vector>
 #include <iostream>
-#include "minimMpi.h"
+#include "mpi.h"
 
 
 namespace minim {

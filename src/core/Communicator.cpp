@@ -1,15 +1,17 @@
+#include "Communicator.h"
+
 #ifdef PARALLEL
 #include <mpi.h>
 #endif
 
 #include <vector>
 #include <numeric>
-#include "Communicator.h"
 #include "Potential.h"
-#include "minimMpi.h"
 #include "vec.h"
+#include "utils/mpi.h"
 
 using minim::mpi;
+typedef std::vector<double> Vector;
 
 
 class Priv {
@@ -169,8 +171,8 @@ Communicator::~Communicator() {
 }
 
 
-std::vector<double> Communicator::assignBlock(const std::vector<double> &in) {
-  std::vector<double> out = std::vector<double>(nproc);
+Vector Communicator::assignBlock(const Vector &in) {
+  Vector out = Vector(nproc);
   for (int i=0; i<nblock; i++) {
     out[i] = in[priv->iblocks[mpi.rank]+i];
   }
@@ -178,7 +180,7 @@ std::vector<double> Communicator::assignBlock(const std::vector<double> &in) {
 }
 
 
-void Communicator::communicate(std::vector<double> &vector) {
+void Communicator::communicate(Vector &vector) {
 #ifdef PARALLEL
   for (int i=0; i<mpi.size; i++) {
     if (i == mpi.rank) continue;
@@ -198,7 +200,7 @@ void Communicator::communicate(std::vector<double> &vector) {
 }
 
 
-double Communicator::get(const std::vector<double> &vector, int loc) {
+double Communicator::get(const Vector &vector, int loc) {
   double value;
 
   if (mpi.size == 1) {
@@ -215,7 +217,7 @@ double Communicator::get(const std::vector<double> &vector, int loc) {
 }
 
 
-double Communicator::dotProduct(const std::vector<double> &a, const std::vector<double> &b) {
+double Communicator::dotProduct(const Vector &a, const Vector &b) {
   double result = std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0);
 #ifdef PARALLEL
   MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -224,16 +226,16 @@ double Communicator::dotProduct(const std::vector<double> &a, const std::vector<
 }
 
 
-std::vector<double> Communicator::gather(const std::vector<double> &block, int root) {
+Vector Communicator::gather(const Vector &block, int root) {
 #ifdef PARALLEL
-  std::vector<double> gathered;
+  Vector gathered;
   if (root == -1) {
-    gathered = std::vector<double>(ndof);
+    gathered = Vector(ndof);
     MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
                    &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
                    MPI_COMM_WORLD);
   } else {
-    if (mpi.rank==0) gathered = std::vector<double>(ndof);
+    if (mpi.rank==0) gathered = Vector(ndof);
     MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
                 &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
                 MPI_COMM_WORLD);
@@ -245,18 +247,18 @@ std::vector<double> Communicator::gather(const std::vector<double> &block, int r
 }
 
 
-std::vector<double> Communicator::scatter(const std::vector<double> &data, int root) {
+Vector Communicator::scatter(const Vector &data, int root) {
 #ifdef PARALLEL
   // Get copy of data on processor
-  std::vector<double> data_copy;
+  Vector data_copy;
   if (root == -1) {
     data_copy = data;
   } else {
-    data_copy = (mpi.rank==0) ? data : std::vector<double>(ndof);
+    data_copy = (mpi.rank==0) ? data : Vector(ndof);
     bcast(data_copy, root);
   }
   // Assign the main blocks
-  std::vector<double> scattered = assignBlock(data_copy);
+  Vector scattered = assignBlock(data_copy);
   // Assign the halo regions
   for (int i=0; i<mpi.size; i++) {
     for (int j=0; j<priv->nrecv[i]; j++) {
@@ -285,7 +287,7 @@ void Communicator::bcast(double &value, int root) {
 }
 
 
-void Communicator::bcast(std::vector<double> &vector, int root) {
+void Communicator::bcast(Vector &vector, int root) {
 #ifdef PARALLEL
   MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, MPI_COMM_WORLD);
 #endif

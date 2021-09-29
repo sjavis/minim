@@ -1,8 +1,9 @@
+#include "GradDescent.h"
+
 #include <math.h>
 #include <vector>
 #include "State.h"
 #include "Minimiser.h"
-#include "GradDescent.h"
 #include "vec.h"
 
 

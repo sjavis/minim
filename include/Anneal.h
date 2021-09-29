@@ -1,6 +1,9 @@
 #ifndef ANNEAL_H
 #define ANNEAL_H
 
+#include <vector>
+#include "Minimiser.h"
+
 
 class Anneal : public Minimiser {
   public:

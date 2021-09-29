@@ -1,12 +1,14 @@
+#include "BarAndHinge.h"
+
 #include <vector>
 #include <math.h>
 #include "Potential.h"
-#include "BarAndHinge.h"
 #include "vec.h"
-#include "print.h"
+
+typedef std::vector<double> Vector;
 
 
-double BarAndHinge::energy(const std::vector<double> &coords, const Args &args) {
+double BarAndHinge::energy(const Vector &coords, const Args &args) {
   double e = 0;
   for (auto el: args.elements) {
     switch (el.type) {
@@ -22,8 +24,8 @@ double BarAndHinge::energy(const std::vector<double> &coords, const Args &args) 
 }
 
 
-std::vector<double> BarAndHinge::gradient(const std::vector<double> &coords, const Args &args) {
-  std::vector<double> g(coords.size());
+Vector BarAndHinge::gradient(const Vector &coords, const Args &args) {
+  Vector g(coords.size());
   for (auto el: args.elements) {
     switch (el.type) {
       case 0:
@@ -38,10 +40,10 @@ std::vector<double> BarAndHinge::gradient(const std::vector<double> &coords, con
 }
 
 
-void BarAndHinge::stretching(const std::vector<double> &coords, Args::Element el,
-                             double *e, std::vector<double> *g) {
-  std::vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-  std::vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
+void BarAndHinge::stretching(const Vector &coords, Args::Element el,
+                             double *e, Vector *g) {
+  Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
+  Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
   // Compute distance
   auto dx = vec::diff(x1, x2);
@@ -63,12 +65,12 @@ void BarAndHinge::stretching(const std::vector<double> &coords, Args::Element el
 }
 
 
-void BarAndHinge::bending(const std::vector<double> &coords, Args::Element el,
-                          double *e, std::vector<double> *g) {
-  std::vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-  std::vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
-  std::vector<double> x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
-  std::vector<double> x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
+void BarAndHinge::bending(const Vector &coords, Args::Element el,
+                          double *e, Vector *g) {
+  Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
+  Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
+  Vector x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
+  Vector x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
 
   // Compute bond vectors
   auto b1 = vec::diff(x2, x1);

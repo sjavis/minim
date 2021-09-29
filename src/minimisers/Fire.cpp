@@ -1,10 +1,10 @@
+#include "Fire.h"
+
 #include <math.h>
 #include <vector>
 #include "State.h"
 #include "Minimiser.h"
-#include "Fire.h"
 #include "vec.h"
-#include <iostream>
 
 
 Fire::Fire(State &state, AdjustFunc adjustModel)

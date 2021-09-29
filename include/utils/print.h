@@ -1,6 +1,8 @@
 #ifndef MINIM_PRINT_H
 #define MINIM_PRINT_H
 
+#include <vector>
+
 
 namespace minim {
 

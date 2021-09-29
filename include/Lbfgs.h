@@ -8,6 +8,9 @@
 #ifndef LBFGS_H
 #define LBFGS_H
 
+#include <vector>
+#include "Minimiser.h"
+
 
 //! \class Lbfgs
 //! LBFGS minimisation algorithm
@@ -24,17 +27,19 @@ class Lbfgs : public Minimiser {
     bool checkConvergence() override;
 
   private:
+    typedef std::vector<double> Vector;
+
     int _m;
     int _i_cycle;
     double _init_hessian = 1e-4;
-    std::vector<double> _g0;
-    std::vector<double> _g1;
-    std::vector<double> _step;
-    std::vector<double> _rho;
-    std::vector<std::vector<double>> _s;
-    std::vector<std::vector<double>> _y;
+    Vector _g0;
+    Vector _g1;
+    Vector _step;
+    Vector _rho;
+    std::vector<Vector> _s;
+    std::vector<Vector> _y;
 
-    std::vector<double> getDirection();
+    Vector getDirection();
 };
 
 #endif

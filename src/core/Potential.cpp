@@ -1,7 +1,9 @@
 #include "Potential.h"
+
 #include "State.h"
 
 typedef std::vector<double> Vector;
+
 
 Args::Args(int ndof, std::vector<std::vector<int>> idofs) : ndof(ndof) {
   // Generate energy elements

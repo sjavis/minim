@@ -1,75 +1,78 @@
+#include "vec.h"
+
 #include <math.h>
 #include <vector>
 #include <cassert>
 #include <numeric>
 #include <algorithm>
 #include <functional>
-#include "vec.h"
 
 namespace vec {
 
+  typedef std::vector<double> Vector;
+
 
   // Sum
-  std::vector<double> sum(double a, std::vector<double> b) {
+  Vector sum(double a, Vector b) {
     return sum(b, a);
   }
 
-  std::vector<double> sum(std::vector<double> a, double b) {
-    std::vector<double> c(a.size());
+  Vector sum(Vector a, double b) {
+    Vector c(a.size());
     std::transform(a.begin(), a.end(), c.begin(), [b](double &x){ return b+x; });
     return c;
   }
 
-  std::vector<double> sum(std::vector<double> a, std::vector<double> b) {
-    std::vector<double> c(a.size());
+  Vector sum(Vector a, Vector b) {
+    Vector c(a.size());
     std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::plus<double>());
     return c;
   }
 
 
   // Diff
-  std::vector<double> diff(double a, std::vector<double> b) {
-    std::vector<double> c(b.size());
+  Vector diff(double a, Vector b) {
+    Vector c(b.size());
     std::transform(b.begin(), b.end(), c.begin(), [a](double &x){ return a-x; });
     return c;
   }
 
-  std::vector<double> diff(std::vector<double> a, double b) {
-    std::vector<double> c(a.size());
+  Vector diff(Vector a, double b) {
+    Vector c(a.size());
     std::transform(a.begin(), a.end(), c.begin(), [b](double &x){ return x-b; });
     return c;
   }
 
-  std::vector<double> diff(std::vector<double> a, std::vector<double> b) {
-    std::vector<double> c(a.size());
+  Vector diff(Vector a, Vector b) {
+    Vector c(a.size());
     std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::minus<double>());
     return c;
   }
 
 
   // Multiply
-  std::vector<double> multiply(double a, std::vector<double> b) {
+  Vector multiply(double a, Vector b) {
     return multiply(b, a);
   }
 
-  std::vector<double> multiply(std::vector<double> a, double b) {
-    std::vector<double> c(a.size());
+  Vector multiply(Vector a, double b) {
+    Vector c(a.size());
     std::transform(a.begin(), a.end(), c.begin(), [b](double &x){ return b*x; });
     return c;
   }
 
 
   // Dot Product
-  double dotProduct(std::vector<double> a, std::vector<double> b) {
+  double dotProduct(Vector a, Vector b) {
     return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
   }
 
 
   // Cross Product
-  std::vector<double> crossProduct(std::vector<double> a, std::vector<double> b) {
+  Vector crossProduct(Vector a, Vector b) {
     assert(a.size()==3);
     assert(b.size()==3);
-    std::vector<double> c(3);
+    Vector c(3);
     c[0] = a[1]*b[2] - a[2]*b[1];
     c[1] = a[2]*b[0] - a[0]*b[2];
     c[2] = a[0]*b[1] - a[1]*b[0];
@@ -78,7 +81,7 @@ namespace vec {
 
 
   // Norm
-  double norm(std::vector<double> a) {
+  double norm(Vector a) {
     return sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
   }
 

@@ -4,22 +4,23 @@
 #include <vector>
 
 namespace vec {
+  typedef std::vector<double> Vector;
 
-  std::vector<double> sum(double a, std::vector<double> b);
-  std::vector<double> sum(std::vector<double> a, double b);
-  std::vector<double> sum(std::vector<double> a, std::vector<double> b);
+  Vector sum(double a, Vector b);
+  Vector sum(Vector a, double b);
+  Vector sum(Vector a, Vector b);
 
-  std::vector<double> diff(double a, std::vector<double> b);
-  std::vector<double> diff(std::vector<double> a, double b);
-  std::vector<double> diff(std::vector<double> a, std::vector<double> b);
+  Vector diff(double a, Vector b);
+  Vector diff(Vector a, double b);
+  Vector diff(Vector a, Vector b);
 
-  std::vector<double> multiply(double a, std::vector<double> b);
-  std::vector<double> multiply(std::vector<double> a, double b);
+  Vector multiply(double a, Vector b);
+  Vector multiply(Vector a, double b);
 
-  double dotProduct(std::vector<double> a, std::vector<double> b);
-  std::vector<double> crossProduct(std::vector<double> a, std::vector<double> b);
+  double dotProduct(Vector a, Vector b);
+  Vector crossProduct(Vector a, Vector b);
 
-  double norm(std::vector<double> a);
+  double norm(Vector a);
 
   bool any(std::vector<bool> a);
   bool all(std::vector<bool> a);

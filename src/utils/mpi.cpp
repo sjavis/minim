@@ -1,9 +1,10 @@
+#include "utils/mpi.h"
+
 #ifdef PARALLEL
 #include <mpi.h>
 #endif
 
 #include <iostream>
-#include "minimMpi.h"
 
 
 void mpiInit() {

@@ -8,7 +8,8 @@ class Potential;
 class Args;
 
 class State {
-  typedef std::vector<double> Vector;
+  private:
+    typedef std::vector<double> Vector;
 
   public:
     int ndof;

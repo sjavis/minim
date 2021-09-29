@@ -1,23 +1,26 @@
+#include "Lbfgs.h"
+
 #include <vector>
 #include <math.h>
 #include "State.h"
 #include "Minimiser.h"
-#include "Lbfgs.h"
-#include "linesearch.h"
 #include "Communicator.h"
+#include "linesearch.h"
 #include "vec.h"
-#include "minimMpi.h"
+#include "utils/mpi.h"
+
+typedef std::vector<double> Vector;
 
 
 Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
   : Minimiser(state, adjustModel), _m(5)
 {
   if (minim::mpi.rank == 0) {
-    _s = std::vector<std::vector<double>>(_m, std::vector<double>(state.ndof));
-    _y = std::vector<std::vector<double>>(_m, std::vector<double>(state.ndof));
-    _rho = std::vector<double>(_m);
-    _g0 = std::vector<double>(state.ndof);
-    _g1 = std::vector<double>(state.ndof);
+    _s = std::vector<Vector>(_m, Vector(state.ndof));
+    _y = std::vector<Vector>(_m, Vector(state.ndof));
+    _rho = Vector(_m);
+    _g0 = Vector(state.ndof);
+    _g1 = Vector(state.ndof);
   }
 }
 
@@ -26,8 +29,8 @@ Lbfgs& Lbfgs::setM(int m) {
   _m = m;
   if (minim::mpi.rank == 0) {
     _rho.resize(m);
-    _s.resize(m, std::vector<double>(state.ndof));
-    _y.resize(m, std::vector<double>(state.ndof));
+    _s.resize(m, Vector(state.ndof));
+    _y.resize(m, Vector(state.ndof));
   }
   return *this;
 }
@@ -43,8 +46,8 @@ void Lbfgs::iteration() {
   _i_cycle = iter % _m;
 
   // Find minimisation direction
-  std::vector<double> step = getDirection();
-  std::vector<double> step_block = state.comm.scatter(step, 0);
+  Vector step = getDirection();
+  Vector step_block = state.comm.scatter(step, 0);
 
   // Perform linesearch
   double de0;
@@ -66,8 +69,8 @@ void Lbfgs::iteration() {
 }
 
 
-std::vector<double> Lbfgs::getDirection() {
-  std::vector<double> step;
+Vector Lbfgs::getDirection() {
+  Vector step;
 
   // Compute the step on the main processor
   if (minim::mpi.rank == 0) {

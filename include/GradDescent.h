@@ -2,6 +2,7 @@
 #define GRADDESCENT_H
 
 #include <vector>
+#include "Minimiser.h"
 
 
 // Gradient desecent minimisation

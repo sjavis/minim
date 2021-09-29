@@ -1,7 +1,10 @@
-#include <math.h>
 #include "Lj3d.h"
+
+#include <math.h>
 #include "State.h"
 #include "Potential.h"
+
+typedef std::vector<double> Vector;
 
 
 Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
@@ -19,7 +22,7 @@ Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
 }
 
 
-double Lj3d::energy(const std::vector<double> &coords, const Args &args_tmp) {
+double Lj3d::energy(const Vector &coords, const Args &args_tmp) {
   const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
   double energy = 0;
 
@@ -36,9 +39,9 @@ double Lj3d::energy(const std::vector<double> &coords, const Args &args_tmp) {
 }
 
 
-std::vector<double> Lj3d::gradient(const std::vector<double> &coords, const Args &args_tmp) {
+Vector Lj3d::gradient(const Vector &coords, const Args &args_tmp) {
   const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
-  std::vector<double> g(coords.size());
+  Vector g(coords.size());
 
   int ne1 = args.elements.size();
   int ne2 = args.elements_halo.size();
