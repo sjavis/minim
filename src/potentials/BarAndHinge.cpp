@@ -28,7 +28,11 @@ namespace minim {
 
   Vector BarAndHinge::gradient(const Vector &coords, const Args &args) {
     Vector g(coords.size());
-    for (auto el: args.elements) {
+
+    int ne1 = args.elements.size();
+    int ne2 = args.elements_halo.size();
+    for (int ie=0; ie<(ne1+ne2); ie++) {
+      auto el = (ie<ne1) ? args.elements[ie] : args.elements_halo[ie-ne1];
       switch (el.type) {
         case 0:
           stretching(coords, el, NULL, &g);
