@@ -62,8 +62,8 @@ namespace minim {
 
     // Store the changes required for LBFGS
     if (minim::mpi.rank == 0) {
-      _s[_i_cycle] = vec::multiply(step_multiplier, step);
-      _y[_i_cycle] = vec::diff(_g1, _g0);
+      _s[_i_cycle] = step_multiplier * step;
+      _y[_i_cycle] = _g1 - _g0;
       _rho[_i_cycle] = 1 / vec::dotProduct(_s[_i_cycle], _y[_i_cycle]);
     }
 
@@ -80,11 +80,11 @@ namespace minim {
       int m_tmp = (_m < iter) ? _m : iter;
 
       if (iter == 0) {
-        step = vec::multiply(-_init_hessian, _g0);
+        step = -_init_hessian * _g0;
         return step;
       }
 
-      step = vec::multiply(-1, _g0);
+      step = -_g0;
       for (int i1=0; i1<m_tmp; i1++) {
         int i = (_i_cycle - 1 - i1 + _m) % _m;
         alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
@@ -95,15 +95,15 @@ namespace minim {
 
       int i = (_i_cycle - 1 + _m) % _m;
       double gamma = 1 / (_rho[i] * vec::dotProduct(_y[i], _y[i]));
-      step = vec::multiply(gamma, step);
+      step = gamma * step;
 
       for (int i1=0; i1<m_tmp; i1++) {
         int i = (_i_cycle - m_tmp + i1 + _m) % _m;
         double beta = _rho[i] * vec::dotProduct(step, _y[i]);
-        step = vec::sum(step, vec::multiply(alpha[i]-beta, _s[i]));
+        step += (alpha[i]-beta) * _s[i];
       }
 
-      if (vec::dotProduct(step, _g0) > 0) step = vec::multiply(-1, step);
+      if (vec::dotProduct(step, _g0) > 0) step = -step;
     }
 
     return step;

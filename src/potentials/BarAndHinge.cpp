@@ -48,7 +48,7 @@ namespace minim {
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
     // Compute distance
-    auto dx = vec::diff(x1, x2);
+    auto dx = x1 - x2;
     auto l = vec::norm(dx);
     auto dl = l - el.parameters[1];
 
@@ -75,9 +75,9 @@ namespace minim {
     Vector x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
 
     // Compute bond vectors
-    auto b1 = vec::diff(x2, x1);
-    auto b2 = vec::diff(x3, x2);
-    auto b3 = vec::diff(x4, x3);
+    auto b1 = x2 - x1;
+    auto b2 = x3 - x2;
+    auto b3 = x4 - x3;
     double b2m = vec::norm(b2);
 
     // Compute normal vectors
@@ -99,8 +99,8 @@ namespace minim {
     if (g != NULL) {
       double gfactor = - el.parameters[0] * (s*c0 + c*s0);
       // Normal vectors with magnitude 1 / triangle height
-      auto n1h = vec::multiply(n1, b2m/n1sq);
-      auto n2h = vec::multiply(n2, b2m/n2sq);
+      auto n1h = b2m/n1sq * n1;
+      auto n2h = b2m/n2sq * n2;
       // Quantify triangular skew, 0.5 if symmetric
       double skew1 = -vec::dotProduct(b1, b2) / (b2m*b2m);
       double skew2 = -vec::dotProduct(b3, b2) / (b2m*b2m);

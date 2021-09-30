@@ -42,10 +42,10 @@ namespace minim {
     // Update velocity
     if (p > 0) {
       double vnorm = sqrt(state.comm.dotProduct(_v, _v));
-      _v = vec::diff( vec::multiply(1-_a, _v), vec::multiply(_a*vnorm/_gnorm + _dt, _g) );
+      _v = (1-_a)*_v - (_a*vnorm/_gnorm + _dt)*_g;
       _n_steps++;
     } else {
-      _v = vec::multiply(-1*_dt, _g);
+      _v = -_dt * _g;
       _n_steps = 0;
     }
 
@@ -60,8 +60,8 @@ namespace minim {
     }
 
     // Update position
-    auto step = vec::multiply(_dt, _v);
-    state.blockCoords(vec::sum(state.blockCoords(), step));
+    auto step = _dt * _v;
+    state.blockCoords(state.blockCoords() + step);
     _g = state.gradient();
     _gnorm = sqrt(state.comm.dotProduct(_g, _g));
   }

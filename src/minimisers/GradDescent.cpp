@@ -27,8 +27,8 @@ namespace minim {
 
   void GradDescent::iteration() {
     _g = state.gradient();
-    auto step = vec::multiply(-_alpha, _g);
-    state.blockCoords(vec::sum(state.blockCoords(), step));
+    auto step = -_alpha * _g;
+    state.blockCoords(state.blockCoords() + step);
   }
 
 

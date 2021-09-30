@@ -3,29 +3,37 @@
 
 #include <vector>
 
-namespace vec {
+namespace minim {
   typedef std::vector<double> Vector;
 
-  Vector sum(double a, Vector b);
-  Vector sum(Vector a, double b);
-  Vector sum(Vector a, Vector b);
+  Vector operator+(double a, Vector b);
+  Vector operator+(const Vector &a, double b);
+  Vector operator+(const Vector &a, const Vector &b);
+  Vector& operator+=(Vector &a, double b);
+  Vector& operator+=(Vector &a, const Vector &b);
 
-  Vector diff(double a, Vector b);
-  Vector diff(Vector a, double b);
-  Vector diff(Vector a, Vector b);
+  Vector operator-(const Vector &a);
+  Vector operator-(double a, const Vector &b);
+  Vector operator-(const Vector &a, double b);
+  Vector operator-(const Vector &a, const Vector &b);
+  Vector& operator-=(Vector &a, double b);
+  Vector& operator-=(Vector &a, const Vector &b);
 
-  Vector multiply(double a, Vector b);
-  Vector multiply(Vector a, double b);
+  Vector operator*(double a, const Vector &b);
+  Vector operator*(const Vector &a, double b);
+  Vector& operator*=(Vector &a, double b);
 
-  double dotProduct(Vector a, Vector b);
-  Vector crossProduct(Vector a, Vector b);
+  namespace vec {
+    double dotProduct(const Vector &a, const Vector &b);
+    Vector crossProduct(const Vector &a, const Vector &b);
 
-  double norm(Vector a);
+    double norm(const Vector &a);
 
-  bool any(std::vector<bool> a);
-  bool all(std::vector<bool> a);
+    bool any(const std::vector<bool> &a);
+    bool all(const std::vector<bool> &a);
 
-  void insert_unique(std::vector<int> &vec, int value);
+    void insert_unique(std::vector<int> &vec, int value);
+  }
 }
 
 #endif
