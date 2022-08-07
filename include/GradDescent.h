@@ -9,15 +9,16 @@ namespace minim {
   // Gradient desecent minimisation
   class GradDescent : public Minimiser {
     public:
-      GradDescent(State &state, AdjustFunc adjustModel=NULL);
+      GradDescent() {};
       ~GradDescent() {};
 
       GradDescent& setAlpha(double alpha);
       GradDescent& setMaxIter(int maxIter);
 
-      void iteration();
+      void init(State &state);
+      void iteration(State &state);
 
-      bool checkConvergence() override;
+      bool checkConvergence(const State &state) override;
 
     private:
       double _alpha = 1e-3;

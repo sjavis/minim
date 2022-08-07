@@ -17,24 +17,25 @@ namespace minim {
   //! LBFGS minimisation algorithm
   class Lbfgs : public Minimiser {
     public:
-      Lbfgs(State &state, AdjustFunc adjustModel=NULL);
+      Lbfgs();
       ~Lbfgs() {};
 
       Lbfgs& setM(int m);
       Lbfgs& setMaxIter(int maxIter);
 
-      void iteration();
+      void init(State &state);
+      void iteration(State &state);
 
-      bool checkConvergence() override;
+      bool checkConvergence(const State &state) override;
 
     private:
       typedef std::vector<double> Vector;
 
-      int _m;
+      int _m = 5;
       int _i_cycle;
       double _init_hessian = 1e-4;
-      Vector _g0;
-      Vector _g1;
+      Vector _g;
+      Vector _gNew;
       Vector _step;
       Vector _rho;
       std::vector<Vector> _s;

@@ -9,14 +9,6 @@
 
 namespace minim {
 
-  Anneal::Anneal(State &state, double temp_init, double displacement, AdjustFunc adjustModel)
-    : Minimiser(state, adjustModel), _temp_init(temp_init), _displacement(displacement)
-  {
-    // Set a different random seed on all processors
-    srand(time(0)+minim::mpi.rank);
-  }
-
-
   Anneal& Anneal::setMaxIter(int maxIter) {
     Minimiser::setMaxIter(maxIter);
     return *this;
@@ -35,13 +27,15 @@ namespace minim {
   }
 
 
-  void Anneal::iteration() {
-    if (iter == 0) {
-      _since_accepted = 0;
-      _current_state = state.blockCoords();
-      _current_e = state.energy();
-    }
+  void Anneal::init(State &state) {
+    _since_accepted = 0;
+    _current_state = state.blockCoords();
+    _current_e = state.energy();
+    srand(time(0)+minim::mpi.rank); // Set a different random seed on all processors
+  }
 
+
+  void Anneal::iteration(State &state) {
     _temp = _temp_init / (1 + iter);
 
     // Randomly perturb state
@@ -64,7 +58,7 @@ namespace minim {
     }
 
     // Set final state
-    if (iter == maxIter-1) state.blockCoords(_current_state);
+    if ((checkConvergence(state)) || (iter == maxIter-1)) state.blockCoords(_current_state);
   }
 
 
@@ -80,11 +74,8 @@ namespace minim {
   }
 
 
-  bool Anneal::checkConvergence() {
+  bool Anneal::checkConvergence(const State &state) {
     bool is_converged = (_max_rejections > 0) && (_since_accepted >= _max_rejections);
-
-    // Set final state
-    if (is_converged) state.blockCoords(_current_state);
     return is_converged;
   }
 

@@ -8,11 +8,6 @@
 
 namespace minim {
 
-  GradDescent::GradDescent(State &state, AdjustFunc adjustModel)
-    : Minimiser(state, adjustModel), _g(state.ndof)
-  {}
-
-
   GradDescent& GradDescent::setAlpha(double alpha) {
     _alpha = alpha;
     return *this;
@@ -25,14 +20,19 @@ namespace minim {
   }
 
 
-  void GradDescent::iteration() {
+  void GradDescent::init(State &state) {
+    _g = std::vector<double>(state.ndof);
+  }
+
+
+  void GradDescent::iteration(State &state) {
     _g = state.gradient();
     auto step = -_alpha * _g;
     state.blockCoords(state.blockCoords() + step);
   }
 
 
-  bool GradDescent::checkConvergence() {
+  bool GradDescent::checkConvergence(const State &state) {
     double sum = state.comm.dotProduct(_g, _g);
     double rms = sqrt(sum/state.ndof);
     return (rms < state.convergence);

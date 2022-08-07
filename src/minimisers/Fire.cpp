@@ -8,18 +8,6 @@
 
 namespace minim {
 
-  Fire::Fire(State &state, AdjustFunc adjustModel)
-    : Minimiser(state, adjustModel), _v(state.ndof), _g(state.ndof) {
-    _g = state.gradient();
-    _dt_max = 0.1 / sqrt(sqrt(state.comm.dotProduct(_g, _g)));
-  }
-
-
-  Fire::Fire(State &state, double dt_max, AdjustFunc adjustModel)
-    : Minimiser(state, adjustModel), _v(state.ndof), _g(state.ndof), _dt_max(dt_max)
-  {}
-
-
   Fire& Fire::setMaxIter(int maxIter) {
     Minimiser::setMaxIter(maxIter);
     return *this;
@@ -31,7 +19,14 @@ namespace minim {
   }
 
 
-  void Fire::iteration() {
+  void Fire::init(State &state) {
+    _v = std::vector<double>(state.ndof);
+    _g = state.gradient();
+    if (_dt_max == 0) _dt_max = 0.1 / sqrt(sqrt(state.comm.dotProduct(_g, _g)));
+  }
+
+
+  void Fire::iteration(State &state) {
     if (iter == 0) {
       _dt = _dt_max;
       _g = state.gradient();
@@ -67,7 +62,7 @@ namespace minim {
   }
 
 
-  bool Fire::checkConvergence() {
+  bool Fire::checkConvergence(const State &state) {
     double rms = _gnorm / sqrt(state.ndof);
     return (rms < state.convergence);
   }

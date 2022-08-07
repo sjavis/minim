@@ -5,30 +5,20 @@
 
 namespace minim {
 
-  Minimiser::Minimiser(State &state) : state(state), _adjustModel(NULL) {}
-  Minimiser::Minimiser(State &state, AdjustFunc adjustModel) : state(state), _adjustModel(adjustModel) {}
-
-
   Minimiser& Minimiser::setMaxIter(int maxIter) {
     this->maxIter = maxIter;
     return *this;
   }
 
 
-  std::vector<double> Minimiser::minimise() {
+  std::vector<double> Minimiser::minimise(State &state, AdjustFunc adjustState) {
+    init(state);
     for (iter=0; iter<maxIter; iter++) {
-      adjustModel();
-      iteration();
-      if (checkConvergence()) break;
+      if (adjustState) adjustState(iter, state);
+      iteration(state);
+      if (checkConvergence(state)) break;
     }
     return state.getCoords();
-  }
-
-
-  void Minimiser::adjustModel() {
-    if (_adjustModel) {
-      _adjustModel(iter, state);
-    }
   }
 
 }

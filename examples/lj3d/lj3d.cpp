@@ -16,11 +16,11 @@ int main(int argc, char **argv) {
   State state = potential.newState({0,0,0, 2,0,0, 1,1,0, 5,1,1});
   state.convergence = 1e-4;
 
-  Lbfgs min = Lbfgs(state);
-  //Fire min = Fire(state);
-  //GradDescent min = GradDescent(state).setMaxIter(100000);
-  //Anneal min = Anneal(state, 1, 0.0001).setMaxIter(1000000);
-  auto result = min.minimise();
+  Lbfgs min = Lbfgs();
+  //Fire min = Fire();
+  //GradDescent min = GradDescent().setMaxIter(100000);
+  //Anneal min = Anneal(1, 0.0001).setMaxIter(1000000);
+  auto result = min.minimise(state);
 
   print("Complete after", min.iter, "iterations.");
   print(result[0], result[1], result[2]);
@@ -45,8 +45,7 @@ int main(int argc, char **argv) {
   for (int i=0; i<nruns; i++) {
     std::generate(init.begin(), init.end(), [](){ return rand()%1000/100.-5; });
     state.comm.bcast(init);
-    min.state.setCoords(init);
-    auto result = min.minimise();
+    auto result = min.minimise(state);
   }
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);

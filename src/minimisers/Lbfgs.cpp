@@ -14,26 +14,8 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  Lbfgs::Lbfgs(State &state, AdjustFunc adjustModel)
-    : Minimiser(state, adjustModel), _m(5)
-  {
-    if (minim::mpi.rank == 0) {
-      _s = std::vector<Vector>(_m, Vector(state.ndof));
-      _y = std::vector<Vector>(_m, Vector(state.ndof));
-      _rho = Vector(_m);
-      _g0 = Vector(state.ndof);
-      _g1 = Vector(state.ndof);
-    }
-  }
-
-
   Lbfgs& Lbfgs::setM(int m) {
     _m = m;
-    if (minim::mpi.rank == 0) {
-      _rho.resize(m);
-      _s.resize(m, Vector(state.ndof));
-      _y.resize(m, Vector(state.ndof));
-    }
     return *this;
   }
 
@@ -43,8 +25,19 @@ namespace minim {
   }
 
 
-  void Lbfgs::iteration() {
-    if (iter == 0) _g0 = state.comm.gather(state.gradient(), 0);
+  void Lbfgs::init(State &state) {
+    if (minim::mpi.rank == 0) {
+      _s = std::vector<Vector>(_m, Vector(state.ndof));
+      _y = std::vector<Vector>(_m, Vector(state.ndof));
+      _rho = Vector(_m);
+      _g = Vector(state.ndof);
+      _gNew = Vector(state.ndof);
+    }
+    _g = state.comm.gather(state.gradient(), 0);
+  }
+
+
+  void Lbfgs::iteration(State &state) {
     _i_cycle = iter % _m;
 
     // Find minimisation direction
@@ -53,21 +46,21 @@ namespace minim {
 
     // Perform linesearch
     double de0;
-    if (minim::mpi.rank==0) de0 = vec::dotProduct(_g0, step);
+    if (minim::mpi.rank==0) de0 = vec::dotProduct(_g, step);
     state.comm.bcast(de0);
     double step_multiplier = backtrackingLinesearch(state, step_block, de0);
 
     // Get new gradient
-    _g1 = state.comm.gather(state.gradient(), 0);
+    _gNew = state.comm.gather(state.gradient(), 0);
 
     // Store the changes required for LBFGS
     if (minim::mpi.rank == 0) {
       _s[_i_cycle] = step_multiplier * step;
-      _y[_i_cycle] = _g1 - _g0;
+      _y[_i_cycle] = _gNew - _g;
       _rho[_i_cycle] = 1 / vec::dotProduct(_s[_i_cycle], _y[_i_cycle]);
     }
 
-    _g0 = _g1;
+    _g = _gNew;
   }
 
 
@@ -80,15 +73,15 @@ namespace minim {
       int m_tmp = (_m < iter) ? _m : iter;
 
       if (iter == 0) {
-        step = -_init_hessian * _g0;
+        step = -_init_hessian * _g;
         return step;
       }
 
-      step = -_g0;
+      step = -_g;
       for (int i1=0; i1<m_tmp; i1++) {
         int i = (_i_cycle - 1 - i1 + _m) % _m;
         alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
-        for (int j=0; j<state.ndof; j++) {
+        for (int j=0; j<step.size(); j++) {
           step[j] -= alpha[i] * _y[i][j];
         }
       }
@@ -103,16 +96,16 @@ namespace minim {
         step += (alpha[i]-beta) * _s[i];
       }
 
-      if (vec::dotProduct(step, _g0) > 0) step = -step;
+      if (vec::dotProduct(step, _g) > 0) step = -step;
     }
 
     return step;
   }
 
 
-  bool Lbfgs::checkConvergence() {
+  bool Lbfgs::checkConvergence(const State &state) {
     double rms;
-    if (minim::mpi.rank == 0) rms = sqrt(vec::dotProduct(_g0, _g0) / state.ndof);
+    if (minim::mpi.rank == 0) rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
     state.comm.bcast(rms);
     return (rms < state.convergence);
   }

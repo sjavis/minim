@@ -8,15 +8,16 @@ namespace minim {
 
   class Anneal : public Minimiser {
     public:
-      Anneal(State &state, double temp_init, double displacement, AdjustFunc adjustModel=NULL);
+      Anneal(double temp_init, double displacement) : _temp_init(temp_init), _displacement(displacement) {};
       ~Anneal() {};
 
       Anneal& setMaxIter(int maxIter);
       Anneal& setTempInit(double temp_init);
       Anneal& setDisplacement(double displacement);
 
-      void iteration();
-      bool checkConvergence() override;
+      void init(State &state);
+      void iteration(State &state);
+      bool checkConvergence(const State &state) override;
 
     private:
       int _since_accepted;

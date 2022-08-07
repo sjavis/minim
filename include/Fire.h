@@ -8,15 +8,16 @@ namespace minim {
 
   class Fire : public Minimiser {
     public:
-      Fire(State &state, AdjustFunc adjustModel=NULL);
-      Fire(State &state, double dt_max, AdjustFunc adjustModel=NULL);
+      Fire() {};
+      Fire(double dt_max) : _dt_max(dt_max) {};
       ~Fire() {};
 
       Fire& setMaxIter(int maxIter);
       Fire& setDtMax(double dt_max);
 
-      void iteration();
-      bool checkConvergence() override;
+      void init(State &state);
+      void iteration(State &state);
+      bool checkConvergence(const State &state) override;
 
     private:
       int _n_min = 5;
@@ -28,7 +29,7 @@ namespace minim {
       int _n_steps;
       double _a;
       double _dt;
-      double _dt_max;
+      double _dt_max = 0;
       double _gnorm;
       std::vector<double> _g;
       std::vector<double> _v;

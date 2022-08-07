@@ -13,21 +13,16 @@ namespace minim {
 
       typedef void (*AdjustFunc)(int, State&);
       int iter;
-      State &state;
 
-      Minimiser(State &state);
-      Minimiser(State &state, AdjustFunc adjustModel);
+      Minimiser() {};
       virtual ~Minimiser() {};
 
       virtual Minimiser& setMaxIter(int maxIter);
 
-      std::vector<double> minimise();
-      virtual void iteration() = 0;
-      virtual bool checkConvergence() { false; };
-      void adjustModel();
-
-    private:
-      AdjustFunc _adjustModel;
+      std::vector<double> minimise(State &state, AdjustFunc adjustState=NULL);
+      virtual void init(State &state) {};
+      virtual void iteration(State &state) = 0;
+      virtual bool checkConvergence(const State &state) { return false; };
   };
 
 }

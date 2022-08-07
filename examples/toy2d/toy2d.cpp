@@ -27,12 +27,12 @@ int main(int argc, char **argv) {
   State state = potential.newState({1,4});
   state.convergence = 1e-4;
 
-  //GradDescent min = GradDescent(state);
-  //Lbfgs min = Lbfgs(state).setMaxIter(100);
-  //Fire min = Fire(state);
-  Anneal min = Anneal(state, 100, 1);
+  //GradDescent min = GradDescent();
+  //Lbfgs min = Lbfgs().setMaxIter(100);
+  //Fire min = Fire();
+  Anneal min = Anneal(100, 1);
 
-  auto result = min.minimise();
+  auto result = min.minimise(state);
 
   print(min.iter, result);
 }
