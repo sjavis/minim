@@ -15,10 +15,10 @@ namespace minim {
     for (auto el: args.elements) {
       switch (el.type) {
         case 0:
-          stretching(coords, el, &e, NULL);
+          stretching(coords, el, &e, nullptr);
           break;
         case 1:
-          bending(coords, el, &e, NULL);
+          bending(coords, el, &e, nullptr);
           break;
       }
     }
@@ -35,10 +35,10 @@ namespace minim {
       auto el = (ie<ne1) ? args.elements[ie] : args.elements_halo[ie-ne1];
       switch (el.type) {
         case 0:
-          stretching(coords, el, NULL, &g);
+          stretching(coords, el, nullptr, &g);
           break;
         case 1:
-          bending(coords, el, NULL, &g);
+          bending(coords, el, nullptr, &g);
           break;
       }
     }
@@ -56,10 +56,10 @@ namespace minim {
     auto l = vec::norm(dx);
     auto dl = l - el.parameters[1];
 
-    if (e != NULL) {
+    if (e != nullptr) {
       *e += el.parameters[0] * pow(dl, 2);
     }
-    if (g != NULL) {
+    if (g != nullptr) {
       auto g_factor = 2 * el.parameters[0] * dl / l;
       (*g)[el.idof[0]] += g_factor * dx[0];
       (*g)[el.idof[1]] += g_factor * dx[1];
@@ -97,10 +97,10 @@ namespace minim {
     double c0 = cos(el.parameters[1]);
     double s0 = sin(el.parameters[1]);
 
-    if (e != NULL) {
+    if (e != nullptr) {
       *e += el.parameters[0] * (1 + c*c0 - s*s0); // Double angle formula for cos(t - t0)
     }
-    if (g != NULL) {
+    if (g != nullptr) {
       double gfactor = - el.parameters[0] * (s*c0 + c*s0);
       // Normal vectors with magnitude 1 / triangle height
       auto n1h = b2m/n1sq * n1;

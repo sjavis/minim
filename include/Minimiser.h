@@ -19,7 +19,7 @@ namespace minim {
 
       virtual Minimiser& setMaxIter(int maxIter);
 
-      std::vector<double> minimise(State &state, AdjustFunc adjustState=NULL);
+      std::vector<double> minimise(State &state, AdjustFunc adjustState=nullptr);
       virtual void init(State &state) {};
       virtual void iteration(State &state) = 0;
       virtual bool checkConvergence(const State &state) { return false; };

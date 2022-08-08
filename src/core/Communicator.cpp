@@ -194,7 +194,7 @@ namespace minim {
       if (priv->nrecv[i] > 0) {
         int tag = i*mpi.size + mpi.rank;
         int irecv = std::accumulate(priv->nrecv.begin(), priv->nrecv.begin()+i, nblock);
-        MPI_Recv(&vector[irecv], priv->nrecv[i], MPI_DOUBLE, i, tag, MPI_COMM_WORLD, NULL);
+        MPI_Recv(&vector[irecv], priv->nrecv[i], MPI_DOUBLE, i, tag, MPI_COMM_WORLD, nullptr);
       }
     }
   #endif
