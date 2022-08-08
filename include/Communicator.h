@@ -20,18 +20,18 @@ namespace minim {
       Communicator(int ndof, Args &args);
       ~Communicator();
 
-      Vector assignBlock(const Vector &in);
+      Vector assignBlock(const Vector &in) const;
 
-      void communicate(Vector &vector);
-      double get(const Vector &vector, int i);
-      double dotProduct(const Vector &a, const Vector &b);
+      void communicate(Vector &vector) const;
+      double get(const Vector &vector, int i) const;
+      double dotProduct(const Vector &a, const Vector &b) const;
 
-      Vector gather(const Vector &block, int root=-1);
-      Vector scatter(const Vector &data, int root=-1);
+      Vector gather(const Vector &block, int root=-1) const;
+      Vector scatter(const Vector &data, int root=-1) const;
 
-      void bcast(int &value, int root=0);
-      void bcast(double &value, int root=0);
-      void bcast(Vector &value, int root=0);
+      void bcast(int &value, int root=0) const;
+      void bcast(double &value, int root=0) const;
+      void bcast(Vector &value, int root=0) const;
   };
 
 }
