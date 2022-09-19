@@ -17,7 +17,7 @@ namespace minim {
   //! LBFGS minimisation algorithm
   class Lbfgs : public Minimiser {
     public:
-      Lbfgs();
+      Lbfgs() {};
       ~Lbfgs() {};
 
       Lbfgs& setM(int m);
