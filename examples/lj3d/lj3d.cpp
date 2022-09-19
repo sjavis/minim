@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
   for (int i=0; i<nruns; i++) {
     std::generate(init.begin(), init.end(), [](){ return rand()%1000/100.-5; });
     state.comm.bcast(init);
+    state.setCoords(init);
     auto result = min.minimise(state);
   }
   auto stop = high_resolution_clock::now();
