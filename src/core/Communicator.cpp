@@ -236,7 +236,7 @@ namespace minim {
                      &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
                      MPI_COMM_WORLD);
     } else {
-      if (mpi.rank==0) gathered = Vector(ndof);
+      if (mpi.rank==root) gathered = Vector(ndof);
       MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
                   &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
                   MPI_COMM_WORLD);
@@ -250,12 +250,13 @@ namespace minim {
 
   Vector Communicator::scatter(const Vector &data, int root) const {
   #ifdef PARALLEL
-    // Get copy of data on processor
+    // Get copy of data on processor (potentially inefficient)
     Vector data_copy;
     if (root == -1) {
       data_copy = data;
+      // Note: Halo data may not be correct if 'data' is different on each processor
     } else {
-      data_copy = (mpi.rank==0) ? data : Vector(ndof);
+      data_copy = (mpi.rank==root) ? data : Vector(ndof);
       bcast(data_copy, root);
     }
     // Assign the main blocks
