@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <numeric>
+#include <stdexcept>
 #include "Potential.h"
 #include "vec.h"
 #include "utils/mpi.h"
@@ -41,6 +42,7 @@ namespace minim {
         for (int i=mpi.size-1; i>=0; i--) {
           if (loc >= iblocks[i]) return i;
         }
+        throw std::invalid_argument("Invalid location");
       }
   };
 
