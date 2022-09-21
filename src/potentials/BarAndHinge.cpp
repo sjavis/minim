@@ -3,7 +3,7 @@
 #include <vector>
 #include <math.h>
 #include "Potential.h"
-#include "vec.h"
+#include "utils/vec.h"
 
 namespace minim {
 

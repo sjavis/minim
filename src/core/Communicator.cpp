@@ -8,7 +8,7 @@
 #include <numeric>
 #include <stdexcept>
 #include "Potential.h"
-#include "vec.h"
+#include "utils/vec.h"
 #include "utils/mpi.h"
 
 namespace minim {

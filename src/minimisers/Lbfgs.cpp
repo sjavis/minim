@@ -6,7 +6,7 @@
 #include "Minimiser.h"
 #include "Communicator.h"
 #include "linesearch.h"
-#include "vec.h"
+#include "utils/vec.h"
 #include "utils/mpi.h"
 
 namespace minim {
