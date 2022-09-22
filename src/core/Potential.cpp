@@ -30,12 +30,12 @@ namespace minim {
   }
 
 
-  double Potential::energy(const Vector &coords, const Args &args) {
+  double Potential::energy(const Vector &coords, const Args &args) const {
     return _energy(coords, args);
   }
 
 
-  Vector Potential::gradient(const Vector &coords, const Args &args) {
+  Vector Potential::gradient(const Vector &coords, const Args &args) const {
     return _gradient(coords, args);
   }
 

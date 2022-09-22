@@ -24,9 +24,9 @@ namespace minim {
       Lj3d() {};
       ~Lj3d() {};
 
-      double energy(const Vector &coords, const Args &args) override;
+      double energy(const Vector &coords, const Args &args) const override;
 
-      Vector gradient(const Vector &coords, const Args &args) override;
+      Vector gradient(const Vector &coords, const Args &args) const override;
 
       using Potential::newArgs;
       Args* newArgs(int ndof) override;

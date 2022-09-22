@@ -24,7 +24,7 @@ namespace minim {
   }
 
 
-  double Lj3d::energy(const Vector &coords, const Args &args_tmp) {
+  double Lj3d::energy(const Vector &coords, const Args &args_tmp) const {
     const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
     double energy = 0;
 
@@ -41,7 +41,7 @@ namespace minim {
   }
 
 
-  Vector Lj3d::gradient(const Vector &coords, const Args &args_tmp) {
+  Vector Lj3d::gradient(const Vector &coords, const Args &args_tmp) const {
     const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
     Vector g(coords.size());
 

@@ -28,17 +28,16 @@ namespace minim {
 
 
   class Potential {
-    private:
-      typedef std::vector<double> Vector;
-      typedef double (*EFunc)(const Vector&, const Args&);
-      typedef Vector (*GFunc)(const Vector&, const Args&);
+    typedef std::vector<double> Vector;
+    typedef double (*EFunc)(const Vector&, const Args&);
+    typedef Vector (*GFunc)(const Vector&, const Args&);
 
     public:
       Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};
       ~Potential() {};
 
-      virtual double energy(const Vector &coords, const Args &args);
-      virtual Vector gradient(const Vector &coords, const Args &args);
+      virtual double energy(const Vector &coords, const Args &args) const;
+      virtual Vector gradient(const Vector &coords, const Args &args) const;
 
       virtual Args* newArgs(int ndof);
       State newState(Vector coords);

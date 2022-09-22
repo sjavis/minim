@@ -17,20 +17,20 @@ namespace minim {
   }
 
 
-  double State::energy() {
+  double State::energy() const {
     return energy(_coords);
   }
 
-  double State::energy(const Vector &coords) {
+  double State::energy(const Vector &coords) const {
     return minim::mpi.sum(_pot.energy(coords, args));
   }
 
 
-  Vector State::gradient() {
+  Vector State::gradient() const {
     return gradient(_coords);
   }
 
-  Vector State::gradient(const Vector &coords) {
+  Vector State::gradient(const Vector &coords) const {
     Vector grad = _pot.gradient(coords, args);
     comm.communicate(grad);
     return grad;
@@ -42,7 +42,7 @@ namespace minim {
   }
 
 
-  Vector State::getCoords() {
+  Vector State::getCoords() const {
     return comm.gather(_coords, -1);
   }
 
@@ -51,7 +51,7 @@ namespace minim {
   }
 
 
-  Vector State::blockCoords() {
+  Vector State::blockCoords() const {
     return _coords;
   }
 
