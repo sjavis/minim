@@ -6,15 +6,6 @@
 
 namespace minim {
 
-  class Lj3dArgs : public Args {
-    public:
-      int n_particle;
-      double sigma;
-      double epsilon;
-
-      Lj3dArgs(int ndof, double sigma=1, double epsilon=1);
-  };
-
 
   class Lj3d : public Potential {
     typedef std::vector<double> Vector;
@@ -23,12 +14,19 @@ namespace minim {
       Lj3d() {};
       ~Lj3d() {};
 
-      double energy(const Vector &coords, const Args &args) const override;
-
-      Vector gradient(const Vector &coords, const Args &args) const override;
+      double energy(const Vector &coords, const Potential::Args &args) const override;
+      Vector gradient(const Vector &coords, const Potential::Args &args) const override;
 
       using Potential::newArgs;
-      Args* newArgs(int ndof) override;
+      Potential::Args* newArgs(int ndof) override;
+
+      class Args : public Potential::Args {
+        public:
+          int n_particle;
+          double sigma;
+          double epsilon;
+          Args(int ndof, double sigma=1, double epsilon=1);
+      };
   };
 
 }

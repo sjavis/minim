@@ -47,8 +47,8 @@ namespace minim {
   };
 
 
-  Communicator::Communicator(int ndof, Args &args)
-    : priv(new Priv()), ndof(ndof), nproc(ndof), nblock(ndof)
+  Communicator::Communicator(int ndof, Potential::Args &args)
+    : ndof(ndof), nproc(ndof), nblock(ndof), priv(new Priv())
   {
     priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
     if (mpi.size == 1) return;
@@ -66,7 +66,7 @@ namespace minim {
     std::vector<std::vector<bool>> in_block(args.elements.size());
     int nelements = args.elements.size();
     for (int ie=0; ie<nelements; ie++) {
-      Args::Element e = args.elements[ie];
+      auto e = args.elements[ie];
       int e_ndof = e.idof.size();
       blocks[ie] = std::vector<int>(e_ndof);
       in_block[ie] = std::vector<bool>(e_ndof);
@@ -100,7 +100,7 @@ namespace minim {
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
     std::vector<int> nelements_blocks(mpi.size);
-    std::vector<Args::Element> elements_tmp;
+    std::vector<Potential::Args::Element> elements_tmp;
     for (int ie=0; ie<nelements; ie++) {
       // Assign each element to a proc
       int proc = blocks[ie][0];
@@ -115,7 +115,7 @@ namespace minim {
 
       // Store the elements for this proc
       if (vec::any(in_block[ie])) {
-        Args::Element e = args.elements[ie];
+        auto e = args.elements[ie];
         // Update element.idof with local index
         int idof_size = e.idof.size();
         for (int i=0; i<idof_size; i++) {

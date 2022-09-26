@@ -2,9 +2,9 @@
 #define COMMUNICATOR_H
 
 #include <vector>
+#include "Potential.h"
 
 namespace minim {
-  class Args;
   class Priv;
 
   class Communicator {
@@ -15,7 +15,7 @@ namespace minim {
       int nproc;
       int nblock;
 
-      Communicator(int ndof, Args &args);
+      Communicator(int ndof, Potential::Args &args);
       ~Communicator();
 
       Vector assignBlock(const Vector &in) const;

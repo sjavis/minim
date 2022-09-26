@@ -10,7 +10,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  State::State(Potential &pot, const Vector &coords, Args &args)
+  State::State(Potential &pot, const Vector &coords, Potential::Args &args)
     : ndof(coords.size()), args(args), comm(ndof,args), _pot(pot)
   {
     setCoords(coords);

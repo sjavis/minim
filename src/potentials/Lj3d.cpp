@@ -9,26 +9,11 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  Lj3dArgs::Lj3dArgs(int ndof, double sigma, double epsilon)
-    : Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon) {
-
-    // Generate energy elements
-    int id = 0;
-    for (int i=0; i<n_particle; i++) {
-      for (int j=i+1; j<n_particle; j++) {
-        Args::Element el = {id, 0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}};
-        elements.push_back(el);
-        id++;
-      }
-    }
-  }
-
-
-  double Lj3d::energy(const Vector &coords, const Args &args_tmp) const {
-    const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
+  double Lj3d::energy(const Vector &coords, const Potential::Args &args_tmp) const {
+    const Lj3d::Args &args = static_cast<const Lj3d::Args&> (args_tmp);
     double energy = 0;
 
-    for (Args::Element el : args.elements) {
+    for (auto el : args.elements) {
       double dx = coords[el.idof[0]] - coords[el.idof[3]];
       double dy = coords[el.idof[1]] - coords[el.idof[4]];
       double dz = coords[el.idof[2]] - coords[el.idof[5]];
@@ -41,8 +26,8 @@ namespace minim {
   }
 
 
-  Vector Lj3d::gradient(const Vector &coords, const Args &args_tmp) const {
-    const Lj3dArgs &args = static_cast<const Lj3dArgs&> (args_tmp);
+  Vector Lj3d::gradient(const Vector &coords, const Potential::Args &args_tmp) const {
+    const Lj3d::Args &args = static_cast<const Lj3d::Args&> (args_tmp);
     Vector g(coords.size());
 
     int ne1 = args.elements.size();
@@ -70,8 +55,25 @@ namespace minim {
   }
 
 
-  Args* Lj3d::newArgs(int ndof) {
-    return new Lj3dArgs(ndof);
+  Potential::Args* Lj3d::newArgs(int ndof) {
+    return new Lj3d::Args(ndof);
+  }
+
+
+
+  // Args
+  Lj3d::Args::Args(int ndof, double sigma, double epsilon)
+    : Potential::Args(ndof), n_particle(ndof/3), sigma(sigma), epsilon(epsilon)
+  {
+    // Generate energy elements
+    int id = 0;
+    for (int i=0; i<n_particle; i++) {
+      for (int j=i+1; j<n_particle; j++) {
+        Potential::Args::Element el = {id, 0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}};
+        elements.push_back(el);
+        id++;
+      }
+    }
   }
 
 }

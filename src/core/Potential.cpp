@@ -5,30 +5,7 @@
 namespace minim {
 
   typedef std::vector<double> Vector;
-
-
-  Args::Args(int ndof, std::vector<std::vector<int>> idofs) : ndof(ndof) {
-    // Generate energy elements
-    int id = 0;
-    for (const auto& idof: idofs) {
-      Args::Element el = {id, 0, idof};
-      elements.push_back(el);
-      id++;
-    }
-  }
-
-  Args::Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
-             std::vector<std::vector<double>> parameters)
-    : ndof(ndof) {
-    // Generate energy elements
-    int id = 0;
-    int nelements = idofs.size();
-    for (int i=0; i<nelements; i++) {
-      Args::Element el = {id, types[i], idofs[i], parameters[i]};
-      elements.push_back(el);
-      id++;
-    }
-  }
+  typedef Potential::Args Args;
 
 
   double Potential::energy(const Vector &coords, const Args &args) const {
@@ -54,6 +31,31 @@ namespace minim {
   State Potential::newState(int ndof) {
     Vector coords(ndof);
     return newState(coords);
+  }
+
+
+  // Args
+  Args::Args(int ndof, std::vector<std::vector<int>> idofs) : ndof(ndof) {
+    // Generate energy elements
+    int id = 0;
+    for (const auto& idof: idofs) {
+      Args::Element el = {id, 0, idof};
+      elements.push_back(el);
+      id++;
+    }
+  }
+
+  Args::Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
+             std::vector<std::vector<double>> parameters)
+    : ndof(ndof) {
+    // Generate energy elements
+    int id = 0;
+    int nelements = idofs.size();
+    for (int i=0; i<nelements; i++) {
+      Args::Element el = {id, types[i], idofs[i], parameters[i]};
+      elements.push_back(el);
+      id++;
+    }
   }
 
 }

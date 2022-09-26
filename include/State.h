@@ -6,7 +6,6 @@
 
 namespace minim {
   class Potential;
-  class Args;
 
   class State {
     typedef std::vector<double> Vector;
@@ -14,10 +13,10 @@ namespace minim {
     public:
       int ndof;
       double convergence = 1e-6;
-      Args &args;
+      Potential::Args &args;
       Communicator comm;
 
-      State(Potential &pot, const Vector &coords, Args &args);
+      State(Potential &pot, const Vector &coords, Potential::Args &args);
       ~State() {};
 
       double energy() const;

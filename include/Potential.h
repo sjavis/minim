@@ -6,31 +6,34 @@
 namespace minim {
   class State;
 
-  class Args {
+  class Potential {
     public:
-      struct Element {
-        int id;
-        int type;
-        std::vector<int> idof;
-        std::vector<double> parameters;
+      class Args {
+        public:
+          struct Element {
+            int id;
+            int type;
+            std::vector<int> idof;
+            std::vector<double> parameters;
+          };
+
+          const int ndof;
+          std::vector<Element> elements;
+          std::vector<Element> elements_halo;
+
+          Args(int ndof) : ndof(ndof) {};
+          Args(int ndof, std::vector<std::vector<int>> idofs);
+          Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
+               std::vector<std::vector<double>> parameters);
+          ~Args() {};
       };
 
-      const int ndof;
-      std::vector<Element> elements;
-      std::vector<Element> elements_halo;
-
-      Args(int ndof) : ndof(ndof) {};
-      Args(int ndof, std::vector<std::vector<int>> idofs);
-      Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
-           std::vector<std::vector<double>> parameters);
-      ~Args() {};
-  };
-
-
-  class Potential {
-    typedef std::vector<double> Vector;
-    typedef double (*EFunc)(const Vector&, const Args&);
-    typedef Vector (*GFunc)(const Vector&, const Args&);
+    private:
+      typedef std::vector<double> Vector;
+      typedef double (*EFunc)(const Vector&, const Args&);
+      typedef Vector (*GFunc)(const Vector&, const Args&);
+      EFunc _energy;
+      GFunc _gradient;
 
     public:
       Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};
@@ -45,10 +48,6 @@ namespace minim {
 
     protected:
       Potential() {};
-
-    private:
-      EFunc _energy;
-      GFunc _gradient;
   };
 
 }
