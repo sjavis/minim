@@ -126,9 +126,9 @@ namespace vec {
 
   // Insert
   void insert_unique(std::vector<int> &vec, int value) {
-    for (int i=0; i<vec.size(); i++) {
-      if (value <= vec[i]) {
-        if (value != vec[i]) vec.insert(vec.begin()+i, value);
+    for (auto iter=vec.begin(); iter<vec.end(); iter++) {
+      if (value <= *iter) {
+        if (value != *iter) vec.insert(iter, value);
         return;
       }
     }

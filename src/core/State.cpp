@@ -11,7 +11,7 @@ namespace minim {
 
 
   State::State(Potential &pot, const Vector &coords, Args &args)
-    : _pot(pot), args(args), ndof(coords.size()), comm(ndof,args)
+    : ndof(coords.size()), args(args), comm(ndof,args), _pot(pot)
   {
     setCoords(coords);
   }

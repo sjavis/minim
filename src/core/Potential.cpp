@@ -10,8 +10,8 @@ namespace minim {
   Args::Args(int ndof, std::vector<std::vector<int>> idofs) : ndof(ndof) {
     // Generate energy elements
     int id = 0;
-    for (int i=0; i<idofs.size(); i++) {
-      Args::Element el = {id, 0, idofs[i]};
+    for (const auto& idof: idofs) {
+      Args::Element el = {id, 0, idof};
       elements.push_back(el);
       id++;
     }
@@ -22,7 +22,8 @@ namespace minim {
     : ndof(ndof) {
     // Generate energy elements
     int id = 0;
-    for (int i=0; i<idofs.size(); i++) {
+    int nelements = idofs.size();
+    for (int i=0; i<nelements; i++) {
       Args::Element el = {id, types[i], idofs[i], parameters[i]};
       elements.push_back(el);
       id++;

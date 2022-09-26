@@ -64,7 +64,8 @@ namespace minim {
     std::vector<std::vector<int>> send_lists(mpi.size);
     std::vector<std::vector<int>> blocks(args.elements.size());
     std::vector<std::vector<bool>> in_block(args.elements.size());
-    for (int ie=0; ie<args.elements.size(); ie++) {
+    int nelements = args.elements.size();
+    for (int ie=0; ie<nelements; ie++) {
       Args::Element e = args.elements[ie];
       int e_ndof = e.idof.size();
       blocks[ie] = std::vector<int>(e_ndof);
@@ -98,25 +99,26 @@ namespace minim {
     }
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
-    std::vector<int> nelements(mpi.size);
+    std::vector<int> nelements_blocks(mpi.size);
     std::vector<Args::Element> elements_tmp;
-    for (int ie=0; ie<args.elements.size(); ie++) {
+    for (int ie=0; ie<nelements; ie++) {
       // Assign each element to a proc
       int proc = blocks[ie][0];
-      int fewest_elements = nelements[proc];
+      int fewest_elements = nelements_blocks[proc];
       for (int i : blocks[ie]) {
-        if (nelements[i] < fewest_elements) {
+        if (nelements_blocks[i] < fewest_elements) {
           proc = i;
-          fewest_elements = nelements[i];
+          fewest_elements = nelements_blocks[i];
         }
       }
-      nelements[proc] ++;
+      nelements_blocks[proc] ++;
 
       // Store the elements for this proc
       if (vec::any(in_block[ie])) {
         Args::Element e = args.elements[ie];
         // Update element.idof with local index
-        for (int i=0; i<e.idof.size(); i++) {
+        int idof_size = e.idof.size();
+        for (int i=0; i<idof_size; i++) {
           if (in_block[ie][i]) {
             e.idof[i] = e.idof[i] - priv->iblocks[mpi.rank];
           } else {

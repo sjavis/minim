@@ -78,10 +78,11 @@ namespace minim {
       }
 
       step = -_g;
+      int ndof = step.size();
       for (int i1=0; i1<m_tmp; i1++) {
         int i = (_i_cycle - 1 - i1 + _m) % _m;
         alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
-        for (int j=0; j<step.size(); j++) {
+        for (int j=0; j<ndof; j++) {
           step[j] -= alpha[i] * _y[i][j];
         }
       }

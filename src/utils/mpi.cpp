@@ -40,7 +40,7 @@ namespace minim {
 
   Mpi::~Mpi() {
 #ifdef PARALLEL
-    if (_init = true) {
+    if (_init == true) {
       MPI_Finalize();
     }
 #endif
@@ -48,7 +48,7 @@ namespace minim {
 
 
   double Mpi::sum(double summand) {
-    if ((_init = true) && (size > 1)) {
+    if ((_init == true) && (size > 1)) {
       double sum;
 #ifdef PARALLEL
       MPI_Allreduce(&summand, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
