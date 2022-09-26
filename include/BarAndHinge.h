@@ -7,8 +7,7 @@
 namespace minim {
 
   class BarAndHinge : public Potential {
-    private:
-      typedef std::vector<double> Vector;
+    typedef std::vector<double> Vector;
 
     public:
       BarAndHinge() {};

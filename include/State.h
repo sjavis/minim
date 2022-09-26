@@ -9,8 +9,7 @@ namespace minim {
   class Args;
 
   class State {
-    private:
-      typedef std::vector<double> Vector;
+    typedef std::vector<double> Vector;
 
     public:
       int ndof;

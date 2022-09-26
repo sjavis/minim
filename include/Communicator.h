@@ -8,9 +8,7 @@ namespace minim {
   class Priv;
 
   class Communicator {
-    private:
-     typedef std::vector<double> Vector;
-     Priv *priv;
+   typedef std::vector<double> Vector;
 
     public:
       int ndof;
@@ -32,6 +30,9 @@ namespace minim {
       void bcast(int &value, int root=0) const;
       void bcast(double &value, int root=0) const;
       void bcast(Vector &value, int root=0) const;
+
+    private:
+      Priv *priv;
   };
 
 }

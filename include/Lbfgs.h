@@ -16,6 +16,8 @@ namespace minim {
   //! \class Lbfgs
   //! LBFGS minimisation algorithm
   class Lbfgs : public Minimiser {
+    typedef std::vector<double> Vector;
+
     public:
       Lbfgs() {};
       ~Lbfgs() {};
@@ -29,8 +31,6 @@ namespace minim {
       bool checkConvergence(const State &state) override;
 
     private:
-      typedef std::vector<double> Vector;
-
       int _m = 5;
       int _i_cycle;
       double _init_hessian = 1e-4;
