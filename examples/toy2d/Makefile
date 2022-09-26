@@ -1,14 +1,13 @@
 ROOT_DIR = ../..
-INC = $(ROOT_DIR)/include
-BIN = $(ROOT_DIR)/bin
+INC = -I$(ROOT_DIR)/include
+BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim
 
-CXX = g++
 CXX = mpic++
-CXXFLAGS = -I$(INC) -L$(BIN) $(LIBS) -DPARALLEL
+CXXFLAGS = -DPARALLEL -Wall
 
 all:
-	$(CXX) toy2d.cpp -o run.exe $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) $(INC) $(BIN) toy2d.cpp $(LIBS) -o run.exe
 
 clean:
 	rm run.exe
