@@ -2,10 +2,10 @@
 #define COMMUNICATOR_H
 
 #include <vector>
+#include <memory>
 #include "Potential.h"
 
 namespace minim {
-  class Priv;
 
   class Communicator {
    typedef std::vector<double> Vector;
@@ -16,6 +16,8 @@ namespace minim {
       int nblock;
 
       Communicator(int ndof, Potential::Args &args);
+      Communicator(const Communicator &comm);
+      Communicator& operator=(const Communicator &comm);
       ~Communicator();
 
       Vector assignBlock(const Vector &in) const;
@@ -32,7 +34,8 @@ namespace minim {
       void bcast(Vector &value, int root=0) const;
 
     private:
-      Priv *priv;
+      class Priv;
+      std::unique_ptr<Priv> priv;
   };
 
 }

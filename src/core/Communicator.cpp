@@ -16,7 +16,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  class Priv {
+  class Communicator::Priv {
     public:
       Priv() :
         nblocks(mpi.size),
@@ -48,7 +48,7 @@ namespace minim {
 
 
   Communicator::Communicator(int ndof, Potential::Args &args)
-    : ndof(ndof), nproc(ndof), nblock(ndof), priv(new Priv())
+    : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::make_unique<Priv>())
   {
     priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
     if (mpi.size == 1) return;
@@ -163,6 +163,20 @@ namespace minim {
   }
 
 
+  Communicator::Communicator(const Communicator &comm)
+    : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), priv(std::make_unique<Priv>(*comm.priv))
+  {}
+
+
+  Communicator& Communicator::operator=(const Communicator &comm) {
+    ndof = comm.ndof;
+    nproc = comm.nproc;
+    nblock = comm.nblock;
+    priv = std::make_unique<Priv>(*comm.priv);
+    return *this;
+  }
+
+
   Communicator::~Communicator() {
   #ifdef PARALLEL
     // Free any committed MPI datatypes
@@ -172,7 +186,6 @@ namespace minim {
       }
     }
   #endif
-    delete priv;
   }
 
 
