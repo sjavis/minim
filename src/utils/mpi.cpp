@@ -48,15 +48,14 @@ namespace minim {
 
 
   double Mpi::sum(double summand) {
+#ifdef PARALLEL
     if ((_init == true) && (size > 1)) {
       double sum;
-#ifdef PARALLEL
       MPI_Allreduce(&summand, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#endif
       return sum;
-    } else {
-      return summand;
     }
+#endif
+    return summand;
   }
 
 }
