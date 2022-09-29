@@ -2,6 +2,7 @@
 #define POTENTIAL_H
 
 #include <vector>
+#include <memory>
 
 namespace minim {
   class State;
@@ -42,7 +43,7 @@ namespace minim {
       virtual double energy(const Vector &coords, const Args &args) const;
       virtual Vector gradient(const Vector &coords, const Args &args) const;
 
-      virtual Args* newArgs(int ndof);
+      virtual std::unique_ptr<Args> newArgs(int ndof);
       State newState(Vector coords);
       State newState(int ndof);
 

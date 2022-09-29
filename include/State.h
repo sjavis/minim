@@ -13,10 +13,10 @@ namespace minim {
     public:
       int ndof;
       double convergence = 1e-6;
-      Potential::Args &args;
       Communicator comm;
+      std::unique_ptr<Potential::Args> args;
 
-      State(Potential &pot, const Vector &coords, Potential::Args &args);
+      State(Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args);
       ~State() {};
 
       double energy() const;

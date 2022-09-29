@@ -55,8 +55,8 @@ namespace minim {
   }
 
 
-  Potential::Args* Lj3d::newArgs(int ndof) {
-    return new Lj3d::Args(ndof);
+  std::unique_ptr<Potential::Args> Lj3d::newArgs(int ndof) {
+    return std::make_unique<Potential::Args>(Lj3d::Args(ndof));
   }
 
 

@@ -2,6 +2,7 @@
 #define LJ3D_H
 
 #include <vector>
+#include <memory>
 #include "Potential.h"
 
 namespace minim {
@@ -18,7 +19,7 @@ namespace minim {
       Vector gradient(const Vector &coords, const Potential::Args &args) const override;
 
       using Potential::newArgs;
-      Potential::Args* newArgs(int ndof) override;
+      std::unique_ptr<Potential::Args> newArgs(int ndof) override;
 
       class Args : public Potential::Args {
         public:

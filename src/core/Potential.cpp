@@ -18,14 +18,14 @@ namespace minim {
   }
 
 
-  Args* Potential::newArgs(int ndof) {
-    return new Args(ndof);
+  std::unique_ptr<Args> Potential::newArgs(int ndof) {
+    return std::make_unique<Args>(Args(ndof));
   }
 
 
   State Potential::newState(Vector coords) {
-    Args *args = newArgs(coords.size());
-    return State(*this, coords, *args);
+    std::unique_ptr<Args> args = newArgs(coords.size());
+    return State(*this, coords, args);
   }
 
   State Potential::newState(int ndof) {
