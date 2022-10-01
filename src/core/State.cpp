@@ -16,6 +16,29 @@ namespace minim {
     setCoords(coords);
   }
 
+  State::State(const State& state)
+    : ndof(state.ndof),
+      convergence(state.convergence),
+      comm(state.comm),
+      args(state.args->clone()),
+      _istart(state._istart),
+      _iend(state._iend),
+      _coords(state._coords),
+      _pot(state._pot)
+  {}
+
+  State& State::operator=(const State& state) {
+    ndof = state.ndof;
+    convergence = state.convergence;
+    comm = state.comm;
+    args = state.args->clone();
+    _istart = state._istart;
+    _iend = state._iend;
+    _coords = state._coords;
+    _pot = state._pot;
+    return *this;
+  }
+
 
   double State::energy() const {
     return energy(_coords);

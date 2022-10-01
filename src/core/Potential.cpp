@@ -57,5 +57,10 @@ namespace minim {
       id++;
     }
   }
+  
+
+  std::unique_ptr<Args> Args::clone() const {
+    return std::unique_ptr<Args>(new Args(*this));
+  }
 
 }

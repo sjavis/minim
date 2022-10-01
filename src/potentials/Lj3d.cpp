@@ -76,4 +76,9 @@ namespace minim {
     }
   }
 
+
+  std::unique_ptr<Potential::Args> Lj3d::Args::clone() const {
+    return std::unique_ptr<Potential::Args>(new Args(*this));
+  }
+
 }

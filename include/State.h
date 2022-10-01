@@ -17,6 +17,8 @@ namespace minim {
       std::unique_ptr<Potential::Args> args;
 
       State(Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args);
+      State(const State& state);
+      State& operator=(const State& state);
       ~State() {};
 
       double energy() const;

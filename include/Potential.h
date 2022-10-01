@@ -27,6 +27,7 @@ namespace minim {
           Args(int ndof, std::vector<std::vector<int>> idofs, std::vector<int> types,
                std::vector<std::vector<double>> parameters);
           ~Args() {};
+          virtual std::unique_ptr<Args> clone() const;
       };
 
     private:

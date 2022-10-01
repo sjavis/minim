@@ -27,6 +27,7 @@ namespace minim {
           double sigma;
           double epsilon;
           Args(int ndof, double sigma=1, double epsilon=1);
+          std::unique_ptr<Potential::Args> clone() const;
       };
   };
 
