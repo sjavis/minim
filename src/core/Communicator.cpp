@@ -48,7 +48,7 @@ namespace minim {
 
 
   Communicator::Communicator(int ndof, Potential::Args &args)
-    : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::make_unique<Priv>())
+    : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
   {
     priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
     if (mpi.size == 1) return;
