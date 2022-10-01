@@ -1,10 +1,7 @@
 #include "Lbfgs.h"
 
-#include <vector>
 #include <math.h>
 #include "State.h"
-#include "Minimiser.h"
-#include "Communicator.h"
 #include "linesearch.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
@@ -25,7 +22,7 @@ namespace minim {
   }
 
 
-  void Lbfgs::init(State &state) {
+  void Lbfgs::init(State& state) {
     if (minim::mpi.rank == 0) {
       _s = std::vector<Vector>(_m, Vector(state.ndof));
       _y = std::vector<Vector>(_m, Vector(state.ndof));
@@ -37,7 +34,7 @@ namespace minim {
   }
 
 
-  void Lbfgs::iteration(State &state) {
+  void Lbfgs::iteration(State& state) {
     _i_cycle = iter % _m;
 
     // Find minimisation direction
@@ -104,7 +101,7 @@ namespace minim {
   }
 
 
-  bool Lbfgs::checkConvergence(const State &state) {
+  bool Lbfgs::checkConvergence(const State& state) {
     double rms;
     if (minim::mpi.rank == 0) rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
     state.comm.bcast(rms);

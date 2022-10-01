@@ -1,12 +1,10 @@
 #include "State.h"
 
-#include <vector>
-#include "Potential.h"
-#include "Communicator.h"
 #include "utils/mpi.h"
 
 namespace minim {
 
+  class Potential;
   typedef std::vector<double> Vector;
 
 
@@ -44,7 +42,7 @@ namespace minim {
     return energy(_coords);
   }
 
-  double State::energy(const Vector &coords) const {
+  double State::energy(const Vector& coords) const {
     return minim::mpi.sum(_pot.energy(coords, *args));
   }
 
@@ -53,7 +51,7 @@ namespace minim {
     return gradient(_coords);
   }
 
-  Vector State::gradient(const Vector &coords) const {
+  Vector State::gradient(const Vector& coords) const {
     Vector grad = _pot.gradient(coords, *args);
     comm.communicate(grad);
     return grad;
@@ -69,7 +67,7 @@ namespace minim {
     return comm.gather(_coords, -1);
   }
 
-  void State::setCoords(const Vector &in) {
+  void State::setCoords(const Vector& in) {
     _coords = comm.scatter(in, -1);
   }
 
@@ -78,7 +76,7 @@ namespace minim {
     return _coords;
   }
 
-  void State::blockCoords(const Vector &in) {
+  void State::blockCoords(const Vector& in) {
     _coords = in;
   }
 

@@ -1,10 +1,8 @@
 #include "Anneal.h"
 
 #include <math.h>
-#include <vector>
 #include <time.h>
 #include "State.h"
-#include "Minimiser.h"
 #include "utils/mpi.h"
 
 namespace minim {
@@ -27,7 +25,7 @@ namespace minim {
   }
 
 
-  void Anneal::init(State &state) {
+  void Anneal::init(State& state) {
     _since_accepted = 0;
     _current_state = state.blockCoords();
     _current_e = state.energy();
@@ -35,7 +33,7 @@ namespace minim {
   }
 
 
-  void Anneal::iteration(State &state) {
+  void Anneal::iteration(State& state) {
     _temp = _temp_init / (1 + iter);
 
     // Randomly perturb state
@@ -74,7 +72,7 @@ namespace minim {
   }
 
 
-  bool Anneal::checkConvergence(const State &state) {
+  bool Anneal::checkConvergence(const State& state) {
     bool is_converged = (_max_rejections > 0) && (_since_accepted >= _max_rejections);
     return is_converged;
   }

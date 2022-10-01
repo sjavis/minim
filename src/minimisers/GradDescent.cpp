@@ -1,9 +1,7 @@
 #include "GradDescent.h"
 
 #include <math.h>
-#include <vector>
 #include "State.h"
-#include "Minimiser.h"
 #include "utils/vec.h"
 
 namespace minim {
@@ -20,19 +18,19 @@ namespace minim {
   }
 
 
-  void GradDescent::init(State &state) {
+  void GradDescent::init(State& state) {
     _g = std::vector<double>(state.ndof);
   }
 
 
-  void GradDescent::iteration(State &state) {
+  void GradDescent::iteration(State& state) {
     _g = state.gradient();
     auto step = -_alpha * _g;
     state.blockCoords(state.blockCoords() + step);
   }
 
 
-  bool GradDescent::checkConvergence(const State &state) {
+  bool GradDescent::checkConvergence(const State& state) {
     double sum = state.comm.dotProduct(_g, _g);
     double rms = sqrt(sum/state.ndof);
     return (rms < state.convergence);

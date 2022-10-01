@@ -1,9 +1,7 @@
 #include "Fire.h"
 
 #include <math.h>
-#include <vector>
 #include "State.h"
-#include "Minimiser.h"
 #include "utils/vec.h"
 
 namespace minim {
@@ -19,14 +17,14 @@ namespace minim {
   }
 
 
-  void Fire::init(State &state) {
+  void Fire::init(State& state) {
     _v = std::vector<double>(state.ndof);
     _g = state.gradient();
     if (_dt_max == 0) _dt_max = 0.1 / sqrt(sqrt(state.comm.dotProduct(_g, _g)));
   }
 
 
-  void Fire::iteration(State &state) {
+  void Fire::iteration(State& state) {
     if (iter == 0) {
       _dt = _dt_max;
       _g = state.gradient();
@@ -62,7 +60,7 @@ namespace minim {
   }
 
 
-  bool Fire::checkConvergence(const State &state) {
+  bool Fire::checkConvergence(const State& state) {
     double rms = _gnorm / sqrt(state.ndof);
     return (rms < state.convergence);
   }

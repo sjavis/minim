@@ -5,7 +5,7 @@
 
 namespace minim {
 
-  double backtrackingLinesearch(State &state, std::vector<double> &step, double de0) {
+  double backtrackingLinesearch(State& state, std::vector<double>& step, double de0) {
     const double c = 0.5; // Armijo control parameter
     const double tau = 0.5; // Shrink factor
 

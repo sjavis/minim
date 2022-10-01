@@ -22,18 +22,18 @@ namespace minim {
       ~State() {};
 
       double energy() const;
-      double energy(const Vector &coords) const;
+      double energy(const Vector& coords) const;
 
       Vector gradient() const;
-      Vector gradient(const Vector &coords) const;
+      Vector gradient(const Vector& coords) const;
 
       double operator[](int i);
 
       Vector getCoords() const;
-      void setCoords(const Vector &in);
+      void setCoords(const Vector& in);
 
       Vector blockCoords() const;
-      void blockCoords(const Vector &in);
+      void blockCoords(const Vector& in);
 
       void communicate();
 

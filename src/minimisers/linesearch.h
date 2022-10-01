@@ -6,7 +6,7 @@
 namespace minim {
   class State;
   
-  double backtrackingLinesearch(State &state, std::vector<double> &step, double de0);
+  double backtrackingLinesearch(State& state, std::vector<double>& step, double de0);
 }
 
 #endif

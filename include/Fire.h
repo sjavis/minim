@@ -15,9 +15,9 @@ namespace minim {
       Fire& setMaxIter(int maxIter);
       Fire& setDtMax(double dt_max);
 
-      void init(State &state);
-      void iteration(State &state);
-      bool checkConvergence(const State &state) override;
+      void init(State& state);
+      void iteration(State& state);
+      bool checkConvergence(const State& state) override;
 
     private:
       int _n_min = 5;

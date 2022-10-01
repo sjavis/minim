@@ -25,10 +25,10 @@ namespace minim {
       Lbfgs& setM(int m);
       Lbfgs& setMaxIter(int maxIter);
 
-      void init(State &state);
-      void iteration(State &state);
+      void init(State& state);
+      void iteration(State& state);
 
-      bool checkConvergence(const State &state) override;
+      bool checkConvergence(const State& state) override;
 
     private:
       int _m = 5;

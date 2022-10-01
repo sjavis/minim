@@ -15,9 +15,9 @@ namespace minim {
       Anneal& setTempInit(double temp_init);
       Anneal& setDisplacement(double displacement);
 
-      void init(State &state);
-      void iteration(State &state);
-      bool checkConvergence(const State &state) override;
+      void init(State& state);
+      void iteration(State& state);
+      bool checkConvergence(const State& state) override;
 
     private:
       int _since_accepted;

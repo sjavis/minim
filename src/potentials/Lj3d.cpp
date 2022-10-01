@@ -1,15 +1,13 @@
 #include "Lj3d.h"
 
 #include <math.h>
-#include "State.h"
-#include "Potential.h"
 
 namespace minim {
 
   typedef std::vector<double> Vector;
 
 
-  double Lj3d::energy(const Vector &coords, const Potential::Args &args_tmp) const {
+  double Lj3d::energy(const Vector& coords, const Potential::Args& args_tmp) const {
     const Lj3d::Args &args = static_cast<const Lj3d::Args&> (args_tmp);
     double energy = 0;
 
@@ -26,7 +24,7 @@ namespace minim {
   }
 
 
-  Vector Lj3d::gradient(const Vector &coords, const Potential::Args &args_tmp) const {
+  Vector Lj3d::gradient(const Vector& coords, const Potential::Args& args_tmp) const {
     const Lj3d::Args &args = static_cast<const Lj3d::Args&> (args_tmp);
     Vector g(coords.size());
 

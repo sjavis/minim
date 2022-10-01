@@ -4,7 +4,7 @@
 namespace minim {
 
   void mpiInit();
-  void mpiInit(int *argc, char ***argv);
+  void mpiInit(int* argc, char*** argv);
 
   class Mpi {
     public:
@@ -13,7 +13,7 @@ namespace minim {
 
       Mpi();
       ~Mpi();
-      void init(int *argc, char ***argv);
+      void init(int* argc, char*** argv);
 
       double sum(double summand);
 

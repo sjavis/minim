@@ -41,8 +41,8 @@ namespace minim {
       Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};
       ~Potential() {};
 
-      virtual double energy(const Vector &coords, const Args &args) const;
-      virtual Vector gradient(const Vector &coords, const Args &args) const;
+      virtual double energy(const Vector& coords, const Args& args) const;
+      virtual Vector gradient(const Vector& coords, const Args& args) const;
 
       virtual std::unique_ptr<Args> newArgs(int ndof);
       State newState(Vector coords);

@@ -15,10 +15,10 @@ namespace minim {
       GradDescent& setAlpha(double alpha);
       GradDescent& setMaxIter(int maxIter);
 
-      void init(State &state);
-      void iteration(State &state);
+      void init(State& state);
+      void iteration(State& state);
 
-      bool checkConvergence(const State &state) override;
+      bool checkConvergence(const State& state) override;
 
     private:
       double _alpha = 1e-3;

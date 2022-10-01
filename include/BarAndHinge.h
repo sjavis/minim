@@ -13,12 +13,12 @@ namespace minim {
       BarAndHinge() {};
       ~BarAndHinge() {};
 
-      double energy(const Vector &coords, const Potential::Args &args) const override;
-      Vector gradient(const Vector &coords, const Potential::Args &args) const override;
+      double energy(const Vector& coords, const Potential::Args& args) const override;
+      Vector gradient(const Vector& coords, const Potential::Args& args) const override;
 
     private:
-      void stretching(const Vector &coords, Potential::Args::Element el, double *e, Vector *g) const;
-      void bending(const Vector &coords, Potential::Args::Element el, double *e, Vector *g) const;
+      void stretching(const Vector& coords, Potential::Args::Element el, double* e, Vector* g) const;
+      void bending(const Vector& coords, Potential::Args::Element el, double* e, Vector* g) const;
   };
 
 }

@@ -1,7 +1,6 @@
 #include "Minimiser.h"
 
 #include "State.h"
-#include "utils/vec.h"
 
 namespace minim {
 
@@ -11,7 +10,7 @@ namespace minim {
   }
 
 
-  std::vector<double> Minimiser::minimise(State &state, AdjustFunc adjustState) {
+  std::vector<double> Minimiser::minimise(State& state, AdjustFunc adjustState) {
     init(state);
     for (iter=0; iter<maxIter; iter++) {
       if (adjustState) adjustState(iter, state);

@@ -8,12 +8,12 @@ namespace minim {
   typedef Potential::Args Args;
 
 
-  double Potential::energy(const Vector &coords, const Args &args) const {
+  double Potential::energy(const Vector& coords, const Args& args) const {
     return _energy(coords, args);
   }
 
 
-  Vector Potential::gradient(const Vector &coords, const Args &args) const {
+  Vector Potential::gradient(const Vector& coords, const Args& args) const {
     return _gradient(coords, args);
   }
 
