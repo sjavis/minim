@@ -8,7 +8,7 @@
 namespace minim {
 
 
-  class Lj3d : public Potential {
+  class Lj3d : public NewPotential<Lj3d> {
     typedef std::vector<double> Vector;
 
     public:

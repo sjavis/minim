@@ -16,7 +16,7 @@ namespace minim {
       Communicator comm;
       std::unique_ptr<Potential::Args> args;
 
-      State(Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args);
+      State(std::unique_ptr<Potential>& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args);
       State(const State& state);
       State& operator=(const State& state);
       ~State() {};
@@ -41,7 +41,7 @@ namespace minim {
       int _istart;
       int _iend;
       Vector _coords;
-      Potential &_pot;
+      std::unique_ptr<Potential> _pot;
   };
 
 }

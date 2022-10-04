@@ -40,6 +40,9 @@ namespace minim {
     public:
       Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};
       ~Potential() {};
+      virtual std::unique_ptr<Potential> clone() const {
+        return std::make_unique<Potential>(*this);
+      }
 
       virtual double energy(const Vector& coords, const Args& args) const;
       virtual Vector gradient(const Vector& coords, const Args& args) const;
@@ -50,6 +53,15 @@ namespace minim {
 
     protected:
       Potential() {};
+  };
+
+  // An intermediate class is used to automate the cloning of new potentials
+  template<typename Derived>
+  class NewPotential : public Potential {
+    public:
+      std::unique_ptr<Potential> clone() const override {
+        return std::make_unique<Derived>(static_cast<const Derived&>(*this));
+      }
   };
 
 }

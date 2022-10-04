@@ -8,8 +8,8 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  State::State(Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args)
-    : ndof(coords.size()), comm(ndof,*args), args(std::move(args)), _pot(pot)
+  State::State(std::unique_ptr<Potential>& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args)
+    : ndof(coords.size()), comm(ndof,*args), args(std::move(args)), _pot(std::move(pot))
   {
     setCoords(coords);
   }
@@ -22,7 +22,7 @@ namespace minim {
       _istart(state._istart),
       _iend(state._iend),
       _coords(state._coords),
-      _pot(state._pot)
+      _pot(state._pot->clone())
   {}
 
   State& State::operator=(const State& state) {
@@ -33,7 +33,7 @@ namespace minim {
     _istart = state._istart;
     _iend = state._iend;
     _coords = state._coords;
-    _pot = state._pot;
+    _pot = state._pot->clone();
     return *this;
   }
 
@@ -43,7 +43,7 @@ namespace minim {
   }
 
   double State::energy(const Vector& coords) const {
-    return minim::mpi.sum(_pot.energy(coords, *args));
+    return minim::mpi.sum(_pot->energy(coords, *args));
   }
 
 
@@ -52,7 +52,7 @@ namespace minim {
   }
 
   Vector State::gradient(const Vector& coords) const {
-    Vector grad = _pot.gradient(coords, *args);
+    Vector grad = _pot->gradient(coords, *args);
     comm.communicate(grad);
     return grad;
   }

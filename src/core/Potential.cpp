@@ -25,7 +25,8 @@ namespace minim {
 
   State Potential::newState(Vector coords) {
     std::unique_ptr<Args> args = newArgs(coords.size());
-    return State(*this, coords, args);
+    std::unique_ptr<Potential> pot = this->clone();
+    return State(pot, coords, args);
   }
 
   State Potential::newState(int ndof) {

@@ -54,7 +54,8 @@ namespace minim {
 
 
   std::unique_ptr<Potential::Args> Lj3d::newArgs(int ndof) {
-    return std::make_unique<Potential::Args>(Lj3d::Args(ndof));
+    auto args = std::make_unique<Lj3d::Args>(Lj3d::Args(ndof));
+    return std::move(args);
   }
 
 
