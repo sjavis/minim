@@ -11,9 +11,9 @@ namespace minim {
     typedef std::vector<double> Vector;
 
     public:
-      int ndof;
-      int nproc;
-      int nblock;
+      int ndof;   //!< Total number of degrees of freedom
+      int nproc;  //!< Total number of degrees of freedom on processor (including halo)
+      int nblock; //!< Number of degrees of freedom assigned to processor (excluding halo)
 
       Communicator(int ndof, Potential::Args& args);
       Communicator(const Communicator& comm);
