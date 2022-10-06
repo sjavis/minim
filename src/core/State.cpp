@@ -8,8 +8,8 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  State::State(std::unique_ptr<Potential>& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args)
-    : ndof(coords.size()), comm(ndof,*args), args(std::move(args)), _pot(std::move(pot))
+  State::State(const Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args)
+    : ndof(coords.size()), comm(ndof,*args), args(std::move(args)), _pot(pot->clone())
   {
     setCoords(coords);
   }
