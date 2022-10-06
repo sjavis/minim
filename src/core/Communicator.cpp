@@ -45,7 +45,7 @@ namespace minim {
   };
 
 
-  Communicator::Communicator(int ndof, Potential::Args& args)
+  Communicator::Communicator(int ndof, Potential& pot)
     : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
   {
     priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
@@ -60,11 +60,11 @@ namespace minim {
 
     // Identify halo coordinates based upon the list of energy elements
     std::vector<std::vector<int>> send_lists(mpi.size);
-    std::vector<std::vector<int>> blocks(args.elements.size());
-    std::vector<std::vector<bool>> in_block(args.elements.size());
-    int nelements = args.elements.size();
+    std::vector<std::vector<int>> blocks(pot.elements.size());
+    std::vector<std::vector<bool>> in_block(pot.elements.size());
+    int nelements = pot.elements.size();
     for (int ie=0; ie<nelements; ie++) {
-      auto e = args.elements[ie];
+      auto e = pot.elements[ie];
       int e_ndof = e.idof.size();
       blocks[ie] = std::vector<int>(e_ndof);
       in_block[ie] = std::vector<bool>(e_ndof);
@@ -98,7 +98,7 @@ namespace minim {
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
     std::vector<int> nelements_blocks(mpi.size);
-    std::vector<Potential::Args::Element> elements_tmp;
+    std::vector<Potential::Element> elements_tmp;
     for (int ie=0; ie<nelements; ie++) {
       // Assign each element to a proc
       int proc = blocks[ie][0];
@@ -113,7 +113,7 @@ namespace minim {
 
       // Store the elements for this proc
       if (vec::any(in_block[ie])) {
-        auto e = args.elements[ie];
+        auto e = pot.elements[ie];
         // Update element.idof with local index
         int idof_size = e.idof.size();
         for (int i=0; i<idof_size; i++) {
@@ -131,11 +131,11 @@ namespace minim {
         if (proc == mpi.rank) {
           elements_tmp.push_back(e);
         } else {
-          args.elements_halo.push_back(e);
+          pot.elements_halo.push_back(e);
         }
       }
     }
-    args.elements = elements_tmp;
+    pot.elements = elements_tmp;
 
     // Make the MPI datatypes to send to each proc
     for (int i=0; i<mpi.size; i++) {

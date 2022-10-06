@@ -15,7 +15,7 @@ namespace minim {
       int nproc;  //!< Total number of degrees of freedom on processor (including halo)
       int nblock; //!< Number of degrees of freedom assigned to processor (excluding halo)
 
-      Communicator(int ndof, Potential::Args& args);
+      Communicator(int ndof, Potential& pot);
       Communicator(const Communicator& comm);
       Communicator& operator=(const Communicator& comm);
       ~Communicator();

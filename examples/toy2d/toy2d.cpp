@@ -6,12 +6,12 @@ using namespace minim;
 
 class Toy2d : public NewPotential<Toy2d> {
   public:
-    double energy(const std::vector<double>& coords, const Args& args) const override {
+    double energy(const std::vector<double>& coords) const override {
       return coords[0]*coords[0] + coords[1]*coords[1] + coords[0]*coords[0]*coords[0]*coords[0] + coords[1]*coords[1]*coords[1]*coords[1];
     }
 
-    std::vector<double> gradient(const std::vector<double>& coords, const Args& args) const override {
-      std::vector<double> g(args.ndof);
+    std::vector<double> gradient(const std::vector<double>& coords) const override {
+      std::vector<double> g(coords.size());
       g[0] = 2*coords[0] + 4*coords[0]*coords[0]*coords[0];
       g[1] = 2*coords[1] + 4*coords[1]*coords[1]*coords[1];
       return g;

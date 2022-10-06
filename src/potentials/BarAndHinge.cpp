@@ -8,9 +8,9 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  double BarAndHinge::energy(const Vector& coords, const Potential::Args& args) const {
+  double BarAndHinge::energy(const Vector& coords) const {
     double e = 0;
-    for (auto el: args.elements) {
+    for (auto el: elements) {
       switch (el.type) {
         case 0:
           stretching(coords, el, &e, nullptr);
@@ -24,13 +24,13 @@ namespace minim {
   }
 
 
-  Vector BarAndHinge::gradient(const Vector& coords, const Potential::Args& args) const {
+  Vector BarAndHinge::gradient(const Vector& coords) const {
     Vector g(coords.size());
 
-    int ne1 = args.elements.size();
-    int ne2 = args.elements_halo.size();
+    int ne1 = elements.size();
+    int ne2 = elements_halo.size();
     for (int ie=0; ie<(ne1+ne2); ie++) {
-      auto el = (ie<ne1) ? args.elements[ie] : args.elements_halo[ie-ne1];
+      auto el = (ie<ne1) ? elements[ie] : elements_halo[ie-ne1];
       switch (el.type) {
         case 0:
           stretching(coords, el, nullptr, &g);
@@ -44,8 +44,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::stretching(const Vector& coords, Potential::Args::Element el,
-                               double* e, Vector* g) const {
+  void BarAndHinge::stretching(const Vector& coords, Potential::Element el, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
@@ -69,8 +68,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::bending(const Vector& coords, Potential::Args::Element el,
-                            double* e, Vector* g) const {
+  void BarAndHinge::bending(const Vector& coords, Potential::Element el, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
     Vector x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);

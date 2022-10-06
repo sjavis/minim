@@ -13,10 +13,10 @@ namespace minim {
     public:
       int ndof;
       double convergence = 1e-6;
+      std::unique_ptr<Potential> pot;
       Communicator comm;
-      std::unique_ptr<Potential::Args> args;
 
-      State(const Potential& pot, const Vector& coords, std::unique_ptr<Potential::Args>& args);
+      State(const Potential& pot, const Vector& coords);
       State(const State& state);
       State& operator=(const State& state);
       ~State() {};
@@ -41,7 +41,6 @@ namespace minim {
       int _istart;
       int _iend;
       Vector _coords;
-      std::unique_ptr<Potential> _pot;
   };
 
 }
