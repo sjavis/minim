@@ -87,6 +87,24 @@ Vector& operator*=(Vector& a, double b) {
 }
 
 
+// Divide
+Vector operator/(double a, const Vector& b) {
+  Vector c(b.size());
+  std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a/x; });
+  return c;
+}
+Vector operator/(const Vector& a, double b) {
+  Vector c(a.size());
+  std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x/b; });
+  return c;
+}
+
+Vector& operator/=(Vector& a, double b) {
+  std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
+  return a;
+}
+
+
 namespace vec {
 
   // Dot Product
@@ -110,6 +128,14 @@ namespace vec {
   // Norm
   double norm(const Vector& a) {
     return sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
+  }
+
+
+  // Element-wise absolute value
+  Vector abs(const Vector& a) {
+    Vector b(a.size());
+    std::transform(a.begin(), a.end(), b.begin(), [](double x){ return (x<0) ? -x : x; });
+    return b;
   }
 
 

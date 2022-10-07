@@ -1,4 +1,4 @@
-TESTS = Lbfgs_test
+TESTS = Lbfgs_test vec_test
 RUN_TESTS = $(addprefix run_, $(TESTS))
 
 ROOT_DIR = ..
