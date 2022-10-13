@@ -5,8 +5,8 @@ BUILD_DIR = bin
 LIB_DIR = lib
 LIBS =
 
-CXX      = mpic++             # C++ compiler
-CXXFLAGS = -Wall -DPARALLEL   # Flags for the C++ compiler
+CXX      = mpic++#            C++ compiler
+CXXFLAGS = -Wall -DPARALLEL#  Flags for the C++ compiler
 
 TARGET := $(BUILD_DIR)/$(TARGET)
 VPATH = $(SRC_DIR)
@@ -17,9 +17,12 @@ LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
-.PHONY: all deps clean check $(LIB)
+.PHONY: all debug deps clean check $(LIB)
 
 all: $(TARGET)
+
+debug: CXXFLAGS+=-g
+debug: $(TARGET)
 
 deps: $(LIB)
 
