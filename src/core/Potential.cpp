@@ -35,6 +35,7 @@ namespace minim {
 
   Potential& Potential::setElements(std::vector<std::vector<int>> idofs) {
     // Generate energy elements
+    elements = {};
     int id = 0;
     for (const auto& idof: idofs) {
       Element el = {id, 0, idof};
@@ -48,6 +49,7 @@ namespace minim {
                                     std::vector<std::vector<double>> parameters)
   {
     // Generate energy elements
+    elements = {};
     int id = 0;
     int nelements = idofs.size();
     for (int i=0; i<nelements; i++) {

@@ -69,8 +69,8 @@ namespace minim {
     int ndof = coords.size();
     if (ndof % 3 != 0) throw std::invalid_argument("Length of coords must be a multiple of 3.");
     n_particle = ndof / 3;
-
     // Generate energy elements
+    elements = {};
     int id = 0;
     for (int i=0; i<n_particle; i++) {
       for (int j=i+1; j<n_particle; j++) {
@@ -79,8 +79,7 @@ namespace minim {
         id++;
       }
     }
-
-    return Potential::newState(coords);
+    return State(*this, coords);
   }
 
   State Lj3d::newState(const Vector& coords, double sigma, double epsilon) {
