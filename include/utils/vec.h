@@ -19,11 +19,15 @@ std::vector<double>& operator-=(std::vector<double>& a, const std::vector<double
 
 std::vector<double> operator*(double a, const std::vector<double>& b);
 std::vector<double> operator*(const std::vector<double>& a, double b);
+std::vector<double> operator*(const std::vector<double>& a, const std::vector<double>& b);
 std::vector<double>& operator*=(std::vector<double>& a, double b);
+std::vector<double>& operator*=(std::vector<double>& a, const std::vector<double>& b);
 
 std::vector<double> operator/(double a, const std::vector<double>& b);
 std::vector<double> operator/(const std::vector<double>& a, double b);
+std::vector<double> operator/(const std::vector<double>& a, const std::vector<double>& b);
 std::vector<double>& operator/=(std::vector<double>& a, double b);
+std::vector<double>& operator/=(std::vector<double>& a, const std::vector<double>& b);
 
 namespace vec {
   double dotProduct(const std::vector<double>& a, const std::vector<double>& b);

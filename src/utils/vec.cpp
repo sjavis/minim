@@ -80,9 +80,18 @@ Vector operator*(const Vector& a, double b) {
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x*b; });
   return c;
 }
+Vector operator*(const Vector& a, const Vector& b) {
+  Vector c(a.size());
+  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::multiplies<double>());
+  return c;
+}
 
 Vector& operator*=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x*b; });
+  return a;
+}
+Vector& operator*=(Vector& a, const Vector& b) {
+  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<double>());
   return a;
 }
 
@@ -98,9 +107,18 @@ Vector operator/(const Vector& a, double b) {
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x/b; });
   return c;
 }
+Vector operator/(const Vector& a, const Vector& b) {
+  Vector c(a.size());
+  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::divides<double>());
+  return c;
+}
 
 Vector& operator/=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
+  return a;
+}
+Vector& operator/=(Vector& a, const Vector& b) {
+  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<double>());
   return a;
 }
 
