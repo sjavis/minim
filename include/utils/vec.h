@@ -32,9 +32,11 @@ std::vector<double>& operator/=(std::vector<double>& a, const std::vector<double
 namespace vec {
   double dotProduct(const std::vector<double>& a, const std::vector<double>& b);
   std::vector<double> crossProduct(const std::vector<double>& a, const std::vector<double>& b);
-
   double norm(const std::vector<double>& a);
+
   std::vector<double> abs(const std::vector<double>& a);
+  std::vector<double> sqrt(const std::vector<double>& a);
+  std::vector<double> pow(const std::vector<double>& a, double n);
 
   bool any(const std::vector<bool>& a);
   bool all(const std::vector<bool>& a);

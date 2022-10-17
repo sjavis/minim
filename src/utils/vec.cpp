@@ -145,7 +145,7 @@ namespace vec {
 
   // Norm
   double norm(const Vector& a) {
-    return sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
+    return std::sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
   }
 
 
@@ -153,6 +153,20 @@ namespace vec {
   Vector abs(const Vector& a) {
     Vector b(a.size());
     std::transform(a.begin(), a.end(), b.begin(), [](double x){ return (x<0) ? -x : x; });
+    return b;
+  }
+
+  // Element-wise square root
+  Vector sqrt(const Vector& a) {
+    Vector b(a.size());
+    std::transform(a.begin(), a.end(), b.begin(), [](double x){ return std::sqrt(x); });
+    return b;
+  }
+
+  // Element-wise exponent
+  Vector pow(const Vector& a, double n) {
+    Vector b(a.size());
+    std::transform(a.begin(), a.end(), b.begin(), [n](double x){ return std::pow(x, n); });
     return b;
   }
 
