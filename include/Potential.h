@@ -11,21 +11,14 @@ namespace minim {
     typedef std::vector<double> Vector;
     typedef double (*EFunc)(const Vector&);
     typedef Vector (*GFunc)(const Vector&);
+    typedef void (*EGFunc)(const Vector&, double*, Vector*);
     EFunc _energy;
     GFunc _gradient;
+    EGFunc _energyGradient;
 
     public:
-      struct Element {
-        int id;
-        int type;
-        std::vector<int> idof;
-        std::vector<double> parameters;
-      };
-
-      std::vector<Element> elements;
-      std::vector<Element> elements_halo;
-
-      Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient) {};
+      Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient), energyDef(true), gradientDef(true) {};
+      Potential(EGFunc energyGradient) : _energyGradient(energyGradient), energyGradientDef(true) {};
       ~Potential() {};
       virtual std::unique_ptr<Potential> clone() const {
         return std::make_unique<Potential>(*this);
@@ -33,9 +26,31 @@ namespace minim {
 
       virtual double energy(const Vector& coords) const;
       virtual Vector gradient(const Vector& coords) const;
+      virtual void energyGradient(const Vector& coords, double* e, Vector* g) const;
+      virtual double blockEnergy(const Vector& coords) const;
+      virtual Vector blockGradient(const Vector& coords) const;
+      virtual void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
+
+      bool energyDef = false;
+      bool gradientDef = false;
+      bool energyGradientDef = false;
+      bool blockEnergyDef = false;
+      bool blockGradientDef = false;
+      bool blockEnergyGradientDef = false;
+
 
       State newState(int ndof);
       virtual State newState(const Vector& coords);
+
+
+      struct Element {
+        int id;
+        int type;
+        std::vector<int> idof;
+        std::vector<double> parameters;
+      };
+      std::vector<Element> elements;
+      std::vector<Element> elements_halo;
 
       Potential& setElements(std::vector<Element> elements);
       Potential& setElements(std::vector<std::vector<int>> idofs);

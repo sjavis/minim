@@ -8,12 +8,72 @@ namespace minim {
 
 
   double Potential::energy(const Vector& coords) const {
-    return _energy(coords);
+    if (energyDef) {
+      return _energy(coords);
+    } else if (energyGradientDef) {
+      double e;
+      energyGradient(coords, &e, nullptr);
+      return e;
+    } else {
+      throw std::logic_error("Energy function not defined.");
+    }
   }
 
 
   Vector Potential::gradient(const Vector& coords) const {
-    return _gradient(coords);
+    if (gradientDef) {
+      return _gradient(coords);
+    } else if (energyGradientDef) {
+      Vector g(coords.size());
+      energyGradient(coords, nullptr, &g);
+      return g;
+    } else {
+      throw std::logic_error("Gradient function not defined.");
+    }
+  }
+
+
+  void Potential::energyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (energyGradientDef) {
+      _energyGradient(coords, e, g);
+    } else if (energyDef && gradientDef) {
+      if (e != nullptr) *e = energy(coords);
+      if (g != nullptr) *g = gradient(coords);
+    } else {
+      throw std::logic_error("Energy and/or gradient function not defined.");
+    }
+  }
+
+
+  double Potential::blockEnergy(const Vector& coords) const {
+    if (blockEnergyGradientDef) {
+      double e;
+      blockEnergyGradient(coords, &e, nullptr);
+      return e;
+    } else {
+      throw std::logic_error("Energy function not defined.");
+    }
+  }
+
+
+  Vector Potential::blockGradient(const Vector& coords) const {
+    if (blockEnergyGradientDef) {
+      Vector g(coords.size());
+      blockEnergyGradient(coords, nullptr, &g);
+      return g;
+    } else {
+      throw std::logic_error("Gradient function not defined.");
+    }
+  }
+
+
+  void Potential::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (blockEnergyDef && blockGradientDef) {
+      if (e != nullptr) *e = blockEnergy(coords);
+      if (g != nullptr) *g = blockGradient(coords);
+    } else {
+      throw std::logic_error("Energy and/or gradient function not defined.");
+    }
   }
 
 
