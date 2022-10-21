@@ -1,6 +1,7 @@
 #include "Potential.h"
 
 #include "State.h"
+#include <stdexcept>
 
 namespace minim {
 
@@ -83,12 +84,12 @@ namespace minim {
   }
 
 
-  bool totalEnergyDef() const {
+  bool Potential::totalEnergyDef() const {
     return (_energyGradientDef || _energyDef);
   }
 
 
-  bool blockEnergyDef() const {
+  bool Potential::blockEnergyDef() const {
     return (_blockEnergyGradientDef || _blockEnergyDef);
   }
 

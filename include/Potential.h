@@ -37,7 +37,7 @@ namespace minim {
       virtual void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
 
       bool totalEnergyDef() const;
-      bool BlockEnergyDef() const;
+      bool blockEnergyDef() const;
 
 
       State newState(int ndof);

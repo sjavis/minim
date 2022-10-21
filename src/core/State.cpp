@@ -1,6 +1,7 @@
 #include "State.h"
 
 #include "utils/mpi.h"
+#include <stdexcept>
 
 namespace minim {
 
@@ -42,7 +43,7 @@ namespace minim {
 
   double State::energy(const Vector& coords) const {
     if (pot->totalEnergyDef()) {
-      return pot->energy(coords);
+      return pot->energy(comm.gather(coords)); // TODO: Check the size?
     } else if (pot->blockEnergyDef()) {
       return minim::mpi.sum(pot->blockEnergy(coords));
     } else {
@@ -57,11 +58,9 @@ namespace minim {
 
   Vector State::gradient(const Vector& coords) const {
     if (pot->totalEnergyDef()) {
-      return pot->gradient(coords);
+      return pot->gradient(comm.gather(coords));
     } else if (pot->blockEnergyDef()) {
-      Vector grad = pot->gradient(coords);
-      comm.communicate(grad); // TODO: Check / fix this
-      return grad;
+      return comm.gather(pot->blockGradient(coords));
     } else {
       throw std::logic_error("Gradient function not defined");
     }
@@ -74,9 +73,64 @@ namespace minim {
 
   void State::energyGradient(const Vector& coords, double* e, Vector* g) const {
     if (pot->totalEnergyDef()) {
-      pot->energyGradient(coords, e, g);
+      pot->energyGradient(comm.gather(coords), e, g);
     } else if (pot->blockEnergyDef()) {
-      pot->blockEnergyGradient(coords, e, g); // TODO: Accumulate e and g
+      pot->blockEnergyGradient(coords, e, g);
+      *e = mpi.sum(*e);
+      *g = comm.gather(*g);
+    } else {
+      throw std::logic_error("Energy and/or gradient function not defined");
+    }
+  }
+
+
+  double State::blockEnergy() const {
+    return blockEnergy(_coords);
+  }
+
+  double State::blockEnergy(const Vector& coords) const {
+    if (pot->blockEnergyDef()) {
+      return pot->blockEnergy(coords);
+    } else if (pot->totalEnergyDef()) {
+      Vector allCoords = comm.gather(coords, 0);
+      if (mpi.rank != 0) {
+        return 0;
+      } else {
+        return pot->energy(allCoords);
+      }
+    } else {
+      throw std::logic_error("Energy function not defined");
+    }
+  }
+
+
+  Vector State::blockGradient() const {
+    return blockGradient(_coords);
+  }
+
+  Vector State::blockGradient(const Vector& coords) const {
+    if (pot->blockEnergyDef()) {
+      return pot->blockGradient(coords);
+    } else if (pot->totalEnergyDef()) {
+      return comm.scatter(pot->gradient(comm.gather(coords)));
+    } else {
+      throw std::logic_error("Gradient function not defined");
+    }
+  }
+
+
+  void State::blockEnergyGradient(double* e, Vector* g) const {
+    return blockEnergyGradient(_coords, e, g);
+  }
+
+  void State::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (pot->blockEnergyDef()) {
+      pot->blockEnergyGradient(coords, e, g);
+    } else if (pot->totalEnergyDef()) {
+      Vector gAll(ndof);
+      pot->energyGradient(comm.gather(coords), e, &gAll);
+      if (mpi.rank != 0) *e = mpi.sum(*e);
+      *g = comm.scatter(gAll);
     } else {
       throw std::logic_error("Energy and/or gradient function not defined");
     }
