@@ -17,8 +17,8 @@ namespace minim {
     EGFunc _energyGradient;
 
     public:
-      Potential(EFunc energy, GFunc gradient) : _energy(energy), _gradient(gradient), energyDef(true), gradientDef(true) {};
-      Potential(EGFunc energyGradient) : _energyGradient(energyGradient), energyGradientDef(true) {};
+      Potential(EFunc energy, GFunc gradient);
+      Potential(EGFunc energyGradient);
       ~Potential() {};
       virtual std::unique_ptr<Potential> clone() const {
         return std::make_unique<Potential>(*this);
@@ -32,10 +32,8 @@ namespace minim {
       virtual void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
 
       bool energyDef = false;
-      bool gradientDef = false;
       bool energyGradientDef = false;
       bool blockEnergyDef = false;
-      bool blockGradientDef = false;
       bool blockEnergyGradientDef = false;
 
 
@@ -58,7 +56,7 @@ namespace minim {
                              std::vector<std::vector<double>> parameters);
 
     protected:
-      Potential() {};
+      Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};
   };
 
 

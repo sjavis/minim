@@ -6,74 +6,80 @@ namespace minim {
 
   typedef std::vector<double> Vector;
 
+  Potential::Potential(EFunc energy, GFunc gradient)
+    : _energy(energy), _gradient(gradient), _energyGradient(nullptr)
+  {
+    energyDef = true;
+  }
+
+  Potential::Potential(EGFunc energyGradient)
+    : _energy(nullptr), _gradient(nullptr), _energyGradient(energyGradient)
+  {
+    energyGradientDef = true;
+  }
+
 
   double Potential::energy(const Vector& coords) const {
     if (energyDef) {
+      if (_energy == nullptr) throw std::logic_error("Energy function marked as defined but not called.");
       return _energy(coords);
-    } else if (energyGradientDef) {
+    } else {
+      if (!energyGradientDef) throw std::logic_error("Energy function not defined.");
       double e;
       energyGradient(coords, &e, nullptr);
       return e;
-    } else {
-      throw std::logic_error("Energy function not defined.");
     }
   }
 
 
   Vector Potential::gradient(const Vector& coords) const {
-    if (gradientDef) {
+    if (energyDef) {
+      if (_gradient == nullptr) throw std::logic_error("Gradient function marked as defined but not called.");
       return _gradient(coords);
-    } else if (energyGradientDef) {
+    } else {
+      if (!energyGradientDef) throw std::logic_error("Gradient function not defined.");
       Vector g(coords.size());
       energyGradient(coords, nullptr, &g);
       return g;
-    } else {
-      throw std::logic_error("Gradient function not defined.");
     }
   }
 
 
   void Potential::energyGradient(const Vector& coords, double* e, Vector* g) const {
     if (energyGradientDef) {
-      _energyGradient(coords, e, g);
-    } else if (energyDef && gradientDef) {
+      if (_energyGradient == nullptr) throw std::logic_error("Energy+gradient function marked as defined but not called.");
+      return _energyGradient(coords, e, g);
+    } else {
+      if (!energyDef) throw std::logic_error("Energy and/or gradient function not defined.");
       if (e != nullptr) *e = energy(coords);
       if (g != nullptr) *g = gradient(coords);
-    } else {
-      throw std::logic_error("Energy and/or gradient function not defined.");
     }
   }
 
 
   double Potential::blockEnergy(const Vector& coords) const {
-    if (blockEnergyGradientDef) {
-      double e;
-      blockEnergyGradient(coords, &e, nullptr);
-      return e;
-    } else {
-      throw std::logic_error("Energy function not defined.");
-    }
+    if (blockEnergyDef) throw std::logic_error("Block energy function marked as defined but not called.");
+    if (!blockEnergyGradientDef) throw std::logic_error("Block energy function not defined.");
+    double e;
+    blockEnergyGradient(coords, &e, nullptr);
+    return e;
   }
 
 
   Vector Potential::blockGradient(const Vector& coords) const {
-    if (blockEnergyGradientDef) {
-      Vector g(coords.size());
-      blockEnergyGradient(coords, nullptr, &g);
-      return g;
-    } else {
-      throw std::logic_error("Gradient function not defined.");
-    }
+    if (blockEnergyDef) throw std::logic_error("Block gradient function marked as defined but not called.");
+    if (!blockEnergyGradientDef) throw std::logic_error("Block gradient function not defined.");
+    Vector g(coords.size());
+    blockEnergyGradient(coords, nullptr, &g);
+    return g;
   }
 
 
   void Potential::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
-    if (blockEnergyDef && blockGradientDef) {
-      if (e != nullptr) *e = blockEnergy(coords);
-      if (g != nullptr) *g = blockGradient(coords);
-    } else {
-      throw std::logic_error("Energy and/or gradient function not defined.");
-    }
+    if (blockEnergyGradientDef) throw std::logic_error("Block energy+gradient function marked as defined but not called.");
+    if (!blockEnergyDef) throw std::logic_error("Block energy and/or gradient function not defined.");
+    if (e != nullptr) *e = blockEnergy(coords);
+    if (g != nullptr) *g = blockGradient(coords);
   }
 
 
