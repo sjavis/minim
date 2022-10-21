@@ -16,6 +16,11 @@ namespace minim {
     GFunc _gradient;
     EGFunc _energyGradient;
 
+    bool _energyDef = false;
+    bool _energyGradientDef = false;
+    bool _blockEnergyDef = false;
+    bool _blockEnergyGradientDef = false;
+
     public:
       Potential(EFunc energy, GFunc gradient);
       Potential(EGFunc energyGradient);
@@ -31,10 +36,8 @@ namespace minim {
       virtual Vector blockGradient(const Vector& coords) const;
       virtual void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
 
-      bool energyDef = false;
-      bool energyGradientDef = false;
-      bool blockEnergyDef = false;
-      bool blockEnergyGradientDef = false;
+      bool totalEnergyDef() const;
+      bool BlockEnergyDef() const;
 
 
       State newState(int ndof);
