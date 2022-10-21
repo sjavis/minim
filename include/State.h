@@ -23,9 +23,17 @@ namespace minim {
 
       double energy() const;
       double energy(const Vector& coords) const;
-
       Vector gradient() const;
       Vector gradient(const Vector& coords) const;
+      void energyGradient(double* e, Vector* g) const;
+      void energyGradient(const Vector& coords, double* e, Vector* g) const;
+
+      double blockEnergy() const;
+      double blockEnergy(const Vector& coords) const;
+      Vector blockGradient() const;
+      Vector blockGradient(const Vector& coords) const;
+      void blockEnergyGradient(double* e, Vector* g) const;
+      void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
 
       double operator[](int i);
 

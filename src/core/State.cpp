@@ -41,7 +41,13 @@ namespace minim {
   }
 
   double State::energy(const Vector& coords) const {
-    return minim::mpi.sum(pot->energy(coords));
+    if (pot->totalEnergyDef()) {
+      return pot->energy(coords);
+    } else if (pot->blockEnergyDef()) {
+      return minim::mpi.sum(pot->blockEnergy(coords));
+    } else {
+      throw std::logic_error("Energy function not defined");
+    }
   }
 
 
@@ -50,9 +56,30 @@ namespace minim {
   }
 
   Vector State::gradient(const Vector& coords) const {
-    Vector grad = pot->gradient(coords);
-    comm.communicate(grad);
-    return grad;
+    if (pot->totalEnergyDef()) {
+      return pot->gradient(coords);
+    } else if (pot->blockEnergyDef()) {
+      Vector grad = pot->gradient(coords);
+      comm.communicate(grad); // TODO: Check / fix this
+      return grad;
+    } else {
+      throw std::logic_error("Gradient function not defined");
+    }
+  }
+
+
+  void State::energyGradient(double* e, Vector* g) const {
+    return energyGradient(_coords, e, g);
+  }
+
+  void State::energyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (pot->totalEnergyDef()) {
+      pot->energyGradient(coords, e, g);
+    } else if (pot->blockEnergyDef()) {
+      pot->blockEnergyGradient(coords, e, g); // TODO: Accumulate e and g
+    } else {
+      throw std::logic_error("Energy and/or gradient function not defined");
+    }
   }
 
 
