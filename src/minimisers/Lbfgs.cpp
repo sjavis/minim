@@ -27,10 +27,9 @@ namespace minim {
       _s = std::vector<Vector>(_m, Vector(state.ndof));
       _y = std::vector<Vector>(_m, Vector(state.ndof));
       _rho = Vector(_m);
-      _g = Vector(state.ndof);
-      _gNew = Vector(state.ndof);
     }
-    _g = state.comm.gather(state.gradient(), 0);
+    _gNew = Vector(state.ndof);
+    _g = state.gradient();
   }
 
 
@@ -48,7 +47,7 @@ namespace minim {
     double step_multiplier = backtrackingLinesearch(state, step_block, de0);
 
     // Get new gradient
-    _gNew = state.comm.gather(state.gradient(), 0);
+    _gNew = state.gradient();
 
     // Store the changes required for LBFGS
     if (minim::mpi.rank == 0) {

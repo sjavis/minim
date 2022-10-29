@@ -20,7 +20,7 @@ namespace minim {
   void Fire::init(State& state) {
     _v = std::vector<double>(state.ndof);
     _g = state.gradient();
-    if (_dt_max == 0) _dt_max = 0.1 / sqrt(sqrt(state.comm.dotProduct(_g, _g)));
+    if (_dt_max == 0) _dt_max = 0.1 / sqrt(vec::norm(_g));
   }
 
 
@@ -28,13 +28,13 @@ namespace minim {
     if (iter == 0) {
       _dt = _dt_max;
       _g = state.gradient();
-      _gnorm = sqrt(state.comm.dotProduct(_g, _g));
+      _gnorm = vec::norm(_g);
     }
-    double p = - state.comm.dotProduct(_v, _g);
+    double p = - vec::dotProduct(_v, _g);
 
     // Update velocity
     if (p > 0) {
-      double vnorm = sqrt(state.comm.dotProduct(_v, _v));
+      double vnorm = vec::norm(_v);
       _v = (1-_a)*_v - (_a*vnorm/_gnorm + _dt)*_g;
       _n_steps++;
     } else {
@@ -56,7 +56,7 @@ namespace minim {
     auto step = _dt * _v;
     state.blockCoords(state.blockCoords() + step);
     _g = state.gradient();
-    _gnorm = sqrt(state.comm.dotProduct(_g, _g));
+    _gnorm = vec::norm(_g);
   }
 
 
