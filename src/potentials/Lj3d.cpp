@@ -9,47 +9,42 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  double Lj3d::energy(const Vector& coords) const {
-    double energy = 0;
+  void Lj3d::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (e != nullptr) *e = 0;
+    if (g != nullptr) *g = Vector(coords.size());
 
     for (auto el : elements) {
-      double dx = coords[el.idof[0]] - coords[el.idof[3]];
-      double dy = coords[el.idof[1]] - coords[el.idof[4]];
-      double dz = coords[el.idof[2]] - coords[el.idof[5]];
-
-      double r2 = dx*dx + dy*dy + dz*dz;
-      double lj6 = pow(sigma, 6) / pow(r2, 3);
-      energy += 4*epsilon * (lj6*lj6 - lj6);
+      elementEnergyGradient(el, coords, e, g);
     }
-    return energy;
+
+    // Compute the gradient of the halo energy elements
+    if (g != nullptr) {
+      for (auto el : elements_halo) {
+        elementEnergyGradient(el, coords, nullptr, g);
+      }
+    }
   }
 
 
-  Vector Lj3d::gradient(const Vector& coords) const {
-    Vector g(coords.size());
+  void Lj3d::elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const {
+    double dx = coords[el.idof[0]] - coords[el.idof[3]];
+    double dy = coords[el.idof[1]] - coords[el.idof[4]];
+    double dz = coords[el.idof[2]] - coords[el.idof[5]];
+    double r2 = dx*dx + dy*dy + dz*dz;
+    double lj6 = pow(sigma, 6) / pow(r2, 3);
 
-    int ne1 = elements.size();
-    int ne2 = elements_halo.size();
-    for (int ie=0; ie<(ne1+ne2); ie++) {
-      auto el = (ie<ne1) ? elements[ie] : elements_halo[ie-ne1];
+    if (e != nullptr) *e += 4*epsilon * (lj6*lj6 - lj6);
 
-      double dx = coords[el.idof[0]] - coords[el.idof[3]];
-      double dy = coords[el.idof[1]] - coords[el.idof[4]];
-      double dz = coords[el.idof[2]] - coords[el.idof[5]];
-      double r2 = dx*dx + dy*dy + dz*dz;
+    if (g != nullptr) {
       double r = sqrt(r2);
-
-      double lj6 = pow(sigma, 6) / pow(r2, 3);
       double dedr = -24 * epsilon * (2*lj6*lj6 - lj6) / r;
-
-      g[el.idof[0]] += dx/r * dedr;
-      g[el.idof[1]] += dy/r * dedr;
-      g[el.idof[2]] += dz/r * dedr;
-      g[el.idof[3]] -= dx/r * dedr;
-      g[el.idof[4]] -= dy/r * dedr;
-      g[el.idof[5]] -= dz/r * dedr;
+      (*g)[el.idof[0]] += dx/r * dedr;
+      (*g)[el.idof[1]] += dy/r * dedr;
+      (*g)[el.idof[2]] += dz/r * dedr;
+      (*g)[el.idof[3]] -= dx/r * dedr;
+      (*g)[el.idof[4]] -= dy/r * dedr;
+      (*g)[el.idof[5]] -= dz/r * dedr;
     }
-    return g;
   }
 
 

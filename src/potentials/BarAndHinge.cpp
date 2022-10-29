@@ -8,43 +8,38 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  double BarAndHinge::energy(const Vector& coords) const {
-    double e = 0;
-    for (auto el: elements) {
+  void BarAndHinge::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (e != nullptr) *e = 0;
+    if (g != nullptr) *g = Vector(coords.size());
+
+    for (auto el : elements) {
       switch (el.type) {
         case 0:
-          stretching(coords, el, &e, nullptr);
+          stretching(el, coords, e, g);
           break;
         case 1:
-          bending(coords, el, &e, nullptr);
+          bending(el, coords, e, g);
           break;
       }
     }
-    return e;
-  }
 
-
-  Vector BarAndHinge::gradient(const Vector& coords) const {
-    Vector g(coords.size());
-
-    int ne1 = elements.size();
-    int ne2 = elements_halo.size();
-    for (int ie=0; ie<(ne1+ne2); ie++) {
-      auto el = (ie<ne1) ? elements[ie] : elements_halo[ie-ne1];
-      switch (el.type) {
-        case 0:
-          stretching(coords, el, nullptr, &g);
-          break;
-        case 1:
-          bending(coords, el, nullptr, &g);
-          break;
+    // Compute the gradient of the halo energy elements
+    if (g != nullptr) {
+      for (auto el : elements_halo) {
+        switch (el.type) {
+          case 0:
+            stretching(el, coords, nullptr, g);
+            break;
+          case 1:
+            bending(el, coords, nullptr, g);
+            break;
+        }
       }
     }
-    return g;
   }
 
 
-  void BarAndHinge::stretching(const Vector& coords, Potential::Element el, double* e, Vector* g) const {
+  void BarAndHinge::stretching(Potential::Element el, const Vector& coords, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
@@ -68,7 +63,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::bending(const Vector& coords, Potential::Element el, double* e, Vector* g) const {
+  void BarAndHinge::bending(Potential::Element el, const Vector& coords, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
     Vector x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
