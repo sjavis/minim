@@ -3,6 +3,8 @@
 #include "gtest/gtest.h"
 #include "ArraysMatch.h"
 
+#include "utils/mpi.h"
+
 typedef std::vector<double> Vector;
 
 
@@ -70,4 +72,19 @@ TEST(VecTest, TestPow) {
 
 TEST(VecTest, TestAbs) {
   EXPECT_TRUE(ArraysNear(vec::abs({5, 0, -0.2}), {5, 0, 0.2}, 1e-6));
+}
+
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  minim::mpiInit(&argc, &argv);
+
+  // Ensure only one processor prints
+  ::testing::TestEventListeners& listeners =
+      ::testing::UnitTest::GetInstance()->listeners();
+  if (minim::mpi.rank != 0) {
+      delete listeners.Release(listeners.default_result_printer());
+  }
+
+  return RUN_ALL_TESTS();
 }
