@@ -1,9 +1,5 @@
 #include "utils/mpi.h"
 
-#ifdef PARALLEL
-#include <mpi.h>
-#endif
-
 #include <iostream>
 
 
@@ -29,13 +25,20 @@ namespace minim {
   void Mpi::init(int* argc, char*** argv) {
 #ifdef PARALLEL
     MPI_Init(argc, argv);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    getSizeRank(MPI_COMM_WORLD);
     _init = true;
 #else
     std::cerr << "Warning: MPI not initialised. -DPARALLEL flag must be passed to the compiler." << std::endl;
 #endif
   }
+
+
+#ifdef PARALLEL
+  void Mpi::getSizeRank(MPI_Comm comm) {
+    MPI_Comm_size(comm, &size);
+    MPI_Comm_rank(comm, &rank);
+  }
+#endif
 
 
   Mpi::~Mpi() {
@@ -49,7 +52,7 @@ namespace minim {
 
   double Mpi::sum(double summand) {
 #ifdef PARALLEL
-    if ((_init == true) && (size > 1)) {
+    if (size > 1) {
       double sum;
       MPI_Allreduce(&summand, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
       return sum;

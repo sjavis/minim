@@ -67,9 +67,11 @@ TEST(StateTest, TestBlockEnergyGradient) {
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  mpiInit(&argc, &argv);
+  MPI_Init(&argc, &argv);
+  mpi.getSizeRank(MPI_COMM_WORLD);
 
   // Add an MPI listener (https://github.com/LLNL/gtest-mpi-listener)
+  ::testing::AddGlobalTestEnvironment(new GTestMPIListener::MPIEnvironment);
   ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
   ::testing::TestEventListener *l = listeners.Release(listeners.default_result_printer());
   listeners.Append(new GTestMPIListener::MPIWrapperPrinter(l, MPI_COMM_WORLD));

@@ -1,6 +1,10 @@
 #ifndef MINIM_MPI_H
 #define MINIM_MPI_H
 
+#ifdef PARALLEL
+#include <mpi.h>
+#endif
+
 namespace minim {
 
   void mpiInit();
@@ -14,6 +18,9 @@ namespace minim {
       Mpi();
       ~Mpi();
       void init(int* argc, char*** argv);
+#ifdef PARALLEL
+      void getSizeRank(MPI_Comm comm);
+#endif
 
       double sum(double summand);
 
