@@ -58,7 +58,6 @@ namespace minim {
 
       bool _energyDef = false;
       bool _energyGradientDef = false;
-      bool _blockEnergyDef = false;
       bool _blockEnergyGradientDef = false;
   };
 

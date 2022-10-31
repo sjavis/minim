@@ -59,8 +59,6 @@ namespace minim {
 
 
   double Potential::blockEnergy(const Vector& coords) const {
-    if (_blockEnergyDef) throw std::logic_error("Block energy function marked as defined but not called.");
-    if (!_blockEnergyGradientDef) throw std::logic_error("Block energy function not defined.");
     double e;
     blockEnergyGradient(coords, &e, nullptr);
     return e;
@@ -68,8 +66,6 @@ namespace minim {
 
 
   Vector Potential::blockGradient(const Vector& coords) const {
-    if (_blockEnergyDef) throw std::logic_error("Block gradient function marked as defined but not called.");
-    if (!_blockEnergyGradientDef) throw std::logic_error("Block gradient function not defined.");
     Vector g(coords.size());
     blockEnergyGradient(coords, nullptr, &g);
     return g;
@@ -77,10 +73,11 @@ namespace minim {
 
 
   void Potential::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
-    if (_blockEnergyGradientDef) throw std::logic_error("Block energy+gradient function marked as defined but not called.");
-    if (!_blockEnergyDef) throw std::logic_error("Block energy and/or gradient function not defined.");
-    if (e != nullptr) *e = blockEnergy(coords);
-    if (g != nullptr) *g = blockGradient(coords);
+    if (_blockEnergyGradientDef) {
+      throw std::logic_error("You shouldn't be here. Has blockEnergyGradient been falsely marked as defined for this potential?");
+    } else {
+      throw std::logic_error("The potential must override blockEnergyGradient to use distributed energy functions.");
+    }
   }
 
 
@@ -90,7 +87,7 @@ namespace minim {
 
 
   bool Potential::blockEnergyDef() const {
-    return (_blockEnergyGradientDef || _blockEnergyDef);
+    return _blockEnergyGradientDef;
   }
 
 
