@@ -21,7 +21,7 @@ clean:
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
 
 $(RUN_TESTS): run_%: %
-	mpirun -np 2 $<
+	-mpirun -np 2 $<
 
 # Googletest rules and parameters, see:
 # https://github.com/google/googletest/blob/release-1.8.1/googletest/make/Makefile
