@@ -1,6 +1,7 @@
 #include "utils/vec.h"
 
 #include "gtest/gtest.h"
+#include "gtest-mpi-listener.hpp"
 #include "ArraysMatch.h"
 
 #include "utils/mpi.h"
@@ -79,12 +80,10 @@ int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   minim::mpiInit(&argc, &argv);
 
-  // Ensure only one processor prints
-  ::testing::TestEventListeners& listeners =
-      ::testing::UnitTest::GetInstance()->listeners();
-  if (minim::mpi.rank != 0) {
-      delete listeners.Release(listeners.default_result_printer());
-  }
+  // Add an MPI listener (https://github.com/LLNL/gtest-mpi-listener)
+  ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
+  ::testing::TestEventListener *l = listeners.Release(listeners.default_result_printer());
+  listeners.Append(new GTestMPIListener::MPIWrapperPrinter(l, MPI_COMM_WORLD));
 
   return RUN_ALL_TESTS();
 }

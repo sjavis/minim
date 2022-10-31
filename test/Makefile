@@ -29,9 +29,14 @@ GTEST_DIR = googletest/googletest
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h $(GTEST_DIR)/include/gtest/internal/*.h
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
+# Googletest with MPI
+# https://github.com/LLNL/gtest-mpi-listener
+GTEST_MPI_DIR = gtest-mpi-listener
+INC += -I$(GTEST_MPI_DIR)/include
 
 gtest:
 	git submodule update --init $(dir $(GTEST_DIR))
+	git submodule update --init $(dir $(GTEST_MPI_DIR))
 
 gtest-all.o: $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
