@@ -12,7 +12,7 @@ typedef std::vector<double> Vector;
 
 
 TEST(StateTest, TestInit) {
-  Lj3d pot; 
+  Lj3d pot;
   State s = pot.newState({0,0,0, 1,0,0});
   EXPECT_EQ(s.ndof, 6);
   EXPECT_TRUE(ArraysMatch(s.getCoords(), {0,0,0, 1,0,0}));
@@ -21,7 +21,7 @@ TEST(StateTest, TestInit) {
 
 
 TEST(StateTest, TestClone) {
-  Lj3d pot; 
+  Lj3d pot;
   State s = pot.newState({0,0,0, 1,0,0});
   State sClone = s;
   EXPECT_EQ(sClone.ndof, 6);
@@ -31,7 +31,7 @@ TEST(StateTest, TestClone) {
 
 
 TEST(StateTest, TestEnergyGradient) {
-  Lj3d pot; 
+  Lj3d pot;
   State s = pot.newState({0,0,0, 2,0,0});
   double e1 = s.energy();
   Vector g1 = s.gradient();
@@ -42,11 +42,17 @@ TEST(StateTest, TestEnergyGradient) {
   EXPECT_FLOAT_EQ(e2, -63./1024);
   EXPECT_TRUE(ArraysNear(g1, {-93./512,0,0, 93./512,0,0}, 1e-6));
   EXPECT_TRUE(ArraysNear(g2, {-93./512,0,0, 93./512,0,0}, 1e-6));
+
+  Vector coords = {0,0,0, 2,0,0};
+  double e3 = s.energy(coords);
+  Vector g3 = s.gradient(coords);
+  EXPECT_FLOAT_EQ(e3, -63./1024);
+  EXPECT_TRUE(ArraysNear(g3, {-93./512,0,0, 93./512,0,0}, 1e-6));
 }
 
 
 TEST(StateTest, TestBlockEnergyGradient) {
-  Lj3d pot; 
+  Lj3d pot;
   State s = pot.newState({0,0,0, 2,0,0});
   int nElements = (mpi.rank==0) ? 1 : 0;
   ASSERT_EQ(s.pot->elements.size(), nElements);

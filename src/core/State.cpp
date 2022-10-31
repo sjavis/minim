@@ -40,15 +40,28 @@ namespace minim {
   // Energy and gradient functions using the state coordinates
   // Total energy / gradient
   double State::energy() const {
-    return energy(_coords);
+    if (pot->blockEnergyDef() && !pot->totalEnergyDef()) {
+      return minim::mpi.sum(pot->blockEnergy(_coords)); // This is to avoid an unnecessary gather and scatter
+    }
+    return energy(comm.gather(_coords));
   }
 
   Vector State::gradient() const {
-    return gradient(_coords);
+    if (pot->blockEnergyDef() && !pot->totalEnergyDef()) {
+      return comm.gather(pot->blockGradient(_coords)); // This is to avoid an unnecessary gather and scatter
+    }
+    return gradient(comm.gather(_coords));
   }
 
   void State::energyGradient(double* e, Vector* g) const {
-    return energyGradient(_coords, e, g);
+    if (pot->blockEnergyDef() && !pot->totalEnergyDef()) {
+      // This is to avoid an unnecessary gather and scatter
+      pot->blockEnergyGradient(_coords, e, g);
+      if (e != nullptr) *e = mpi.sum(*e);
+      if (g != nullptr) *g = comm.gather(*g);
+    } else {
+      energyGradient(comm.gather(_coords), e, g);
+    }
   }
 
   // Block energy / gradient (the gradient includes the halo, but not required to be correct)
@@ -61,7 +74,7 @@ namespace minim {
   }
 
   void State::blockEnergyGradient(double* e, Vector* g) const {
-    return blockEnergyGradient(_coords, e, g);
+    blockEnergyGradient(_coords, e, g);
   }
 
   // Processor energy / gradient (the gradient includes the halo)
@@ -74,7 +87,7 @@ namespace minim {
   }
 
   void State::procEnergyGradient(double* e, Vector* g) const {
-    return procEnergyGradient(_coords, e, g);
+    procEnergyGradient(_coords, e, g);
   }
 
 
@@ -82,9 +95,9 @@ namespace minim {
   // Total energy / gradient
   double State::energy(const Vector& coords) const {
     if (pot->totalEnergyDef()) {
-      return pot->energy(comm.gather(coords)); // TODO: Check the size?
+      return pot->energy(coords);
     } else if (pot->blockEnergyDef()) {
-      return minim::mpi.sum(pot->blockEnergy(coords));
+      return minim::mpi.sum(pot->blockEnergy(comm.scatter(coords)));
     } else {
       throw std::logic_error("Energy function not defined");
     }
@@ -92,9 +105,9 @@ namespace minim {
 
   Vector State::gradient(const Vector& coords) const {
     if (pot->totalEnergyDef()) {
-      return pot->gradient(comm.gather(coords));
+      return pot->gradient(coords);
     } else if (pot->blockEnergyDef()) {
-      return comm.gather(pot->blockGradient(coords));
+      return comm.gather(pot->blockGradient(comm.scatter(coords)));
     } else {
       throw std::logic_error("Gradient function not defined");
     }
@@ -102,9 +115,9 @@ namespace minim {
 
   void State::energyGradient(const Vector& coords, double* e, Vector* g) const {
     if (pot->totalEnergyDef()) {
-      pot->energyGradient(comm.gather(coords), e, g);
+      pot->energyGradient(coords, e, g);
     } else if (pot->blockEnergyDef()) {
-      pot->blockEnergyGradient(coords, e, g);
+      pot->blockEnergyGradient(comm.scatter(coords), e, g);
       if (e != nullptr) *e = mpi.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
     } else {
