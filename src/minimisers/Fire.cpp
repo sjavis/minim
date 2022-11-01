@@ -53,7 +53,7 @@ namespace minim {
     }
 
     // Update position
-    auto step = _dt * _v;
+    auto step = state.comm.scatter(_dt * _v);
     state.blockCoords(state.blockCoords() + step);
     _g = state.gradient();
     _gnorm = vec::norm(_g);
