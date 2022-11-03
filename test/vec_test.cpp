@@ -76,6 +76,26 @@ TEST(VecTest, TestAbs) {
 }
 
 
+TEST(VecTest, TestRandom) {
+  Vector a(50);
+  vec::random(a, 0.5);
+  auto a_max = *std::max_element(a.begin(), a.end());
+  auto a_min = *std::min_element(a.begin(), a.end());
+  EXPECT_GT(a_max, 0);
+  EXPECT_LT(a_max, 0.5);
+  EXPECT_GT(a_min, -0.5);
+  EXPECT_LT(a_min, 0);
+
+  vec::random(a, -0.5);
+  a_max = *std::max_element(a.begin(), a.end());
+  a_min = *std::min_element(a.begin(), a.end());
+  EXPECT_GT(a_max, 0);
+  EXPECT_LT(a_max, 0.5);
+  EXPECT_GT(a_min, -0.5);
+  EXPECT_LT(a_min, 0);
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   minim::mpiInit(&argc, &argv);

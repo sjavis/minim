@@ -5,6 +5,7 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+#include <random>
 
 typedef std::vector<double> Vector;
 
@@ -190,6 +191,23 @@ namespace vec {
       }
     }
     vec.push_back(value);
+  }
+
+
+  // Generate random vector
+  std::random_device rd; 
+  std::mt19937 gen(rd());
+
+  void random(Vector& vec, double max) {
+    if (max < 0) max = - max;
+    std::uniform_real_distribution distr(-max, max);
+    std::generate(vec.begin(), vec.end(), [&](){ return distr(gen); });
+  }
+
+  Vector random(int n, double max) {
+    Vector vec(n);
+    random(vec, max);
+    return vec;
   }
 
 }

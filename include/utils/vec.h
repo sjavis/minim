@@ -42,6 +42,9 @@ namespace vec {
   bool all(const std::vector<bool>& a);
 
   void insert_unique(std::vector<int>& vec, int value);
+
+  void random(std::vector<double>& vec, double max);
+  std::vector<double> random(int n, double max);
 }
 
 #endif
