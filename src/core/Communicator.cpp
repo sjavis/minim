@@ -189,7 +189,7 @@ namespace minim {
 
   Vector Communicator::assignBlock(const Vector& in) const {
     Vector out = Vector(nproc);
-    for (int i=0; i<nblock; i++) {
+    for (size_t i=0; i<nblock; i++) {
       out[i] = in[priv->iblocks[mpi.rank]+i];
     }
     return out;

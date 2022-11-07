@@ -11,7 +11,7 @@ namespace minim {
     typedef std::vector<double> Vector;
 
     public:
-      int ndof;
+      size_t ndof;
       double convergence = 1e-6;
       std::unique_ptr<Potential> pot;
       Communicator comm;
@@ -53,8 +53,6 @@ namespace minim {
       void communicate();
 
     private:
-      int _istart;
-      int _iend;
       Vector _coords;
   };
 

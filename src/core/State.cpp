@@ -20,8 +20,6 @@ namespace minim {
       convergence(state.convergence),
       pot(state.pot->clone()),
       comm(state.comm),
-      _istart(state._istart),
-      _iend(state._iend),
       _coords(state._coords)
   {}
 
@@ -30,8 +28,6 @@ namespace minim {
     convergence = state.convergence;
     pot = state.pot->clone();
     comm = state.comm;
-    _istart = state._istart;
-    _iend = state._iend;
     _coords = state._coords;
     return *this;
   }
