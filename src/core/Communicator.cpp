@@ -15,6 +15,7 @@ namespace minim {
 
   typedef std::vector<double> Vector;
 
+  bool warnBadDistr = false;
 
   class Communicator::Priv {
     public:
@@ -37,6 +38,7 @@ namespace minim {
       // MPI derived datatype to send to each proc
       std::vector<MPI_Datatype> sendtype = std::vector<MPI_Datatype>(mpi.size);
   #endif
+
 
       int getBlock(int loc) {
         for (int i=mpi.size-1; i>=0; i--) {
@@ -200,7 +202,8 @@ namespace minim {
 
         int nproc = irecv[mpi.size-1] + nrecv[mpi.size-1];
         if (mpi.sum(nproc == ndof) > 0) {
-          print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
+          if (!warnBadDistr) print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
+          warnBadDistr = true;
           // Move all onto proc 0 to avoid issues arising from nproc == ndof
           nblocks = std::vector<int>(mpi.size, 0);
           nblocks[0] = ndof;
