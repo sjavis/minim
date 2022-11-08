@@ -5,6 +5,7 @@
 #endif
 
 #include <numeric>
+#include <limits>
 #include <stdexcept>
 #include "utils/vec.h"
 #include "utils/mpi.h"
@@ -43,147 +44,186 @@ namespace minim {
         }
         throw std::invalid_argument("Invalid location");
       }
+
+
+      void setBlockSizes(int ndof) {
+        nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
+        for (int i=0; i<mpi.size-1; i++) {
+          if (i < (int)ndof % mpi.size) nblocks[i]++;
+          iblocks[i+1] = iblocks[i] + nblocks[i];
+        }
+      }
+
+
+      // For each element's dofs get the block that contains it and if it is this block
+      void getElementBlocks(const std::vector<Potential::Element>& elements,
+                            std::vector<std::vector<int>>& blocks,
+                            std::vector<std::vector<bool>>& in_block)
+      {
+        int nelements = elements.size();
+        blocks = std::vector<std::vector<int>>(nelements);
+        in_block = std::vector<std::vector<bool>>(nelements);
+        for (int ie=0; ie<nelements; ie++) {
+          auto e = elements[ie];
+          int e_ndof = e.idof.size();
+          blocks[ie] = std::vector<int>(e_ndof);
+          in_block[ie] = std::vector<bool>(e_ndof);
+          for (int i=0; i<e_ndof; i++) {
+            blocks[ie][i] = getBlock(e.idof[i]);
+            in_block[ie][i] = (blocks[ie][i] == mpi.rank);
+          }
+        }
+      }
+
+      // Populate lists of indicies being sent to and received from each proc
+      void setCommLists(const std::vector<Potential::Element>& elements,
+                        const std::vector<std::vector<int>>& blocks,
+                        const std::vector<std::vector<bool>>& in_block,
+                        std::vector<std::vector<int>>& send_lists)
+      {
+        recv_lists = std::vector<std::vector<int>>(mpi.size);
+        send_lists = std::vector<std::vector<int>>(mpi.size);
+        for (size_t ie=0; ie<elements.size(); ie++) {
+          if (vec::all(in_block[ie]) || !vec::any(in_block[ie])) continue;
+          auto e = elements[ie];
+          int e_ndof = e.idof.size();
+          for (int i=0; i<e_ndof; i++) {
+            if (in_block[ie][i]) continue;
+            vec::insert_unique(recv_lists[blocks[ie][i]], e.idof[i]);
+            for (int j=0; j<e_ndof; j++) { // TODO: Improve this part, it will attempt to add the same values multiple times
+              if (in_block[ie][j]) {
+                vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - iblocks[mpi.rank]);
+              }
+            }
+          }
+        }
+      }
+
+      // Assign the number of coordinates to receive from each proc and the starting index
+      void setRecvSizes() {
+        irecv[0] = nblocks[mpi.rank];
+        for (int i=0; i<mpi.size; i++) {
+          nrecv[i] = recv_lists[i].size();
+          if (i < mpi.size-1) irecv[i+1] = irecv[i] + nrecv[i];
+        }
+      }
+
+      // Get the processor number for each element
+      std::vector<int> assignElements(const std::vector<Potential::Element>& elements,
+                                      const std::vector<std::vector<int>>& blocks)
+      {
+        std::vector<int> el_proc(elements.size());
+        std::vector<int> proc_ne(mpi.size);
+        for (size_t ie=0; ie<elements.size(); ie++) {
+          int fewest_elements = std::numeric_limits<int>::max();
+          for (int i : blocks[ie]) {
+            if (proc_ne[i] < fewest_elements) {
+              el_proc[ie] = i;
+              fewest_elements = proc_ne[i];
+            }
+          }
+          proc_ne[el_proc[ie]] ++;
+        }
+        return el_proc;
+      }
+
+      // Equally distribute the elements among the processors
+      void distributeElements(Potential& pot,
+                              const std::vector<std::vector<int>>& blocks,
+                              const std::vector<std::vector<bool>>& in_block)
+      {
+        std::vector<int> el_proc = assignElements(pot.elements, blocks);
+        std::vector<Potential::Element> elements_tmp;
+        for (size_t ie=0; ie<pot.elements.size(); ie++) {
+          if (! vec::any(in_block[ie])) continue;
+          // Update element.idof with local index
+          auto e = pot.elements[ie];
+          int idof_size = e.idof.size();
+          for (int i=0; i<idof_size; i++) {
+            if (in_block[ie][i]) {
+              e.idof[i] = e.idof[i] - iblocks[mpi.rank];
+            } else {
+              int block = blocks[ie][i];
+              for (int j=0; j<nrecv[block]; j++) {
+                if (e.idof[i] == recv_lists[block][j]) {
+                  e.idof[i] = irecv[block] + j;
+                }
+              }
+            }
+          }
+          // Assign to the local list of elements or the halo
+          if (el_proc[ie] == mpi.rank) {
+            elements_tmp.push_back(e);
+          } else {
+            pot.elements_halo.push_back(e);
+          }
+        }
+        pot.elements = elements_tmp;
+      }
+
+      // Make the MPI datatypes to send to each proc
+      void setSendType(const std::vector<std::vector<int>>& send_lists) {
+        for (int i=0; i<mpi.size; i++) {
+          if (send_lists[i].empty()) continue;
+          send[i] = true;
+          std::vector<int> blocklens;
+          std::vector<int> disps = {send_lists[i][0]};
+          int previous = send_lists[i][0];
+          for (int current : send_lists[i]) {
+            if (current-previous > 1) {
+              disps.push_back(current);
+              blocklens.push_back(disps.back() - *std::prev(disps.end(), 2));
+            }
+            previous = current;
+          }
+          blocklens.push_back(send_lists[i].back() + 1 - disps.back());
+#ifdef PARALLEL
+          //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
+          MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendtype[i]);
+          MPI_Type_commit(&sendtype[i]);
+#endif
+        }
+      }
+
+
+      void setup(Potential& pot, int ndof) {
+        setBlockSizes(ndof);
+
+        std::vector<std::vector<int>> blocks;
+        std::vector<std::vector<bool>> in_block;
+        getElementBlocks(pot.elements, blocks, in_block);
+
+        // Identify coordinates to send and receive based upon the list of energy elements
+        std::vector<std::vector<int>> send_lists; // Block indicies to send to each other block
+        setCommLists(pot.elements, blocks, in_block, send_lists);
+        setRecvSizes();
+
+        int nproc = irecv[mpi.size-1] + nrecv[mpi.size-1];
+        if (mpi.sum(nproc == ndof) > 0) {
+          print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
+          // Move all onto proc 0 to avoid issues arising from nproc == ndof
+          nblocks = std::vector<int>(mpi.size, 0);
+          nblocks[0] = ndof;
+          iblocks = std::vector<int>(mpi.size, ndof);
+          iblocks[0] = 0;
+          getElementBlocks(pot.elements, blocks, in_block);
+          setCommLists(pot.elements, blocks, in_block, send_lists);
+          setRecvSizes();
+        }
+
+        distributeElements(pot, blocks, in_block);
+        setSendType(send_lists);
+      }
   };
 
 
   Communicator::Communicator(size_t ndof, Potential& pot)
     : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
   {
-    priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
     if (mpi.size == 1) return;
-
-    // Get size and index of each block
-    for (int i=0; i<mpi.size-1; i++) {
-      if (i < (int)ndof % mpi.size) priv->nblocks[i]++;
-      priv->iblocks[i+1] = priv->iblocks[i] + priv->nblocks[i];
-    }
+    priv->setup(pot, ndof);
     nblock = priv->nblocks[mpi.rank];
-
-    // Identify halo coordinates based upon the list of energy elements
-    int nelements = pot.elements.size();
-    std::vector<std::vector<int>> blocks(nelements); // List of blocks containing the dofs of each element
-    std::vector<std::vector<bool>> in_block(nelements); // Which dofs of each element are on this block
-    std::vector<std::vector<int>> send_lists(mpi.size); // Block indicies to send to each other block
-    for (int ie=0; ie<nelements; ie++) {
-      auto e = pot.elements[ie];
-      int e_ndof = e.idof.size();
-      blocks[ie] = std::vector<int>(e_ndof);
-      in_block[ie] = std::vector<bool>(e_ndof);
-
-      // Get block numbers for each element's dof
-      for (int i=0; i<e_ndof; i++) {
-        blocks[ie][i] = priv->getBlock(e.idof[i]);
-        in_block[ie][i] = (blocks[ie][i] == mpi.rank);
-      }
-
-      if (vec::all(in_block[ie]) || !vec::any(in_block[ie])) continue;
-
-      // Populate lists of indicies being sent to and received from each proc
-      for (int i=0; i<e_ndof; i++) {
-        if (in_block[ie][i]) continue;
-        vec::insert_unique(priv->recv_lists[blocks[ie][i]], e.idof[i]);
-        for (int j=0; j<e_ndof; j++) { // TODO: Improve this part, it will attempt to add the same values multiple times
-          if (in_block[ie][j]) {
-            vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - priv->iblocks[mpi.rank]);
-          }
-        }
-      }
-    } //end for elements
-
-    // Store number and starting indicies of coords being recieved from each proc
-    priv->irecv[0] = nblock;
-    for (int i=0; i<mpi.size; i++) {
-      priv->nrecv[i] = priv->recv_lists[i].size();
-      if (i < mpi.size-1) priv->irecv[i+1] = priv->irecv[i] + priv->nrecv[i];
-    }
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
-
-    // Check that the coordinates have been atleast somewhat distributed
-    if (mpi.sum(nproc == ndof) > 0) {
-      print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
-      // Move all onto proc 0 to avoid issues arising from nproc == ndof
-      bool is_rank0 = (mpi.rank == 0);
-      nblock = (is_rank0) ? ndof : 0;
-      nproc = (is_rank0) ? ndof : 0;
-      blocks = std::vector<std::vector<int>>(nelements);
-      for (int ie=0; ie<nelements; ie++) {
-        auto e = pot.elements[ie];
-        blocks[ie] = std::vector<int>(e.idof.size());
-      }
-      in_block = std::vector<std::vector<bool>>(nelements, std::vector<bool>(ndof, is_rank0));
-      send_lists = std::vector<std::vector<int>>(mpi.size, std::vector<int>(0));
-      priv->nblocks = std::vector<int>(mpi.size, 0);
-      priv->nblocks[0] = ndof;
-      priv->iblocks = std::vector<int>(mpi.size, ndof);
-      priv->iblocks[0] = 0;
-      priv->nrecv = std::vector<int>(mpi.size, 0);
-      priv->irecv = std::vector<int>(mpi.size, ndof);
-      priv->irecv[0] = 0;
-      priv->recv_lists = std::vector<std::vector<int>>(mpi.size, std::vector<int>(0));
-    }
-
-    // Distribute elements
-    std::vector<int> nelements_blocks(mpi.size);
-    std::vector<Potential::Element> elements_tmp;
-    for (int ie=0; ie<nelements; ie++) {
-      // Assign each element to a proc
-      int proc = blocks[ie][0];
-      int fewest_elements = nelements_blocks[proc];
-      for (int i : blocks[ie]) {
-        if (nelements_blocks[i] < fewest_elements) {
-          proc = i;
-          fewest_elements = nelements_blocks[i];
-        }
-      }
-      nelements_blocks[proc] ++;
-
-      // Store the elements for this proc
-      if (vec::any(in_block[ie])) {
-        auto e = pot.elements[ie];
-        // Update element.idof with local index
-        int idof_size = e.idof.size();
-        for (int i=0; i<idof_size; i++) {
-          if (in_block[ie][i]) {
-            e.idof[i] = e.idof[i] - priv->iblocks[mpi.rank];
-          } else {
-            int block = blocks[ie][i];
-            for (int j=0; j<priv->nrecv[block]; j++) {
-              if (e.idof[i] == priv->recv_lists[block][j]) {
-                e.idof[i] = priv->irecv[block] + j;
-              }
-            }
-          }
-        }
-        if (proc == mpi.rank) {
-          elements_tmp.push_back(e);
-        } else {
-          pot.elements_halo.push_back(e);
-        }
-      }
-    }
-    pot.elements = elements_tmp;
-
-    // Make the MPI datatypes to send to each proc
-    for (int i=0; i<mpi.size; i++) {
-      if (send_lists[i].empty()) continue;
-      priv->send[i] = true;
-      std::vector<int> blocklens;
-      std::vector<int> disps = {send_lists[i][0]};
-      int previous = send_lists[i][0];
-      for (int current : send_lists[i]) {
-        if (current-previous > 1) {
-          disps.push_back(current);
-          blocklens.push_back(disps.back() - *std::prev(disps.end(), 2));
-        }
-        previous = current;
-      }
-      blocklens.push_back(send_lists[i].back() + 1 - disps.back());
-  #ifdef PARALLEL
-      //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
-      MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &priv->sendtype[i]);
-      MPI_Type_commit(&priv->sendtype[i]);
-  #endif
-    }
   }
 
 
