@@ -64,13 +64,14 @@ TEST(StateTest, TestBlockEnergyGradient) {
   s.blockEnergyGradient(&e2, &g2);
   EXPECT_FLOAT_EQ(e1, (mpi.rank==0) ? -63./1024 : 0);
   EXPECT_FLOAT_EQ(e2, (mpi.rank==0) ? -63./1024 : 0);
-  Vector gBlock = (mpi.rank==0) ? Vector({-93./512,0,0}) : Vector({93./512,0,0});
-  EXPECT_TRUE(ArraysNear(Vector(g1.begin(), g1.begin()+3), gBlock, 1e-6));
-  EXPECT_TRUE(ArraysNear(Vector(g2.begin(), g2.begin()+3), gBlock, 1e-6));
+  Vector gBlock = (mpi.rank==0) ? Vector({-93./512,0,0, 93./512,0,0}) : Vector();
+  EXPECT_TRUE(ArraysNear(g1, gBlock, 1e-6));
+  EXPECT_TRUE(ArraysNear(g2, gBlock, 1e-6));
 }
 
 
 TEST(StateTest, TestProcEnergyGradient) {
+  // Note: This example does not have a halo region. It would be better to add an example with one.
   Lj3d pot;
   State s = pot.newState({0,0,0, 2,0,0});
   int nElements = (mpi.rank==0) ? 1 : 0;
@@ -83,7 +84,7 @@ TEST(StateTest, TestProcEnergyGradient) {
   s.procEnergyGradient(&e2, &g2);
   EXPECT_FLOAT_EQ(e1, (mpi.rank==0) ? -63./1024 : 0);
   EXPECT_FLOAT_EQ(e2, (mpi.rank==0) ? -63./1024 : 0);
-  Vector gProc = (mpi.rank==0) ? Vector({-93./512,0,0, 93./512,0,0}) : Vector({93./512,0,0, -93./512,0,0});
+  Vector gProc = (mpi.rank==0) ? Vector({-93./512,0,0, 93./512,0,0}) : Vector();
   EXPECT_TRUE(ArraysNear(g1, gProc, 1e-6));
   EXPECT_TRUE(ArraysNear(g2, gProc, 1e-6));
 }
