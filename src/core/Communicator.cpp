@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include "utils/vec.h"
 #include "utils/mpi.h"
+#include "utils/print.h"
 
 namespace minim {
 
@@ -45,7 +46,7 @@ namespace minim {
   };
 
 
-  Communicator::Communicator(int ndof, Potential& pot)
+  Communicator::Communicator(size_t ndof, Potential& pot)
     : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
   {
     priv->nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
@@ -53,16 +54,16 @@ namespace minim {
 
     // Get size and index of each block
     for (int i=0; i<mpi.size-1; i++) {
-      if (i < ndof % mpi.size) priv->nblocks[i]++;
+      if (i < (int)ndof % mpi.size) priv->nblocks[i]++;
       priv->iblocks[i+1] = priv->iblocks[i] + priv->nblocks[i];
     }
     nblock = priv->nblocks[mpi.rank];
 
     // Identify halo coordinates based upon the list of energy elements
-    std::vector<std::vector<int>> send_lists(mpi.size);
-    std::vector<std::vector<int>> blocks(pot.elements.size());
-    std::vector<std::vector<bool>> in_block(pot.elements.size());
     int nelements = pot.elements.size();
+    std::vector<std::vector<int>> blocks(nelements); // List of blocks containing the dofs of each element
+    std::vector<std::vector<bool>> in_block(nelements); // Which dofs of each element are on this block
+    std::vector<std::vector<int>> send_lists(mpi.size); // Block indicies to send to each other block
     for (int ie=0; ie<nelements; ie++) {
       auto e = pot.elements[ie];
       int e_ndof = e.idof.size();
@@ -81,7 +82,7 @@ namespace minim {
       for (int i=0; i<e_ndof; i++) {
         if (in_block[ie][i]) continue;
         vec::insert_unique(priv->recv_lists[blocks[ie][i]], e.idof[i]);
-        for (int j=0; j<e_ndof; j++) {
+        for (int j=0; j<e_ndof; j++) { // TODO: Improve this part, it will attempt to add the same values multiple times
           if (in_block[ie][j]) {
             vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - priv->iblocks[mpi.rank]);
           }
@@ -97,6 +98,31 @@ namespace minim {
     }
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
 
+    // Check that the coordinates have been atleast somewhat distributed
+    if (mpi.sum(nproc == ndof) > 0) {
+      print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
+      // Move all onto proc 0 to avoid issues arising from nproc == ndof
+      bool is_rank0 = (mpi.rank == 0);
+      nblock = (is_rank0) ? ndof : 0;
+      nproc = (is_rank0) ? ndof : 0;
+      blocks = std::vector<std::vector<int>>(nelements);
+      for (int ie=0; ie<nelements; ie++) {
+        auto e = pot.elements[ie];
+        blocks[ie] = std::vector<int>(e.idof.size());
+      }
+      in_block = std::vector<std::vector<bool>>(nelements, std::vector<bool>(ndof, is_rank0));
+      send_lists = std::vector<std::vector<int>>(mpi.size, std::vector<int>(0));
+      priv->nblocks = std::vector<int>(mpi.size, 0);
+      priv->nblocks[0] = ndof;
+      priv->iblocks = std::vector<int>(mpi.size, ndof);
+      priv->iblocks[0] = 0;
+      priv->nrecv = std::vector<int>(mpi.size, 0);
+      priv->irecv = std::vector<int>(mpi.size, ndof);
+      priv->irecv[0] = 0;
+      priv->recv_lists = std::vector<std::vector<int>>(mpi.size, std::vector<int>(0));
+    }
+
+    // Distribute elements
     std::vector<int> nelements_blocks(mpi.size);
     std::vector<Potential::Element> elements_tmp;
     for (int ie=0; ie<nelements; ie++) {
