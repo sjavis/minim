@@ -15,7 +15,7 @@ TEST(StateTest, TestInit) {
   Lj3d pot;
   State s = pot.newState({0,0,0, 1,0,0});
   EXPECT_EQ(s.ndof, 6);
-  EXPECT_TRUE(ArraysMatch(s.getCoords(), {0,0,0, 1,0,0}));
+  EXPECT_TRUE(ArraysMatch(s.coords(), {0,0,0, 1,0,0}));
   EXPECT_NO_THROW(dynamic_cast<Lj3d&>(*s.pot));
 }
 
@@ -25,7 +25,7 @@ TEST(StateTest, TestClone) {
   State s = pot.newState({0,0,0, 1,0,0});
   State sClone = s;
   EXPECT_EQ(sClone.ndof, 6);
-  EXPECT_TRUE(ArraysMatch(sClone.getCoords(), {0,0,0, 1,0,0}));
+  EXPECT_TRUE(ArraysMatch(sClone.coords(), {0,0,0, 1,0,0}));
   EXPECT_NO_THROW(dynamic_cast<Lj3d&>(*sClone.pot));
 }
 

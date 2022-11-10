@@ -44,8 +44,8 @@ namespace minim {
 
       double operator[](int i);
 
-      Vector getCoords() const;
-      void setCoords(const Vector& in);
+      Vector coords() const;
+      void coords(const Vector& in);
 
       Vector blockCoords() const;
       void blockCoords(const Vector& in);

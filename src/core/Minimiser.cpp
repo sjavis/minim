@@ -17,7 +17,7 @@ namespace minim {
       iteration(state);
       if (checkConvergence(state)) break;
     }
-    return state.getCoords();
+    return state.coords();
   }
 
 }

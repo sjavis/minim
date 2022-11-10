@@ -12,7 +12,7 @@ namespace minim {
   State::State(const Potential& pot, const Vector& coords)
     : ndof(coords.size()), pot(pot.clone()), comm(ndof,*this->pot)
   {
-    setCoords(coords);
+    this->coords(coords);
   }
 
   State::State(const State& state)
@@ -187,11 +187,11 @@ namespace minim {
   }
 
 
-  Vector State::getCoords() const {
+  Vector State::coords() const {
     return comm.gather(_coords, -1);
   }
 
-  void State::setCoords(const Vector& in) {
+  void State::coords(const Vector& in) {
     _coords = comm.scatter(in, -1);
   }
 

@@ -41,7 +41,7 @@ TEST(FireTest, TestStep) {
 
   double dt = 0.1 / pow(68, 0.25);
   Vector step = -0.5 * dt * dt * g;
-  EXPECT_TRUE(ArraysMatch(state.getCoords(), coords+step));
+  EXPECT_TRUE(ArraysMatch(state.coords(), coords+step));
 }
 
 
@@ -53,7 +53,7 @@ TEST(FireTest, TestConvergence) {
   Fire min = Fire();
   min.minimise(state);
 
-  EXPECT_LT(vec::norm(state.getCoords()), 1e-6);
+  EXPECT_LT(vec::norm(state.coords()), 1e-6);
 }
 
 
