@@ -28,12 +28,11 @@ namespace minim {
       _y = std::vector<Vector>(_m, Vector(state.ndof));
       _rho = Vector(_m);
     }
-    _gNew = Vector(state.ndof);
-    _g = state.gradient();
   }
 
 
   void Lbfgs::iteration(State& state) {
+    if (iter == 0) _g = state.gradient();
     _i_cycle = iter % _m;
 
     // Find minimisation direction
