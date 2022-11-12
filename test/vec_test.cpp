@@ -5,6 +5,7 @@
 #include "ArraysMatch.h"
 
 #include "utils/mpi.h"
+#include <algorithm>
 
 typedef std::vector<double> Vector;
 
