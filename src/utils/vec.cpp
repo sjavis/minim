@@ -200,7 +200,7 @@ namespace vec {
 
   void random(Vector& vec, double max) {
     if (max < 0) max = - max;
-    std::uniform_real_distribution distr(-max, max);
+    std::uniform_real_distribution<double> distr(-max, max);
     std::generate(vec.begin(), vec.end(), [&](){ return distr(gen); });
   }
 

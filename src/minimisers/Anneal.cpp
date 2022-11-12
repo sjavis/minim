@@ -38,7 +38,7 @@ namespace minim {
 
     // Randomly perturb state
     std::vector<double> new_state(state.comm.nproc);
-    for (int i=0; i<state.comm.nblock; i++) {
+    for (size_t i=0; i<state.comm.nblock; i++) {
       double random = 2 * ((double) rand() / RAND_MAX) - 1;
       new_state[i] = _current_state[i] + random*_displacement;
     }
