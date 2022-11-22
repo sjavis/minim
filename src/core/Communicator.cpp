@@ -286,19 +286,15 @@ namespace minim {
 
 
   double Communicator::get(const Vector& vector, int loc) const {
-    double value;
-
-    if (mpi.size == 1) {
-      value = vector[loc];
-    } else {
   #ifdef PARALLEL
+    if (mpi.size > 1) {
       int i = priv->getBlock(loc);
-      value = vector[loc-priv->iblocks[i]];
+      double value = vector[loc-priv->iblocks[i]];
       MPI_Bcast(&value, 1, MPI_DOUBLE, i, MPI_COMM_WORLD);
-  #endif
+      return value;
     }
-
-    return value;
+  #endif
+    return vector[loc];
   }
 
 
@@ -312,50 +308,52 @@ namespace minim {
 
 
   Vector Communicator::gather(const Vector& block, int root) const {
+    
   #ifdef PARALLEL
-    Vector gathered;
-    if (root == -1) {
-      gathered = Vector(ndof);
-      MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
-                     &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
-                     MPI_COMM_WORLD);
-    } else {
-      if (mpi.rank==root) gathered = Vector(ndof);
-      MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
-                  &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
-                  MPI_COMM_WORLD);
+    if (mpi.size > 1) {
+      Vector gathered;
+      if (root == -1) {
+        gathered = Vector(ndof);
+        MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
+                       &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
+                       MPI_COMM_WORLD);
+      } else {
+        if (mpi.rank==root) gathered = Vector(ndof);
+        MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
+                    &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
+                    MPI_COMM_WORLD);
+      }
+      return gathered;
     }
-    return gathered;
-  #else
-    return block;
   #endif
+    return block;
   }
 
 
   Vector Communicator::scatter(const Vector& data, int root) const {
   #ifdef PARALLEL
-    // Get copy of data on processor (potentially inefficient)
-    Vector data_copy;
-    if (root == -1) {
-      data_copy = data;
-      // Note: Halo data may not be correct if 'data' is different on each processor
-    } else {
-      data_copy = (mpi.rank==root) ? data : Vector(ndof);
-      bcast(data_copy, root);
-    }
-    // Assign the main blocks
-    Vector scattered = assignBlock(data_copy);
-    // Assign the halo regions
-    for (int i=0; i<mpi.size; i++) {
-      for (int j=0; j<priv->nrecv[i]; j++) {
-        scattered[priv->irecv[i]+j] = data_copy[priv->recv_lists[i][j]];
+    if (mpi.size > 1) {
+      // Get copy of data on processor (potentially inefficient)
+      Vector data_copy;
+      if (root == -1) {
+        data_copy = data;
+        // Note: Halo data may not be correct if 'data' is different on each processor
+      } else {
+        data_copy = (mpi.rank==root) ? data : Vector(ndof);
+        bcast(data_copy, root);
       }
+      // Assign the main blocks
+      Vector scattered = assignBlock(data_copy);
+      // Assign the halo regions
+      for (int i=0; i<mpi.size; i++) {
+        for (int j=0; j<priv->nrecv[i]; j++) {
+          scattered[priv->irecv[i]+j] = data_copy[priv->recv_lists[i][j]];
+        }
+      }
+      return scattered;
     }
-    return scattered;
-
-  #else
-    return data;
   #endif
+    return data;
   }
 
 
