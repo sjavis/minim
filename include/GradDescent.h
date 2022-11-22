@@ -7,7 +7,7 @@
 namespace minim {
 
   // Gradient desecent minimisation
-  class GradDescent : public Minimiser {
+  class GradDescent : public NewMinimiser<GradDescent> {
     public:
       GradDescent() {};
       ~GradDescent() {};

@@ -15,7 +15,7 @@ namespace minim {
 
   //! \class Lbfgs
   //! LBFGS minimisation algorithm
-  class Lbfgs : public Minimiser {
+  class Lbfgs : public NewMinimiser<Lbfgs> {
     typedef std::vector<double> Vector;
 
     public:

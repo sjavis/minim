@@ -6,7 +6,7 @@
 
 namespace minim {
 
-  class Fire : public Minimiser {
+  class Fire : public NewMinimiser<Fire> {
     public:
       Fire() {};
       Fire(double dt_max) : _dt_max(dt_max) {};

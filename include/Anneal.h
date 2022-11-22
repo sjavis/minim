@@ -6,7 +6,7 @@
 
 namespace minim {
 
-  class Anneal : public Minimiser {
+  class Anneal : public NewMinimiser<Anneal> {
     public:
       Anneal(double temp_init, double displacement) : _temp_init(temp_init), _displacement(displacement) {};
       ~Anneal() {};

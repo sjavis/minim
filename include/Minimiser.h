@@ -2,6 +2,7 @@
 #define MINIMISER_H
 
 #include <vector>
+#include <memory>
 
 namespace minim {
   class State;
@@ -16,6 +17,7 @@ namespace minim {
 
       Minimiser() {};
       virtual ~Minimiser() {};
+      virtual std::unique_ptr<Minimiser> clone() const = 0;
 
       virtual Minimiser& setMaxIter(int maxIter);
 
@@ -23,6 +25,16 @@ namespace minim {
       virtual void init(State& state) {};
       virtual void iteration(State& state) = 0;
       virtual bool checkConvergence(const State& state) { return false; };
+  };
+
+
+  // An intermediate class is used to return the derived type for methods that return a Minimiser
+  template<typename Derived>
+  class NewMinimiser : public Minimiser {
+    public:
+      std::unique_ptr<Minimiser> clone() const override {
+        return std::make_unique<Derived>(static_cast<const Derived&>(*this));
+      }
   };
 
 }
