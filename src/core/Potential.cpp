@@ -110,11 +110,8 @@ namespace minim {
   Potential& Potential::setElements(std::vector<std::vector<int>> idofs) {
     // Generate energy elements
     elements = {};
-    int id = 0;
     for (const auto& idof: idofs) {
-      Element el = {id, 0, idof};
-      elements.push_back(el);
-      id++;
+      elements.push_back({0, idof});
     }
     return *this;
   }
@@ -124,12 +121,9 @@ namespace minim {
   {
     // Generate energy elements
     elements = {};
-    int id = 0;
     int nelements = idofs.size();
     for (int i=0; i<nelements; i++) {
-      Element el = {id, types[i], idofs[i], parameters[i]};
-      elements.push_back(el);
-      id++;
+      elements.push_back({types[i], idofs[i], parameters[i]});
     }
     return *this;
   }

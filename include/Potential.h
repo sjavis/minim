@@ -40,7 +40,6 @@ namespace minim {
 
 
       struct Element {
-        int id;
         int type;
         std::vector<int> idof;
         std::vector<double> parameters;

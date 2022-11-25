@@ -56,7 +56,6 @@ namespace minim {
     Vector f2Norm = force2 / f2Mag;
 
     elements = {};
-    int elId = 0;
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     for (int i=0; i<nGrid; i++) {
       if (solid[i]) continue;
@@ -75,24 +74,21 @@ namespace minim {
       // Set bulk fluid elements
       if (!solid[i]) {
         Neighbours di(gridSize, i);
-        elements.push_back({elId, 0, {i, di[0], di[1], di[2], di[3], di[4], di[5]}, {volume}});
-        elId++;
+        elements.push_back({0, {i, di[0], di[1], di[2], di[3], di[4], di[5]}, {volume}});
       }
 
       // Set surface fluid elements
       if (type > 0 && !contactAngle.empty()) {
         double wettingParam = sqrt(2) * cos(contactAngle[i]);
         if (wettingParam != 0) {
-          elements.push_back({elId, 1, {i}, {surfaceArea, wettingParam}});
-          elId++;
+          elements.push_back({1, {i}, {surfaceArea, wettingParam}});
         }
       }
 
       // Set external force elements
       if (f1Mag > 0 || f2Mag > 0) {
         Vector params{volume, f1Mag, f2Mag, f1Norm[0], f1Norm[1], f1Norm[2], f2Norm[0], f2Norm[1], f2Norm[2]};
-        elements.push_back({elId, 2, {i}, params});
-        elId++;
+        elements.push_back({2, {i}, params});
       }
     }
   }
