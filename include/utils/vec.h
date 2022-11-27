@@ -2,59 +2,82 @@
 #define VEC_H
 
 #include <vector>
-
-#if __has_include(<span>)
-#include <span>
-#endif
-#ifdef __cpp_lib_span
-using std::span;
-#else
-#include <gsl/span>
-using gsl::span;
-#endif
+using std::vector;
 
 
-std::vector<double> operator+(double a, span<const double> b);
-std::vector<double> operator+(span<const double> a, double b);
-std::vector<double> operator+(span<const double> a, span<const double> b);
-std::vector<double>& operator+=(std::vector<double>& a, double b);
-std::vector<double>& operator+=(std::vector<double>& a, span<const double> b);
+template<typename T, typename U>
+auto operator+(T a, const vector<U>& b);
+template<typename T, typename U>
+auto operator+(const vector<T>& a, U b);
+template<typename T, typename U>
+auto operator+(const vector<T>& a, const vector<U>& b);
+template<typename T, typename U>
+auto operator+=(vector<T>& a, U b);
+template<typename T, typename U>
+auto operator+=(vector<T>& a, const vector<U>& b);
 
-std::vector<double> operator-(span<const double> a);
-std::vector<double> operator-(double a, span<const double> b);
-std::vector<double> operator-(span<const double> a, double b);
-std::vector<double> operator-(span<const double> a, span<const double> b);
-std::vector<double>& operator-=(std::vector<double>& a, double b);
-std::vector<double>& operator-=(std::vector<double>& a, span<const double> b);
+template<typename T>
+auto operator-(const vector<T>& a);
+template<typename T, typename U>
+auto operator-(T a, const vector<U>& b);
+template<typename T, typename U>
+auto operator-(const vector<T>& a, U b);
+template<typename T, typename U>
+auto operator-(const vector<T>& a, const vector<U>& b);
+template<typename T, typename U>
+auto operator-=(vector<T>& a, U b);
+template<typename T, typename U>
+auto operator-=(vector<T>& a, const vector<U>& b);
 
-std::vector<double> operator*(double a, span<const double> b);
-std::vector<double> operator*(span<const double> a, double b);
-std::vector<double> operator*(span<const double> a, span<const double> b);
-std::vector<double>& operator*=(std::vector<double>& a, double b);
-std::vector<double>& operator*=(std::vector<double>& a, span<const double> b);
+template<typename T, typename U>
+auto operator*(T a, const vector<U>& b);
+template<typename T, typename U>
+auto operator*(const vector<T>& a, U b);
+template<typename T, typename U>
+auto operator*(const vector<T>& a, const vector<U>& b);
+template<typename T, typename U>
+auto operator*=(vector<T>& a, U b);
+template<typename T, typename U>
+auto operator*=(vector<T>& a, const vector<U>& b);
 
-std::vector<double> operator/(double a, span<const double> b);
-std::vector<double> operator/(span<const double> a, double b);
-std::vector<double> operator/(span<const double> a, span<const double> b);
-std::vector<double>& operator/=(std::vector<double>& a, double b);
-std::vector<double>& operator/=(std::vector<double>& a, span<const double> b);
+template<typename T, typename U>
+auto operator/(T a, const vector<U>& b);
+template<typename T, typename U>
+auto operator/(const vector<T>& a, U b);
+template<typename T, typename U>
+auto operator/(const vector<T>& a, const vector<U>& b);
+template<typename T, typename U>
+auto operator/=(vector<T>& a, U b);
+template<typename T, typename U>
+auto operator/=(vector<T>& a, const vector<U>& b);
 
 namespace vec {
-  double dotProduct(span<const double> a, span<const double> b);
-  std::vector<double> crossProduct(span<const double> a, span<const double> b);
-  double norm(span<const double> a);
+  template<typename T, typename U>
+  auto dotProduct(const vector<T>& a, const vector<U>& b);
+  template<typename T, typename U>
+  auto crossProduct(const vector<T>& a, const vector<U>& b);
+  template<typename T>
+  auto norm(const vector<T>& a);
 
-  std::vector<double> abs(span<const double> a);
-  std::vector<double> sqrt(span<const double> a);
-  std::vector<double> pow(span<const double> a, double n);
+  template<typename T>
+  vector<T> abs(const vector<T>& a);
+  template<typename T>
+  vector<T> sqrt(const vector<T>& a);
+  template<typename T, typename U>
+  vector<T> pow(const vector<T>& a, U n);
 
-  bool any(const std::vector<bool>& a);
-  bool all(const std::vector<bool>& a);
+  template<typename T>
+  bool any(const vector<T>& a);
+  template<typename T>
+  bool all(const vector<T>& a);
 
-  void insert_unique(std::vector<int>& vec, int value);
+  template<typename T>
+  void insert_unique(vector<T>& vec, T value);
 
-  void random(span<double> vec, double max);
-  std::vector<double> random(int n, double max);
+  void random(vector<double>& vec, double max);
+  vector<double> random(int n, double max);
 }
+
+#include "vec.hpp"
 
 #endif
