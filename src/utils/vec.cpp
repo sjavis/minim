@@ -11,17 +11,17 @@ typedef std::vector<double> Vector;
 
 
 // Sum
-Vector operator+(double a, const Vector& b) {
+Vector operator+(double a, span<const double> b) {
   Vector c(b.size());
   std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a+x; });
   return c;
 }
-Vector operator+(const Vector& a, double b) {
+Vector operator+(span<const double> a, double b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x+b; });
   return c;
 }
-Vector operator+(const Vector& a, const Vector& b) {
+Vector operator+(span<const double> a, span<const double> b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::plus<double>());
   return c;
@@ -31,30 +31,30 @@ Vector& operator+=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x+b; });
   return a;
 }
-Vector& operator+=(Vector& a, const Vector& b) {
+Vector& operator+=(Vector& a, span<const double> b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<double>());
   return a;
 }
 
 
 // Diff
-Vector operator-(const Vector& a) {
+Vector operator-(span<const double> a) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), c.begin(), [](auto x){ return -x; });
   return c;
 }
 
-Vector operator-(double a, const Vector& b) {
+Vector operator-(double a, span<const double> b) {
   Vector c(b.size());
   std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a-x; });
   return c;
 }
-Vector operator-(const Vector& a, double b) {
+Vector operator-(span<const double> a, double b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x-b; });
   return c;
 }
-Vector operator-(const Vector& a, const Vector& b) {
+Vector operator-(span<const double> a, span<const double> b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::minus<double>());
   return c;
@@ -64,24 +64,24 @@ Vector& operator-=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x-b; });
   return a;
 }
-Vector& operator-=(Vector& a, const Vector& b) {
+Vector& operator-=(Vector& a, span<const double> b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<double>());
   return a;
 }
 
 
 // Multiply
-Vector operator*(double a, const Vector& b) {
+Vector operator*(double a, span<const double> b) {
   Vector c(b.size());
   std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a*x; });
   return c;
 }
-Vector operator*(const Vector& a, double b) {
+Vector operator*(span<const double> a, double b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x*b; });
   return c;
 }
-Vector operator*(const Vector& a, const Vector& b) {
+Vector operator*(span<const double> a, span<const double> b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::multiplies<double>());
   return c;
@@ -91,24 +91,24 @@ Vector& operator*=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x*b; });
   return a;
 }
-Vector& operator*=(Vector& a, const Vector& b) {
+Vector& operator*=(Vector& a, span<const double> b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<double>());
   return a;
 }
 
 
 // Divide
-Vector operator/(double a, const Vector& b) {
+Vector operator/(double a, span<const double> b) {
   Vector c(b.size());
   std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a/x; });
   return c;
 }
-Vector operator/(const Vector& a, double b) {
+Vector operator/(span<const double> a, double b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x/b; });
   return c;
 }
-Vector operator/(const Vector& a, const Vector& b) {
+Vector operator/(span<const double> a, span<const double> b) {
   Vector c(a.size());
   std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::divides<double>());
   return c;
@@ -118,7 +118,7 @@ Vector& operator/=(Vector& a, double b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
   return a;
 }
-Vector& operator/=(Vector& a, const Vector& b) {
+Vector& operator/=(Vector& a, span<const double> b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<double>());
   return a;
 }
@@ -127,13 +127,13 @@ Vector& operator/=(Vector& a, const Vector& b) {
 namespace vec {
 
   // Dot Product
-  double dotProduct(const Vector& a, const Vector& b) {
+  double dotProduct(span<const double> a, span<const double> b) {
     return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
   }
 
 
   // Cross Product
-  Vector crossProduct(const Vector& a, const Vector& b) {
+  Vector crossProduct(span<const double> a, span<const double> b) {
     assert(a.size()==3);
     assert(b.size()==3);
     Vector c(3);
@@ -145,27 +145,27 @@ namespace vec {
 
 
   // Norm
-  double norm(const Vector& a) {
+  double norm(span<const double> a) {
     return std::sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
   }
 
 
   // Element-wise absolute value
-  Vector abs(const Vector& a) {
+  Vector abs(span<const double> a) {
     Vector b(a.size());
     std::transform(a.begin(), a.end(), b.begin(), [](double x){ return (x<0) ? -x : x; });
     return b;
   }
 
   // Element-wise square root
-  Vector sqrt(const Vector& a) {
+  Vector sqrt(span<const double> a) {
     Vector b(a.size());
     std::transform(a.begin(), a.end(), b.begin(), [](double x){ return std::sqrt(x); });
     return b;
   }
 
   // Element-wise exponent
-  Vector pow(const Vector& a, double n) {
+  Vector pow(span<const double> a, double n) {
     Vector b(a.size());
     std::transform(a.begin(), a.end(), b.begin(), [n](double x){ return std::pow(x, n); });
     return b;
@@ -198,7 +198,7 @@ namespace vec {
   std::random_device rd; 
   std::mt19937 gen(rd());
 
-  void random(Vector& vec, double max) {
+  void random(span<double> vec, double max) {
     if (max < 0) max = - max;
     std::uniform_real_distribution<double> distr(-max, max);
     std::generate(vec.begin(), vec.end(), [&](){ return distr(gen); });

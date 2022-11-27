@@ -3,47 +3,57 @@
 
 #include <vector>
 
+#if __has_include(<span>)
+#include <span>
+#endif
+#ifdef __cpp_lib_span
+using std::span;
+#else
+#include <gsl/span>
+using gsl::span;
+#endif
 
-std::vector<double> operator+(double a, std::vector<double> b);
-std::vector<double> operator+(const std::vector<double>& a, double b);
-std::vector<double> operator+(const std::vector<double>& a, const std::vector<double>& b);
+
+std::vector<double> operator+(double a, span<const double> b);
+std::vector<double> operator+(span<const double> a, double b);
+std::vector<double> operator+(span<const double> a, span<const double> b);
 std::vector<double>& operator+=(std::vector<double>& a, double b);
-std::vector<double>& operator+=(std::vector<double>& a, const std::vector<double>& b);
+std::vector<double>& operator+=(std::vector<double>& a, span<const double> b);
 
-std::vector<double> operator-(const std::vector<double>& a);
-std::vector<double> operator-(double a, const std::vector<double>& b);
-std::vector<double> operator-(const std::vector<double>& a, double b);
-std::vector<double> operator-(const std::vector<double>& a, const std::vector<double>& b);
+std::vector<double> operator-(span<const double> a);
+std::vector<double> operator-(double a, span<const double> b);
+std::vector<double> operator-(span<const double> a, double b);
+std::vector<double> operator-(span<const double> a, span<const double> b);
 std::vector<double>& operator-=(std::vector<double>& a, double b);
-std::vector<double>& operator-=(std::vector<double>& a, const std::vector<double>& b);
+std::vector<double>& operator-=(std::vector<double>& a, span<const double> b);
 
-std::vector<double> operator*(double a, const std::vector<double>& b);
-std::vector<double> operator*(const std::vector<double>& a, double b);
-std::vector<double> operator*(const std::vector<double>& a, const std::vector<double>& b);
+std::vector<double> operator*(double a, span<const double> b);
+std::vector<double> operator*(span<const double> a, double b);
+std::vector<double> operator*(span<const double> a, span<const double> b);
 std::vector<double>& operator*=(std::vector<double>& a, double b);
-std::vector<double>& operator*=(std::vector<double>& a, const std::vector<double>& b);
+std::vector<double>& operator*=(std::vector<double>& a, span<const double> b);
 
-std::vector<double> operator/(double a, const std::vector<double>& b);
-std::vector<double> operator/(const std::vector<double>& a, double b);
-std::vector<double> operator/(const std::vector<double>& a, const std::vector<double>& b);
+std::vector<double> operator/(double a, span<const double> b);
+std::vector<double> operator/(span<const double> a, double b);
+std::vector<double> operator/(span<const double> a, span<const double> b);
 std::vector<double>& operator/=(std::vector<double>& a, double b);
-std::vector<double>& operator/=(std::vector<double>& a, const std::vector<double>& b);
+std::vector<double>& operator/=(std::vector<double>& a, span<const double> b);
 
 namespace vec {
-  double dotProduct(const std::vector<double>& a, const std::vector<double>& b);
-  std::vector<double> crossProduct(const std::vector<double>& a, const std::vector<double>& b);
-  double norm(const std::vector<double>& a);
+  double dotProduct(span<const double> a, span<const double> b);
+  std::vector<double> crossProduct(span<const double> a, span<const double> b);
+  double norm(span<const double> a);
 
-  std::vector<double> abs(const std::vector<double>& a);
-  std::vector<double> sqrt(const std::vector<double>& a);
-  std::vector<double> pow(const std::vector<double>& a, double n);
+  std::vector<double> abs(span<const double> a);
+  std::vector<double> sqrt(span<const double> a);
+  std::vector<double> pow(span<const double> a, double n);
 
   bool any(const std::vector<bool>& a);
   bool all(const std::vector<bool>& a);
 
   void insert_unique(std::vector<int>& vec, int value);
 
-  void random(std::vector<double>& vec, double max);
+  void random(span<double> vec, double max);
   std::vector<double> random(int n, double max);
 }
 

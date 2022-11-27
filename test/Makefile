@@ -15,7 +15,7 @@ LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
 .PHONY: all clean $(RUN_TESTS) gtest
 
-all: $(TESTS) $(RUN_TESTS) clean
+all: clean $(TESTS) $(RUN_TESTS)
 
 clean:
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
