@@ -4,6 +4,7 @@ INC_DIR = include
 BUILD_DIR = bin
 LIB_DIR = lib
 LIBS =
+HLIBS = gsl
 
 CXX      = mpic++#            C++ compiler
 CXXFLAGS = -Wall -DPARALLEL#  Flags for the C++ compiler
@@ -14,6 +15,7 @@ SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
 OBJ = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(notdir $(SRC)))
 INC = $(addprefix -I, $(INC_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
+HLIB = $(patsubst %,$(INC_DIR)/%, $(HLIBS))
 LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
@@ -24,7 +26,7 @@ all: $(TARGET)
 debug: CXXFLAGS+=-g
 debug: $(TARGET)
 
-deps: $(LIB)
+deps: $(LIB) $(HLIB)
 
 clean:
 	rm $(TARGET) $(OBJ) $(LIB)
@@ -32,7 +34,7 @@ clean:
 $(TARGET): $(OBJ)
 	ar -rcs $(TARGET) $(OBJ)
 
-$(OBJ): $(BUILD_DIR)/%.o: %.cpp $(LIB)
+$(OBJ): $(BUILD_DIR)/%.o: %.cpp $(LIB) $(HLIB)
 	$(CXX) $(CXXFLAGS) $(INC) -c $< $(LDFLAGS) $(LDLIBS) -o $@
 
 $(LIB): $(BUILD_DIR)/lib%.a:
@@ -40,6 +42,10 @@ $(LIB): $(BUILD_DIR)/lib%.a:
 	$(MAKE) -C $(LIB_DIR)/$*
 	ln -sfn ../$(LIB_DIR)/$*/$(INC_DIR) $(INC_DIR)/$*
 	cp $(LIB_DIR)/$*/$@ $@
+
+$(HLIB): $(INC_DIR)/%:
+	git submodule update --init $(LIB_DIR)/$*
+	ln -sfn ../$(LIB_DIR)/$*/include/$* $@
 
 check:
 	$(MAKE) -C test gtest
