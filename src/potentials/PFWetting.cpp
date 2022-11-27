@@ -168,7 +168,8 @@ namespace minim {
         double f2 = el.parameters[2];
         Vector f1Norm = {el.parameters[3], el.parameters[4], el.parameters[5]};
         Vector f2Norm = {el.parameters[6], el.parameters[7], el.parameters[8]};
-        std::array<int,3> coord = getCoord(el.idof[0]);
+        std::array<int,3> coordA = getCoord(el.idof[0]);
+        Vector coord(coordA.begin(), coordA.end());
         double h1 = - vec::dotProduct(coord, f1Norm);
         double h2 = - vec::dotProduct(coord, f2Norm);
         if (e) *e += 0.5 * ((1+phi)*f1*h1 + (1-phi)*f2*h2) * el.parameters[0];
@@ -197,7 +198,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setSolid(std::vector<bool> solid) {
-    if (solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of solid array.");
+    if ((int)solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of solid array.");
     this->solid = solid;
     return *this;
   }
@@ -217,7 +218,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setContactAngle(Vector contactAngle) {
-    if (contactAngle.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of contactAngle array.");
+    if ((int)contactAngle.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of contactAngle array.");
     this->contactAngle = contactAngle;
     return *this;
   }
@@ -305,7 +306,7 @@ namespace minim {
     } else if (nSolidF == 3) {
       return 7;
     }
-    std::logic_error("Undefined surface type");
+    throw std::runtime_error("Undefined surface type");
   }
 
 }
