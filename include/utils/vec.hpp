@@ -164,6 +164,13 @@ namespace vec {
   }
 
 
+  // Sum
+  template<typename T>
+  auto sum(const vector<T>& a) {
+    return std::accumulate(a.begin(), a.end(), T(0));
+  }
+
+
   // Norm
   template<typename T>
   auto norm(const vector<T>& a) {
