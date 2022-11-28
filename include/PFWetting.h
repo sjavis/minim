@@ -22,6 +22,8 @@ namespace minim {
       PFWetting& setGridSize(std::array<int,3> gridSize);
       PFWetting& setEpsilon(double epsilon);
       PFWetting& setResolution(double resolution);
+      PFWetting& setPressure(double pressure);
+      PFWetting& setVolume(double volume, double volConst=1e5);
       PFWetting& setSolid(std::vector<bool> solid);
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
       PFWetting& setContactAngle(Vector contactAngle);
@@ -30,6 +32,9 @@ namespace minim {
       std::array<int,3> gridSize;
       double epsilon = 1;
       double resolution = 1;
+      double pressure = 0;
+      double volume = 0;
+      double volConst = 1e5;
       std::vector<bool> solid;
       Vector contactAngle;
       Vector force1;

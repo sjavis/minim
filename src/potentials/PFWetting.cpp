@@ -197,6 +197,17 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setPressure(double pressure) {
+    this->pressure = pressure;
+    return *this;
+  }
+
+  PFWetting& PFWetting::setVolume(double volume, double volConst) {
+    this->volume = volume;
+    this->volConst = volConst;
+    return *this;
+  }
+
   PFWetting& PFWetting::setSolid(std::vector<bool> solid) {
     if ((int)solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of solid array.");
     this->solid = solid;
