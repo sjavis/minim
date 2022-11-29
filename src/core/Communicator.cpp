@@ -258,9 +258,27 @@ namespace minim {
 
 
   Vector Communicator::assignBlock(const Vector& in) const {
+    Vector out = Vector(nblock);
+    int i0 = (in.size() == ndof) ? iblock : 0;
+    for (size_t i=0; i<nblock; i++) {
+      out[i] = in[i0+i];
+    }
+    return out;
+  }
+
+
+  Vector Communicator::assignProc(const Vector& in) const {
+    if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
     Vector out = Vector(nproc);
+    // Assign the main blocks
     for (size_t i=0; i<nblock; i++) {
       out[i] = in[iblock+i];
+    }
+    // Assign the halo regions
+    for (int i=0; i<mpi.size; i++) {
+      for (int j=0; j<priv->nrecv[i]; j++) {
+        out[priv->irecv[i]+j] = in[priv->recv_lists[i][j]];
+      }
     }
     return out;
   }
@@ -343,15 +361,7 @@ namespace minim {
         data_copy = (mpi.rank==root) ? data : Vector(ndof);
         bcast(data_copy, root);
       }
-      // Assign the main blocks
-      Vector scattered = assignBlock(data_copy);
-      // Assign the halo regions
-      for (int i=0; i<mpi.size; i++) {
-        for (int j=0; j<priv->nrecv[i]; j++) {
-          scattered[priv->irecv[i]+j] = data_copy[priv->recv_lists[i][j]];
-        }
-      }
-      return scattered;
+      return assignProc(data_copy);
     }
   #endif
     return data;
