@@ -71,7 +71,7 @@ namespace minim {
           blocks[ie] = std::vector<int>(e_ndof);
           in_block[ie] = std::vector<bool>(e_ndof);
           for (int i=0; i<e_ndof; i++) {
-            blocks[ie][i] = getBlock(e.idof[i]);
+            blocks[ie][i] = (e.idof[i]>=0) ? getBlock(e.idof[i]) : mpi.rank; // Negative values can be used as dummy values
             in_block[ie][i] = (blocks[ie][i] == mpi.rank);
           }
         }

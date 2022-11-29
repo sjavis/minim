@@ -77,7 +77,11 @@ namespace minim {
       // Set bulk fluid elements
       if (!solid[i]) {
         Neighbours di(gridSize, i);
-        elements.push_back({0, {i, di[0], di[1], di[2], di[3], di[4], di[5]}});
+        std::vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
+        for (auto &idof: idofs) {
+          if (solid[idof]) idof = -1;
+        }
+        elements.push_back({0, idofs, {nodeVol[i]}});
       }
 
       // Set surface fluid elements
@@ -139,21 +143,20 @@ namespace minim {
         if (e) *e += 0.25/epsilon * (pow(phi,4) - 2*pow(phi,2) + 1) * vol;
         if (g) (*g)[el.idof[0]] += 1/epsilon * (pow(phi,3) - phi) * vol;
         // Gradient energy
-        double diffxm = !solid[el.idof[1]] ? phi - coords[el.idof[1]] : 0;
-        double diffym = !solid[el.idof[2]] ? phi - coords[el.idof[2]] : 0;
-        double diffzm = !solid[el.idof[3]] ? phi - coords[el.idof[3]] : 0;
-        double diffzp = !solid[el.idof[4]] ? phi - coords[el.idof[4]] : 0;
-        double diffyp = !solid[el.idof[5]] ? phi - coords[el.idof[5]] : 0;
-        double diffxp = !solid[el.idof[6]] ? phi - coords[el.idof[6]] : 0;
-        int nfx = (!solid[el.idof[1]]) + (!solid[el.idof[6]]); // = 2 if both sides fluid
-        int nfy = (!solid[el.idof[2]]) + (!solid[el.idof[5]]); // = 1 if one side solid
-        int nfz = (!solid[el.idof[3]]) + (!solid[el.idof[4]]); // = 0 is an error
-        double gradx2 = (pow(diffxm, 2) + pow(diffxp, 2)) / nfx;
-        double grady2 = (pow(diffym, 2) + pow(diffyp, 2)) / nfy;
-        double gradz2 = (pow(diffzm, 2) + pow(diffzp, 2)) / nfz;
-        double grad2 = gradx2 + grady2 + gradz2;
         double factor = 0.5 * epsilon * vol;
-        if (e) *e += factor * grad2;
+        double diffxm = (el.idof[1]>=0) ? phi - coords[el.idof[1]] : 0;
+        double diffym = (el.idof[2]>=0) ? phi - coords[el.idof[2]] : 0;
+        double diffzm = (el.idof[3]>=0) ? phi - coords[el.idof[3]] : 0;
+        double diffzp = (el.idof[4]>=0) ? phi - coords[el.idof[4]] : 0;
+        double diffyp = (el.idof[5]>=0) ? phi - coords[el.idof[5]] : 0;
+        double diffxp = (el.idof[6]>=0) ? phi - coords[el.idof[6]] : 0;
+        if (e) {
+          double gradx2 = (diffxm!=0 && diffxp!=0) ? (pow(diffxm,2)+pow(diffxp,2))/2 : pow(diffxm,2)+pow(diffxp,2);
+          double grady2 = (diffym!=0 && diffyp!=0) ? (pow(diffym,2)+pow(diffyp,2))/2 : pow(diffym,2)+pow(diffyp,2);
+          double gradz2 = (diffzm!=0 && diffzp!=0) ? (pow(diffzm,2)+pow(diffzp,2))/2 : pow(diffzm,2)+pow(diffzp,2);
+          double grad2 = gradx2 + grady2 + gradz2;
+          *e += factor * grad2;
+        }
         if (g) {
           (*g)[el.idof[0]] += factor * (diffxm + diffxp + diffym + diffyp + diffzm + diffzp);
           (*g)[el.idof[1]] -= factor * diffxm;
