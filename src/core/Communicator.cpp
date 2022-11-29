@@ -221,12 +221,13 @@ namespace minim {
 
 
   Communicator::Communicator(size_t ndof, Potential& pot)
-    : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
+    : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), priv(std::unique_ptr<Priv>(new Priv))
   {
     if (mpi.size == 1) return;
     priv->setup(pot, ndof);
     nblock = priv->nblocks[mpi.rank];
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
+    iblock = priv->iblocks[mpi.rank];
   }
 
 
@@ -259,7 +260,7 @@ namespace minim {
   Vector Communicator::assignBlock(const Vector& in) const {
     Vector out = Vector(nproc);
     for (size_t i=0; i<nblock; i++) {
-      out[i] = in[priv->iblocks[mpi.rank]+i];
+      out[i] = in[iblock+i];
     }
     return out;
   }
