@@ -6,6 +6,7 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
+#include "utils/mpi.h"
 
 
 namespace minim {
@@ -50,22 +51,24 @@ namespace minim {
 
 
   void PFWetting::init() {
+    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
+    nodeVol = Vector(nGrid, 1);
+    if (solid.empty()) solid = std::vector<bool>(nGrid, false);
+
     double f1Mag = vec::norm(force1);
     double f2Mag = vec::norm(force1);
     Vector f1Norm = force1 / f1Mag;
     Vector f2Norm = force2 / f2Mag;
 
     elements = {};
-    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     for (int i=0; i<nGrid; i++) {
       if (solid[i]) continue;
 
       // Get fluid volume and solid surface area for each node
-      double volume = 1;
       double surfaceArea = 0;
       int type = getType(i);
       if (type > 0) {
-        volume = type / 8.0;
+        nodeVol[i] = type / 8.0;
         if (type == 2 || type == 4 || type == 6) surfaceArea = 1;
         if (type == 1 || type == 7) surfaceArea = 0.75;
         if (type == 3 || type == 5) surfaceArea = 1.25;
@@ -74,7 +77,7 @@ namespace minim {
       // Set bulk fluid elements
       if (!solid[i]) {
         Neighbours di(gridSize, i);
-        elements.push_back({0, {i, di[0], di[1], di[2], di[3], di[4], di[5]}, {volume}});
+        elements.push_back({0, {i, di[0], di[1], di[2], di[3], di[4], di[5]}});
       }
 
       // Set surface fluid elements
@@ -87,7 +90,7 @@ namespace minim {
 
       // Set external force elements
       if (f1Mag > 0 || f2Mag > 0) {
-        Vector params{volume, f1Mag, f2Mag, f1Norm[0], f1Norm[1], f1Norm[2], f2Norm[0], f2Norm[1], f2Norm[2]};
+        Vector params{f1Mag, f2Mag, f1Norm[0], f1Norm[1], f1Norm[2], f2Norm[0], f2Norm[1], f2Norm[2]};
         elements.push_back({2, {i}, params});
       }
     }
@@ -98,6 +101,20 @@ namespace minim {
     if (e) *e = 0;
     if (g) *g = Vector(coords.size());
 
+    // Energy contributions relying upon the whole system (Constant Volume / Pressure)
+    if (volume != 0 || pressure != 0) {
+      double volFluid1 = mpi.sum(vec::sum(0.5*(coords+1) * nodeVol)); // TODO: Only use block for coords and nodeVol (and solid)
+      if (volume != 0) {
+        if (e) *e += volConst * pow(volFluid1 - volume, 2);
+        if (g) *g += volConst * nodeVol * (volFluid1 - volume);
+      }
+      if (pressure != 0) {
+        if (e) *e -= pressure * volFluid1;
+        if (e) *g -= 0.5 * pressure * nodeVol;
+      }
+    }
+
+    // Compute the energy elements
     for (auto el : elements) {
       elementEnergyGradient(el, coords, e, g);
     }

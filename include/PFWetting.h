@@ -36,6 +36,7 @@ namespace minim {
       double volume = 0;
       double volConst = 1e5;
       std::vector<bool> solid;
+      Vector nodeVol;
       Vector contactAngle;
       Vector force1;
       Vector force2;
