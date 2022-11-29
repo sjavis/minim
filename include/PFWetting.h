@@ -15,7 +15,7 @@ namespace minim {
       ~PFWetting() {};
 
       void init();
-      void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const override;
+      void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
 
       State newState(const Vector& coords) override;
 

@@ -97,13 +97,15 @@ namespace minim {
   }
 
 
-  void PFWetting::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (e) *e = 0;
     if (g) *g = Vector(coords.size());
 
     // Energy contributions relying upon the whole system (Constant Volume / Pressure)
     if (volume != 0 || pressure != 0) {
-      double volFluid1 = mpi.sum(vec::sum(0.5*(coords+1) * nodeVol)); // TODO: Only use block for coords and nodeVol (and solid)
+      Vector phiBlock = comm.assignBlock(coords);
+      Vector nodeVolBlock = comm.assignBlock(nodeVol);
+      double volFluid1 = mpi.sum(vec::sum(0.5*(phiBlock+1) * nodeVolBlock));
       if (volume != 0) {
         if (e) *e += volConst * pow(volFluid1 - volume, 2);
         if (g) *g += volConst * nodeVol * (volFluid1 - volume);

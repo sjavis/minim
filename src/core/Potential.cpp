@@ -58,21 +58,21 @@ namespace minim {
   }
 
 
-  double Potential::blockEnergy(const Vector& coords) const {
+  double Potential::blockEnergy(const Vector& coords, const Communicator& comm) const {
     double e;
-    blockEnergyGradient(coords, &e, nullptr);
+    blockEnergyGradient(coords, comm, &e, nullptr);
     return e;
   }
 
 
-  Vector Potential::blockGradient(const Vector& coords) const {
+  Vector Potential::blockGradient(const Vector& coords, const Communicator& comm) const {
     Vector g(coords.size());
-    blockEnergyGradient(coords, nullptr, &g);
+    blockEnergyGradient(coords, comm, nullptr, &g);
     return g;
   }
 
 
-  void Potential::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void Potential::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (_blockEnergyGradientDef) {
       throw std::logic_error("You shouldn't be here. Has blockEnergyGradient been falsely marked as defined for this potential?");
     } else {

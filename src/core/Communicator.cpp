@@ -327,7 +327,7 @@ namespace minim {
 
 
   Vector Communicator::gather(const Vector& block, int root) const {
-    
+
   #ifdef PARALLEL
     if (mpi.size > 1) {
       Vector gathered;

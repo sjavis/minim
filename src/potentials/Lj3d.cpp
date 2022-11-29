@@ -9,7 +9,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  void Lj3d::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void Lj3d::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (e != nullptr) *e = 0;
     if (g != nullptr) *g = Vector(coords.size());
 

@@ -6,6 +6,7 @@
 
 namespace minim {
   class State;
+  class Communicator;
 
   class Potential {
     typedef std::vector<double> Vector;
@@ -27,9 +28,9 @@ namespace minim {
       virtual double energy(const Vector& coords) const;
       virtual Vector gradient(const Vector& coords) const;
       virtual void energyGradient(const Vector& coords, double* e, Vector* g) const;
-      virtual double blockEnergy(const Vector& coords) const;
-      virtual Vector blockGradient(const Vector& coords) const;
-      virtual void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
+      virtual double blockEnergy(const Vector& coords, const Communicator& comm) const;
+      virtual Vector blockGradient(const Vector& coords, const Communicator& comm) const;
+      virtual void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const;
 
       bool totalEnergyDef() const;
       bool blockEnergyDef() const;
