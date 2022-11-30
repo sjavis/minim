@@ -167,6 +167,7 @@ namespace minim {
               for (int j=0; j<nrecv[block]; j++) {
                 if (e.idof[i] == recv_lists[block][j]) {
                   e.idof[i] = irecv[block] + j;
+                  break;
                 }
               }
             }
