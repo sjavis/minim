@@ -4,6 +4,7 @@
 #include <mpi.h>
 #endif
 
+#include <set>
 #include <numeric>
 #include <limits>
 #include <stdexcept>
@@ -71,7 +72,7 @@ namespace minim {
           blocks[ie] = std::vector<int>(e_ndof);
           in_block[ie] = std::vector<bool>(e_ndof);
           for (int i=0; i<e_ndof; i++) {
-            blocks[ie][i] = (e.idof[i]>=0) ? getBlock(e.idof[i]) : mpi.rank; // Negative values can be used as dummy values
+            blocks[ie][i] = getBlock(e.idof[i]);
             in_block[ie][i] = (blocks[ie][i] == mpi.rank);
           }
         }
@@ -115,17 +116,34 @@ namespace minim {
                                       const std::vector<std::vector<int>>& blocks)
       {
         std::vector<int> el_proc(elements.size());
-        std::vector<int> proc_ne(mpi.size);
+        // Give to the proc with the most DoF contained in the element
         for (size_t ie=0; ie<elements.size(); ie++) {
-          int fewest_elements = std::numeric_limits<int>::max();
-          for (int i : blocks[ie]) {
-            if (proc_ne[i] < fewest_elements) {
-              el_proc[ie] = i;
-              fewest_elements = proc_ne[i];
+          std::set<int> uniqueBlocks(blocks[ie].begin(), blocks[ie].end());
+          int mostDof = 0;
+          for (int block : uniqueBlocks) {
+            int nDof = 0;
+            for (int ib : blocks[ie]) {
+              if (ib == block) nDof++;
+            }
+            if (nDof > mostDof) {
+              mostDof = nDof;
+              el_proc[ie] = block;
             }
           }
-          proc_ne[el_proc[ie]] ++;
         }
+        // Give to whichever proc has the fewest elements
+        // std::vector<int> proc_ne(mpi.size);
+        // for (size_t ie=0; ie<elements.size(); ie++) {
+        //   int fewest_elements = std::numeric_limits<int>::max();
+        //   std::set<int> uniqueBlocks(blocks[ie].begin(), blocks[ie].end());
+        //   for (int i : uniqueBlocks) {
+        //     if (proc_ne[i] < fewest_elements) {
+        //       el_proc[ie] = i;
+        //       fewest_elements = proc_ne[i];
+        //     }
+        //   }
+        //   proc_ne[el_proc[ie]] ++;
+        // }
         return el_proc;
       }
 
