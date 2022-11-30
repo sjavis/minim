@@ -41,9 +41,9 @@ namespace minim {
       Neighbours(std::array<int,3> gridSize, int i0) {
         auto x0 = getCoord(i0, gridSize);
         for (int i=0; i<26; i++) {
-          int x = (x0[0] + dx[i][0]) % gridSize[0];
-          int y = (x0[1] + dx[i][1]) % gridSize[1];
-          int z = (x0[2] + dx[i][2]) % gridSize[2];
+          int x = (x0[0] + dx[i][0] + gridSize[0]) % gridSize[0];
+          int y = (x0[1] + dx[i][1] + gridSize[1]) % gridSize[1];
+          int z = (x0[2] + dx[i][2] + gridSize[2]) % gridSize[2];
           di[i] = (x*gridSize[1] + y)*gridSize[2] + z;
         }
       }
