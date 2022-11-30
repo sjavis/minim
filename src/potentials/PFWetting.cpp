@@ -7,6 +7,7 @@
 #include "State.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
+#include "utils/print.h"
 
 
 namespace minim {
@@ -79,7 +80,7 @@ namespace minim {
         Neighbours di(gridSize, i);
         std::vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
         for (auto &idof: idofs) {
-          if (solid[idof]) idof = -1;
+          if (solid[idof]) idof = i;
         }
         elements.push_back({0, idofs, {nodeVol[i]}});
       }
@@ -144,28 +145,61 @@ namespace minim {
         if (g) (*g)[el.idof[0]] += 1/epsilon * (pow(phi,3) - phi) * vol;
         // Gradient energy
         double factor = 0.5 * epsilon * vol;
-        double diffxm = (el.idof[1]>=0) ? phi - coords[el.idof[1]] : 0;
-        double diffym = (el.idof[2]>=0) ? phi - coords[el.idof[2]] : 0;
-        double diffzm = (el.idof[3]>=0) ? phi - coords[el.idof[3]] : 0;
-        double diffzp = (el.idof[4]>=0) ? phi - coords[el.idof[4]] : 0;
-        double diffyp = (el.idof[5]>=0) ? phi - coords[el.idof[5]] : 0;
-        double diffxp = (el.idof[6]>=0) ? phi - coords[el.idof[6]] : 0;
-        if (e) {
-          double gradx2 = (diffxm!=0 && diffxp!=0) ? (pow(diffxm,2)+pow(diffxp,2))/2 : pow(diffxm,2)+pow(diffxp,2);
-          double grady2 = (diffym!=0 && diffyp!=0) ? (pow(diffym,2)+pow(diffyp,2))/2 : pow(diffym,2)+pow(diffyp,2);
-          double gradz2 = (diffzm!=0 && diffzp!=0) ? (pow(diffzm,2)+pow(diffzp,2))/2 : pow(diffzm,2)+pow(diffzp,2);
-          double grad2 = gradx2 + grady2 + gradz2;
-          *e += factor * grad2;
+        double diffxm = (el.idof[1]!=el.idof[0]) ? phi - coords[el.idof[1]] : 0;
+        double diffym = (el.idof[2]!=el.idof[0]) ? phi - coords[el.idof[2]] : 0;
+        double diffzm = (el.idof[3]!=el.idof[0]) ? phi - coords[el.idof[3]] : 0;
+        double diffzp = (el.idof[4]!=el.idof[0]) ? phi - coords[el.idof[4]] : 0;
+        double diffyp = (el.idof[5]!=el.idof[0]) ? phi - coords[el.idof[5]] : 0;
+        double diffxp = (el.idof[6]!=el.idof[0]) ? phi - coords[el.idof[6]] : 0;
+        double grad2 = 0;
+        if (diffxm != 0 && diffxp != 0) { // No solid in x direction
+          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / 2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * (diffxm + diffxp);
+            (*g)[el.idof[1]] -= factor * diffxm;
+            (*g)[el.idof[6]] -= factor * diffxp;
+          // printAll(mpi.rank, el.idof[0], "x0", (*g)[el.idof[1]], (*g)[el.idof[0]], (*g)[el.idof[6]], "\t", el.idof[1], el.idof[0], el.idof[6], "\t", diffxm, diffxp);
+          }
+        } else { // Solid on one side in x direction
+          if (e) grad2 += pow(diffxm,2) + pow(diffxp,2);
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp);
+            (*g)[el.idof[1]] -= factor * 2*diffxm;
+            (*g)[el.idof[6]] -= factor * 2*diffxp;
+          }
+          // printAll(mpi.rank, el.idof[0], "x1", (*g)[el.idof[1]], (*g)[el.idof[0]], (*g)[el.idof[6]], "\t", el.idof[1], el.idof[0], el.idof[6], "\t", diffxm, diffxp);
         }
-        if (g) {
-          (*g)[el.idof[0]] += factor * (diffxm + diffxp + diffym + diffyp + diffzm + diffzp);
-          (*g)[el.idof[1]] -= factor * diffxm;
-          (*g)[el.idof[2]] -= factor * diffym;
-          (*g)[el.idof[3]] -= factor * diffzm;
-          (*g)[el.idof[4]] -= factor * diffzp;
-          (*g)[el.idof[5]] -= factor * diffyp;
-          (*g)[el.idof[6]] -= factor * diffxp;
+        if (diffym != 0 && diffyp != 0) { // No solid in y direction
+          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / 2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * (diffym + diffyp);
+            (*g)[el.idof[2]] -= factor * diffym;
+            (*g)[el.idof[5]] -= factor * diffyp;
+          }
+        } else { // Solid on one side in y direction
+          if (e) grad2 += pow(diffym,2) + pow(diffyp,2);
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp);
+            (*g)[el.idof[2]] -= factor * 2*diffym;
+            (*g)[el.idof[5]] -= factor * 2*diffyp;
+          }
         }
+        if (diffzm != 0 && diffzp != 0) { // No solid in z direction
+          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / 2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * (diffzm + diffzp);
+            (*g)[el.idof[3]] -= factor * diffzm;
+            (*g)[el.idof[4]] -= factor * diffzp;
+          }
+        } else { // Solid on one side in z direction
+          if (e) grad2 += pow(diffzm,2) + pow(diffzp,2);
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp);
+            (*g)[el.idof[3]] -= factor * 2*diffzm;
+            (*g)[el.idof[4]] -= factor * 2*diffzp;
+          }
+        }
+        if (e) *e += factor * grad2;
       } break;
 
       case 1: {
