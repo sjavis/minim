@@ -12,13 +12,17 @@ CXXFLAGS = -Wall -DPARALLEL
 INC = $(addprefix -I, $(INC_DIR))
 LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
+LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 
-.PHONY: all clean $(RUN_TESTS) gtest
+.PHONY: all clean gtest $(TESTS) $(RUN_TESTS)
 
-all: clean $(TESTS) $(RUN_TESTS)
+all: $(TESTS) $(RUN_TESTS)
 
 clean:
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
+
+$(LIB): $(BUILD_DIR)/lib%.a:
+	make -C .. $@
 
 $(RUN_TESTS): run_%: %
 	-mpirun -np 2 $<
@@ -52,7 +56,7 @@ gtest_main.a: gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 # Tests
-$(TESTS): %_test: %_test.o gtest.a
+$(TESTS): %_test: %_test.o gtest.a $(LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS) -lpthread -o $@
 
 %_test.o: %_test.cpp $(GTEST_HEADERS)
