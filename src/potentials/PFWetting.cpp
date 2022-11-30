@@ -7,7 +7,6 @@
 #include "State.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
-#include "utils/print.h"
 
 
 namespace minim {
@@ -158,7 +157,6 @@ namespace minim {
             (*g)[el.idof[0]] += factor * (diffxm + diffxp);
             (*g)[el.idof[1]] -= factor * diffxm;
             (*g)[el.idof[6]] -= factor * diffxp;
-          // printAll(mpi.rank, el.idof[0], "x0", (*g)[el.idof[1]], (*g)[el.idof[0]], (*g)[el.idof[6]], "\t", el.idof[1], el.idof[0], el.idof[6], "\t", diffxm, diffxp);
           }
         } else { // Solid on one side in x direction
           if (e) grad2 += pow(diffxm,2) + pow(diffxp,2);
@@ -167,7 +165,6 @@ namespace minim {
             (*g)[el.idof[1]] -= factor * 2*diffxm;
             (*g)[el.idof[6]] -= factor * 2*diffxp;
           }
-          // printAll(mpi.rank, el.idof[0], "x1", (*g)[el.idof[1]], (*g)[el.idof[0]], (*g)[el.idof[6]], "\t", el.idof[1], el.idof[0], el.idof[6], "\t", diffxm, diffxp);
         }
         if (diffym != 0 && diffyp != 0) { // No solid in y direction
           if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / 2;
