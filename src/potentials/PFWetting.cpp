@@ -52,7 +52,7 @@ namespace minim {
 
   void PFWetting::init() {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
-    nodeVol = Vector(nGrid, 1);
+    nodeVol = Vector(nGrid);
     if (solid.empty()) solid = std::vector<bool>(nGrid, false);
 
     double fMag = vec::norm(force);
@@ -63,6 +63,7 @@ namespace minim {
       if (solid[i]) continue;
 
       // Get fluid volume and solid surface area for each node
+      nodeVol[i] = 1;
       double surfaceArea = 0;
       int type = getType(i);
       if (type > 0) {
@@ -84,7 +85,7 @@ namespace minim {
 
       // Set surface fluid elements
       if (type > 0 && !contactAngle.empty()) {
-        double wettingParam = sqrt(2) * cos(contactAngle[i]);
+        double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         if (wettingParam != 0) {
           elements.push_back({1, {i}, {surfaceArea, wettingParam}});
         }
@@ -107,14 +108,15 @@ namespace minim {
     if (volume != 0 || pressure != 0) {
       Vector phiBlock = comm.assignBlock(coords);
       Vector nodeVolBlock = comm.assignBlock(nodeVol);
-      double volFluid1 = mpi.sum(vec::sum(0.5*(phiBlock+1) * nodeVolBlock));
+      Vector nodeVolProc = comm.assignProc(nodeVol);
+      double volFluid = mpi.sum(vec::sum(0.5*(phiBlock+1) * nodeVolBlock));
       if (volume != 0) {
-        if (e) *e += volConst * pow(volFluid1 - volume, 2);
-        if (g) *g += volConst * nodeVol * (volFluid1 - volume);
+        if (e) *e += volConst * pow(volFluid - volume, 2) / mpi.size;
+        if (g) *g += volConst * (volFluid - volume) * nodeVolProc;
       }
       if (pressure != 0) {
-        if (e) *e -= pressure * volFluid1;
-        if (e) *g -= 0.5 * pressure * nodeVol;
+        if (e) *e -= pressure * volFluid / mpi.size;
+        if (g) *g -= 0.5 * pressure * nodeVolProc;
       }
     }
 
@@ -202,8 +204,8 @@ namespace minim {
         // parameter[0]: Surface area
         // parameter[1]: Wetting parameter sqrt(2)cos(theta)
         double phi = coords[el.idof[0]];
-        if (e) *e += el.parameters[1]/6 * (pow(phi,3) - 3*phi - 2) * el.parameters[0];
-        if (g) (*g)[el.idof[0]] += el.parameters[1]*0.5 * (pow(phi,2) - 1) * el.parameters[0];
+        if (e) *e += el.parameters[1] * (pow(phi,3)/3 - pow(phi,2)/2) * el.parameters[0];
+        if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - phi) * el.parameters[0];
       } break;
 
       case 2: {

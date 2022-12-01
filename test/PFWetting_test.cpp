@@ -69,6 +69,36 @@ TEST(PFWettingTest, TestExternalForce) {
 }
 
 
+TEST(PFWettingTest, TestSurfaceEnergy) {
+  PFWetting pot;
+  pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
+  auto state = pot.newState({0, 0.5});
+  for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
+    if (el->type==0) state.pot->elements.erase(el); // Remove the bulk fluid energy elements
+  }
+  EXPECT_FLOAT_EQ(state.energy(), 0.5*sqrt(2.0)*(-1.0/12));
+  EXPECT_TRUE(ArraysNear(state.gradient(), {0, 0.5*sqrt(2.0)*(-0.25)}, 1e-6));
+}
+
+
+TEST(PFWettingTest, TestPressureConstraint) {
+  PFWetting pot;
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure(10);
+  auto state = pot.newState({1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(state.energy(), -30);
+  EXPECT_TRUE(ArraysNear(state.gradient(), {0, -2.5, -5, -5, -2.5, 0}, 1e-6));
+}
+
+
+TEST(PFWettingTest, TestVolumeConstraint) {
+  PFWetting pot;
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setVolume(1, 100);
+  auto state = pot.newState({1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(state.energy(), 400);
+  EXPECT_TRUE(ArraysNear(state.gradient(), {0, 100, 200, 200, 100, 0}, 1e-6));
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   MPI_Init(&argc, &argv);
