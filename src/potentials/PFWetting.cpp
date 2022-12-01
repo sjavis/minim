@@ -55,10 +55,8 @@ namespace minim {
     nodeVol = Vector(nGrid, 1);
     if (solid.empty()) solid = std::vector<bool>(nGrid, false);
 
-    double f1Mag = vec::norm(force1);
-    double f2Mag = vec::norm(force1);
-    Vector f1Norm = force1 / f1Mag;
-    Vector f2Norm = force2 / f2Mag;
+    double fMag = vec::norm(force);
+    Vector fNorm = force / fMag;
 
     elements = {};
     for (int i=0; i<nGrid; i++) {
@@ -93,8 +91,8 @@ namespace minim {
       }
 
       // Set external force elements
-      if (f1Mag > 0 || f2Mag > 0) {
-        Vector params{f1Mag, f2Mag, f1Norm[0], f1Norm[1], f1Norm[2], f2Norm[0], f2Norm[1], f2Norm[2]};
+      if (fMag > 0) {
+        Vector params{nodeVol[i], fMag, fNorm[0], fNorm[1], fNorm[2]};
         elements.push_back({2, {i}, params});
       }
     }
@@ -213,24 +211,20 @@ namespace minim {
         // Parameters:
         //   0: Volume
         //   1: Magnitude of force on component 1
-        //   2: Magnitude of force on component 2
-        //   3-5: Direction force on component 1
-        //   6-8: Direction force on component 2
+        //   2-4: Direction force on component 1
         double phi = coords[el.idof[0]];
-        double f1 = el.parameters[1];
-        double f2 = el.parameters[2];
-        Vector f1Norm = {el.parameters[3], el.parameters[4], el.parameters[5]};
-        Vector f2Norm = {el.parameters[6], el.parameters[7], el.parameters[8]};
-        std::array<int,3> coordA = getCoord(el.idof[0]);
-        Vector coord(coordA.begin(), coordA.end());
-        double h1 = - vec::dotProduct(coord, f1Norm);
-        double h2 = - vec::dotProduct(coord, f2Norm);
-        if (e) *e += 0.5 * ((1+phi)*f1*h1 + (1-phi)*f2*h2) * el.parameters[0];
-        if (g) (*g)[el.idof[0]] += 0.5 * (f1*h1 - f2*h2) * el.parameters[0];
+        double vol = el.parameters[0];
+        double f = el.parameters[1];
+        Vector fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
+        std::array<int,3> coordI = getCoord(el.idof[0]);
+        Vector coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
+        double h = - vec::dotProduct(coord, fNorm);
+        if (e) *e += 0.5*(1+phi) * f * h * vol;
+        if (g) (*g)[el.idof[0]] += 0.5 * f * h * vol;
       } break;
 
       default:
-        std::invalid_argument("Unknown energy element type.");
+        throw std::invalid_argument("Unknown energy element type.");
     }
   }
 
@@ -262,7 +256,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setSolid(std::vector<bool> solid) {
-    if ((int)solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of solid array.");
+    if ((int)solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) throw std::invalid_argument("Invalid size of solid array.");
     this->solid = solid;
     return *this;
   }
@@ -282,7 +276,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setContactAngle(Vector contactAngle) {
-    if ((int)contactAngle.size() != gridSize[0]*gridSize[1]*gridSize[2]) std::invalid_argument("Invalid size of contactAngle array.");
+    if ((int)contactAngle.size() != gridSize[0]*gridSize[1]*gridSize[2]) throw std::invalid_argument("Invalid size of contactAngle array.");
     this->contactAngle = contactAngle;
     return *this;
   }
@@ -298,6 +292,12 @@ namespace minim {
         }
       }
     }
+    return *this;
+  }
+
+  PFWetting& PFWetting::setForce(Vector force) {
+    if ((int)force.size() != 3) throw std::invalid_argument("Invalid size of force array.");
+    this->force = force;
     return *this;
   }
 

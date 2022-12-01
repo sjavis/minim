@@ -45,6 +45,30 @@ TEST(PFWettingTest, TestBulkEnergy) {
 }
 
 
+TEST(PFWettingTest, TestExternalForce) {
+  PFWetting pot;
+
+  // Test force in x, y, z directions
+  auto stateForceX = pot.setGridSize({2,2,2}).setForce({-2,0,0}).newState({1,1,1,1,1,1,1,1});
+  auto stateForceY = pot.setGridSize({2,2,2}).setForce({0,-2,0}).newState({1,1,1,1,1,1,1,1});
+  auto stateForceZ = pot.setGridSize({2,2,2}).setForce({0,0,-2}).newState({1,1,1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(stateForceX.energy(), 0);
+  EXPECT_FLOAT_EQ(stateForceY.energy(), 0);
+  EXPECT_FLOAT_EQ(stateForceZ.energy(), 0);
+  EXPECT_TRUE(ArraysNear(stateForceX.gradient(), {-.5,-.5,-.5,-.5,  .5, .5, .5, .5}, 1e-6));
+  EXPECT_TRUE(ArraysNear(stateForceY.gradient(), {-.5,-.5, .5, .5, -.5,-.5, .5, .5}, 1e-6));
+  EXPECT_TRUE(ArraysNear(stateForceZ.gradient(), {-.5, .5,-.5, .5, -.5, .5,-.5, .5}, 1e-6));
+
+  // Test force with non-constant phi
+  auto stateForce1 = pot.setGridSize({2,2,2}).setForce({-4,0,0}).newState({-1,-1,-1,-1, 1,1,1,1});
+  for (auto el=stateForce1.pot->elements.begin(); el!=stateForce1.pot->elements.end(); el++) {
+    if (el->type==0) stateForce1.pot->elements.erase(el); // Remove the bulk fluid energy elements
+  }
+  EXPECT_FLOAT_EQ(stateForce1.energy(), 8);
+  EXPECT_TRUE(ArraysNear(stateForce1.gradient(), {-1,-1,-1,-1,  1, 1, 1, 1}, 1e-6));
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   MPI_Init(&argc, &argv);

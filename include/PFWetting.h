@@ -28,6 +28,7 @@ namespace minim {
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
       PFWetting& setContactAngle(Vector contactAngle);
       PFWetting& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
+      PFWetting& setForce(Vector force);
 
       std::array<int,3> gridSize;
       double epsilon = 1;
@@ -38,8 +39,7 @@ namespace minim {
       std::vector<bool> solid;
       Vector nodeVol;
       Vector contactAngle;
-      Vector force1;
-      Vector force2;
+      Vector force;
 
     private:
       void elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const;
