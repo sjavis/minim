@@ -6,7 +6,7 @@ INC_DIR = $(ROOT_DIR)/include
 BUILD_DIR = $(ROOT_DIR)/bin
 LIBS = minim
 
-CXX = mpic++
+CXX = mpicxx
 CXXFLAGS = -Wall -DPARALLEL
 
 INC = $(addprefix -I, $(INC_DIR))
@@ -25,7 +25,7 @@ $(LIB): $(BUILD_DIR)/lib%.a:
 	make -C .. $@
 
 $(RUN_TESTS): run_%: %
-	-mpirun -np 2 $<
+	-mpirun -np 2 ./$<
 
 # Googletest rules and parameters, see:
 # https://github.com/google/googletest/blob/release-1.8.1/googletest/make/Makefile

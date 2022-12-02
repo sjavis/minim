@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt install -y openmpi-bin
+      - uses: mpi4py/setup-mpi@v1
       - run: make
       - run: make check
 

@@ -6,7 +6,7 @@ LIB_DIR = lib
 LIBS =
 HLIBS = gsl
 
-CXX      = mpic++#            C++ compiler
+CXX      = mpicxx#            C++ compiler
 CXXFLAGS = -Wall -DPARALLEL#  Flags for the C++ compiler
 
 TARGET := $(BUILD_DIR)/$(TARGET)
