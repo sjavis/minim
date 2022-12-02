@@ -8,7 +8,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  void BarAndHinge::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void BarAndHinge::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (e != nullptr) *e = 0;
     if (g != nullptr) *g = Vector(coords.size());
 

@@ -83,7 +83,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return minim::mpi.sum(pot->blockEnergy(blockCoords));
+      return minim::mpi.sum(pot->blockEnergy(blockCoords, comm));
 
     } else {
       throw std::logic_error("Energy function not defined");
@@ -97,7 +97,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.gather(pot->blockGradient(blockCoords));
+      return comm.gather(pot->blockGradient(blockCoords, comm));
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -111,7 +111,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      pot->blockEnergyGradient(blockCoords, e, g);
+      pot->blockEnergyGradient(blockCoords, comm, e, g);
       if (e != nullptr) *e = mpi.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
 
@@ -124,7 +124,7 @@ namespace minim {
   // Block energy / gradient (the gradient includes the halo, but not required to be correct)
   double State::blockEnergy(const Vector& coords) const {
     if (pot->blockEnergyDef()) {
-      return pot->blockEnergy(coords);
+      return pot->blockEnergy(coords, comm);
     } else if (pot->totalEnergyDef()) {
       Vector allCoords = comm.gather(coords, 0);
       if (mpi.rank != 0) {
@@ -139,7 +139,7 @@ namespace minim {
 
   Vector State::blockGradient(const Vector& coords) const {
     if (pot->blockEnergyDef()) {
-      return pot->blockGradient(coords);
+      return pot->blockGradient(coords, comm);
     } else if (pot->totalEnergyDef()) {
       return comm.scatter(pot->gradient(comm.gather(coords)));
     } else {
@@ -149,7 +149,7 @@ namespace minim {
 
   void State::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
     if (pot->blockEnergyDef()) {
-      pot->blockEnergyGradient(coords, e, g);
+      pot->blockEnergyGradient(coords, comm, e, g);
     } else if (pot->totalEnergyDef()) {
       if (g == nullptr) {
         pot->energyGradient(comm.gather(coords), e, nullptr);

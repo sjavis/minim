@@ -58,21 +58,21 @@ namespace minim {
   }
 
 
-  double Potential::blockEnergy(const Vector& coords) const {
+  double Potential::blockEnergy(const Vector& coords, const Communicator& comm) const {
     double e;
-    blockEnergyGradient(coords, &e, nullptr);
+    blockEnergyGradient(coords, comm, &e, nullptr);
     return e;
   }
 
 
-  Vector Potential::blockGradient(const Vector& coords) const {
+  Vector Potential::blockGradient(const Vector& coords, const Communicator& comm) const {
     Vector g(coords.size());
-    blockEnergyGradient(coords, nullptr, &g);
+    blockEnergyGradient(coords, comm, nullptr, &g);
     return g;
   }
 
 
-  void Potential::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void Potential::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (_blockEnergyGradientDef) {
       throw std::logic_error("You shouldn't be here. Has blockEnergyGradient been falsely marked as defined for this potential?");
     } else {
@@ -110,11 +110,8 @@ namespace minim {
   Potential& Potential::setElements(std::vector<std::vector<int>> idofs) {
     // Generate energy elements
     elements = {};
-    int id = 0;
     for (const auto& idof: idofs) {
-      Element el = {id, 0, idof};
-      elements.push_back(el);
-      id++;
+      elements.push_back({0, idof});
     }
     return *this;
   }
@@ -124,12 +121,9 @@ namespace minim {
   {
     // Generate energy elements
     elements = {};
-    int id = 0;
     int nelements = idofs.size();
     for (int i=0; i<nelements; i++) {
-      Element el = {id, types[i], idofs[i], parameters[i]};
-      elements.push_back(el);
-      id++;
+      elements.push_back({types[i], idofs[i], parameters[i]});
     }
     return *this;
   }

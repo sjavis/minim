@@ -13,7 +13,7 @@ namespace minim {
       BarAndHinge() { _blockEnergyGradientDef = true; };
       ~BarAndHinge() {};
 
-      void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const override;
+      void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
 
     private:
       void stretching(Potential::Element el, const Vector& coords, double* e, Vector* g) const;

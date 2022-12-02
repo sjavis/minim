@@ -9,7 +9,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  void Lj3d::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void Lj3d::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     if (e != nullptr) *e = 0;
     if (g != nullptr) *g = Vector(coords.size());
 
@@ -66,12 +66,9 @@ namespace minim {
     n_particle = ndof / 3;
     // Generate energy elements
     elements = {};
-    int id = 0;
     for (int i=0; i<n_particle; i++) {
       for (int j=i+1; j<n_particle; j++) {
-        Potential::Element el = {id, 0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}};
-        elements.push_back(el);
-        id++;
+        elements.push_back({0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}});
       }
     }
     return State(*this, coords);

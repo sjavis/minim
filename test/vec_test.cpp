@@ -73,7 +73,7 @@ TEST(VecTest, TestPow) {
 
 
 TEST(VecTest, TestAbs) {
-  EXPECT_TRUE(ArraysNear(vec::abs({5, 0, -0.2}), {5, 0, 0.2}, 1e-6));
+  EXPECT_TRUE(ArraysNear(vec::abs(Vector{5, 0, -0.2}), {5, 0, 0.2}, 1e-6));
 }
 
 

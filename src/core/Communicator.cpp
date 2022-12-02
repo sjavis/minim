@@ -4,6 +4,7 @@
 #include <mpi.h>
 #endif
 
+#include <set>
 #include <numeric>
 #include <limits>
 #include <stdexcept>
@@ -115,17 +116,34 @@ namespace minim {
                                       const std::vector<std::vector<int>>& blocks)
       {
         std::vector<int> el_proc(elements.size());
-        std::vector<int> proc_ne(mpi.size);
+        // Give to the proc with the most DoF contained in the element
         for (size_t ie=0; ie<elements.size(); ie++) {
-          int fewest_elements = std::numeric_limits<int>::max();
-          for (int i : blocks[ie]) {
-            if (proc_ne[i] < fewest_elements) {
-              el_proc[ie] = i;
-              fewest_elements = proc_ne[i];
+          std::set<int> uniqueBlocks(blocks[ie].begin(), blocks[ie].end());
+          int mostDof = 0;
+          for (int block : uniqueBlocks) {
+            int nDof = 0;
+            for (int ib : blocks[ie]) {
+              if (ib == block) nDof++;
+            }
+            if (nDof > mostDof) {
+              mostDof = nDof;
+              el_proc[ie] = block;
             }
           }
-          proc_ne[el_proc[ie]] ++;
         }
+        // Give to whichever proc has the fewest elements
+        // std::vector<int> proc_ne(mpi.size);
+        // for (size_t ie=0; ie<elements.size(); ie++) {
+        //   int fewest_elements = std::numeric_limits<int>::max();
+        //   std::set<int> uniqueBlocks(blocks[ie].begin(), blocks[ie].end());
+        //   for (int i : uniqueBlocks) {
+        //     if (proc_ne[i] < fewest_elements) {
+        //       el_proc[ie] = i;
+        //       fewest_elements = proc_ne[i];
+        //     }
+        //   }
+        //   proc_ne[el_proc[ie]] ++;
+        // }
         return el_proc;
       }
 
@@ -149,6 +167,7 @@ namespace minim {
               for (int j=0; j<nrecv[block]; j++) {
                 if (e.idof[i] == recv_lists[block][j]) {
                   e.idof[i] = irecv[block] + j;
+                  break;
                 }
               }
             }
@@ -221,12 +240,13 @@ namespace minim {
 
 
   Communicator::Communicator(size_t ndof, Potential& pot)
-    : ndof(ndof), nproc(ndof), nblock(ndof), priv(std::unique_ptr<Priv>(new Priv))
+    : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), priv(std::unique_ptr<Priv>(new Priv))
   {
     if (mpi.size == 1) return;
     priv->setup(pot, ndof);
     nblock = priv->nblocks[mpi.rank];
     nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
+    iblock = priv->iblocks[mpi.rank];
   }
 
 
@@ -257,9 +277,27 @@ namespace minim {
 
 
   Vector Communicator::assignBlock(const Vector& in) const {
-    Vector out = Vector(nproc);
+    Vector out = Vector(nblock);
+    int i0 = (in.size() == ndof) ? iblock : 0;
     for (size_t i=0; i<nblock; i++) {
-      out[i] = in[priv->iblocks[mpi.rank]+i];
+      out[i] = in[i0+i];
+    }
+    return out;
+  }
+
+
+  Vector Communicator::assignProc(const Vector& in) const {
+    if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
+    Vector out = Vector(nproc);
+    // Assign the main blocks
+    for (size_t i=0; i<nblock; i++) {
+      out[i] = in[iblock+i];
+    }
+    // Assign the halo regions
+    for (int i=0; i<mpi.size; i++) {
+      for (int j=0; j<priv->nrecv[i]; j++) {
+        out[priv->irecv[i]+j] = in[priv->recv_lists[i][j]];
+      }
     }
     return out;
   }
@@ -308,7 +346,7 @@ namespace minim {
 
 
   Vector Communicator::gather(const Vector& block, int root) const {
-    
+
   #ifdef PARALLEL
     if (mpi.size > 1) {
       Vector gathered;
@@ -342,15 +380,7 @@ namespace minim {
         data_copy = (mpi.rank==root) ? data : Vector(ndof);
         bcast(data_copy, root);
       }
-      // Assign the main blocks
-      Vector scattered = assignBlock(data_copy);
-      // Assign the halo regions
-      for (int i=0; i<mpi.size; i++) {
-        for (int j=0; j<priv->nrecv[i]; j++) {
-          scattered[priv->irecv[i]+j] = data_copy[priv->recv_lists[i][j]];
-        }
-      }
-      return scattered;
+      return assignProc(data_copy);
     }
   #endif
     return data;
