@@ -251,7 +251,8 @@ namespace minim {
 
 
   Communicator::Communicator(const Communicator& comm)
-    : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), priv(std::make_unique<Priv>(*comm.priv))
+    : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock),
+      iblock(comm.iblock), priv(std::make_unique<Priv>(*comm.priv))
   {}
 
 
@@ -259,6 +260,7 @@ namespace minim {
     ndof = comm.ndof;
     nproc = comm.nproc;
     nblock = comm.nblock;
+    iblock = comm.iblock;
     priv = std::make_unique<Priv>(*comm.priv);
     return *this;
   }
