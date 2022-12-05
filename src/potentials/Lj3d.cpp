@@ -10,6 +10,7 @@ namespace minim {
 
 
   void Lj3d::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
+    if (!comm.usesThisProc) return;
     if (e != nullptr) *e = 0;
     if (g != nullptr) *g = Vector(coords.size());
 

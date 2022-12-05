@@ -101,6 +101,7 @@ namespace minim {
 
 
   void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
+    if (!comm.usesThisProc) return;
     if (e) *e = 0;
     if (g) *g = Vector(coords.size());
 

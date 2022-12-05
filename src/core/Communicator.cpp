@@ -290,8 +290,8 @@ namespace minim {
 
 
   Communicator::Communicator(const Communicator& comm)
-    : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock),
-      iblock(comm.iblock), p(std::make_unique<Priv>(*comm.p))
+    : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), iblock(comm.iblock),
+      usesThisProc(comm.usesThisProc), p(std::make_unique<Priv>(*comm.p))
   {}
 
 
@@ -300,6 +300,7 @@ namespace minim {
     nproc = comm.nproc;
     nblock = comm.nblock;
     iblock = comm.iblock;
+    usesThisProc = comm.usesThisProc;
     p = std::make_unique<Priv>(*comm.p);
     return *this;
   }
@@ -327,6 +328,7 @@ namespace minim {
 
 
   Vector Communicator::assignBlock(const Vector& in) const {
+    if (!usesThisProc) return Vector();
     Vector out = Vector(nblock);
     int i0 = (in.size() == ndof) ? iblock : 0;
     for (size_t i=0; i<nblock; i++) {
@@ -337,6 +339,7 @@ namespace minim {
 
 
   Vector Communicator::assignProc(const Vector& in) const {
+    if (!usesThisProc) return Vector();
     if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
     Vector out = Vector(nproc);
     // Assign the main blocks
@@ -354,6 +357,7 @@ namespace minim {
 
 
   void Communicator::communicate(Vector& vector) const {
+    if (!usesThisProc) return;
   #ifdef PARALLEL
     for (int i=0; i<p->commSize; i++) {
       if (i == p->commRank) continue;
@@ -374,6 +378,7 @@ namespace minim {
 
 
   double Communicator::get(const Vector& vector, int loc) const {
+    if (!usesThisProc) return 0;
   #ifdef PARALLEL
     if (p->commSize > 1) {
       int i = p->getBlock(loc);
@@ -387,6 +392,7 @@ namespace minim {
 
 
   double Communicator::sum(double a) const {
+    if (!usesThisProc) return 0;
     double result = a;
   #ifdef PARALLEL
     MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, p->comm);
@@ -395,16 +401,19 @@ namespace minim {
   }
 
   double Communicator::sum(const Vector& a) const {
+    if (!usesThisProc) return 0;
     return sum(vec::sum(a));
   }
 
 
   double Communicator::dotProduct(const Vector& a, const Vector& b) const {
+    if (!usesThisProc) return 0;
     return sum(std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0));
   }
 
 
   Vector Communicator::gather(const Vector& block, int root) const {
+    if (!usesThisProc) return Vector();
 
   #ifdef PARALLEL
     if (p->commSize > 1) {
@@ -428,6 +437,7 @@ namespace minim {
 
 
   Vector Communicator::scatter(const Vector& data, int root) const {
+    if (!usesThisProc) return Vector();
   #ifdef PARALLEL
     if (p->commSize > 1) {
       // Get copy of data on processor (potentially inefficient)
@@ -447,6 +457,7 @@ namespace minim {
 
 
   void Communicator::bcast(int& value, int root) const {
+    if (!usesThisProc) return;
   #ifdef PARALLEL
     MPI_Bcast(&value, 1, MPI_INT, root, p->comm);
   #endif
@@ -454,6 +465,7 @@ namespace minim {
 
 
   void Communicator::bcast(double& value, int root) const {
+    if (!usesThisProc) return;
   #ifdef PARALLEL
     MPI_Bcast(&value, 1, MPI_DOUBLE, root, p->comm);
   #endif
@@ -461,6 +473,7 @@ namespace minim {
 
 
   void Communicator::bcast(Vector& vector, int root) const {
+    if (!usesThisProc) return;
   #ifdef PARALLEL
     MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, p->comm);
   #endif
