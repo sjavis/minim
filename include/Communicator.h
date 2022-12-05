@@ -22,6 +22,9 @@ namespace minim {
       Communicator& operator=(const Communicator& comm);
       ~Communicator();
 
+      int rank() const;
+      int size() const;
+
       Vector assignBlock(const Vector& in) const;
       Vector assignProc(const Vector& in) const;
 

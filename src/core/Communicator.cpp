@@ -317,6 +317,15 @@ namespace minim {
   }
 
 
+  int Communicator::rank() const {
+    return p->commRank;
+  }
+
+  int Communicator::size() const {
+    return p->commSize;
+  }
+
+
   Vector Communicator::assignBlock(const Vector& in) const {
     Vector out = Vector(nblock);
     int i0 = (in.size() == ndof) ? iblock : 0;
