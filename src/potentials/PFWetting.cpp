@@ -304,9 +304,9 @@ namespace minim {
   }
 
 
-  State PFWetting::newState(const Vector& coords) {
+  State PFWetting::newState(const Vector& coords, const std::vector<int>& ranks) {
     init();
-    return State(*this, coords);
+    return State(*this, coords, ranks);
   }
 
 

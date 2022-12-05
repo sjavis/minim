@@ -24,8 +24,8 @@ namespace minim {
       Lj3d& setSigma(double sigma);
       Lj3d& setEpsilon(double epsilon);
 
-      State newState(const Vector& coords) override;
-      State newState(const Vector& coords, double sigma, double epsilon);
+      State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
+      State newState(const Vector& coords, double sigma, double epsilon, const std::vector<int>& ranks={});
     
     private:
       void elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const;

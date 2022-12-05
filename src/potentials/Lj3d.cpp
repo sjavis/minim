@@ -60,7 +60,7 @@ namespace minim {
   }
 
 
-  State Lj3d::newState(const Vector& coords) {
+  State Lj3d::newState(const Vector& coords, const std::vector<int>& ranks) {
     int ndof = coords.size();
     if (ndof % 3 != 0) throw std::invalid_argument("Length of coords must be a multiple of 3.");
     n_particle = ndof / 3;
@@ -71,13 +71,13 @@ namespace minim {
         elements.push_back({0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}});
       }
     }
-    return State(*this, coords);
+    return State(*this, coords, ranks);
   }
 
-  State Lj3d::newState(const Vector& coords, double sigma, double epsilon) {
+  State Lj3d::newState(const Vector& coords, double sigma, double epsilon, const std::vector<int>& ranks) {
     this->sigma = sigma;
     this->epsilon = epsilon;
-    return newState(coords);
+    return newState(coords, ranks);
   }
 
 }

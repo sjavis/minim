@@ -91,13 +91,13 @@ namespace minim {
   }
 
 
-  State Potential::newState(const Vector& coords) {
+  State Potential::newState(const Vector& coords, const std::vector<int>& ranks) {
     return State(*this, coords);
   }
 
-  State Potential::newState(int ndof) {
+  State Potential::newState(int ndof, const std::vector<int>& ranks) {
     Vector coords(ndof);
-    return newState(coords);
+    return newState(coords, ranks);
   }
 
 

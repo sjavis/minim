@@ -17,7 +17,7 @@ namespace minim {
       void init();
       void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
 
-      State newState(const Vector& coords) override;
+      State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
 
       PFWetting& setGridSize(std::array<int,3> gridSize);
       PFWetting& setEpsilon(double epsilon);

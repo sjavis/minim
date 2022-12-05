@@ -36,8 +36,8 @@ namespace minim {
       bool blockEnergyDef() const;
 
 
-      State newState(int ndof);
-      virtual State newState(const Vector& coords);
+      State newState(int ndof, const std::vector<int>& ranks={});
+      virtual State newState(const Vector& coords, const std::vector<int>& ranks={});
 
 
       struct Element {
