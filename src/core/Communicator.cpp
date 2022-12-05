@@ -16,19 +16,14 @@ namespace minim {
 
   typedef std::vector<double> Vector;
 
-  bool warnBadDistr = false;
+  bool warnBadDistr = true;
 
   class Communicator::Priv {
     public:
-      Priv() :
-        nblocks(mpi.size),
-        iblocks(mpi.size),
-        nrecv(mpi.size),
-        irecv(mpi.size),
-        send(mpi.size),
-        recv_lists(mpi.size)
-      {};
+      Priv() : commRank(mpi.rank), commSize(mpi.size) {};
 
+      int commRank;
+      int commSize;
       std::vector<int> nblocks; // Size of each block
       std::vector<int> iblocks; // Global index for the start of each block
       std::vector<int> nrecv;  // Number of halo coordinates to recieve from each proc
@@ -36,23 +31,39 @@ namespace minim {
       std::vector<bool> send;  // States if data is to be sent to each proc
       std::vector<std::vector<int>> recv_lists; // List of indicies to recieve from each proc
   #ifdef PARALLEL
-      // MPI derived datatype to send to each proc
-      std::vector<MPI_Datatype> sendtype = std::vector<MPI_Datatype>(mpi.size);
+      MPI_Comm comm;
+      std::vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
   #endif
 
 
       int getBlock(int loc) {
-        for (int i=mpi.size-1; i>=0; i--) {
+        for (int i=commSize-1; i>=0; i--) {
           if (loc >= iblocks[i]) return i;
         }
         throw std::invalid_argument("Invalid location");
       }
 
 
+      void setComm(bool useProc) {
+        // Get the rank, size, and new MPI communicator
+#ifdef PARALLEL
+        MPI_Comm_split(MPI_COMM_WORLD, (useProc)?0:MPI_UNDEFINED, mpi.rank, &comm);
+        if (useProc) {
+          MPI_Comm_rank(comm, &commRank);
+          MPI_Comm_size(comm, &commSize);
+        } else {
+          commRank = -1;
+          commSize = -1;
+        }
+#endif
+      }
+
+
       void setBlockSizes(int ndof) {
-        nblocks = std::vector<int>(mpi.size, ndof/mpi.size);
-        for (int i=0; i<mpi.size-1; i++) {
-          if (i < (int)ndof % mpi.size) nblocks[i]++;
+        iblocks = std::vector<int>(commSize);
+        nblocks = std::vector<int>(commSize, ndof/commSize);
+        for (int i=0; i<commSize-1; i++) {
+          if (i < (int)ndof % commSize) nblocks[i]++;
           iblocks[i+1] = iblocks[i] + nblocks[i];
         }
       }
@@ -73,7 +84,7 @@ namespace minim {
           in_block[ie] = std::vector<bool>(e_ndof);
           for (int i=0; i<e_ndof; i++) {
             blocks[ie][i] = getBlock(e.idof[i]);
-            in_block[ie][i] = (blocks[ie][i] == mpi.rank);
+            in_block[ie][i] = (blocks[ie][i] == commRank);
           }
         }
       }
@@ -84,8 +95,8 @@ namespace minim {
                         const std::vector<std::vector<bool>>& in_block,
                         std::vector<std::vector<int>>& send_lists)
       {
-        recv_lists = std::vector<std::vector<int>>(mpi.size);
-        send_lists = std::vector<std::vector<int>>(mpi.size);
+        recv_lists = std::vector<std::vector<int>>(commSize);
+        send_lists = std::vector<std::vector<int>>(commSize);
         for (size_t ie=0; ie<elements.size(); ie++) {
           if (vec::all(in_block[ie]) || !vec::any(in_block[ie])) continue;
           auto e = elements[ie];
@@ -95,7 +106,7 @@ namespace minim {
             vec::insert_unique(recv_lists[blocks[ie][i]], e.idof[i]);
             for (int j=0; j<e_ndof; j++) { // TODO: Improve this part, it will attempt to add the same values multiple times
               if (in_block[ie][j]) {
-                vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - iblocks[mpi.rank]);
+                vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - iblocks[commRank]);
               }
             }
           }
@@ -104,10 +115,12 @@ namespace minim {
 
       // Assign the number of coordinates to receive from each proc and the starting index
       void setRecvSizes() {
-        irecv[0] = nblocks[mpi.rank];
-        for (int i=0; i<mpi.size; i++) {
+        nrecv = std::vector<int>(commSize);
+        irecv = std::vector<int>(commSize);
+        irecv[0] = nblocks[commRank];
+        for (int i=0; i<commSize; i++) {
           nrecv[i] = recv_lists[i].size();
-          if (i < mpi.size-1) irecv[i+1] = irecv[i] + nrecv[i];
+          if (i < commSize-1) irecv[i+1] = irecv[i] + nrecv[i];
         }
       }
 
@@ -132,7 +145,7 @@ namespace minim {
           }
         }
         // Give to whichever proc has the fewest elements
-        // std::vector<int> proc_ne(mpi.size);
+        // std::vector<int> proc_ne(commSize);
         // for (size_t ie=0; ie<elements.size(); ie++) {
         //   int fewest_elements = std::numeric_limits<int>::max();
         //   std::set<int> uniqueBlocks(blocks[ie].begin(), blocks[ie].end());
@@ -161,7 +174,7 @@ namespace minim {
           int idof_size = e.idof.size();
           for (int i=0; i<idof_size; i++) {
             if (in_block[ie][i]) {
-              e.idof[i] = e.idof[i] - iblocks[mpi.rank];
+              e.idof[i] = e.idof[i] - iblocks[commRank];
             } else {
               int block = blocks[ie][i];
               for (int j=0; j<nrecv[block]; j++) {
@@ -173,7 +186,7 @@ namespace minim {
             }
           }
           // Assign to the local list of elements or the halo
-          if (el_proc[ie] == mpi.rank) {
+          if (el_proc[ie] == commRank) {
             elements_tmp.push_back(e);
           } else {
             pot.elements_halo.push_back(e);
@@ -184,7 +197,9 @@ namespace minim {
 
       // Make the MPI datatypes to send to each proc
       void setSendType(const std::vector<std::vector<int>>& send_lists) {
-        for (int i=0; i<mpi.size; i++) {
+        send = std::vector<bool>(commSize);
+        sendtype = std::vector<MPI_Datatype>(commSize);
+        for (int i=0; i<commSize; i++) {
           if (send_lists[i].empty()) continue;
           send[i] = true;
           std::vector<int> blocklens;
@@ -207,7 +222,35 @@ namespace minim {
       }
 
 
-      void setup(Potential& pot, int ndof) {
+      void checkWellDistributed(int ndof, Potential& pot,
+                                std::vector<std::vector<int>>& blocks,
+                                std::vector<std::vector<bool>>& in_block,
+                                std::vector<std::vector<int>>& send_lists) {
+        if (commSize == 1) return;
+        int nproc = irecv[commSize-1] + nrecv[commSize-1];
+        bool notDistributed = (nproc == ndof);
+#ifdef PARALLEL
+        MPI_Allreduce(&notDistributed, &notDistributed, 1, MPI_C_BOOL, MPI_LAND, comm);
+#endif
+        if (notDistributed) {
+          if (warnBadDistr) print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
+          warnBadDistr = false;
+          // Move all onto proc 0 to avoid issues arising from nproc == ndof
+          nblocks = std::vector<int>(commSize, 0);
+          nblocks[0] = ndof;
+          iblocks = std::vector<int>(commSize, ndof);
+          iblocks[0] = 0;
+          getElementBlocks(pot.elements, blocks, in_block);
+          setCommLists(pot.elements, blocks, in_block, send_lists);
+          setRecvSizes();
+        }
+      }
+
+
+      void setup(Potential& pot, int ndof, bool useProc) {
+        setComm(useProc);
+        if (!useProc) return;
+
         setBlockSizes(ndof);
 
         std::vector<std::vector<int>> blocks;
@@ -219,19 +262,7 @@ namespace minim {
         setCommLists(pot.elements, blocks, in_block, send_lists);
         setRecvSizes();
 
-        int nproc = irecv[mpi.size-1] + nrecv[mpi.size-1];
-        if (mpi.sum(nproc == ndof) > 0) {
-          if (!warnBadDistr) print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
-          warnBadDistr = true;
-          // Move all onto proc 0 to avoid issues arising from nproc == ndof
-          nblocks = std::vector<int>(mpi.size, 0);
-          nblocks[0] = ndof;
-          iblocks = std::vector<int>(mpi.size, ndof);
-          iblocks[0] = 0;
-          getElementBlocks(pot.elements, blocks, in_block);
-          setCommLists(pot.elements, blocks, in_block, send_lists);
-          setRecvSizes();
-        }
+        checkWellDistributed(ndof, pot, blocks, in_block, send_lists);
 
         distributeElements(pot, blocks, in_block);
         setSendType(send_lists);
@@ -239,20 +270,28 @@ namespace minim {
   };
 
 
-  Communicator::Communicator(size_t ndof, Potential& pot)
-    : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), priv(std::unique_ptr<Priv>(new Priv))
+  Communicator::Communicator(Potential& pot, size_t ndof, std::vector<int> ranks)
+    : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), p(std::unique_ptr<Priv>(new Priv))
   {
     if (mpi.size == 1) return;
-    priv->setup(pot, ndof);
-    nblock = priv->nblocks[mpi.rank];
-    nproc = priv->irecv[mpi.size-1] + priv->nrecv[mpi.size-1];
-    iblock = priv->iblocks[mpi.rank];
+    usesThisProc = std::count(ranks.begin(), ranks.end(), mpi.rank);
+
+    p->setup(pot, ndof, usesThisProc);
+    if (usesThisProc) {
+      nblock = p->nblocks[p->commRank];
+      nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
+      iblock = p->iblocks[p->commRank];
+    } else {
+      nblock = -1;
+      nproc = -1;
+      iblock = -1;
+    }
   }
 
 
   Communicator::Communicator(const Communicator& comm)
     : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock),
-      iblock(comm.iblock), priv(std::make_unique<Priv>(*comm.priv))
+      iblock(comm.iblock), p(std::make_unique<Priv>(*comm.p))
   {}
 
 
@@ -261,7 +300,7 @@ namespace minim {
     nproc = comm.nproc;
     nblock = comm.nblock;
     iblock = comm.iblock;
-    priv = std::make_unique<Priv>(*comm.priv);
+    p = std::make_unique<Priv>(*comm.p);
     return *this;
   }
 
@@ -269,9 +308,9 @@ namespace minim {
   Communicator::~Communicator() {
   #ifdef PARALLEL
     // Free any committed MPI datatypes
-    for (int i=0; i<mpi.size; i++) {
-      if (priv->send[i]) {
-        MPI_Type_free(&priv->sendtype[i]);
+    for (int i=0; i<p->commSize; i++) {
+      if (p->send[i]) {
+        MPI_Type_free(&p->sendtype[i]);
       }
     }
   #endif
@@ -296,9 +335,9 @@ namespace minim {
       out[i] = in[iblock+i];
     }
     // Assign the halo regions
-    for (int i=0; i<mpi.size; i++) {
-      for (int j=0; j<priv->nrecv[i]; j++) {
-        out[priv->irecv[i]+j] = in[priv->recv_lists[i][j]];
+    for (int i=0; i<p->commSize; i++) {
+      for (int j=0; j<p->nrecv[i]; j++) {
+        out[p->irecv[i]+j] = in[p->recv_lists[i][j]];
       }
     }
     return out;
@@ -307,18 +346,18 @@ namespace minim {
 
   void Communicator::communicate(Vector& vector) const {
   #ifdef PARALLEL
-    for (int i=0; i<mpi.size; i++) {
-      if (i == mpi.rank) continue;
+    for (int i=0; i<p->commSize; i++) {
+      if (i == p->commRank) continue;
       // Send
-      if (priv->send[i]) {
-        int tag = mpi.rank*mpi.size + i;
-        MPI_Send(&vector[0], 1, priv->sendtype[i], i, tag, MPI_COMM_WORLD);
+      if (p->send[i]) {
+        int tag = p->commRank*p->commSize + i;
+        MPI_Send(&vector[0], 1, p->sendtype[i], i, tag, p->comm);
       }
       // Receive
-      if (priv->nrecv[i] > 0) {
-        int tag = i*mpi.size + mpi.rank;
-        int irecv = std::accumulate(priv->nrecv.begin(), priv->nrecv.begin()+i, nblock);
-        MPI_Recv(&vector[irecv], priv->nrecv[i], MPI_DOUBLE, i, tag, MPI_COMM_WORLD, nullptr);
+      if (p->nrecv[i] > 0) {
+        int tag = i*p->commSize + p->commRank;
+        int irecv = std::accumulate(p->nrecv.begin(), p->nrecv.begin()+i, nblock);
+        MPI_Recv(&vector[irecv], p->nrecv[i], MPI_DOUBLE, i, tag, p->comm, nullptr);
       }
     }
   #endif
@@ -327,10 +366,10 @@ namespace minim {
 
   double Communicator::get(const Vector& vector, int loc) const {
   #ifdef PARALLEL
-    if (mpi.size > 1) {
-      int i = priv->getBlock(loc);
-      double value = vector[loc-priv->iblocks[i]];
-      MPI_Bcast(&value, 1, MPI_DOUBLE, i, MPI_COMM_WORLD);
+    if (p->commSize > 1) {
+      int i = p->getBlock(loc);
+      double value = vector[loc - p->iblocks[i]];
+      MPI_Bcast(&value, 1, MPI_DOUBLE, i, p->comm);
       return value;
     }
   #endif
@@ -341,7 +380,7 @@ namespace minim {
   double Communicator::dotProduct(const Vector& a, const Vector& b) const {
     double result = std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0);
   #ifdef PARALLEL
-    MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, p->comm);
   #endif
     return result;
   }
@@ -350,18 +389,18 @@ namespace minim {
   Vector Communicator::gather(const Vector& block, int root) const {
 
   #ifdef PARALLEL
-    if (mpi.size > 1) {
+    if (p->commSize > 1) {
       Vector gathered;
       if (root == -1) {
         gathered = Vector(ndof);
         MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
-                       &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE,
-                       MPI_COMM_WORLD);
+                       &gathered[0], &p->nblocks[0], &p->iblocks[0], MPI_DOUBLE,
+                       p->comm);
       } else {
-        if (mpi.rank==root) gathered = Vector(ndof);
+        if (p->commRank==root) gathered = Vector(ndof);
         MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
-                    &gathered[0], &priv->nblocks[0], &priv->iblocks[0], MPI_DOUBLE, root,
-                    MPI_COMM_WORLD);
+                    &gathered[0], &p->nblocks[0], &p->iblocks[0], MPI_DOUBLE, root,
+                    p->comm);
       }
       return gathered;
     }
@@ -372,14 +411,14 @@ namespace minim {
 
   Vector Communicator::scatter(const Vector& data, int root) const {
   #ifdef PARALLEL
-    if (mpi.size > 1) {
+    if (p->commSize > 1) {
       // Get copy of data on processor (potentially inefficient)
       Vector data_copy;
       if (root == -1) {
         data_copy = data;
         // Note: Halo data may not be correct if 'data' is different on each processor
       } else {
-        data_copy = (mpi.rank==root) ? data : Vector(ndof);
+        data_copy = (p->commRank==root) ? data : Vector(ndof);
         bcast(data_copy, root);
       }
       return assignProc(data_copy);
@@ -391,21 +430,21 @@ namespace minim {
 
   void Communicator::bcast(int& value, int root) const {
   #ifdef PARALLEL
-    MPI_Bcast(&value, 1, MPI_INT, root, MPI_COMM_WORLD);
+    MPI_Bcast(&value, 1, MPI_INT, root, p->comm);
   #endif
   }
 
 
   void Communicator::bcast(double& value, int root) const {
   #ifdef PARALLEL
-    MPI_Bcast(&value, 1, MPI_DOUBLE, root, MPI_COMM_WORLD);
+    MPI_Bcast(&value, 1, MPI_DOUBLE, root, p->comm);
   #endif
   }
 
 
   void Communicator::bcast(Vector& vector, int root) const {
   #ifdef PARALLEL
-    MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, MPI_COMM_WORLD);
+    MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, p->comm);
   #endif
   }
 

@@ -9,9 +9,10 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  State::State(const Potential& pot, const Vector& coords)
-    : ndof(coords.size()), pot(pot.clone()), comm(ndof,*this->pot)
+  State::State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks)
+    : ndof(coords.size()), pot(pot.clone()), comm(*this->pot,ndof,ranks)
   {
+    this->usesThisProc = comm.usesThisProc;
     this->coords(coords);
   }
 
@@ -20,6 +21,7 @@ namespace minim {
       convergence(state.convergence),
       pot(state.pot->clone()),
       comm(state.comm),
+      usesThisProc(state.usesThisProc),
       _coords(state._coords)
   {}
 
@@ -28,6 +30,7 @@ namespace minim {
     convergence = state.convergence;
     pot = state.pot->clone();
     comm = state.comm;
+    usesThisProc = state.usesThisProc;
     _coords = state._coords;
     return *this;
   }

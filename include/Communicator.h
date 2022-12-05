@@ -15,8 +15,9 @@ namespace minim {
       size_t nproc;  //!< Total number of degrees of freedom on processor (including halo)
       size_t nblock; //!< Number of degrees of freedom assigned to processor (excluding halo)
       int iblock;    //!< The starting index for this processor
+      bool usesThisProc = true;
 
-      Communicator(size_t ndof, Potential& pot);
+      Communicator(Potential& pot, size_t ndof, std::vector<int> ranks);
       Communicator(const Communicator& comm);
       Communicator& operator=(const Communicator& comm);
       ~Communicator();
@@ -37,7 +38,7 @@ namespace minim {
 
     private:
       class Priv;
-      std::unique_ptr<Priv> priv;
+      std::unique_ptr<Priv> p;
   };
 
 }
