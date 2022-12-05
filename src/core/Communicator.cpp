@@ -274,7 +274,7 @@ namespace minim {
     : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), p(std::unique_ptr<Priv>(new Priv))
   {
     if (mpi.size == 1) return;
-    usesThisProc = std::count(ranks.begin(), ranks.end(), mpi.rank);
+    if (!ranks.empty()) usesThisProc = std::count(ranks.begin(), ranks.end(), mpi.rank);
 
     p->setup(pot, ndof, usesThisProc);
     if (usesThisProc) {
