@@ -386,12 +386,21 @@ namespace minim {
   }
 
 
-  double Communicator::dotProduct(const Vector& a, const Vector& b) const {
-    double result = std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0);
+  double Communicator::sum(double a) const {
+    double result = a;
   #ifdef PARALLEL
     MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, p->comm);
   #endif
     return result;
+  }
+
+  double Communicator::sum(const Vector& a) const {
+    return sum(vec::sum(a));
+  }
+
+
+  double Communicator::dotProduct(const Vector& a, const Vector& b) const {
+    return sum(std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0));
   }
 
 

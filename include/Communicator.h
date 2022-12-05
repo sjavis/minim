@@ -30,6 +30,9 @@ namespace minim {
 
       void communicate(Vector& vector) const;
       double get(const Vector& vector, int i) const;
+
+      double sum(double a) const;
+      double sum(const Vector& a) const;
       double dotProduct(const Vector& a, const Vector& b) const;
 
       Vector gather(const Vector& block, int root=-1) const;
