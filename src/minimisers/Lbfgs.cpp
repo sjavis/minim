@@ -4,7 +4,6 @@
 #include "State.h"
 #include "linesearch.h"
 #include "utils/vec.h"
-#include "utils/mpi.h"
 
 namespace minim {
 
@@ -23,10 +22,13 @@ namespace minim {
 
 
   void Lbfgs::init(State& state) {
-    if (minim::mpi.rank == 0) {
+    if (state.comm.rank() == 0) {
+      _root = true;
       _s = std::vector<Vector>(_m, Vector(state.ndof));
       _y = std::vector<Vector>(_m, Vector(state.ndof));
       _rho = Vector(_m);
+    } else {
+      _root = false;
     }
   }
 
@@ -41,7 +43,7 @@ namespace minim {
 
     // Perform linesearch
     double de0;
-    if (minim::mpi.rank==0) de0 = vec::dotProduct(_g, step);
+    if (_root) de0 = vec::dotProduct(_g, step);
     state.comm.bcast(de0);
     double step_multiplier = backtrackingLinesearch(state, step_block, de0);
 
@@ -49,7 +51,7 @@ namespace minim {
     _gNew = state.gradient();
 
     // Store the changes required for LBFGS
-    if (minim::mpi.rank == 0) {
+    if (_root) {
       _s[_i_cycle] = step_multiplier * step;
       _y[_i_cycle] = _gNew - _g;
       _rho[_i_cycle] = 1 / vec::dotProduct(_s[_i_cycle], _y[_i_cycle]);
@@ -63,7 +65,7 @@ namespace minim {
     Vector step;
 
     // Compute the step on the main processor
-    if (minim::mpi.rank == 0) {
+    if (_root) {
       double alpha[_m] = {0};
       int m_tmp = (_m < iter) ? _m : iter;
 
@@ -101,7 +103,7 @@ namespace minim {
 
   bool Lbfgs::checkConvergence(const State& state) {
     double rms;
-    if (minim::mpi.rank == 0) rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
+    if (_root) rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
     state.comm.bcast(rms);
     return (rms < state.convergence);
   }
