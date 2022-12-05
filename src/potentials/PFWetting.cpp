@@ -6,7 +6,6 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
-#include "utils/mpi.h"
 
 
 namespace minim {
@@ -110,13 +109,13 @@ namespace minim {
       Vector phiBlock = comm.assignBlock(coords);
       Vector nodeVolBlock = comm.assignBlock(nodeVol);
       Vector nodeVolProc = comm.assignProc(nodeVol);
-      double volFluid = mpi.sum(vec::sum(0.5*(phiBlock+1) * nodeVolBlock));
+      double volFluid = comm.sum(0.5*(phiBlock+1) * nodeVolBlock);
       if (volume != 0) {
-        if (e) *e += volConst * pow(volFluid - volume, 2) / mpi.size;
+        if (e) *e += volConst * pow(volFluid - volume, 2) / comm.size();
         if (g) *g += volConst * (volFluid - volume) * nodeVolProc;
       }
       if (pressure != 0) {
-        if (e) *e -= pressure * volFluid / mpi.size;
+        if (e) *e -= pressure * volFluid / comm.size();
         if (g) *g -= 0.5 * pressure * nodeVolProc;
       }
     }
