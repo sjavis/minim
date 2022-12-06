@@ -95,7 +95,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.sum(pot->blockEnergy(blockCoords, comm));
+      return comm.sum(blockEnergy(blockCoords));
 
     } else {
       throw std::logic_error("Energy function not defined");
@@ -111,7 +111,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.gather(pot->blockGradient(blockCoords, comm));
+      return comm.gather(blockGradient(blockCoords));
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -127,7 +127,7 @@ namespace minim {
 
     } else if (pot->blockEnergyDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      pot->blockEnergyGradient(blockCoords, comm, e, g);
+      blockEnergyGradient(blockCoords, e, g);
       if (e != nullptr) *e = comm.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
 
@@ -142,7 +142,9 @@ namespace minim {
     if (!usesThisProc) return 0;
 
     if (pot->blockEnergyDef()) {
-      return pot->blockEnergy(coords, comm);
+      double e;
+      blockEnergyGradient(coords, &e, nullptr);
+      return e;
 
     } else if (pot->totalEnergyDef()) {
       Vector allCoords = comm.gather(coords, 0);
@@ -161,7 +163,9 @@ namespace minim {
     if (!usesThisProc) return Vector();
 
     if (pot->blockEnergyDef()) {
-      return pot->blockGradient(coords, comm);
+      Vector g;
+      blockEnergyGradient(coords, nullptr, &g);
+      return g;
 
     } else if (pot->totalEnergyDef()) {
       return comm.scatter(pot->gradient(comm.gather(coords)));
@@ -175,7 +179,20 @@ namespace minim {
     if (!usesThisProc) return;
 
     if (pot->blockEnergyDef()) {
+      if (e) *e = 0;
+      if (g) *g = Vector(coords.size());
+      // Compute any system-wide contributions
       pot->blockEnergyGradient(coords, comm, e, g);
+      // Compute the energy elements
+      for (auto el : pot->elements) {
+        pot->elementEnergyGradient(coords, el, e, g);
+      }
+      // Compute the gradient of the halo energy elements
+      if (g) {
+        for (auto el : pot->elements_halo) {
+          pot->elementEnergyGradient(coords, el, nullptr, g);
+        }
+      }
 
     } else if (pot->totalEnergyDef()) {
       if (g == nullptr) {

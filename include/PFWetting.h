@@ -16,6 +16,7 @@ namespace minim {
 
       void init();
       void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
+      void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
 
       State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
 
@@ -42,7 +43,6 @@ namespace minim {
       Vector force;
 
     private:
-      void elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const;
       int nGrid() const;
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;

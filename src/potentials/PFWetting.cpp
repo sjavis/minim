@@ -100,11 +100,7 @@ namespace minim {
 
 
   void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (!comm.usesThisProc) return;
-    if (e) *e = 0;
-    if (g) *g = Vector(coords.size());
-
-    // Energy contributions relying upon the whole system (Constant Volume / Pressure)
+    // Constant volume / pressure constraints rely upon the whole system
     if (volume != 0 || pressure != 0) {
       Vector phiBlock = comm.assignBlock(coords);
       Vector nodeVolBlock = comm.assignBlock(nodeVol);
@@ -119,22 +115,10 @@ namespace minim {
         if (g) *g -= 0.5 * pressure * nodeVolProc;
       }
     }
-
-    // Compute the energy elements
-    for (auto el : elements) {
-      elementEnergyGradient(el, coords, e, g);
-    }
-
-    // Compute the gradient of the halo energy elements
-    if (g) {
-      for (auto el : elements_halo) {
-        elementEnergyGradient(el, coords, nullptr, g);
-      }
-    }
   }
 
 
-  void PFWetting::elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const {
+  void PFWetting::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
     switch (el.type) {
       case 0: {
         double vol = el.parameters[0];

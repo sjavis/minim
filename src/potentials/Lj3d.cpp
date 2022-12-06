@@ -9,25 +9,7 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  void Lj3d::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (!comm.usesThisProc) return;
-    if (e != nullptr) *e = 0;
-    if (g != nullptr) *g = Vector(coords.size());
-
-    for (auto el : elements) {
-      elementEnergyGradient(el, coords, e, g);
-    }
-
-    // Compute the gradient of the halo energy elements
-    if (g != nullptr) {
-      for (auto el : elements_halo) {
-        elementEnergyGradient(el, coords, nullptr, g);
-      }
-    }
-  }
-
-
-  void Lj3d::elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const {
+  void Lj3d::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
     double dx = coords[el.idof[0]] - coords[el.idof[3]];
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
     double dz = coords[el.idof[2]] - coords[el.idof[5]];

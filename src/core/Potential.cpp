@@ -58,26 +58,8 @@ namespace minim {
   }
 
 
-  double Potential::blockEnergy(const Vector& coords, const Communicator& comm) const {
-    double e;
-    blockEnergyGradient(coords, comm, &e, nullptr);
-    return e;
-  }
-
-
-  Vector Potential::blockGradient(const Vector& coords, const Communicator& comm) const {
-    Vector g(coords.size());
-    blockEnergyGradient(coords, comm, nullptr, &g);
-    return g;
-  }
-
-
-  void Potential::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (_blockEnergyGradientDef) {
-      throw std::logic_error("You shouldn't be here. Has blockEnergyGradient been falsely marked as defined for this potential?");
-    } else {
-      throw std::logic_error("The potential must override blockEnergyGradient to use distributed energy functions.");
-    }
+  void Potential::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+    throw std::logic_error("You shouldn't be here. The potential must override elementEnergyGradient if _blockEnergyGradientDef is marked as true.");
   }
 
 
