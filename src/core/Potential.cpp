@@ -74,7 +74,7 @@ namespace minim {
 
 
   State Potential::newState(const Vector& coords, const std::vector<int>& ranks) {
-    return State(*this, coords);
+    return State(*this, coords, ranks);
   }
 
   State Potential::newState(int ndof, const std::vector<int>& ranks) {
