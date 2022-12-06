@@ -44,14 +44,23 @@ namespace minim {
       }
 
 
-      void setComm(bool useProc) {
-        // Get the rank, size, and new MPI communicator
+      // Define the MPI communicator, size, and processor rank
+      void setComm(std::vector<int> ranks) {
 #ifdef PARALLEL
-        MPI_Comm_split(MPI_COMM_WORLD, (useProc)?0:MPI_UNDEFINED, mpi.rank, &comm);
-        if (useProc) {
+        if (ranks.empty()) {
+          MPI_Comm_dup(MPI_COMM_WORLD, &comm);
+        } else {
+          // Make a new communicator for processors with mpi.rank in ranks
+          MPI_Group world_group, group;
+          MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+          MPI_Group_incl(world_group, ranks.size(), &ranks[0], &group);
+          int tag = vec::sum(vec::pow(2, ranks)); // Make tag unique for ranks to prevent clashes
+          MPI_Comm_create_group(MPI_COMM_WORLD, group, tag, &comm);
+        }
+        if (comm != MPI_COMM_NULL) {
           MPI_Comm_rank(comm, &commRank);
           MPI_Comm_size(comm, &commSize);
-        } else {
+        } else { // This processor is not used
           commRank = -1;
           commSize = -1;
         }
@@ -247,9 +256,9 @@ namespace minim {
       }
 
 
-      void setup(Potential& pot, int ndof, bool useProc) {
-        setComm(useProc);
-        if (!useProc) return;
+      void setup(Potential& pot, int ndof, std::vector<int> ranks) {
+        setComm(ranks);
+        if (commRank<0) return;
 
         setBlockSizes(ndof);
 
@@ -274,9 +283,9 @@ namespace minim {
     : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), p(std::unique_ptr<Priv>(new Priv))
   {
     if (mpi.size == 1) return;
-    if (!ranks.empty()) usesThisProc = std::count(ranks.begin(), ranks.end(), mpi.rank);
 
-    p->setup(pot, ndof, usesThisProc);
+    p->setup(pot, ndof, ranks);
+    usesThisProc = (p->commRank >= 0);
     if (usesThisProc) {
       nblock = p->nblocks[p->commRank];
       nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
