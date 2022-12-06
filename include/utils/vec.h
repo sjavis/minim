@@ -67,6 +67,8 @@ namespace vec {
   vector<T> sqrt(const vector<T>& a);
   template<typename T, typename U>
   vector<T> pow(const vector<T>& a, U n);
+  template<typename T, typename U>
+  vector<T> pow(T a, const vector<U>& n);
 
   template<typename T>
   bool any(const vector<T>& a);
