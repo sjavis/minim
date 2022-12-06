@@ -16,7 +16,7 @@ namespace minim {
       double sigma = 1;
       double epsilon = 1;
 
-      Lj3d() { _blockEnergyGradientDef = true; };
+      Lj3d() { _parallelDef = true; };
       ~Lj3d() {};
 
       void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;

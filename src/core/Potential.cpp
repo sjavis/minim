@@ -59,17 +59,17 @@ namespace minim {
 
 
   void Potential::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
-    throw std::logic_error("You shouldn't be here. The potential must override elementEnergyGradient if _blockEnergyGradientDef is marked as true.");
+    throw std::logic_error("You shouldn't be here. The potential must override elementEnergyGradient if _parallelDef is marked as true.");
   }
 
 
-  bool Potential::totalEnergyDef() const {
+  bool Potential::serialDef() const {
     return (_energyGradientDef || _energyDef);
   }
 
 
-  bool Potential::blockEnergyDef() const {
-    return _blockEnergyGradientDef;
+  bool Potential::parallelDef() const {
+    return _parallelDef;
   }
 
 

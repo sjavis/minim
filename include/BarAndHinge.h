@@ -10,7 +10,7 @@ namespace minim {
     typedef std::vector<double> Vector;
 
     public:
-      BarAndHinge() { _blockEnergyGradientDef = true; };
+      BarAndHinge() { _parallelDef = true; };
       ~BarAndHinge() {};
 
       void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;

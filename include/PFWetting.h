@@ -11,7 +11,7 @@ namespace minim {
     typedef std::vector<double> Vector;
 
     public:
-      PFWetting() { _blockEnergyGradientDef = true; };
+      PFWetting() { _parallelDef = true; };
       ~PFWetting() {};
 
       void init();

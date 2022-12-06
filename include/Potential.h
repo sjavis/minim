@@ -41,8 +41,8 @@ namespace minim {
       virtual void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const;
       virtual void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {};
 
-      bool totalEnergyDef() const;
-      bool blockEnergyDef() const;
+      bool serialDef() const;
+      bool parallelDef() const;
 
 
       State newState(int ndof, const std::vector<int>& ranks={});
@@ -59,7 +59,7 @@ namespace minim {
 
       bool _energyDef = false;
       bool _energyGradientDef = false;
-      bool _blockEnergyGradientDef = false;
+      bool _parallelDef = false;
   };
 
 
