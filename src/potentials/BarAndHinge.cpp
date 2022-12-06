@@ -8,38 +8,19 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  void BarAndHinge::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (e != nullptr) *e = 0;
-    if (g != nullptr) *g = Vector(coords.size());
-
-    for (auto el : elements) {
-      switch (el.type) {
-        case 0:
-          stretching(el, coords, e, g);
-          break;
-        case 1:
-          bending(el, coords, e, g);
-          break;
-      }
-    }
-
-    // Compute the gradient of the halo energy elements
-    if (g != nullptr) {
-      for (auto el : elements_halo) {
-        switch (el.type) {
-          case 0:
-            stretching(el, coords, nullptr, g);
-            break;
-          case 1:
-            bending(el, coords, nullptr, g);
-            break;
-        }
-      }
+  void BarAndHinge::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+    switch (el.type) {
+      case 0:
+        stretching(coords, el, e, g);
+        break;
+      case 1:
+        bending(coords, el, e, g);
+        break;
     }
   }
 
 
-  void BarAndHinge::stretching(Potential::Element el, const Vector& coords, double* e, Vector* g) const {
+  void BarAndHinge::stretching(const Vector& coords, const Element& el, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
@@ -63,7 +44,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::bending(Potential::Element el, const Vector& coords, double* e, Vector* g) const {
+  void BarAndHinge::bending(const Vector& coords, const Element& el, double* e, Vector* g) const {
     Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
     Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
     Vector x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);

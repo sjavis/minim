@@ -1,6 +1,5 @@
 #include "State.h"
 
-#include "utils/mpi.h"
 #include <stdexcept>
 
 namespace minim {
@@ -9,9 +8,10 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
-  State::State(const Potential& pot, const Vector& coords)
-    : ndof(coords.size()), pot(pot.clone()), comm(ndof,*this->pot)
+  State::State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks)
+    : ndof(coords.size()), pot(pot.clone()), comm(*this->pot,ndof,ranks)
   {
+    this->usesThisProc = comm.usesThisProc;
     this->coords(coords);
   }
 
@@ -20,6 +20,7 @@ namespace minim {
       convergence(state.convergence),
       pot(state.pot->clone()),
       comm(state.comm),
+      usesThisProc(state.usesThisProc),
       _coords(state._coords)
   {}
 
@@ -28,6 +29,7 @@ namespace minim {
     convergence = state.convergence;
     pot = state.pot->clone();
     comm = state.comm;
+    usesThisProc = state.usesThisProc;
     _coords = state._coords;
     return *this;
   }
@@ -36,40 +38,49 @@ namespace minim {
   // Energy and gradient functions using the state coordinates
   // Total energy / gradient
   double State::energy() const {
+    if (!usesThisProc) return 0;
     return energy(_coords);
   }
 
   Vector State::gradient() const {
+    if (!usesThisProc) return Vector();
     return gradient(_coords);
   }
 
   void State::energyGradient(double* e, Vector* g) const {
+    if (!usesThisProc) return;
     energyGradient(_coords, e, g);
   }
 
   // Block energy / gradient (the gradient includes the halo, but not required to be correct)
   double State::blockEnergy() const {
+    if (!usesThisProc) return 0;
     return blockEnergy(_coords);
   }
 
   Vector State::blockGradient() const {
+    if (!usesThisProc) return Vector();
     return blockGradient(_coords);
   }
 
   void State::blockEnergyGradient(double* e, Vector* g) const {
+    if (!usesThisProc) return;
     blockEnergyGradient(_coords, e, g);
   }
 
   // Processor energy / gradient (the gradient includes the halo)
   double State::procEnergy() const {
+    if (!usesThisProc) return 0;
     return procEnergy(_coords);
   }
 
   Vector State::procGradient() const {
+    if (!usesThisProc) return Vector();
     return procGradient(_coords);
   }
 
   void State::procEnergyGradient(double* e, Vector* g) const {
+    if (!usesThisProc) return;
     procEnergyGradient(_coords, e, g);
   }
 
@@ -77,13 +88,14 @@ namespace minim {
   // Energy and gradient functions using given coordinates
   // Total energy / gradient
   double State::energy(const Vector& coords) const {
-    if (pot->totalEnergyDef()) {
+    if (!usesThisProc) return 0;
+    if (pot->serialDef()) {
       Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       return pot->energy(allCoords);
 
-    } else if (pot->blockEnergyDef()) {
+    } else if (pot->parallelDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return minim::mpi.sum(pot->blockEnergy(blockCoords, comm));
+      return comm.sum(blockEnergy(blockCoords));
 
     } else {
       throw std::logic_error("Energy function not defined");
@@ -91,13 +103,15 @@ namespace minim {
   }
 
   Vector State::gradient(const Vector& coords) const {
-    if (pot->totalEnergyDef()) {
+    if (!usesThisProc) return Vector();
+
+    if (pot->serialDef()) {
       Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       return pot->gradient(allCoords);
 
-    } else if (pot->blockEnergyDef()) {
+    } else if (pot->parallelDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.gather(pot->blockGradient(blockCoords, comm));
+      return comm.gather(blockGradient(blockCoords));
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -105,14 +119,16 @@ namespace minim {
   }
 
   void State::energyGradient(const Vector& coords, double* e, Vector* g) const {
-    if (pot->totalEnergyDef()) {
+    if (!usesThisProc) return;
+
+    if (pot->serialDef()) {
       Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       pot->energyGradient(allCoords, e, g);
 
-    } else if (pot->blockEnergyDef()) {
+    } else if (pot->parallelDef()) {
       Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      pot->blockEnergyGradient(blockCoords, comm, e, g);
-      if (e != nullptr) *e = mpi.sum(*e);
+      blockEnergyGradient(blockCoords, e, g);
+      if (e != nullptr) *e = comm.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
 
     } else {
@@ -123,34 +139,62 @@ namespace minim {
 
   // Block energy / gradient (the gradient includes the halo, but not required to be correct)
   double State::blockEnergy(const Vector& coords) const {
-    if (pot->blockEnergyDef()) {
-      return pot->blockEnergy(coords, comm);
-    } else if (pot->totalEnergyDef()) {
+    if (!usesThisProc) return 0;
+
+    if (pot->parallelDef()) {
+      double e;
+      blockEnergyGradient(coords, &e, nullptr);
+      return e;
+
+    } else if (pot->serialDef()) {
       Vector allCoords = comm.gather(coords, 0);
-      if (mpi.rank != 0) {
+      if (comm.rank() != 0) {
         return 0;
       } else {
         return pot->energy(allCoords);
       }
+
     } else {
       throw std::logic_error("Energy function not defined");
     }
   }
 
   Vector State::blockGradient(const Vector& coords) const {
-    if (pot->blockEnergyDef()) {
-      return pot->blockGradient(coords, comm);
-    } else if (pot->totalEnergyDef()) {
+    if (!usesThisProc) return Vector();
+
+    if (pot->parallelDef()) {
+      Vector g;
+      blockEnergyGradient(coords, nullptr, &g);
+      return g;
+
+    } else if (pot->serialDef()) {
       return comm.scatter(pot->gradient(comm.gather(coords)));
+
     } else {
       throw std::logic_error("Gradient function not defined");
     }
   }
 
   void State::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
-    if (pot->blockEnergyDef()) {
+    if (!usesThisProc) return;
+
+    if (pot->parallelDef()) {
+      if (e) *e = 0;
+      if (g) *g = Vector(coords.size());
+      // Compute any system-wide contributions
       pot->blockEnergyGradient(coords, comm, e, g);
-    } else if (pot->totalEnergyDef()) {
+      // Compute the energy elements
+      for (auto el : pot->elements) {
+        pot->elementEnergyGradient(coords, el, e, g);
+      }
+      // Compute the gradient of the halo energy elements
+      if (g) {
+        for (auto el : pot->elements_halo) {
+          pot->elementEnergyGradient(coords, el, nullptr, g);
+        }
+      }
+
+    } else if (pot->serialDef()) {
       if (g == nullptr) {
         pot->energyGradient(comm.gather(coords), e, nullptr);
       } else {
@@ -158,7 +202,8 @@ namespace minim {
         pot->energyGradient(comm.gather(coords), e, &gAll);
         *g = comm.scatter(gAll);
       }
-      if (mpi.rank != 0 && e != nullptr) *e = 0;
+      if (comm.rank() != 0 && e != nullptr) *e = 0;
+
     } else {
       throw std::logic_error("Energy and/or gradient function not defined");
     }
@@ -167,18 +212,21 @@ namespace minim {
 
   // Processor energy / gradient (the gradient includes the halo)
   double State::procEnergy(const Vector& coords) const {
+    if (!usesThisProc) return 0;
     return blockEnergy(coords);
   }
 
   Vector State::procGradient(const Vector& coords) const {
+    if (!usesThisProc) return Vector();
     Vector g = blockGradient(coords);
-    if (pot->blockEnergyDef()) comm.communicate(g);
+    if (pot->parallelDef()) comm.communicate(g);
     return g;
   }
 
   void State::procEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+    if (!usesThisProc) return;
     blockEnergyGradient(coords, e, g);
-    if (pot->blockEnergyDef()) comm.communicate(*g);
+    if (pot->parallelDef()) comm.communicate(*g);
   }
 
 

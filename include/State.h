@@ -15,8 +15,9 @@ namespace minim {
       double convergence = 1e-6;
       std::unique_ptr<Potential> pot;
       Communicator comm;
+      bool usesThisProc = true;
 
-      State(const Potential& pot, const Vector& coords);
+      State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks={});
       State(const State& state);
       State& operator=(const State& state);
       ~State() {};

@@ -3,7 +3,6 @@
 #include <math.h>
 #include <time.h>
 #include "State.h"
-#include "utils/mpi.h"
 
 namespace minim {
 
@@ -29,7 +28,7 @@ namespace minim {
     _since_accepted = 0;
     _current_state = state.blockCoords();
     _current_e = state.energy();
-    srand(time(0)+minim::mpi.rank); // Set a different random seed on all processors
+    srand(time(0)+state.comm.rank()); // Set a different random seed on all processors
   }
 
 

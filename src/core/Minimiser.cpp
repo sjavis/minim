@@ -11,6 +11,8 @@ namespace minim {
 
 
   std::vector<double> Minimiser::minimise(State& state, AdjustFunc adjustState) {
+    if (!state.usesThisProc) return std::vector<double>();
+
     init(state);
     for (iter=0; iter<maxIter; iter++) {
       if (adjustState) adjustState(iter, state);

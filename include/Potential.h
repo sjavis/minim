@@ -18,28 +18,6 @@ namespace minim {
     EGFunc _energyGradient;
 
     public:
-      Potential(EFunc energy, GFunc gradient);
-      Potential(EGFunc energyGradient);
-      ~Potential() {};
-      virtual std::unique_ptr<Potential> clone() const {
-        return std::make_unique<Potential>(*this);
-      }
-
-      virtual double energy(const Vector& coords) const;
-      virtual Vector gradient(const Vector& coords) const;
-      virtual void energyGradient(const Vector& coords, double* e, Vector* g) const;
-      virtual double blockEnergy(const Vector& coords, const Communicator& comm) const;
-      virtual Vector blockGradient(const Vector& coords, const Communicator& comm) const;
-      virtual void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const;
-
-      bool totalEnergyDef() const;
-      bool blockEnergyDef() const;
-
-
-      State newState(int ndof);
-      virtual State newState(const Vector& coords);
-
-
       struct Element {
         int type;
         std::vector<int> idof;
@@ -47,6 +25,29 @@ namespace minim {
       };
       std::vector<Element> elements;
       std::vector<Element> elements_halo;
+
+
+      Potential(EFunc energy, GFunc gradient);
+      Potential(EGFunc energyGradient);
+      ~Potential() {};
+      virtual std::unique_ptr<Potential> clone() const {
+        return std::make_unique<Potential>(*this);
+      }
+
+
+      virtual double energy(const Vector& coords) const;
+      virtual Vector gradient(const Vector& coords) const;
+      virtual void energyGradient(const Vector& coords, double* e, Vector* g) const;
+      virtual void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const;
+      virtual void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {};
+
+      bool serialDef() const;
+      bool parallelDef() const;
+
+
+      State newState(int ndof, const std::vector<int>& ranks={});
+      virtual State newState(const Vector& coords, const std::vector<int>& ranks={});
+
 
       Potential& setElements(std::vector<Element> elements);
       Potential& setElements(std::vector<std::vector<int>> idofs);
@@ -58,7 +59,7 @@ namespace minim {
 
       bool _energyDef = false;
       bool _energyGradientDef = false;
-      bool _blockEnergyGradientDef = false;
+      bool _parallelDef = false;
   };
 
 

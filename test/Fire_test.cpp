@@ -57,6 +57,21 @@ TEST(FireTest, TestConvergence) {
 }
 
 
+TEST(FireTest, TestSingleProc) {
+  Toy2d pot;
+  State state = pot.newState({1, 4}, {0});
+  state.convergence = 2e-6/sqrt(2); // Designed to make a radius of convergence of 1e-6
+  Fire min = Fire();
+  auto result = min.minimise(state);
+  if (mpi.rank == 0) {
+    EXPECT_LT(vec::norm(result), 1e-6);
+    EXPECT_LT(vec::norm(state.coords()), 1e-6);
+  } else {
+    EXPECT_TRUE(result.empty());
+  }
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   MPI_Init(&argc, &argv);

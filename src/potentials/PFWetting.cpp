@@ -6,7 +6,6 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
-#include "utils/mpi.h"
 
 
 namespace minim {
@@ -101,40 +100,25 @@ namespace minim {
 
 
   void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (e) *e = 0;
-    if (g) *g = Vector(coords.size());
-
-    // Energy contributions relying upon the whole system (Constant Volume / Pressure)
+    // Constant volume / pressure constraints rely upon the whole system
     if (volume != 0 || pressure != 0) {
       Vector phiBlock = comm.assignBlock(coords);
       Vector nodeVolBlock = comm.assignBlock(nodeVol);
       Vector nodeVolProc = comm.assignProc(nodeVol);
-      double volFluid = mpi.sum(vec::sum(0.5*(phiBlock+1) * nodeVolBlock));
+      double volFluid = comm.sum(0.5*(phiBlock+1) * nodeVolBlock);
       if (volume != 0) {
-        if (e) *e += volConst * pow(volFluid - volume, 2) / mpi.size;
+        if (e) *e += volConst * pow(volFluid - volume, 2) / comm.size();
         if (g) *g += volConst * (volFluid - volume) * nodeVolProc;
       }
       if (pressure != 0) {
-        if (e) *e -= pressure * volFluid / mpi.size;
+        if (e) *e -= pressure * volFluid / comm.size();
         if (g) *g -= 0.5 * pressure * nodeVolProc;
-      }
-    }
-
-    // Compute the energy elements
-    for (auto el : elements) {
-      elementEnergyGradient(el, coords, e, g);
-    }
-
-    // Compute the gradient of the halo energy elements
-    if (g) {
-      for (auto el : elements_halo) {
-        elementEnergyGradient(el, coords, nullptr, g);
       }
     }
   }
 
 
-  void PFWetting::elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const {
+  void PFWetting::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
     switch (el.type) {
       case 0: {
         double vol = el.parameters[0];
@@ -304,9 +288,9 @@ namespace minim {
   }
 
 
-  State PFWetting::newState(const Vector& coords) {
+  State PFWetting::newState(const Vector& coords, const std::vector<int>& ranks) {
     init();
-    return State(*this, coords);
+    return State(*this, coords, ranks);
   }
 
 

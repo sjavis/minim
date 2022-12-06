@@ -58,46 +58,28 @@ namespace minim {
   }
 
 
-  double Potential::blockEnergy(const Vector& coords, const Communicator& comm) const {
-    double e;
-    blockEnergyGradient(coords, comm, &e, nullptr);
-    return e;
+  void Potential::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+    throw std::logic_error("You shouldn't be here. The potential must override elementEnergyGradient if _parallelDef is marked as true.");
   }
 
 
-  Vector Potential::blockGradient(const Vector& coords, const Communicator& comm) const {
-    Vector g(coords.size());
-    blockEnergyGradient(coords, comm, nullptr, &g);
-    return g;
-  }
-
-
-  void Potential::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
-    if (_blockEnergyGradientDef) {
-      throw std::logic_error("You shouldn't be here. Has blockEnergyGradient been falsely marked as defined for this potential?");
-    } else {
-      throw std::logic_error("The potential must override blockEnergyGradient to use distributed energy functions.");
-    }
-  }
-
-
-  bool Potential::totalEnergyDef() const {
+  bool Potential::serialDef() const {
     return (_energyGradientDef || _energyDef);
   }
 
 
-  bool Potential::blockEnergyDef() const {
-    return _blockEnergyGradientDef;
+  bool Potential::parallelDef() const {
+    return _parallelDef;
   }
 
 
-  State Potential::newState(const Vector& coords) {
-    return State(*this, coords);
+  State Potential::newState(const Vector& coords, const std::vector<int>& ranks) {
+    return State(*this, coords, ranks);
   }
 
-  State Potential::newState(int ndof) {
+  State Potential::newState(int ndof, const std::vector<int>& ranks) {
     Vector coords(ndof);
-    return newState(coords);
+    return newState(coords, ranks);
   }
 
 

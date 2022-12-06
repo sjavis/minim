@@ -16,19 +16,18 @@ namespace minim {
       double sigma = 1;
       double epsilon = 1;
 
-      Lj3d() { _blockEnergyGradientDef = true; };
+      Lj3d() { _parallelDef = true; };
       ~Lj3d() {};
 
-      void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
+      void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
 
       Lj3d& setSigma(double sigma);
       Lj3d& setEpsilon(double epsilon);
 
-      State newState(const Vector& coords) override;
-      State newState(const Vector& coords, double sigma, double epsilon);
+      State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
+      State newState(const Vector& coords, double sigma, double epsilon, const std::vector<int>& ranks={});
     
     private:
-      void elementEnergyGradient(const Element el, const Vector& coords, double* e, Vector* g) const;
   };
 
 }

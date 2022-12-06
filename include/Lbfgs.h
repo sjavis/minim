@@ -34,6 +34,7 @@ namespace minim {
       int _m = 5;
       int _i_cycle;
       double _init_hessian = 1e-4;
+      bool _root;
       Vector _g;
       Vector _gNew;
       Vector _step;

@@ -202,6 +202,13 @@ namespace vec {
     return b;
   }
 
+  template<typename T, typename U>
+  vector<T> pow(T a, const vector<U>& n) {
+    vector<T> b(n.size());
+    std::transform(n.begin(), n.end(), b.begin(), [a](U ni){ return std::pow(a, ni); });
+    return b;
+  }
+
 
   // Logical
   template<typename T>
