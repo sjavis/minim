@@ -14,12 +14,15 @@ LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 
-.PHONY: all clean gtest $(TESTS) $(RUN_TESTS)
+.PHONY: all clean cleantests gtest $(RUN_TESTS)
 
-all: $(TESTS) $(RUN_TESTS)
+all: $(TESTS) $(RUN_TESTS) cleantests
 
 clean:
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
+
+cleantests:
+	rm -f $(TESTS) *_test.o
 
 $(LIB): $(BUILD_DIR)/lib%.a:
 	make -C .. $@
@@ -52,7 +55,6 @@ gtest.a: gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
 gtest_main.a: gtest-all.o gtest_main.o
-	echo $(GTEST_HEADERS)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Tests

@@ -23,7 +23,8 @@ LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
 all: $(TARGET)
 
-debug: CXXFLAGS+=-g
+debug: CXXFLAGS += -g
+debug: SUBTARGET = debug
 debug: $(TARGET)
 
 deps: $(LIB) $(HLIB)
@@ -38,15 +39,16 @@ $(OBJ): $(BUILD_DIR)/%.o: %.cpp $(LIB) $(HLIB)
 	$(CXX) $(CXXFLAGS) $(INC) -c $< $(LDFLAGS) $(LDLIBS) -o $@
 
 $(LIB): $(BUILD_DIR)/lib%.a:
-	git submodule update --init $(LIB_DIR)/$*
-	$(MAKE) -C $(LIB_DIR)/$*
-	ln -sfn ../$(LIB_DIR)/$*/$(INC_DIR) $(INC_DIR)/$*
-	cp $(LIB_DIR)/$*/$@ $@
+	@git submodule update --init $(LIB_DIR)/$*
+	$(MAKE) -C $(LIB_DIR)/$* $(SUBTARGET)
+	@ln -sfn ../$(LIB_DIR)/$*/$(INC_DIR) $(INC_DIR)/$*
+	@cp $(LIB_DIR)/$*/$@ $@
 
 $(HLIB): $(INC_DIR)/%:
 	git submodule update --init $(LIB_DIR)/$*
 	ln -sfn ../$(LIB_DIR)/$*/include/$* $@
 
 check:
-	$(MAKE) -C test gtest
-	$(MAKE) -C test
+	@echo Testing...
+	@$(MAKE) --no-print-directory -C test gtest
+	@$(MAKE) --no-print-directory -C test
