@@ -57,7 +57,7 @@ namespace minim {
   double Mpi::sum(double a) const {
     double result = a;
   #ifdef PARALLEL
-    if (size > 1) MPI_Allreduce(&result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    if (size > 1) MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   #endif
     return result;
   }
