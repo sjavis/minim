@@ -109,6 +109,29 @@ TEST(StateTest, TestAssignProc) {
 }
 
 
+TEST(StateTest, TestAllEnergy) {
+  Lj3d pot;
+  State s1 = pot.newState({0,0,0, 2,0,0}, {0});
+  State s2 = pot.newState({0,0,0, 2,0,0}, {1});
+  double e1 = s1.allEnergy();
+  double e2 = s2.allEnergy();
+  Vector g1 = s1.allGradient();
+  Vector g2 = s2.allGradient();
+  EXPECT_FLOAT_EQ(e1, -63./1024);
+  EXPECT_FLOAT_EQ(e2, -63./1024);
+  EXPECT_TRUE(ArraysNear(g1, {-93./512,0,0, 93./512,0,0}, 1e-6));
+  EXPECT_TRUE(ArraysNear(g2, {-93./512,0,0, 93./512,0,0}, 1e-6));
+  double e12, e22;
+  Vector g12, g22;
+  s1.allEnergyGradient(&e12, &g12);
+  s2.allEnergyGradient(&e22, &g22);
+  EXPECT_FLOAT_EQ(e1, -63./1024);
+  EXPECT_FLOAT_EQ(e2, -63./1024);
+  EXPECT_TRUE(ArraysNear(g1, {-93./512,0,0, 93./512,0,0}, 1e-6));
+  EXPECT_TRUE(ArraysNear(g2, {-93./512,0,0, 93./512,0,0}, 1e-6));
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   MPI_Init(&argc, &argv);

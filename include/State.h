@@ -43,6 +43,10 @@ namespace minim {
       void procEnergyGradient(double* e, Vector* g) const;
       void procEnergyGradient(const Vector& coords, double* e, Vector* g) const;
 
+      double allEnergy() const;
+      Vector allGradient() const;
+      void allEnergyGradient(double* e, Vector* g) const;
+
       double operator[](int i);
 
       Vector coords() const;

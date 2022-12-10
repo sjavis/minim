@@ -1,6 +1,7 @@
 #include "State.h"
 
 #include <stdexcept>
+#include "utils/mpi.h"
 
 namespace minim {
 
@@ -227,6 +228,26 @@ namespace minim {
     if (!usesThisProc) return;
     blockEnergyGradient(coords, e, g);
     if (pot->parallelDef()) comm.communicate(*g);
+  }
+
+
+  // Get energy / gradient on all procs, including those not used in the state
+  double State::allEnergy() const {
+    double e = energy();
+    mpi.bcast(e, comm.ranks[0]);
+    return e;
+  }
+
+  Vector State::allGradient() const {
+    Vector g = gradient();
+    mpi.bcast(g, comm.ranks[0]);
+    return g;
+  }
+
+  void State::allEnergyGradient(double* e, Vector* g) const {
+    energyGradient(e, g);
+    mpi.bcast(*e, comm.ranks[0]);
+    mpi.bcast(*g, comm.ranks[0]);
   }
 
 
