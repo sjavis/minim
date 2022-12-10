@@ -286,6 +286,7 @@ namespace minim {
 
     p->setup(pot, ndof, ranks);
     usesThisProc = (p->commRank >= 0);
+    this->ranks = ranks;
     if (usesThisProc) {
       nblock = p->nblocks[p->commRank];
       nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
@@ -300,7 +301,7 @@ namespace minim {
 
   Communicator::Communicator(const Communicator& comm)
     : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), iblock(comm.iblock),
-      usesThisProc(comm.usesThisProc), p(std::make_unique<Priv>(*comm.p))
+      usesThisProc(comm.usesThisProc), ranks(comm.ranks), p(std::make_unique<Priv>(*comm.p))
   {}
 
 
@@ -310,6 +311,7 @@ namespace minim {
     nblock = comm.nblock;
     iblock = comm.iblock;
     usesThisProc = comm.usesThisProc;
+    ranks = comm.ranks;
     p = std::make_unique<Priv>(*comm.p);
     return *this;
   }

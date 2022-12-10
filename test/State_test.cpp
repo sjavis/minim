@@ -94,6 +94,10 @@ TEST(StateTest, TestAssignProc) {
   Lj3d pot;
   State s1 = pot.newState({0,0,0, 2,0,0}, {0});
   State s2 = pot.newState({0,0,0, 2,0,0}, {1});
+  EXPECT_EQ(s1.usesThisProc, (mpi.rank==0)?true:false);
+  EXPECT_EQ(s2.usesThisProc, (mpi.rank==1)?true:false);
+  EXPECT_TRUE(ArraysMatch(s1.comm.ranks, {0}));
+  EXPECT_TRUE(ArraysMatch(s2.comm.ranks, {1}));
   double e1 = s1.energy();
   double e2 = s2.energy();
   Vector g1 = s1.gradient();
