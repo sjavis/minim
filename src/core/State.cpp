@@ -274,6 +274,13 @@ namespace minim {
   }
 
 
+  Vector State::allCoords() const {
+    Vector coords = comm.gather(_coords, 0);
+    mpi.bcast(coords, comm.ranks[0], ndof);
+    return coords;
+  }
+
+
   void State::communicate() {
     comm.communicate(_coords);
   }

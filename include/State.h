@@ -55,6 +55,8 @@ namespace minim {
       Vector blockCoords() const;
       void blockCoords(const Vector& in);
 
+      Vector allCoords() const;
+
       void communicate();
 
     private:

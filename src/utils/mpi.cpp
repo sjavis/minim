@@ -83,11 +83,13 @@ namespace minim {
   #endif
   }
 
-  void Mpi::bcast(vector<double>& data, int root) const {
+  void Mpi::bcast(vector<double>& data, int root, int nData) const {
   #ifdef PARALLEL
     if (size > 1) {
-      int nData = data.size();
-      MPI_Bcast(&nData, 1, MPI_INT, root, MPI_COMM_WORLD);
+      if (nData == 0) {
+        nData = data.size();
+        MPI_Bcast(&nData, 1, MPI_INT, root, MPI_COMM_WORLD);
+      }
       if (rank != root) data = vector<double>(nData);
       MPI_Bcast(&data[0], nData, MPI_DOUBLE, root, MPI_COMM_WORLD);
     }

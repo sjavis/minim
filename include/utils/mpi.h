@@ -30,7 +30,7 @@ namespace minim {
 
       void bcast(int& value, int root=0) const;
       void bcast(double& value, int root=0) const;
-      void bcast(std::vector<double>& data, int root=0) const;
+      void bcast(std::vector<double>& data, int root=0, int nData=0) const;
 
     private:
       bool _init = false;
