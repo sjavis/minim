@@ -32,7 +32,7 @@ deps: $(LIBS) $(HLIB)
 clean:
 	rm $(TARGET) $(OBJ) $(LIB)
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ) $(LIB)
 	@echo "Making library: $@"
 	@ar -rcs $@ $(OBJ)
 	@echo "CREATE $@" >> tmp.mri
@@ -64,4 +64,4 @@ $(HLIB): $(INC_DIR)/%:
 check:
 	@echo Testing...
 	@$(MAKE) --no-print-directory -C test gtest
-	@$(MAKE) --no-print-directory -C test -k
+	@$(MAKE) --no-print-directory -C test
