@@ -28,7 +28,7 @@ $(LIB): $(BUILD_DIR)/lib%.a:
 	$(MAKE) --no-print-directory -C $(ROOT_DIR) $(@:$(ROOT_DIR)/%=%)
 
 $(RUN_TESTS): run_%: %
-	-mpirun -np 2 ./$<
+	mpirun -np 2 ./$<
 
 # Googletest rules and parameters, see:
 # https://github.com/google/googletest/blob/release-1.8.1/googletest/make/Makefile
