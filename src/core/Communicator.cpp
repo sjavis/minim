@@ -207,7 +207,9 @@ namespace minim {
       // Make the MPI datatypes to send to each proc
       void setSendType(const std::vector<std::vector<int>>& send_lists) {
         send = std::vector<bool>(commSize);
+#ifdef PARALLEL
         sendtype = std::vector<MPI_Datatype>(commSize);
+#endif
         for (int i=0; i<commSize; i++) {
           if (send_lists[i].empty()) continue;
           send[i] = true;
@@ -235,7 +237,7 @@ namespace minim {
                                 std::vector<std::vector<int>>& blocks,
                                 std::vector<std::vector<bool>>& in_block,
                                 std::vector<std::vector<int>>& send_lists) {
-        if (commSize == 1) return;
+        if (commSize <= 1) return;
         int nproc = irecv[commSize-1] + nrecv[commSize-1];
         bool notDistributed = (nproc == ndof);
 #ifdef PARALLEL
@@ -319,6 +321,7 @@ namespace minim {
 
   Communicator::~Communicator() {
   #ifdef PARALLEL
+    if (p->commSize <= 1) return;
     // Free any committed MPI datatypes
     for (int i=0; i<p->commSize; i++) {
       if (p->send[i]) {
@@ -406,7 +409,7 @@ namespace minim {
     if (!usesThisProc) return 0;
     double result = a;
   #ifdef PARALLEL
-    MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_SUM, p->comm);
+    if (p->commSize > 1) MPI_Allreduce(MPI_IN_PLACE, &result, 1, MPI_DOUBLE, MPI_SUM, p->comm);
   #endif
     return result;
   }
@@ -470,7 +473,7 @@ namespace minim {
   void Communicator::bcast(int& value, int root) const {
     if (!usesThisProc) return;
   #ifdef PARALLEL
-    MPI_Bcast(&value, 1, MPI_INT, root, p->comm);
+    if (p->commSize > 1) MPI_Bcast(&value, 1, MPI_INT, root, p->comm);
   #endif
   }
 
@@ -478,7 +481,7 @@ namespace minim {
   void Communicator::bcast(double& value, int root) const {
     if (!usesThisProc) return;
   #ifdef PARALLEL
-    MPI_Bcast(&value, 1, MPI_DOUBLE, root, p->comm);
+    if (p->commSize > 1) MPI_Bcast(&value, 1, MPI_DOUBLE, root, p->comm);
   #endif
   }
 
@@ -486,7 +489,7 @@ namespace minim {
   void Communicator::bcast(Vector& vector, int root) const {
     if (!usesThisProc) return;
   #ifdef PARALLEL
-    MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, p->comm);
+    if (p->commSize > 1) MPI_Bcast(&vector[0], vector.size(), MPI_DOUBLE, root, p->comm);
   #endif
   }
 
