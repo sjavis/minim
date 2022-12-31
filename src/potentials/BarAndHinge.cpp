@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include "utils/vec.h"
+#include "utils/print.h"
 
 namespace minim {
 
@@ -15,6 +16,9 @@ namespace minim {
         break;
       case 1:
         bending(coords, el, e, g);
+        break;
+      case 2:
+        forceEnergy(coords, el, e, g);
         break;
     }
   }
@@ -34,12 +38,12 @@ namespace minim {
     }
     if (g != nullptr) {
       auto g_factor = 2 * el.parameters[0] * dl / l;
-      (*g)[el.idof[0]] += g_factor * dx[0];
-      (*g)[el.idof[1]] += g_factor * dx[1];
-      (*g)[el.idof[2]] += g_factor * dx[2];
-      (*g)[el.idof[3]] -= g_factor * dx[3];
-      (*g)[el.idof[4]] -= g_factor * dx[4];
-      (*g)[el.idof[5]] -= g_factor * dx[5];
+      if (fixed.empty() || !fixed[el.idof[0]]) (*g)[el.idof[0]] += g_factor * dx[0];
+      if (fixed.empty() || !fixed[el.idof[1]]) (*g)[el.idof[1]] += g_factor * dx[1];
+      if (fixed.empty() || !fixed[el.idof[2]]) (*g)[el.idof[2]] += g_factor * dx[2];
+      if (fixed.empty() || !fixed[el.idof[3]]) (*g)[el.idof[3]] -= g_factor * dx[0];
+      if (fixed.empty() || !fixed[el.idof[4]]) (*g)[el.idof[4]] -= g_factor * dx[1];
+      if (fixed.empty() || !fixed[el.idof[5]]) (*g)[el.idof[5]] -= g_factor * dx[2];
     }
   }
 
@@ -70,29 +74,43 @@ namespace minim {
     double s0 = sin(el.parameters[1]);
 
     if (e != nullptr) {
-      *e += el.parameters[0] * (1 + c*c0 - s*s0); // Double angle formula for cos(t - t0)
+      *e += el.parameters[0] * (1 - c*c0 + s*s0); // Double angle formula for cos(t - t0)
     }
     if (g != nullptr) {
-      double gfactor = - el.parameters[0] * (s*c0 + c*s0);
+      double gfactor = el.parameters[0] * (s*c0 + c*s0);
       // Normal vectors with magnitude 1 / triangle height
       auto n1h = b2m/n1sq * n1;
       auto n2h = b2m/n2sq * n2;
       // Quantify triangular skew, 0.5 if symmetric
       double skew1 = -vec::dotProduct(b1, b2) / (b2m*b2m);
       double skew2 = -vec::dotProduct(b3, b2) / (b2m*b2m);
-      (*g)[el.idof[0]] += -gfactor * n1h[0];
-      (*g)[el.idof[1]] += -gfactor * n1h[1];
-      (*g)[el.idof[2]] += -gfactor * n1h[2];
-      (*g)[el.idof[3]] +=  gfactor * ((1-skew1)*n1h[0] - skew2*n2h[0]);
-      (*g)[el.idof[4]] +=  gfactor * ((1-skew1)*n1h[1] - skew2*n2h[1]);
-      (*g)[el.idof[5]] +=  gfactor * ((1-skew1)*n1h[2] - skew2*n2h[2]);
-      (*g)[el.idof[6]] += -gfactor * ((1-skew2)*n2h[0] - skew1*n1h[0]);
-      (*g)[el.idof[7]] += -gfactor * ((1-skew2)*n2h[1] - skew1*n1h[1]);
-      (*g)[el.idof[8]] += -gfactor * ((1-skew2)*n2h[2] - skew1*n1h[2]);
-      (*g)[el.idof[9]]  += gfactor * n2h[0];
-      (*g)[el.idof[10]] += gfactor * n2h[1];
-      (*g)[el.idof[11]] += gfactor * n2h[2];
+      if (fixed.empty() || !fixed[el.idof[0]])  (*g)[el.idof[0]] += -gfactor * n1h[0];
+      if (fixed.empty() || !fixed[el.idof[1]])  (*g)[el.idof[1]] += -gfactor * n1h[1];
+      if (fixed.empty() || !fixed[el.idof[2]])  (*g)[el.idof[2]] += -gfactor * n1h[2];
+      if (fixed.empty() || !fixed[el.idof[3]])  (*g)[el.idof[3]] +=  gfactor * ((1-skew1)*n1h[0] - skew2*n2h[0]);
+      if (fixed.empty() || !fixed[el.idof[4]])  (*g)[el.idof[4]] +=  gfactor * ((1-skew1)*n1h[1] - skew2*n2h[1]);
+      if (fixed.empty() || !fixed[el.idof[5]])  (*g)[el.idof[5]] +=  gfactor * ((1-skew1)*n1h[2] - skew2*n2h[2]);
+      if (fixed.empty() || !fixed[el.idof[6]])  (*g)[el.idof[6]] += -gfactor * ((1-skew2)*n2h[0] - skew1*n1h[0]);
+      if (fixed.empty() || !fixed[el.idof[7]])  (*g)[el.idof[7]] += -gfactor * ((1-skew2)*n2h[1] - skew1*n1h[1]);
+      if (fixed.empty() || !fixed[el.idof[8]])  (*g)[el.idof[8]] += -gfactor * ((1-skew2)*n2h[2] - skew1*n1h[2]);
+      if (fixed.empty() || !fixed[el.idof[9]])  (*g)[el.idof[9]]  += gfactor * n2h[0];
+      if (fixed.empty() || !fixed[el.idof[10]]) (*g)[el.idof[10]] += gfactor * n2h[1];
+      if (fixed.empty() || !fixed[el.idof[11]]) (*g)[el.idof[11]] += gfactor * n2h[2];
     }
+  }
+
+
+  void BarAndHinge::forceEnergy(const Vector& coords, const Element& el, double* e, Vector* g) const {
+    if (fixed.empty() || !fixed[el.idof[0]]) {
+      if (e != nullptr) (*e) -= force[2] * coords[el.idof[0]];
+      if (g != nullptr) (*g)[el.idof[0]] -= force[2];
+    }
+  }
+
+
+  BarAndHinge& BarAndHinge::setFixed(const std::vector<bool>& fixed) {
+    this->fixed = fixed;
+    return *this;
   }
 
 }
