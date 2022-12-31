@@ -32,7 +32,7 @@ namespace minim {
 
     private:
       int _m = 5;
-      int _i_cycle;
+      int _i;
       double _init_hessian = 1e-4;
       bool _root;
       Vector _g;

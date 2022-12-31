@@ -34,8 +34,12 @@ namespace minim {
 
 
   void Lbfgs::iteration(State& state) {
-    if (iter == 0) _g = state.gradient();
-    _i_cycle = iter % _m;
+    if (iter == 0) {
+      _g = state.gradient();
+      _i = 0;
+    } else {
+      _i++;
+    }
 
     // Find minimisation direction
     Vector step = getDirection();
@@ -52,9 +56,17 @@ namespace minim {
 
     // Store the changes required for LBFGS
     if (_root) {
-      _s[_i_cycle] = step_multiplier * step;
-      _y[_i_cycle] = _gNew - _g;
-      _rho[_i_cycle] = 1 / vec::dotProduct(_s[_i_cycle], _y[_i_cycle]);
+      auto s = step_multiplier * step;
+      auto y = _gNew - _g;
+      double sy = vec::dotProduct(s, y);
+      if (sy != 0) {
+        int i_cycle = _i % _m;
+        _s[i_cycle] = s;
+        _y[i_cycle] = y;
+        _rho[i_cycle] = 1 / sy;
+      } else {
+        _i --;
+      }
     }
 
     _g = _gNew;
@@ -67,9 +79,10 @@ namespace minim {
     // Compute the step on the main processor
     if (_root) {
       double alpha[_m] = {0};
-      int m_tmp = (_m < iter) ? _m : iter;
+      int m_tmp = std::min(_m, _i);
+      int i_cycle = _i % _m;
 
-      if (iter == 0) {
+      if (m_tmp == 0) {
         step = -_init_hessian * _g;
         return step;
       }
@@ -77,19 +90,19 @@ namespace minim {
       step = -_g;
       int ndof = step.size();
       for (int i1=0; i1<m_tmp; i1++) {
-        int i = (_i_cycle - 1 - i1 + _m) % _m;
+        int i = (i_cycle - 1 - i1 + _m) % _m;
         alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
         for (int j=0; j<ndof; j++) {
           step[j] -= alpha[i] * _y[i][j];
         }
       }
 
-      int i = (_i_cycle - 1 + _m) % _m;
+      int i = (i_cycle - 1 + _m) % _m;
       double gamma = 1 / (_rho[i] * vec::dotProduct(_y[i], _y[i]));
       step = gamma * step;
 
       for (int i1=0; i1<m_tmp; i1++) {
-        int i = (_i_cycle - m_tmp + i1 + _m) % _m;
+        int i = (i_cycle - m_tmp + i1 + _m) % _m;
         double beta = _rho[i] * vec::dotProduct(step, _y[i]);
         step += (alpha[i]-beta) * _s[i];
       }
