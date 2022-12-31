@@ -71,6 +71,8 @@ namespace minim {
         if (type == 1 || type == 7) surfaceArea = 0.75;
         if (type == 3 || type == 5) surfaceArea = 1.25;
       }
+      nodeVol[i] = nodeVol[i] * pow(resolution, 3);
+      surfaceArea = surfaceArea * pow(resolution, 2);
 
       // Set bulk fluid elements
       if (!solid[i]) {
@@ -135,49 +137,50 @@ namespace minim {
         double diffyp = (el.idof[5]!=el.idof[0]) ? phi - coords[el.idof[5]] : 0;
         double diffxp = (el.idof[6]!=el.idof[0]) ? phi - coords[el.idof[6]] : 0;
         double grad2 = 0;
+        double res2 = pow(resolution, 2);
         if (diffxm != 0 && diffxp != 0) { // No solid in x direction
-          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / 2;
+          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
           if (g) {
-            (*g)[el.idof[0]] += factor * (diffxm + diffxp);
-            (*g)[el.idof[1]] -= factor * diffxm;
-            (*g)[el.idof[6]] -= factor * diffxp;
+            (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
+            (*g)[el.idof[1]] -= factor * diffxm / res2;
+            (*g)[el.idof[6]] -= factor * diffxp / res2;
           }
         } else { // Solid on one side in x direction
-          if (e) grad2 += pow(diffxm,2) + pow(diffxp,2);
+          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp);
-            (*g)[el.idof[1]] -= factor * 2*diffxm;
-            (*g)[el.idof[6]] -= factor * 2*diffxp;
+            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp) / res2;
+            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+            (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
           }
         }
         if (diffym != 0 && diffyp != 0) { // No solid in y direction
-          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / 2;
+          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
           if (g) {
-            (*g)[el.idof[0]] += factor * (diffym + diffyp);
-            (*g)[el.idof[2]] -= factor * diffym;
-            (*g)[el.idof[5]] -= factor * diffyp;
+            (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
+            (*g)[el.idof[2]] -= factor * diffym / res2;
+            (*g)[el.idof[5]] -= factor * diffyp / res2;
           }
         } else { // Solid on one side in y direction
-          if (e) grad2 += pow(diffym,2) + pow(diffyp,2);
+          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp);
-            (*g)[el.idof[2]] -= factor * 2*diffym;
-            (*g)[el.idof[5]] -= factor * 2*diffyp;
+            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp) / res2;
+            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+            (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
           }
         }
         if (diffzm != 0 && diffzp != 0) { // No solid in z direction
-          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / 2;
+          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
           if (g) {
-            (*g)[el.idof[0]] += factor * (diffzm + diffzp);
-            (*g)[el.idof[3]] -= factor * diffzm;
-            (*g)[el.idof[4]] -= factor * diffzp;
+            (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
+            (*g)[el.idof[3]] -= factor * diffzm / res2;
+            (*g)[el.idof[4]] -= factor * diffzp / res2;
           }
         } else { // Solid on one side in z direction
-          if (e) grad2 += pow(diffzm,2) + pow(diffzp,2);
+          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp);
-            (*g)[el.idof[3]] -= factor * 2*diffzm;
-            (*g)[el.idof[4]] -= factor * 2*diffzp;
+            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp) / res2;
+            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+            (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
           }
         }
         if (e) *e += factor * grad2;
@@ -204,7 +207,7 @@ namespace minim {
         Vector fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
         std::array<int,3> coordI = getCoord(el.idof[0]);
         Vector coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
-        double h = - vec::dotProduct(coord, fNorm);
+        double h = - vec::dotProduct(coord, fNorm) * resolution;
         if (e) *e += 0.5*(1+phi) * f * h * vol;
         if (g) (*g)[el.idof[0]] += 0.5 * f * h * vol;
       } break;
