@@ -99,6 +99,49 @@ TEST(PFWettingTest, TestVolumeConstraint) {
 }
 
 
+TEST(PFWettingTest, TestResolution) {
+  PFWetting pot;
+  pot.setResolution(2);
+
+  // Bulk fluid
+  State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
+  EXPECT_FLOAT_EQ(s1.energy(), 4); // Bulk: 2, Gradient: 2
+  EXPECT_TRUE(ArraysNear(s1.gradient(), {0,-2,0,2,0}, 1e-6));
+
+  // External Force
+  pot.setGridSize({2,2,2}).setSolid({0,0,0,0,0,0,0,0}).setForce({-4,0,0});
+  auto s2 = pot.newState({-1,-1,-1,-1, 1,1,1,1});
+  for (auto el=s2.pot->elements.begin(); el!=s2.pot->elements.end(); el++) {
+    if (el->type==0) s2.pot->elements.erase(el); // Remove the bulk fluid energy elements
+  }
+  EXPECT_FLOAT_EQ(s2.energy(), 128);
+  EXPECT_TRUE(ArraysNear(s2.gradient(), {-16,-16,-16,-16,  16, 16, 16, 16}, 1e-6));
+  pot.setForce({0,0,0});
+
+  // Surface energy
+  pot.setGridSize({2,1,1}).setSolid({1,0}).setContactAngle({90,60});
+  auto s3 = pot.newState({0, 0.5});
+  for (auto el=s3.pot->elements.begin(); el!=s3.pot->elements.end(); el++) {
+    if (el->type==0) s3.pot->elements.erase(el); // Remove the bulk fluid energy elements
+  }
+  EXPECT_FLOAT_EQ(s3.energy(), 0.5*sqrt(2.0)*(-1.0/12)*4);
+  EXPECT_TRUE(ArraysNear(s3.gradient(), {0, 0.5*sqrt(2.0)*(-0.25)*4}, 1e-6));
+
+  // Pressure
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setPressure(10);
+  auto s4 = pot.newState({1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(s4.energy(), -240);
+  EXPECT_TRUE(ArraysNear(s4.gradient(), {0, -20, -40, -40, -20, 0}, 1e-6));
+  pot.setPressure(0);
+
+  // Volume
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume(8, 100);
+  auto s5 = pot.newState({1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(s5.energy(), 64*400);
+  EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}, 1e-6));
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   MPI_Init(&argc, &argv);
