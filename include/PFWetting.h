@@ -21,6 +21,7 @@ namespace minim {
       State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
 
       PFWetting& setGridSize(std::array<int,3> gridSize);
+      PFWetting& setNFluid(int nFluid);
       PFWetting& setEpsilon(double epsilon);
       PFWetting& setResolution(double resolution);
       PFWetting& setPressure(double pressure);
@@ -32,6 +33,7 @@ namespace minim {
       PFWetting& setForce(Vector force);
 
       std::array<int,3> gridSize;
+      int nFluid = 2;
       double epsilon = 1;
       double resolution = 1;
       double pressure = 0;

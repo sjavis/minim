@@ -101,7 +101,10 @@ TEST(PFWettingTest, TestVolumeConstraint) {
 
 TEST(PFWettingTest, TestResolution) {
   PFWetting pot;
+  EXPECT_FLOAT_EQ(pot.resolution, 1);
+
   pot.setResolution(2);
+  ASSERT_FLOAT_EQ(pot.resolution, 2);
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
@@ -139,6 +142,14 @@ TEST(PFWettingTest, TestResolution) {
   auto s5 = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(s5.energy(), 64*400);
   EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}, 1e-6));
+}
+
+
+TEST(PFWettingTest, TestNFluid) {
+  PFWetting pot;
+  EXPECT_FLOAT_EQ(pot.nFluid, 2);
+  pot.setNFluid(3);
+  EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
 
 

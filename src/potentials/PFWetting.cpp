@@ -223,6 +223,11 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setNFluid(int nFluid) {
+    this->nFluid = nFluid;
+    return *this;
+  }
+
   PFWetting& PFWetting::setEpsilon(double epsilon) {
     this->epsilon = epsilon;
     return *this;
