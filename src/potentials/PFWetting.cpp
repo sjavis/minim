@@ -51,8 +51,18 @@ namespace minim {
 
   void PFWetting::init() {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
-    nodeVol = Vector(nGrid);
+    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
+
+    // Check the arrays
+    if ((int)solid.size() != nGrid) {
+      throw std::invalid_argument("Invalid size of solid array.");
+    }
+    if ((int)contactAngle.size() != nGrid*nFluidTmp) {
+      throw std::invalid_argument("Invalid size of contactAngle array.");
+    }
+
     if (solid.empty()) solid = std::vector<bool>(nGrid, false);
+    nodeVol = Vector(nGrid);
 
     double fMag = vec::norm(force);
     Vector fNorm = force / fMag;
@@ -81,21 +91,27 @@ namespace minim {
         for (auto &idof: idofs) {
           if (solid[idof]) idof = i;
         }
-        elements.push_back({0, idofs, {nodeVol[i]}});
+        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
+          elements.push_back({0, idofs*nFluidTmp+iFluid, {nodeVol[i]}});
+        }
       }
 
       // Set surface fluid elements
-      if (type > 0 && !contactAngle.empty()) {
+      if (type > 0 && !contactangle.empty() && contactangle[i]!=90) {
         double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
-        if (wettingParam != 0) {
-          elements.push_back({1, {i}, {surfaceArea, wettingParam}});
+        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
+          int idof = i * nFluidTmp + iFluid;
+          elements.push_back({1, {idof}, {surfaceArea, wettingParam}});
         }
       }
 
       // Set external force elements
       if (fMag > 0) {
         Vector params{nodeVol[i], fMag, fNorm[0], fNorm[1], fNorm[2]};
-        elements.push_back({2, {i}, params});
+        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
+          int idof = i * nFluidTmp + iFluid;
+          elements.push_back({2, {idof}, params});
+        }
       }
     }
   }
@@ -250,7 +266,6 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setSolid(std::vector<bool> solid) {
-    if ((int)solid.size() != gridSize[0]*gridSize[1]*gridSize[2]) throw std::invalid_argument("Invalid size of solid array.");
     this->solid = solid;
     return *this;
   }
@@ -270,7 +285,6 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setContactAngle(Vector contactAngle) {
-    if ((int)contactAngle.size() != gridSize[0]*gridSize[1]*gridSize[2]) throw std::invalid_argument("Invalid size of contactAngle array.");
     this->contactAngle = contactAngle;
     return *this;
   }
