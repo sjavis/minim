@@ -49,24 +49,45 @@ namespace minim {
   };
 
 
+  void PFWetting::assignKappa() {
+    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
+    if ((int)interfaceSize.size() != nFluidTmp) {
+      throw std::invalid_argument("Invalid size of interfaceSize array.");
+    } else if (nFluidTmp != 1) {
+      interfaceSize = Vector(nFluid, interfaceSize[0]);
+    }
+    if ((int)surfaceTension.size() != nFluidTmp) {
+      throw std::invalid_argument("Invalid size of surfaceTension array.");
+    } else if (nFluidTmp != 1) {
+      surfaceTension = Vector(surfaceTension[0], nFluid);
+    }
+    // TODO: Calculate different values of kappa and kappaP
+    kappa = Vector(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
+    kappaP = Vector(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+  }
+
+
   void PFWetting::init() {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     int nFluidTmp = (nFluid==2) ? 1 : nFluid;
 
     // Check the arrays
-    if ((int)solid.size() != nGrid) {
+    if (solid.empty()) {
+      solid = std::vector<bool>(nGrid, false);
+    } else if ((int)solid.size() != nGrid) {
       throw std::invalid_argument("Invalid size of solid array.");
     }
-    if ((int)contactAngle.size() != nGrid*nFluidTmp) {
+    if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluidTmp) {
       throw std::invalid_argument("Invalid size of contactAngle array.");
     }
 
-    if (solid.empty()) solid = std::vector<bool>(nGrid, false);
+    // Set values
+    assignKappa();
     nodeVol = Vector(nGrid);
-
     double fMag = vec::norm(force);
     Vector fNorm = force / fMag;
 
+    // Assign elements
     elements = {};
     for (int i=0; i<nGrid; i++) {
       if (solid[i]) continue;
@@ -92,12 +113,12 @@ namespace minim {
           if (solid[idof]) idof = i;
         }
         for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
-          elements.push_back({0, idofs*nFluidTmp+iFluid, {nodeVol[i]}});
+          elements.push_back({0, idofs*nFluidTmp+iFluid, {nodeVol[i], (double)iFluid}});
         }
       }
 
       // Set surface fluid elements
-      if (type > 0 && !contactangle.empty() && contactangle[i]!=90) {
+      if (type > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
         double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
           int idof = i * nFluidTmp + iFluid;
@@ -140,18 +161,26 @@ namespace minim {
     switch (el.type) {
       case 0: {
         double vol = el.parameters[0];
+        int iFluid = el.parameters[1];
+        double c = coords[el.idof[0]];
         // Bulk energy
-        double phi = coords[el.idof[0]];
-        if (e) *e += 0.25/epsilon * (pow(phi,4) - 2*pow(phi,2) + 1) * vol;
-        if (g) (*g)[el.idof[0]] += 1/epsilon * (pow(phi,3) - phi) * vol;
+        if (nFluid == 2) {
+          double factor = kappa[iFluid] / 16 * vol;
+          if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
+          if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
+        } else {
+          double factor = 0.5 * kappa[iFluid] * vol;
+          if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
+          if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
+        }
         // Gradient energy
-        double factor = 0.5 * epsilon * vol;
-        double diffxm = (el.idof[1]!=el.idof[0]) ? phi - coords[el.idof[1]] : 0;
-        double diffym = (el.idof[2]!=el.idof[0]) ? phi - coords[el.idof[2]] : 0;
-        double diffzm = (el.idof[3]!=el.idof[0]) ? phi - coords[el.idof[3]] : 0;
-        double diffzp = (el.idof[4]!=el.idof[0]) ? phi - coords[el.idof[4]] : 0;
-        double diffyp = (el.idof[5]!=el.idof[0]) ? phi - coords[el.idof[5]] : 0;
-        double diffxp = (el.idof[6]!=el.idof[0]) ? phi - coords[el.idof[6]] : 0;
+        double factor = (nFluid==2) ? 0.25*kappaP[iFluid]*vol : 0.5*kappaP[iFluid]*vol;
+        double diffxm = (el.idof[1]!=el.idof[0]) ? c - coords[el.idof[1]] : 0;
+        double diffym = (el.idof[2]!=el.idof[0]) ? c - coords[el.idof[2]] : 0;
+        double diffzm = (el.idof[3]!=el.idof[0]) ? c - coords[el.idof[3]] : 0;
+        double diffzp = (el.idof[4]!=el.idof[0]) ? c - coords[el.idof[4]] : 0;
+        double diffyp = (el.idof[5]!=el.idof[0]) ? c - coords[el.idof[5]] : 0;
+        double diffxp = (el.idof[6]!=el.idof[0]) ? c - coords[el.idof[6]] : 0;
         double grad2 = 0;
         double res2 = pow(resolution, 2);
         if (diffxm != 0 && diffxp != 0) { // No solid in x direction
@@ -244,8 +273,15 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setEpsilon(double epsilon) {
-    this->epsilon = epsilon;
+  PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
+    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
+    this->interfaceSize = Vector(nFluidTmp, interfaceSize);
+    return *this;
+  }
+
+  PFWetting& PFWetting::setSurfaceTension(double surfaceTension) {
+    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
+    this->surfaceTension = Vector(nFluidTmp, surfaceTension);
     return *this;
   }
 

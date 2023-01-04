@@ -22,7 +22,8 @@ namespace minim {
 
       PFWetting& setGridSize(std::array<int,3> gridSize);
       PFWetting& setNFluid(int nFluid);
-      PFWetting& setEpsilon(double epsilon);
+      PFWetting& setInterfaceSize(double interfaceSize);
+      PFWetting& setSurfaceTension(double surfaceTension);
       PFWetting& setResolution(double resolution);
       PFWetting& setPressure(double pressure);
       PFWetting& setVolume(double volume, double volConst=1e5);
@@ -34,8 +35,9 @@ namespace minim {
 
       std::array<int,3> gridSize;
       int nFluid = 2;
-      double epsilon = 1;
       double resolution = 1;
+      Vector interfaceSize = {1};
+      Vector surfaceTension = {1};
       double pressure = 0;
       double volume = 0;
       double volConst = 1e5;
@@ -43,11 +45,14 @@ namespace minim {
       Vector nodeVol;
       Vector contactAngle;
       Vector force;
+      Vector kappa;
+      Vector kappaP;
 
     private:
       int nGrid() const;
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;
+      void assignKappa();
   };
 
 }
