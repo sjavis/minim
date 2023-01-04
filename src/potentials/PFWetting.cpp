@@ -50,16 +50,15 @@ namespace minim {
 
 
   void PFWetting::assignKappa() {
-    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
-    if ((int)interfaceSize.size() != nFluidTmp) {
+    if ((int)interfaceSize.size() != nFluid) {
       throw std::invalid_argument("Invalid size of interfaceSize array.");
-    } else if (nFluidTmp != 1) {
+    } else if (nFluid > 1) {
       interfaceSize = Vector(nFluid, interfaceSize[0]);
     }
-    if ((int)surfaceTension.size() != nFluidTmp) {
+    if ((int)surfaceTension.size() != nFluid) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
-    } else if (nFluidTmp != 1) {
-      surfaceTension = Vector(surfaceTension[0], nFluid);
+    } else if (nFluid > 1) {
+      surfaceTension = Vector(nFluid, surfaceTension[0]);
     }
     // TODO: Calculate different values of kappa and kappaP
     kappa = Vector(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
@@ -69,7 +68,6 @@ namespace minim {
 
   void PFWetting::init() {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
-    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
 
     // Check the arrays
     if (solid.empty()) {
@@ -77,7 +75,7 @@ namespace minim {
     } else if ((int)solid.size() != nGrid) {
       throw std::invalid_argument("Invalid size of solid array.");
     }
-    if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluidTmp) {
+    if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluid) {
       throw std::invalid_argument("Invalid size of contactAngle array.");
     }
 
@@ -112,16 +110,16 @@ namespace minim {
         for (auto &idof: idofs) {
           if (solid[idof]) idof = i;
         }
-        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
-          elements.push_back({0, idofs*nFluidTmp+iFluid, {nodeVol[i], (double)iFluid}});
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
         }
       }
 
       // Set surface fluid elements
       if (type > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
         double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
-        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
-          int idof = i * nFluidTmp + iFluid;
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          int idof = i * nFluid + iFluid;
           elements.push_back({1, {idof}, {surfaceArea, wettingParam}});
         }
       }
@@ -129,8 +127,8 @@ namespace minim {
       // Set external force elements
       if (fMag > 0) {
         Vector params{nodeVol[i], fMag, fNorm[0], fNorm[1], fNorm[2]};
-        for (int iFluid=0; iFluid<nFluidTmp; iFluid++) {
-          int idof = i * nFluidTmp + iFluid;
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          int idof = i * nFluid + iFluid;
           elements.push_back({2, {idof}, params});
         }
       }
@@ -164,8 +162,8 @@ namespace minim {
         int iFluid = el.parameters[1];
         double c = coords[el.idof[0]];
         // Bulk energy
-        if (nFluid == 2) {
-          double factor = kappa[iFluid] / 16 * vol;
+        if (nFluid == 1) {
+          double factor = kappa[0] / 16 * vol;
           if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
           if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
         } else {
@@ -174,7 +172,7 @@ namespace minim {
           if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
         }
         // Gradient energy
-        double factor = (nFluid==2) ? 0.25*kappaP[iFluid]*vol : 0.5*kappaP[iFluid]*vol;
+        double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
         double diffxm = (el.idof[1]!=el.idof[0]) ? c - coords[el.idof[1]] : 0;
         double diffym = (el.idof[2]!=el.idof[0]) ? c - coords[el.idof[2]] : 0;
         double diffzm = (el.idof[3]!=el.idof[0]) ? c - coords[el.idof[3]] : 0;
@@ -274,14 +272,12 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
-    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
-    this->interfaceSize = Vector(nFluidTmp, interfaceSize);
+    this->interfaceSize = Vector(nFluid, interfaceSize);
     return *this;
   }
 
   PFWetting& PFWetting::setSurfaceTension(double surfaceTension) {
-    int nFluidTmp = (nFluid==2) ? 1 : nFluid;
-    this->surfaceTension = Vector(nFluidTmp, surfaceTension);
+    this->surfaceTension = Vector(nFluid, surfaceTension);
     return *this;
   }
 

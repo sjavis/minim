@@ -159,7 +159,7 @@ TEST(PFWettingTest, TestResolution) {
 
 TEST(PFWettingTest, TestNFluid) {
   PFWetting pot;
-  EXPECT_FLOAT_EQ(pot.nFluid, 2);
+  EXPECT_FLOAT_EQ(pot.nFluid, 1);
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }

@@ -34,7 +34,7 @@ namespace minim {
       PFWetting& setForce(Vector force);
 
       std::array<int,3> gridSize;
-      int nFluid = 2;
+      int nFluid = 1;
       double resolution = 1;
       Vector interfaceSize = {1};
       Vector surfaceTension = {1};
