@@ -31,7 +31,7 @@ namespace minim {
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
       PFWetting& setContactAngle(Vector contactAngle);
       PFWetting& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
-      PFWetting& setForce(Vector force);
+      PFWetting& setForce(Vector force, std::vector<int> iFluid={});
 
       std::array<int,3> gridSize;
       int nFluid = 1;
@@ -43,10 +43,10 @@ namespace minim {
       double volConst = 1e5;
       std::vector<bool> solid;
       Vector nodeVol;
-      Vector contactAngle;
-      Vector force;
       Vector kappa;
       Vector kappaP;
+      Vector contactAngle;
+      std::vector<Vector> force;
 
     private:
       int nGrid() const;

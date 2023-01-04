@@ -78,12 +78,21 @@ namespace minim {
     if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluid) {
       throw std::invalid_argument("Invalid size of contactAngle array.");
     }
+    if (!force.empty() && (int)force.size()!=nFluid) {
+      throw std::invalid_argument("Invalid size of force array.");
+    }
 
     // Set values
     assignKappa();
     nodeVol = Vector(nGrid);
-    double fMag = vec::norm(force);
-    Vector fNorm = force / fMag;
+    Vector fMag(nFluid);
+    std::vector<Vector> fNorm(nFluid);
+    if (!force.empty()) {
+      for (int i=0; i<nFluid; i++) {
+        fMag[i] = vec::norm(force[i]);
+        fNorm[i] = force[i] / fMag[i];
+      }
+    }
 
     // Assign elements
     elements = {};
@@ -125,11 +134,13 @@ namespace minim {
       }
 
       // Set external force elements
-      if (fMag > 0) {
-        Vector params{nodeVol[i], fMag, fNorm[0], fNorm[1], fNorm[2]};
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          int idof = i * nFluid + iFluid;
-          elements.push_back({2, {idof}, params});
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (fMag[iFluid]>0 && !solid[i]) {
+          Vector params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
+          for (int iFluid=0; iFluid<nFluid; iFluid++) {
+            int idof = i * nFluid + iFluid;
+            elements.push_back({2, {idof}, params});
+          }
         }
       }
     }
@@ -246,7 +257,6 @@ namespace minim {
         //   0: Volume
         //   1: Magnitude of force on component 1
         //   2-4: Direction force on component 1
-        double phi = coords[el.idof[0]];
         double vol = el.parameters[0];
         double f = el.parameters[1];
         Vector fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
@@ -342,9 +352,16 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setForce(Vector force) {
+  PFWetting& PFWetting::setForce(Vector force, std::vector<int> iFluid) {
     if ((int)force.size() != 3) throw std::invalid_argument("Invalid size of force array.");
-    this->force = force;
+    if (nFluid==1 || iFluid.empty()) {
+      this->force = std::vector<Vector>(nFluid, force);
+    } else {
+      this->force = std::vector<Vector>(nFluid, {0,0,0});
+      for (int i: iFluid) {
+        this->force[i] = force;
+      }
+    }
     return *this;
   }
 
