@@ -25,8 +25,8 @@ namespace minim {
       PFWetting& setInterfaceSize(double interfaceSize);
       PFWetting& setSurfaceTension(double surfaceTension);
       PFWetting& setResolution(double resolution);
-      PFWetting& setPressure(double pressure);
-      PFWetting& setVolume(double volume, double volConst=1e5);
+      PFWetting& setPressure(Vector pressure);
+      PFWetting& setVolume(Vector volume, double volConst=1e5);
       PFWetting& setSolid(std::vector<bool> solid);
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
       PFWetting& setContactAngle(Vector contactAngle);
@@ -34,14 +34,14 @@ namespace minim {
       PFWetting& setForce(Vector force, std::vector<int> iFluid={});
 
       std::array<int,3> gridSize;
+      std::vector<bool> solid;
       int nFluid = 1;
       double resolution = 1;
       Vector interfaceSize = {1};
       Vector surfaceTension = {1};
-      double pressure = 0;
-      double volume = 0;
+      Vector pressure;
+      Vector volume;
       double volConst = 1e5;
-      std::vector<bool> solid;
       Vector nodeVol;
       Vector kappa;
       Vector kappaP;

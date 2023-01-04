@@ -81,6 +81,16 @@ namespace minim {
     if (!force.empty() && (int)force.size()!=nFluid) {
       throw std::invalid_argument("Invalid size of force array.");
     }
+    if (volume.empty()) {
+      volume = Vector(nFluid, 0);
+    } else if ((int)volume.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of volume array.");
+    }
+    if (pressure.empty()) {
+      pressure = Vector(nFluid, 0);
+    } else if ((int)pressure.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of pressure array.");
+    }
 
     // Set values
     assignKappa();
@@ -149,18 +159,36 @@ namespace minim {
 
   void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     // Constant volume / pressure constraints rely upon the whole system
-    if (volume != 0 || pressure != 0) {
-      Vector phiBlock = comm.assignBlock(coords);
-      Vector nodeVolBlock = comm.assignBlock(nodeVol);
-      Vector nodeVolProc = comm.assignProc(nodeVol);
-      double volFluid = comm.sum(0.5*(phiBlock+1) * nodeVolBlock);
-      if (volume != 0) {
-        if (e) *e += volConst * pow(volFluid - volume, 2) / comm.size();
-        if (g) *g += volConst * (volFluid - volume) * nodeVolProc;
-      }
-      if (pressure != 0) {
-        if (e) *e -= pressure * volFluid / comm.size();
-        if (g) *g -= 0.5 * pressure * nodeVolProc;
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (volume[iFluid] != 0 || pressure[iFluid] != 0) {
+        Vector nodeVolBlock = comm.assignBlock(nodeVol);
+        double volFluid = 0;
+        if (nFluid == 1) {
+          volFluid = comm.sum(0.5*(comm.assignBlock(coords)+1) * nodeVolBlock);
+        } else {
+          for (int i=iFluid; i<(int)comm.nblock; i+=nFluid) {
+            volFluid += coords[i] * nodeVolBlock[i];
+          }
+          volFluid = comm.sum(volFluid);
+        }
+        if (volume[iFluid] != 0) {
+          if (e) *e += volConst * pow(volFluid - volume[iFluid], 2) / comm.size();
+          if (g) {
+            Vector gFluid = volConst * (volFluid - volume[iFluid]) * comm.assignProc(nodeVol);
+            for (int iNode=0; iNode<(int)comm.nproc/nFluid; iNode++) {
+              (*g)[nFluid*iNode+iFluid] += gFluid[iNode];
+            }
+          }
+        }
+        if (pressure[iFluid] != 0) {
+          if (e) *e -= pressure[iFluid] * volFluid / comm.size();
+          if (g) {
+            Vector gFluid = -0.5 * pressure[iFluid] * comm.assignProc(nodeVol);
+            for (int iNode=0; iNode<(int)comm.nproc/nFluid; iNode++) {
+              (*g)[nFluid*iNode+iFluid] += gFluid[iNode];
+            }
+          }
+        }
       }
     }
   }
@@ -303,12 +331,12 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setPressure(double pressure) {
+  PFWetting& PFWetting::setPressure(Vector pressure) {
     this->pressure = pressure;
     return *this;
   }
 
-  PFWetting& PFWetting::setVolume(double volume, double volConst) {
+  PFWetting& PFWetting::setVolume(Vector volume, double volConst) {
     this->volume = volume;
     this->volConst = volConst;
     return *this;
