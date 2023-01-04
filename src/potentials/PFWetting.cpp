@@ -233,9 +233,11 @@ namespace minim {
         // Surface energy
         // parameter[0]: Surface area
         // parameter[1]: Wetting parameter sqrt(2)cos(theta)
-        double phi = coords[el.idof[0]];
-        if (e) *e += el.parameters[1] * (pow(phi,3)/3 - pow(phi,2)/2) * el.parameters[0];
-        if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - phi) * el.parameters[0];
+        if (nFluid == 1) {
+          double phi = coords[el.idof[0]];
+          if (e) *e += el.parameters[1] * (pow(phi,3)/3 - pow(phi,2)/2) * el.parameters[0];
+          if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - phi) * el.parameters[0];
+        }
       } break;
 
       case 2: {
@@ -251,8 +253,13 @@ namespace minim {
         std::array<int,3> coordI = getCoord(el.idof[0]);
         Vector coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
         double h = - vec::dotProduct(coord, fNorm) * resolution;
-        if (e) *e += 0.5*(1+phi) * f * h * vol;
-        if (g) (*g)[el.idof[0]] += 0.5 * f * h * vol;
+        if (nFluid == 1) {
+          if (e) *e += 0.5*(1+coords[el.idof[0]]) * vol * f * h;
+          if (g) (*g)[el.idof[0]] += 0.5 * vol * f * h;
+        } else {
+          if (e) *e += coords[el.idof[0]] * vol * f * h;
+          if (g) (*g)[el.idof[0]] += vol * f * h;
+        }
       } break;
 
       default:
