@@ -10,10 +10,13 @@ namespace minim {
 
 
   State::State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks)
-    : ndof(coords.size()), pot(pot.clone()), comm(*this->pot,ndof,ranks)
+    : ndof(coords.size()), pot(pot.clone())
   {
+    this->pot->init();
+    this->comm.setup(*this->pot, ndof, ranks);
     this->usesThisProc = comm.usesThisProc;
     this->coords(coords);
+    this->pot->distributeParameters(comm);
   }
 
   State::State(const State& state)
