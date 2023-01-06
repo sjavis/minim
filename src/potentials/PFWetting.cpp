@@ -157,39 +157,51 @@ namespace minim {
   }
 
 
+  void PFWetting::distributeParameters(const Communicator& comm) {
+    // Store only the relevant node volumes and fluid numbers
+    // These are required by pressure / volume constraints so cannot be stored in element parameters
+    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
+    Vector nodeVolTmp(nGrid * nFluid);
+    Vector fluidTypeTmp(nGrid * nFluid);
+    for (int iNode=0; iNode<nGrid; iNode++) {
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        nodeVolTmp[nFluid*iNode+iFluid] = nodeVol[iNode];
+        fluidTypeTmp[nFluid*iNode+iFluid] = iFluid;
+      }
+    }
+    nodeVol = comm.assignProc(nodeVolTmp);
+    fluidTypeTmp = comm.assignProc(fluidTypeTmp);
+    fluidType = std::vector<int>(fluidTypeTmp.begin(), fluidTypeTmp.end());
+  }
+
+
   void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
     // Constant volume / pressure constraints rely upon the whole system
-    for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (volume[iFluid] != 0 || pressure[iFluid] != 0) {
-        Vector nodeVolBlock = comm.assignBlock(nodeVol);
-        double volFluid = 0;
-        if (nFluid == 1) {
-          volFluid = comm.sum(0.5*(comm.assignBlock(coords)+1) * nodeVolBlock);
-        } else {
-          for (int i=iFluid; i<(int)comm.nblock; i+=nFluid) {
-            volFluid += coords[i] * nodeVolBlock[i];
-          }
-          volFluid = comm.sum(volFluid);
-        }
-        if (volume[iFluid] != 0) {
-          if (e) *e += volConst * pow(volFluid - volume[iFluid], 2) / comm.size();
-          if (g) {
-            Vector gFluid = volConst * (volFluid - volume[iFluid]) * comm.assignProc(nodeVol);
-            for (int iNode=0; iNode<(int)comm.nproc/nFluid; iNode++) {
-              (*g)[nFluid*iNode+iFluid] += gFluid[iNode];
-            }
-          }
-        }
-        if (pressure[iFluid] != 0) {
-          if (e) *e -= pressure[iFluid] * volFluid / comm.size();
-          if (g) {
-            Vector gFluid = -0.5 * pressure[iFluid] * comm.assignProc(nodeVol);
-            for (int iNode=0; iNode<(int)comm.nproc/nFluid; iNode++) {
-              (*g)[nFluid*iNode+iFluid] += gFluid[iNode];
-            }
-          }
-        }
+    if (!vec::any(volume) && !vec::any(pressure)) return;
+    Vector volFluid(nFluid, 0);
+    for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
+      if (nFluid == 1) {
+        volFluid[0] += 0.5*(coords[iDof]+1) * nodeVol[iDof];
+      } else {
+        volFluid[fluidType[iDof]] += coords[iDof] * nodeVol[iDof];
       }
+    }
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (volume[iFluid]==0 && pressure[iFluid]==0) continue;
+      volFluid[iFluid] = comm.sum(volFluid[iFluid]);
+      if (e) {
+        if (volume[iFluid]!=0) *e += volConst * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
+        if (pressure[iFluid]!=0) *e -= pressure[iFluid] * volFluid[iFluid] / comm.size();
+      }
+    }
+
+    if (!g) return;
+    Vector vFactor = volConst * (volFluid - volume);
+    Vector pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
+    for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
+      int f = fluidType[iDof];
+      if (volume[f]!=0) (*g)[iDof] += vFactor[f] * nodeVol[iDof];
+      if (pressure[f]!=0) (*g)[iDof] += pFactor[f] * nodeVol[iDof];
     }
   }
 
@@ -395,7 +407,6 @@ namespace minim {
 
 
   State PFWetting::newState(const Vector& coords, const std::vector<int>& ranks) {
-    init();
     return State(*this, coords, ranks);
   }
 

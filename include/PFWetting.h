@@ -15,6 +15,8 @@ namespace minim {
       ~PFWetting() {};
 
       void init();
+      void distributeParameters(const Communicator& comm);
+
       void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
       void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
 
@@ -42,13 +44,14 @@ namespace minim {
       Vector pressure;
       Vector volume;
       double volConst = 1e5;
-      Vector nodeVol;
       Vector kappa;
       Vector kappaP;
       Vector contactAngle;
       std::vector<Vector> force;
 
     private:
+      Vector nodeVol;
+      std::vector<int> fluidType;
       int nGrid() const;
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;
