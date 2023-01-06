@@ -50,15 +50,15 @@ namespace minim {
 
 
   void PFWetting::assignKappa() {
-    if ((int)interfaceSize.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of interfaceSize array.");
-    } else if (nFluid > 1) {
+    if ((int)interfaceSize.size()==1 && nFluid>1) {
       interfaceSize = Vector(nFluid, interfaceSize[0]);
+    } else if ((int)interfaceSize.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of interfaceSize array.");
     }
-    if ((int)surfaceTension.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of surfaceTension array.");
-    } else if (nFluid > 1) {
+    if ((int)surfaceTension.size()==1 && nFluid>1) {
       surfaceTension = Vector(nFluid, surfaceTension[0]);
+    } else if ((int)surfaceTension.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
     // TODO: Calculate different values of kappa and kappaP
     kappa = Vector(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
