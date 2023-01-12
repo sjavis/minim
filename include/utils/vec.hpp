@@ -5,6 +5,7 @@
 #include <cassert>
 #include <numeric>
 #include <algorithm>
+#include <functional>
 
 
 // Sum
