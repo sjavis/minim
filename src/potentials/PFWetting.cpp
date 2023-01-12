@@ -123,15 +123,22 @@ namespace minim {
       surfaceArea = surfaceArea * pow(resolution, 2);
 
       // Set bulk fluid elements
-      if (!solid[i]) {
-        Neighbours di(gridSize, i);
-        std::vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
-        for (auto &idof: idofs) {
-          if (solid[idof]) idof = i;
-        }
+      Neighbours di(gridSize, i);
+      std::vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
+      for (auto &idof: idofs) {
+        if (solid[idof]) idof = i;
+      }
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
+      }
+
+      // Set density constraint elements
+      if (nFluid > 1) {
+        idofs = std::vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
+          idofs[iFluid] = i * nFluid + iFluid;
         }
+        elements.push_back({1, idofs});
       }
 
       // Set surface fluid elements
@@ -139,7 +146,7 @@ namespace minim {
         double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           int idof = i * nFluid + iFluid;
-          elements.push_back({1, {idof}, {surfaceArea, wettingParam}});
+          elements.push_back({2, {idof}, {surfaceArea, wettingParam}});
         }
       }
 
@@ -149,7 +156,7 @@ namespace minim {
           Vector params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
           for (int iFluid=0; iFluid<nFluid; iFluid++) {
             int idof = i * nFluid + iFluid;
-            elements.push_back({2, {idof}, params});
+            elements.push_back({3, {idof}, params});
           }
         }
       }
@@ -281,6 +288,19 @@ namespace minim {
       } break;
 
       case 1: {
+        // Total density soft constraint
+        if (nFluid == 1) break;
+        double coef = volConst * pow(resolution, 3);
+        double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
+        if (e) *e += coef * pow(rhoDiff, 2);
+        if (g) {
+          (*g)[el.idof[0]] += 2 * coef * rhoDiff;
+          (*g)[el.idof[1]] += 2 * coef * rhoDiff;
+          (*g)[el.idof[2]] += 2 * coef * rhoDiff;
+        }
+      } break;
+
+      case 2: {
         // Surface energy
         // parameter[0]: Surface area
         // parameter[1]: Wetting parameter sqrt(2)cos(theta)
@@ -291,7 +311,7 @@ namespace minim {
         }
       } break;
 
-      case 2: {
+      case 3: {
         // External force
         // Parameters:
         //   0: Volume
