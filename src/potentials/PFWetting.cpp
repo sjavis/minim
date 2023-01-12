@@ -66,8 +66,11 @@ namespace minim {
   }
 
 
-  void PFWetting::init() {
+  void PFWetting::init(const Vector& coords) {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
+    if ((int)coords.size() != nGrid*nFluid) {
+      throw std::invalid_argument("Size of coordinates array does not match the grid size.");
+    }
 
     // Check the arrays
     if (solid.empty()) {

@@ -34,7 +34,7 @@ namespace minim {
         return std::make_unique<Potential>(*this);
       }
 
-      virtual void init() {};
+      virtual void init(const Vector& coords) {};
       virtual void distributeParameters(const Communicator& comm) {};
 
 

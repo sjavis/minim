@@ -14,8 +14,8 @@ namespace minim {
       PFWetting() { _parallelDef = true; };
       ~PFWetting() {};
 
-      void init();
-      void distributeParameters(const Communicator& comm);
+      void init(const Vector& coords) override;
+      void distributeParameters(const Communicator& comm) override;
 
       void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
       void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;

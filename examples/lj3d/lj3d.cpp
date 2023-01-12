@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   print();
 
   Lj3d potential = Lj3d();
-  State state = potential.newState({0,0,0, 2,0,0, 1,1,0, 5,1,1});
+  State state(potential, {0,0,0, 2,0,0, 1,1,0, 5,1,1});
   state.convergence = 1e-4;
 
   Lbfgs min = Lbfgs();
