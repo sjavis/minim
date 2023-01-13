@@ -350,6 +350,8 @@ namespace minim {
 
   Vector Communicator::assignBlock(const Vector& in) const {
     if (!usesThisProc) return Vector();
+    if (p->commSize == 1) return in;
+
     Vector out = Vector(nblock);
     int i0 = (in.size() == ndof) ? iblock : 0;
     for (size_t i=0; i<nblock; i++) {
@@ -362,6 +364,8 @@ namespace minim {
   Vector Communicator::assignProc(const Vector& in) const {
     if (!usesThisProc) return Vector();
     if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
+    if (p->commSize == 1) return in;
+
     Vector out = Vector(nproc);
     // Assign the main blocks
     for (size_t i=0; i<nblock; i++) {
