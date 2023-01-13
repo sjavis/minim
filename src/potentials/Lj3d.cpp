@@ -9,6 +9,26 @@ namespace minim {
   typedef std::vector<double> Vector;
 
 
+  Lj3d::Lj3d(double sigma, double epsilon) : Lj3d() {
+    this->sigma = sigma;
+    this->epsilon = epsilon;
+  }
+
+
+  void Lj3d::init(const Vector& coords) {
+    int ndof = coords.size();
+    if (ndof % 3 != 0) throw std::invalid_argument("Length of coords must be a multiple of 3.");
+    n_particle = ndof / 3;
+    // Generate energy elements
+    elements = {};
+    for (int i=0; i<n_particle; i++) {
+      for (int j=i+1; j<n_particle; j++) {
+        elements.push_back({0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}});
+      }
+    }
+  }
+
+
   void Lj3d::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
     double dx = coords[el.idof[0]] - coords[el.idof[3]];
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
@@ -40,27 +60,6 @@ namespace minim {
   Lj3d& Lj3d::setEpsilon(double epsilon) {
     this->epsilon = epsilon;
     return *this;
-  }
-
-
-  State Lj3d::newState(const Vector& coords, const std::vector<int>& ranks) {
-    int ndof = coords.size();
-    if (ndof % 3 != 0) throw std::invalid_argument("Length of coords must be a multiple of 3.");
-    n_particle = ndof / 3;
-    // Generate energy elements
-    elements = {};
-    for (int i=0; i<n_particle; i++) {
-      for (int j=i+1; j<n_particle; j++) {
-        elements.push_back({0, {3*i, 3*i+1, 3*i+2, 3*j, 3*j+1, 3*j+2}});
-      }
-    }
-    return State(*this, coords, ranks);
-  }
-
-  State Lj3d::newState(const Vector& coords, double sigma, double epsilon, const std::vector<int>& ranks) {
-    this->sigma = sigma;
-    this->epsilon = epsilon;
-    return newState(coords, ranks);
   }
 
 }

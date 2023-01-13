@@ -34,6 +34,9 @@ namespace minim {
         return std::make_unique<Potential>(*this);
       }
 
+      virtual void init(const Vector& coords) {};
+      virtual void distributeParameters(const Communicator& comm) {};
+
 
       virtual double energy(const Vector& coords) const;
       virtual Vector gradient(const Vector& coords) const;

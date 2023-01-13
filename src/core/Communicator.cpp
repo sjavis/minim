@@ -20,8 +20,6 @@ namespace minim {
 
   class Communicator::Priv {
     public:
-      Priv() : commRank(mpi.rank), commSize(mpi.size) {};
-
       int commRank;
       int commSize;
       std::vector<int> nblocks; // Size of each block
@@ -34,6 +32,9 @@ namespace minim {
       MPI_Comm comm;
       std::vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
   #endif
+
+
+      Priv() : commRank(mpi.rank), commSize(mpi.size) {};
 
 
       int getBlock(int loc) {
@@ -281,24 +282,9 @@ namespace minim {
   };
 
 
-  Communicator::Communicator(Potential& pot, size_t ndof, std::vector<int> ranks)
-    : ndof(ndof), nproc(ndof), nblock(ndof), iblock(0), p(std::unique_ptr<Priv>(new Priv))
-  {
-    if (mpi.size == 1) return;
-
-    p->setup(pot, ndof, ranks);
-    usesThisProc = (p->commRank >= 0);
-    this->ranks = ranks;
-    if (usesThisProc) {
-      nblock = p->nblocks[p->commRank];
-      nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
-      iblock = p->iblocks[p->commRank];
-    } else {
-      nblock = -1;
-      nproc = -1;
-      iblock = -1;
-    }
-  }
+  Communicator::Communicator()
+    : ndof(0), nproc(0), nblock(0), iblock(0), p(std::unique_ptr<Priv>(new Priv))
+  {}
 
 
   Communicator::Communicator(const Communicator& comm)
@@ -329,6 +315,27 @@ namespace minim {
       }
     }
   #endif
+  }
+
+
+  void Communicator::setup(Potential& pot, size_t ndof, std::vector<int> ranks) {
+    this->ndof = ndof;
+    this->nproc = ndof;
+    this->nblock = ndof;
+    if (mpi.size == 1) return;
+
+    p->setup(pot, ndof, ranks);
+    usesThisProc = (p->commRank >= 0);
+    this->ranks = ranks;
+    if (usesThisProc) {
+      nblock = p->nblocks[p->commRank];
+      nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
+      iblock = p->iblocks[p->commRank];
+    } else {
+      nblock = -1;
+      nproc = -1;
+      iblock = -1;
+    }
   }
 
 

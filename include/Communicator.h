@@ -19,10 +19,11 @@ namespace minim {
       bool usesThisProc = true;
       std::vector<int> ranks = std::vector<int>();
 
-      Communicator(Potential& pot, size_t ndof, std::vector<int> ranks);
+      Communicator();
       Communicator(const Communicator& comm);
       Communicator& operator=(const Communicator& comm);
       ~Communicator();
+      void setup(Potential& pot, size_t ndof, std::vector<int> ranks);
 
       int rank() const;
       int size() const;

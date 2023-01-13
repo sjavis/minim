@@ -16,6 +16,7 @@
 
 #include "Lj3d.h"
 #include "BarAndHinge.h"
+#include "PFWetting.h"
 
 #include "utils/mpi.h"
 #include "utils/print.h"

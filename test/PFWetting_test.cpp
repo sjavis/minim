@@ -13,6 +13,8 @@ using namespace minim;
 
 TEST(PFWettingTest, TestBulkEnergy) {
   PFWetting pot;
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
 
   // Constant bulk fluid
   State s1 = pot.setGridSize({1,1,1}).newState({1});
@@ -47,6 +49,8 @@ TEST(PFWettingTest, TestBulkEnergy) {
 
 TEST(PFWettingTest, TestExternalForce) {
   PFWetting pot;
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
 
   // Test force in x, y, z directions
   auto stateForceX = pot.setGridSize({2,2,2}).setForce({-2,0,0}).newState({1,1,1,1,1,1,1,1});
@@ -71,6 +75,8 @@ TEST(PFWettingTest, TestExternalForce) {
 
 TEST(PFWettingTest, TestSurfaceEnergy) {
   PFWetting pot;
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
   auto state = pot.newState({0, 0.5});
   for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
@@ -83,7 +89,9 @@ TEST(PFWettingTest, TestSurfaceEnergy) {
 
 TEST(PFWettingTest, TestPressureConstraint) {
   PFWetting pot;
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure(10);
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure({10});
   auto state = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(state.energy(), -30);
   EXPECT_TRUE(ArraysNear(state.gradient(), {0, -2.5, -5, -5, -2.5, 0}, 1e-6));
@@ -92,7 +100,9 @@ TEST(PFWettingTest, TestPressureConstraint) {
 
 TEST(PFWettingTest, TestVolumeConstraint) {
   PFWetting pot;
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setVolume(1, 100);
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setVolume({1}, 100);
   auto state = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(state.energy(), 400);
   EXPECT_TRUE(ArraysNear(state.gradient(), {0, 100, 200, 200, 100, 0}, 1e-6));
@@ -101,7 +111,12 @@ TEST(PFWettingTest, TestVolumeConstraint) {
 
 TEST(PFWettingTest, TestResolution) {
   PFWetting pot;
+  pot.setInterfaceSize(1/sqrt(2.0));
+  pot.setSurfaceTension(sqrt(8.0/9));
+  EXPECT_FLOAT_EQ(pot.resolution, 1);
+
   pot.setResolution(2);
+  ASSERT_FLOAT_EQ(pot.resolution, 2);
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
@@ -128,17 +143,25 @@ TEST(PFWettingTest, TestResolution) {
   EXPECT_TRUE(ArraysNear(s3.gradient(), {0, 0.5*sqrt(2.0)*(-0.25)*4}, 1e-6));
 
   // Pressure
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setPressure(10);
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setPressure({10});
   auto s4 = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(s4.energy(), -240);
   EXPECT_TRUE(ArraysNear(s4.gradient(), {0, -20, -40, -40, -20, 0}, 1e-6));
-  pot.setPressure(0);
+  pot.setPressure({0});
 
   // Volume
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume(8, 100);
+  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
   auto s5 = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(s5.energy(), 64*400);
   EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}, 1e-6));
+}
+
+
+TEST(PFWettingTest, TestNFluid) {
+  PFWetting pot;
+  EXPECT_FLOAT_EQ(pot.nFluid, 1);
+  pot.setNFluid(3);
+  EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
 
 
