@@ -14,7 +14,7 @@ namespace minim {
     if (!state.usesThisProc) return std::vector<double>();
 
     init(state);
-    for (iter=0; iter<maxIter; iter++) {
+    for (iter=0; iter<=maxIter; iter++) {
       if (adjustState) adjustState(iter, state);
       iteration(state);
       if (checkConvergence(state)) break;
