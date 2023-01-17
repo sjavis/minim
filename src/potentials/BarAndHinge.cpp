@@ -78,6 +78,8 @@ namespace minim {
     // E = k/2 (\theta - \theta_0)^2
     double n1b3 = vec::dotProduct(n1, b3);
     double theta = (n1b3>=0) ? acos(c) : 2*pi()-acos(c);
+    double dtheta = theta - el.parameters[1];
+    dtheta = fmod(dtheta + pi(), 2*pi()) - pi();
 
     if (e != nullptr) {
       // E = k (1 - cos(\theta - \theta_0))
