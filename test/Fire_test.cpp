@@ -36,7 +36,7 @@ TEST(FireTest, TestStep) {
   ASSERT_FLOAT_EQ(state.energy(), 17);
   ASSERT_TRUE(ArraysNear(state.gradient(), g, 1e-6));
 
-  Fire min = Fire().setMaxIter(1);
+  Fire min = Fire().setMaxIter(0);
   min.minimise(state);
 
   double dt = 0.1 / pow(68, 0.25);
