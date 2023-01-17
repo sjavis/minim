@@ -8,6 +8,8 @@ namespace minim {
 
   typedef std::vector<double> Vector;
 
+  constexpr double pi() { return 4*atan(1); }
+
 
   void BarAndHinge::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
     switch (el.type) {
@@ -67,17 +69,27 @@ namespace minim {
     double n2sq = vec::dotProduct(n2, n2);
     double n12m = sqrt(n1sq * n2sq);
 
-    // Compute cos and sin
+    // Compute cos
     double c = vec::dotProduct(n1, n2) / n12m;
-    double s = b2m / n12m * vec::dotProduct(n1, b3);
-    double c0 = cos(el.parameters[1]);
-    double s0 = sin(el.parameters[1]);
+    // E = k (1 - cos(\theta - \theta_0))
+    // double s = b2m / n12m * vec::dotProduct(n1, b3);
+    // double c0 = cos(el.parameters[1]);
+    // double s0 = sin(el.parameters[1]);
+    // E = k/2 (\theta - \theta_0)^2
+    double n1b3 = vec::dotProduct(n1, b3);
+    double theta = (n1b3>=0) ? acos(c) : 2*pi()-acos(c);
 
     if (e != nullptr) {
-      *e += el.parameters[0] * (1 - c*c0 + s*s0); // Double angle formula for cos(t - t0)
+      // E = k (1 - cos(\theta - \theta_0))
+      // *e += el.parameters[0] * (1 - c*c0 + s*s0); // Double angle formula for cos(t - t0)
+      // E = k/2 (\theta - \theta_0)^2
+      *e += el.parameters[0] * 0.5 * pow(theta-el.parameters[1], 2);
     }
     if (g != nullptr) {
-      double gfactor = el.parameters[0] * (s*c0 + c*s0);
+      // E = k (1 - cos(\theta - \theta_0))
+      // double gfactor = el.parameters[0] * (s*c0 + c*s0);
+      // E = k/2 (\theta - \theta_0)^2
+      double gfactor = el.parameters[0] * (theta - el.parameters[1]);
       // Normal vectors with magnitude 1 / triangle height
       auto n1h = b2m/n1sq * n1;
       auto n2h = b2m/n2sq * n2;
