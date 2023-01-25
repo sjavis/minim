@@ -10,7 +10,7 @@ namespace minim {
   }
 
 
-  std::vector<double> Minimiser::minimise(State& state, AdjustFunc adjustState) {
+  std::vector<double> Minimiser::minimise(State& state, std::function<void(int,State&)> adjustState) {
     if (!state.usesThisProc) return std::vector<double>();
 
     init(state);

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 namespace minim {
   class State;
@@ -21,7 +22,7 @@ namespace minim {
 
       virtual Minimiser& setMaxIter(int maxIter);
 
-      std::vector<double> minimise(State& state, AdjustFunc adjustState=nullptr);
+      std::vector<double> minimise(State& state, std::function<void(int,State&)> adjustState=nullptr);
       virtual void init(State& state) {};
       virtual void iteration(State& state) = 0;
       virtual bool checkConvergence(const State& state) { return false; };
