@@ -283,7 +283,7 @@ namespace minim {
 
 
   Communicator::Communicator()
-    : ndof(0), nproc(0), nblock(0), iblock(0), p(std::unique_ptr<Priv>(new Priv))
+    : ndof(0), nproc(0), nblock(0), iblock(0), ranks({0}), p(std::unique_ptr<Priv>(new Priv))
   {}
 
 
@@ -319,14 +319,20 @@ namespace minim {
 
 
   void Communicator::setup(Potential& pot, size_t ndof, std::vector<int> ranks) {
+    // Serial parameters
     this->ndof = ndof;
     this->nproc = ndof;
     this->nblock = ndof;
     if (mpi.size == 1) return;
 
+    // Parallel parameters
     p->setup(pot, ndof, ranks);
     usesThisProc = (p->commRank >= 0);
     this->ranks = ranks;
+    if (ranks.empty()) {
+      this->ranks = std::vector<int>(mpi.size);
+      std::iota(this->ranks.begin(), this->ranks.end(), 0);
+    }
     if (usesThisProc) {
       nblock = p->nblocks[p->commRank];
       nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
