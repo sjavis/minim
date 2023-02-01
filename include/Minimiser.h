@@ -11,7 +11,7 @@ namespace minim {
   // Abstract class for minimisation proceedures
   class Minimiser {
     public:
-      int maxIter = 10000;
+      int maxIter = 100000;
 
       typedef void (*AdjustFunc)(int, State&);
       int iter;
