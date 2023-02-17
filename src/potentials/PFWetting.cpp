@@ -23,7 +23,7 @@ namespace minim {
   class Neighbours {
     public:
       std::array<int,26> di;
-      std::array<std::array<int,3>,26> dx {{
+      std::vector<std::vector<int>> dx = {{
         // Adjacent faces
         {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
         // Adjacent edges
