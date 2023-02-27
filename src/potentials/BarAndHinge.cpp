@@ -1,6 +1,7 @@
 #include "BarAndHinge.h"
 
 #include <math.h>
+#include <stdexcept>
 #include <algorithm>
 #include "utils/vec.h"
 
@@ -12,6 +13,16 @@ namespace minim {
 
 
   void BarAndHinge::init(const Vector& coords) {
+    // Check element DOFs are valid
+    int nNode = coords.size() / 3;
+    std::vector<std::vector<int>> elementList = bondList;
+    elementList.insert(elementList.end(), hingeList.begin(), hingeList.end());
+    for (auto element: elementList) {
+      for (int iNode: element) {
+        if (iNode >= nNode) throw std::logic_error("The triangulation expects more coordinates than are given.");
+      }
+    }
+
     // Get rigidities
     if (thickness.size() == 1) {
       double t = thickness[0];
