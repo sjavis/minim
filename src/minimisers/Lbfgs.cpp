@@ -6,8 +6,8 @@
 #include "utils/vec.h"
 
 namespace minim {
-
-  typedef std::vector<double> Vector;
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
 
 
   Lbfgs& Lbfgs::setM(int m) {
@@ -24,9 +24,9 @@ namespace minim {
   void Lbfgs::init(State& state) {
     if (state.comm.rank() == 0) {
       _root = true;
-      _s = std::vector<Vector>(_m, Vector(state.ndof));
-      _y = std::vector<Vector>(_m, Vector(state.ndof));
-      _rho = Vector(_m);
+      _s = vector2d<double>(_m, vector<double>(state.ndof));
+      _y = vector2d<double>(_m, vector<double>(state.ndof));
+      _rho = vector<double>(_m);
     } else {
       _root = false;
     }
@@ -42,8 +42,8 @@ namespace minim {
     }
 
     // Find minimisation direction
-    Vector step = getDirection();
-    Vector step_block = state.comm.scatter(step, 0);
+    vector<double> step = getDirection();
+    vector<double> step_block = state.comm.scatter(step, 0);
 
     // Perform linesearch
     double de0;
@@ -73,8 +73,8 @@ namespace minim {
   }
 
 
-  Vector Lbfgs::getDirection() {
-    Vector step;
+  vector<double> Lbfgs::getDirection() {
+    vector<double> step;
 
     // Compute the step on the main processor
     if (_root) {

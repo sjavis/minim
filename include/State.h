@@ -6,10 +6,9 @@
 
 namespace minim {
   class Potential;
+  using std::vector;
 
   class State {
-    typedef std::vector<double> Vector;
-
     public:
       size_t ndof;
       double convergence = 1e-6;
@@ -17,50 +16,50 @@ namespace minim {
       Communicator comm;
       bool usesThisProc = true;
 
-      State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks={});
+      State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks={});
       State(const State& state);
       State& operator=(const State& state);
       ~State() {};
 
       double energy() const;
-      double energy(const Vector& coords) const;
-      Vector gradient() const;
-      Vector gradient(const Vector& coords) const;
-      void energyGradient(double* e, Vector* g) const;
-      void energyGradient(const Vector& coords, double* e, Vector* g) const;
+      double energy(const vector<double>& coords) const;
+      vector<double> gradient() const;
+      vector<double> gradient(const vector<double>& coords) const;
+      void energyGradient(double* e, vector<double>* g) const;
+      void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
 
       double blockEnergy() const;
-      double blockEnergy(const Vector& coords) const;
-      Vector blockGradient() const;
-      Vector blockGradient(const Vector& coords) const;
-      void blockEnergyGradient(double* e, Vector* g) const;
-      void blockEnergyGradient(const Vector& coords, double* e, Vector* g) const;
+      double blockEnergy(const vector<double>& coords) const;
+      vector<double> blockGradient() const;
+      vector<double> blockGradient(const vector<double>& coords) const;
+      void blockEnergyGradient(double* e, vector<double>* g) const;
+      void blockEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
 
       double procEnergy() const;
-      double procEnergy(const Vector& coords) const;
-      Vector procGradient() const;
-      Vector procGradient(const Vector& coords) const;
-      void procEnergyGradient(double* e, Vector* g) const;
-      void procEnergyGradient(const Vector& coords, double* e, Vector* g) const;
+      double procEnergy(const vector<double>& coords) const;
+      vector<double> procGradient() const;
+      vector<double> procGradient(const vector<double>& coords) const;
+      void procEnergyGradient(double* e, vector<double>* g) const;
+      void procEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
 
       double allEnergy() const;
-      Vector allGradient() const;
-      void allEnergyGradient(double* e, Vector* g) const;
+      vector<double> allGradient() const;
+      void allEnergyGradient(double* e, vector<double>* g) const;
 
       double operator[](int i);
 
-      Vector coords() const;
-      void coords(const Vector& in);
+      vector<double> coords() const;
+      void coords(const vector<double>& in);
 
-      Vector blockCoords() const;
-      void blockCoords(const Vector& in);
+      vector<double> blockCoords() const;
+      void blockCoords(const vector<double>& in);
 
-      Vector allCoords() const;
+      vector<double> allCoords() const;
 
       void communicate();
 
     private:
-      Vector _coords;
+      vector<double> _coords;
   };
 
 }

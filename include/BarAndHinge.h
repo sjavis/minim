@@ -5,40 +5,39 @@
 #include "Potential.h"
 
 namespace minim {
+  using std::vector;
 
   class BarAndHinge : public NewPotential<BarAndHinge> {
-    typedef std::vector<double> Vector;
-
     public:
       BarAndHinge() { _parallelDef = true; };
       ~BarAndHinge() {};
 
-      void init(const Vector& coords) override;
+      void init(const vector<double>& coords) override;
 
-      void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
+      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
-      BarAndHinge& setTriangulation(const std::vector<std::vector<int>>& triList);
-      BarAndHinge& setBondList(const std::vector<std::vector<int>>& bondList);
-      BarAndHinge& setHingeList(const std::vector<std::vector<int>>& hingeList);
+      BarAndHinge& setTriangulation(const vector2d<int>& triList);
+      BarAndHinge& setBondList(const vector2d<int>& bondList);
+      BarAndHinge& setHingeList(const vector2d<int>& hingeList);
 
       BarAndHinge& setModulus(double modulus);
       BarAndHinge& setThickness(double thickness);
-      BarAndHinge& setThickness(const Vector& thickness);
+      BarAndHinge& setThickness(const vector<double>& thickness);
       BarAndHinge& setRigidity(double kBond, double kHinge);
-      BarAndHinge& setRigidity(const Vector& kBond, const Vector& kHinge);
+      BarAndHinge& setRigidity(const vector<double>& kBond, const vector<double>& kHinge);
       BarAndHinge& setLength0(double length0);
-      BarAndHinge& setLength0(const Vector& length0);
+      BarAndHinge& setLength0(const vector<double>& length0);
       BarAndHinge& setTheta0(double theta0);
-      BarAndHinge& setTheta0(const Vector& theta0);
+      BarAndHinge& setTheta0(const vector<double>& theta0);
 
       BarAndHinge& setWall(bool wallOn=true);
       BarAndHinge& setWallAdhesion(bool wallAdhesion=true);
       BarAndHinge& setWallParams(double epsilon, double sigma);
 
-      BarAndHinge& setForce(const Vector& force);
-      BarAndHinge& setForce(const std::vector<Vector>& force);
+      BarAndHinge& setForce(const vector<double>& force);
+      BarAndHinge& setForce(const vector2d<double>& force);
 
-      BarAndHinge& setFixed(const std::vector<bool>& fixed);
+      BarAndHinge& setFixed(const vector<bool>& fixed);
 
       double modulus = 1;
       double poissonRatio = 0.3;
@@ -48,20 +47,20 @@ namespace minim {
       double lj_sigma = 1e-5;
 
     private:
-      std::vector<bool> fixed;
-      std::vector<std::vector<int>> bondList;
-      std::vector<std::vector<int>> hingeList;
-      Vector thickness;
-      Vector kBond;
-      Vector kHinge;
-      Vector length0;
-      Vector theta0;
-      Vector force;
+      vector<bool> fixed;
+      vector2d<int> bondList;
+      vector2d<int> hingeList;
+      vector<double> thickness;
+      vector<double> kBond;
+      vector<double> kHinge;
+      vector<double> length0;
+      vector<double> theta0;
+      vector<double> force;
 
-      void stretching(const Vector& coords, const Element& el, double* e, Vector* g) const;
-      void bending(const Vector& coords, const Element& el, double* e, Vector* g) const;
-      void forceEnergy(const Vector& coords, const Element& el, double* e, Vector* g) const;
-      void substrate(const Vector& coords, const Element& el, double* e, Vector* g) const;
+      void stretching(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void bending(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void substrate(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
   };
 
 }

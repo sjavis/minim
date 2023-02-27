@@ -6,52 +6,52 @@
 #include "Potential.h"
 
 namespace minim {
+  using std::vector;
+
 
   class PFWetting : public NewPotential<PFWetting> {
-    typedef std::vector<double> Vector;
-
     public:
       PFWetting() { _parallelDef = true; };
       ~PFWetting() {};
 
-      void init(const Vector& coords) override;
+      void init(const vector<double>& coords) override;
       void distributeParameters(const Communicator& comm) override;
 
-      void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const override;
-      void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
+      void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const override;
+      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
-      State newState(const Vector& coords, const std::vector<int>& ranks={}) override;
+      State newState(const vector<double>& coords, const vector<int>& ranks={}) override;
 
       PFWetting& setGridSize(std::array<int,3> gridSize);
       PFWetting& setNFluid(int nFluid);
       PFWetting& setInterfaceSize(double interfaceSize);
       PFWetting& setSurfaceTension(double surfaceTension);
       PFWetting& setResolution(double resolution);
-      PFWetting& setPressure(Vector pressure);
-      PFWetting& setVolume(Vector volume, double volConst=1e5);
-      PFWetting& setSolid(std::vector<bool> solid);
+      PFWetting& setPressure(vector<double> pressure);
+      PFWetting& setVolume(vector<double> volume, double volConst=1e5);
+      PFWetting& setSolid(vector<bool> solid);
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
-      PFWetting& setContactAngle(Vector contactAngle);
+      PFWetting& setContactAngle(vector<double> contactAngle);
       PFWetting& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
-      PFWetting& setForce(Vector force, std::vector<int> iFluid={});
+      PFWetting& setForce(vector<double> force, vector<int> iFluid={});
 
       std::array<int,3> gridSize;
-      std::vector<bool> solid;
+      vector<bool> solid;
       int nFluid = 1;
       double resolution = 1;
-      Vector interfaceSize = {1};
-      Vector surfaceTension = {1};
-      Vector pressure;
-      Vector volume;
+      vector<double> interfaceSize = {1};
+      vector<double> surfaceTension = {1};
+      vector<double> pressure;
+      vector<double> volume;
       double volConst = 1e5;
-      Vector kappa;
-      Vector kappaP;
-      Vector contactAngle;
-      std::vector<Vector> force;
+      vector<double> kappa;
+      vector<double> kappaP;
+      vector<double> contactAngle;
+      vector<vector<double>> force;
 
     private:
-      Vector nodeVol;
-      std::vector<int> fluidType;
+      vector<double> nodeVol;
+      vector<int> fluidType;
       int nGrid() const;
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;

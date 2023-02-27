@@ -12,12 +12,13 @@
 #include "Minimiser.h"
 
 namespace minim {
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
+
 
   //! \class Lbfgs
   //! LBFGS minimisation algorithm
   class Lbfgs : public NewMinimiser<Lbfgs> {
-    typedef std::vector<double> Vector;
-
     public:
       Lbfgs() {};
       ~Lbfgs() {};
@@ -35,14 +36,14 @@ namespace minim {
       int _i;
       double _init_hessian = 1e-4;
       bool _root;
-      Vector _g;
-      Vector _gNew;
-      Vector _step;
-      Vector _rho;
-      std::vector<Vector> _s;
-      std::vector<Vector> _y;
+      vector<double> _g;
+      vector<double> _gNew;
+      vector<double> _step;
+      vector<double> _rho;
+      vector2d<double> _s;
+      vector2d<double> _y;
 
-      Vector getDirection();
+      vector<double> getDirection();
   };
 
 }

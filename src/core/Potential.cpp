@@ -4,8 +4,9 @@
 #include <stdexcept>
 
 namespace minim {
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
 
-  typedef std::vector<double> Vector;
 
   Potential::Potential(EFunc energy, GFunc gradient)
     : _energy(energy), _gradient(gradient), _energyGradient(nullptr)
@@ -20,7 +21,7 @@ namespace minim {
   }
 
 
-  double Potential::energy(const Vector& coords) const {
+  double Potential::energy(const vector<double>& coords) const {
     if (_energyDef) {
       if (_energy == nullptr) throw std::logic_error("Energy function marked as defined but not called.");
       return _energy(coords);
@@ -33,20 +34,20 @@ namespace minim {
   }
 
 
-  Vector Potential::gradient(const Vector& coords) const {
+  vector<double> Potential::gradient(const vector<double>& coords) const {
     if (_energyDef) {
       if (_gradient == nullptr) throw std::logic_error("Gradient function marked as defined but not called.");
       return _gradient(coords);
     } else {
       if (!_energyGradientDef) throw std::logic_error("Gradient function not defined.");
-      Vector g(coords.size());
+      vector<double> g(coords.size());
       energyGradient(coords, nullptr, &g);
       return g;
     }
   }
 
 
-  void Potential::energyGradient(const Vector& coords, double* e, Vector* g) const {
+  void Potential::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (_energyGradientDef) {
       if (_energyGradient == nullptr) throw std::logic_error("Energy+gradient function marked as defined but not called.");
       return _energyGradient(coords, e, g);
@@ -58,7 +59,7 @@ namespace minim {
   }
 
 
-  void Potential::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void Potential::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     throw std::logic_error("You shouldn't be here. The potential must override elementEnergyGradient if _parallelDef is marked as true.");
   }
 
@@ -73,23 +74,23 @@ namespace minim {
   }
 
 
-  State Potential::newState(const Vector& coords, const std::vector<int>& ranks) {
+  State Potential::newState(const vector<double>& coords, const vector<int>& ranks) {
     return State(*this, coords, ranks);
   }
 
-  State Potential::newState(int ndof, const std::vector<int>& ranks) {
-    Vector coords(ndof);
+  State Potential::newState(int ndof, const vector<int>& ranks) {
+    vector<double> coords(ndof);
     return newState(coords, ranks);
   }
 
 
-  Potential& Potential::setElements(std::vector<Element> elements)
+  Potential& Potential::setElements(vector<Element> elements)
   {
     this->elements = elements;
     return *this;
   }
 
-  Potential& Potential::setElements(std::vector<std::vector<int>> idofs) {
+  Potential& Potential::setElements(vector2d<int> idofs) {
     // Generate energy elements
     elements = {};
     for (const auto& idof: idofs) {
@@ -98,9 +99,7 @@ namespace minim {
     return *this;
   }
 
-  Potential& Potential::setElements(std::vector<std::vector<int>> idofs, std::vector<int> types,
-                                    std::vector<std::vector<double>> parameters)
-  {
+  Potential& Potential::setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters) {
     // Generate energy elements
     elements = {};
     int nelements = idofs.size();

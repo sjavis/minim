@@ -9,7 +9,8 @@
 
 
 namespace minim {
-  typedef std::vector<double> Vector;
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
 
 
   std::array<int,3> getCoord(int i, std::array<int,3> gridSize) {
@@ -23,7 +24,7 @@ namespace minim {
   class Neighbours {
     public:
       std::array<int,26> di;
-      std::vector<std::vector<int>> dx = {{
+      vector2d<int> dx = {{
         // Adjacent faces
         {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
         // Adjacent edges
@@ -51,22 +52,22 @@ namespace minim {
 
   void PFWetting::assignKappa() {
     if ((int)interfaceSize.size()==1 && nFluid>1) {
-      interfaceSize = Vector(nFluid, interfaceSize[0]);
+      interfaceSize = vector<double>(nFluid, interfaceSize[0]);
     } else if ((int)interfaceSize.size() != nFluid) {
       throw std::invalid_argument("Invalid size of interfaceSize array.");
     }
     if ((int)surfaceTension.size()==1 && nFluid>1) {
-      surfaceTension = Vector(nFluid, surfaceTension[0]);
+      surfaceTension = vector<double>(nFluid, surfaceTension[0]);
     } else if ((int)surfaceTension.size() != nFluid) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
     // TODO: Calculate different values of kappa and kappaP
-    kappa = Vector(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
-    kappaP = Vector(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
+    kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
   }
 
 
-  void PFWetting::init(const Vector& coords) {
+  void PFWetting::init(const vector<double>& coords) {
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("Size of coordinates array does not match the grid size.");
@@ -74,7 +75,7 @@ namespace minim {
 
     // Check the arrays
     if (solid.empty()) {
-      solid = std::vector<bool>(nGrid, false);
+      solid = vector<bool>(nGrid, false);
     } else if ((int)solid.size() != nGrid) {
       throw std::invalid_argument("Invalid size of solid array.");
     }
@@ -85,21 +86,21 @@ namespace minim {
       throw std::invalid_argument("Invalid size of force array.");
     }
     if (volume.empty()) {
-      volume = Vector(nFluid, 0);
+      volume = vector<double>(nFluid, 0);
     } else if ((int)volume.size() != nFluid) {
       throw std::invalid_argument("Invalid size of volume array.");
     }
     if (pressure.empty()) {
-      pressure = Vector(nFluid, 0);
+      pressure = vector<double>(nFluid, 0);
     } else if ((int)pressure.size() != nFluid) {
       throw std::invalid_argument("Invalid size of pressure array.");
     }
 
     // Set values
     assignKappa();
-    nodeVol = Vector(nGrid);
-    Vector fMag(nFluid);
-    std::vector<Vector> fNorm(nFluid);
+    nodeVol = vector<double>(nGrid);
+    vector<double> fMag(nFluid);
+    vector2d<double> fNorm(nFluid);
     if (!force.empty()) {
       for (int i=0; i<nFluid; i++) {
         fMag[i] = vec::norm(force[i]);
@@ -127,7 +128,7 @@ namespace minim {
 
       // Set bulk fluid elements
       Neighbours di(gridSize, i);
-      std::vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
+      vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
       for (auto &idof: idofs) {
         if (solid[idof]) idof = i;
       }
@@ -137,7 +138,7 @@ namespace minim {
 
       // Set density constraint elements
       if (nFluid > 1) {
-        idofs = std::vector<int>(nFluid);
+        idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
         }
@@ -156,7 +157,7 @@ namespace minim {
       // Set external force elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (fMag[iFluid]>0 && !solid[i]) {
-          Vector params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
+          vector<double> params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
           for (int iFluid=0; iFluid<nFluid; iFluid++) {
             int idof = i * nFluid + iFluid;
             elements.push_back({3, {idof}, params});
@@ -171,8 +172,8 @@ namespace minim {
     // Store only the relevant node volumes and fluid numbers
     // These are required by pressure / volume constraints so cannot be stored in element parameters
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
-    Vector nodeVolTmp(nGrid * nFluid);
-    Vector fluidTypeTmp(nGrid * nFluid);
+    vector<double> nodeVolTmp(nGrid * nFluid);
+    vector<double> fluidTypeTmp(nGrid * nFluid);
     for (int iNode=0; iNode<nGrid; iNode++) {
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         nodeVolTmp[nFluid*iNode+iFluid] = nodeVol[iNode];
@@ -181,14 +182,14 @@ namespace minim {
     }
     nodeVol = comm.assignProc(nodeVolTmp);
     fluidTypeTmp = comm.assignProc(fluidTypeTmp);
-    fluidType = std::vector<int>(fluidTypeTmp.begin(), fluidTypeTmp.end());
+    fluidType = vector<int>(fluidTypeTmp.begin(), fluidTypeTmp.end());
   }
 
 
-  void PFWetting::blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {
+  void PFWetting::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Constant volume / pressure constraints rely upon the whole system
     if (!vec::any(volume) && !vec::any(pressure)) return;
-    Vector volFluid(nFluid, 0);
+    vector<double> volFluid(nFluid, 0);
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
       if (nFluid == 1) {
         volFluid[0] += 0.5*(coords[iDof]+1) * nodeVol[iDof];
@@ -206,8 +207,8 @@ namespace minim {
     }
 
     if (!g) return;
-    Vector vFactor = volConst * (volFluid - volume);
-    Vector pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
+    vector<double> vFactor = volConst * (volFluid - volume);
+    vector<double> pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
       int f = fluidType[iDof];
       if (volume[f]!=0) (*g)[iDof] += vFactor[f] * nodeVol[iDof];
@@ -216,7 +217,7 @@ namespace minim {
   }
 
 
-  void PFWetting::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void PFWetting::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
       case 0: {
         double vol = el.parameters[0];
@@ -322,9 +323,9 @@ namespace minim {
         //   2-4: Direction force on component 1
         double vol = el.parameters[0];
         double f = el.parameters[1];
-        Vector fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
+        vector<double> fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
         std::array<int,3> coordI = getCoord(el.idof[0]);
-        Vector coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
+        vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
         double h = - vec::dotProduct(coord, fNorm) * resolution;
         if (nFluid == 1) {
           if (e) *e += 0.5*(1+coords[el.idof[0]]) * vol * f * h;
@@ -352,12 +353,12 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
-    this->interfaceSize = Vector(nFluid, interfaceSize);
+    this->interfaceSize = vector<double>(nFluid, interfaceSize);
     return *this;
   }
 
   PFWetting& PFWetting::setSurfaceTension(double surfaceTension) {
-    this->surfaceTension = Vector(nFluid, surfaceTension);
+    this->surfaceTension = vector<double>(nFluid, surfaceTension);
     return *this;
   }
 
@@ -366,24 +367,24 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setPressure(Vector pressure) {
+  PFWetting& PFWetting::setPressure(vector<double> pressure) {
     this->pressure = pressure;
     return *this;
   }
 
-  PFWetting& PFWetting::setVolume(Vector volume, double volConst) {
+  PFWetting& PFWetting::setVolume(vector<double> volume, double volConst) {
     this->volume = volume;
     this->volConst = volConst;
     return *this;
   }
 
-  PFWetting& PFWetting::setSolid(std::vector<bool> solid) {
+  PFWetting& PFWetting::setSolid(vector<bool> solid) {
     this->solid = solid;
     return *this;
   }
 
   PFWetting& PFWetting::setSolid(std::function<bool(int,int,int)> solidFn) {
-    solid = std::vector<bool>(gridSize[0]*gridSize[1]*gridSize[2]);
+    solid = vector<bool>(gridSize[0]*gridSize[1]*gridSize[2]);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -396,13 +397,13 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setContactAngle(Vector contactAngle) {
+  PFWetting& PFWetting::setContactAngle(vector<double> contactAngle) {
     this->contactAngle = contactAngle;
     return *this;
   }
 
   PFWetting& PFWetting::setContactAngle(std::function<double(int,int,int)> contactAngleFn) {
-    contactAngle = Vector(gridSize[0]*gridSize[1]*gridSize[2]);
+    contactAngle = vector<double>(gridSize[0]*gridSize[1]*gridSize[2]);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -415,12 +416,12 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setForce(Vector force, std::vector<int> iFluid) {
+  PFWetting& PFWetting::setForce(vector<double> force, vector<int> iFluid) {
     if ((int)force.size() != 3) throw std::invalid_argument("Invalid size of force array.");
     if (nFluid==1 || iFluid.empty()) {
-      this->force = std::vector<Vector>(nFluid, force);
+      this->force = vector2d<double>(nFluid, force);
     } else {
-      this->force = std::vector<Vector>(nFluid, {0,0,0});
+      this->force = vector2d<double>(nFluid, {0,0,0});
       for (int i: iFluid) {
         this->force[i] = force;
       }
@@ -429,7 +430,7 @@ namespace minim {
   }
 
 
-  State PFWetting::newState(const Vector& coords, const std::vector<int>& ranks) {
+  State PFWetting::newState(const vector<double>& coords, const vector<int>& ranks) {
     return State(*this, coords, ranks);
   }
 

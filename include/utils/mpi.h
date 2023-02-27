@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace minim {
+  using std::vector;
 
   void mpiInit();
   void mpiInit(int* argc, char*** argv);
@@ -25,12 +26,12 @@ namespace minim {
 #endif
 
       double sum(double a) const;
-      double sum(const std::vector<double>& a) const;
-      double dotProduct(const std::vector<double>& a, const std::vector<double>& b) const;
+      double sum(const vector<double>& a) const;
+      double dotProduct(const vector<double>& a, const vector<double>& b) const;
 
       void bcast(int& value, int root=0) const;
       void bcast(double& value, int root=0) const;
-      void bcast(std::vector<double>& data, int root=0, int nData=0) const;
+      void bcast(vector<double>& data, int root=0, int nData=0) const;
 
     private:
       bool _init = false;

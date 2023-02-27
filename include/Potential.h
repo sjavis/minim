@@ -8,11 +8,14 @@ namespace minim {
   class State;
   class Communicator;
 
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
+
+
   class Potential {
-    typedef std::vector<double> Vector;
-    typedef double (*EFunc)(const Vector&);
-    typedef Vector (*GFunc)(const Vector&);
-    typedef void (*EGFunc)(const Vector&, double*, Vector*);
+    typedef double (*EFunc)(const vector<double>&);
+    typedef vector<double> (*GFunc)(const vector<double>&);
+    typedef void (*EGFunc)(const vector<double>&, double*, vector<double>*);
     EFunc _energy;
     GFunc _gradient;
     EGFunc _energyGradient;
@@ -20,11 +23,11 @@ namespace minim {
     public:
       struct Element {
         int type;
-        std::vector<int> idof;
-        std::vector<double> parameters;
+        vector<int> idof;
+        vector<double> parameters;
       };
-      std::vector<Element> elements;
-      std::vector<Element> elements_halo;
+      vector<Element> elements;
+      vector<Element> elements_halo;
 
 
       Potential(EFunc energy, GFunc gradient);
@@ -34,28 +37,27 @@ namespace minim {
         return std::make_unique<Potential>(*this);
       }
 
-      virtual void init(const Vector& coords) {};
+      virtual void init(const vector<double>& coords) {};
       virtual void distributeParameters(const Communicator& comm) {};
 
 
-      virtual double energy(const Vector& coords) const;
-      virtual Vector gradient(const Vector& coords) const;
-      virtual void energyGradient(const Vector& coords, double* e, Vector* g) const;
-      virtual void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const;
-      virtual void blockEnergyGradient(const Vector& coords, const Communicator& comm, double* e, Vector* g) const {};
+      virtual double energy(const vector<double>& coords) const;
+      virtual vector<double> gradient(const vector<double>& coords) const;
+      virtual void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
+      virtual void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
 
       bool serialDef() const;
       bool parallelDef() const;
 
 
-      State newState(int ndof, const std::vector<int>& ranks={});
-      virtual State newState(const Vector& coords, const std::vector<int>& ranks={});
+      State newState(int ndof, const vector<int>& ranks={});
+      virtual State newState(const vector<double>& coords, const vector<int>& ranks={});
 
 
-      Potential& setElements(std::vector<Element> elements);
-      Potential& setElements(std::vector<std::vector<int>> idofs);
-      Potential& setElements(std::vector<std::vector<int>> idofs, std::vector<int> types,
-                             std::vector<std::vector<double>> parameters);
+      Potential& setElements(vector<Element> elements);
+      Potential& setElements(vector2d<int> idofs);
+      Potential& setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters);
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};
@@ -74,14 +76,13 @@ namespace minim {
         return std::make_unique<Derived>(static_cast<const Derived&>(*this));
       }
 
-      Derived& setElements(std::vector<Element> elements) {
+      Derived& setElements(vector<Element> elements) {
         return static_cast<Derived&>(Potential::setElements(elements));
       }
-      Derived& setElements(std::vector<std::vector<int>> idofs) {
+      Derived& setElements(vector2d<int> idofs) {
         return static_cast<Derived&>(Potential::setElements(idofs));
       }
-      Derived& setElements(std::vector<std::vector<int>> idofs, std::vector<int> types,
-                           std::vector<std::vector<double>> parameters) {
+      Derived& setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters) {
         return static_cast<Derived&>(Potential::setElements(idofs, types, parameters));
       }
   };

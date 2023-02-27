@@ -6,16 +6,16 @@
 #include "utils/vec.h"
 
 namespace minim {
-
-  typedef std::vector<double> Vector;
+  using std::vector;
+  template<typename T> using vector2d = vector<vector<T>>;
 
   constexpr double pi() { return 4*atan(1); }
 
 
-  void BarAndHinge::init(const Vector& coords) {
+  void BarAndHinge::init(const vector<double>& coords) {
     // Check element DOFs are valid
     int nNode = coords.size() / 3;
-    std::vector<std::vector<int>> elementList = bondList;
+    vector2d<int> elementList = bondList;
     elementList.insert(elementList.end(), hingeList.begin(), hingeList.end());
     for (auto element: elementList) {
       for (int iNode: element) {
@@ -26,11 +26,11 @@ namespace minim {
     // Get rigidities
     if (thickness.size() == 1) {
       double t = thickness[0];
-      thickness = Vector(coords.size()/3, t);
+      thickness = vector<double>(coords.size()/3, t);
     }
     if (kBond.size() == 1) {
       double k = kBond[0];
-      kBond = Vector(bondList.size(), k);
+      kBond = vector<double>(bondList.size(), k);
     } else if (kBond.empty() && !thickness.empty()) {
       kBond.reserve(bondList.size());
       for (auto bond: bondList) {
@@ -41,15 +41,15 @@ namespace minim {
     }
     if (kHinge.size() == 1) {
       double k = kHinge[0];
-      kHinge = Vector(hingeList.size(), k);
+      kHinge = vector<double>(hingeList.size(), k);
     } else if (kHinge.empty() && !thickness.empty()) {
       kHinge.reserve(hingeList.size());
       for (auto hinge: hingeList) {
         double t = (thickness[hinge[0]] + thickness[hinge[1]] + thickness[hinge[2]] + thickness[hinge[3]]) / 4;
-        Vector x1 = {coords[3*hinge[0]], coords[3*hinge[0]+1], coords[3*hinge[0]+2]};
-        Vector x2 = {coords[3*hinge[1]], coords[3*hinge[1]+1], coords[3*hinge[1]+2]};
-        Vector x3 = {coords[3*hinge[2]], coords[3*hinge[2]+1], coords[3*hinge[2]+2]};
-        Vector x4 = {coords[3*hinge[3]], coords[3*hinge[3]+1], coords[3*hinge[3]+2]};
+        vector<double> x1 = {coords[3*hinge[0]], coords[3*hinge[0]+1], coords[3*hinge[0]+2]};
+        vector<double> x2 = {coords[3*hinge[1]], coords[3*hinge[1]+1], coords[3*hinge[1]+2]};
+        vector<double> x3 = {coords[3*hinge[2]], coords[3*hinge[2]+1], coords[3*hinge[2]+2]};
+        vector<double> x4 = {coords[3*hinge[3]], coords[3*hinge[3]+1], coords[3*hinge[3]+2]};
         double lengthSq = vec::sum(vec::pow(x3-x2, 2));
         double area1 = std::abs(vec::norm(vec::crossProduct(x2-x1, x3-x1))) / 2;
         double area2 = std::abs(vec::norm(vec::crossProduct(x2-x4, x3-x4))) / 2;
@@ -62,25 +62,25 @@ namespace minim {
 
     // Get equilibrium values
     if (length0.empty()) {
-      length0 = Vector(bondList.size());
+      length0 = vector<double>(bondList.size());
       for (int iB=0; iB<(int)bondList.size(); iB++) {
         auto n = bondList[iB];
-        Vector x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
-        Vector x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
+        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
+        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
         length0[iB] = vec::norm(x1 - x2);
       }
     } else if (length0.size() == 1) {
       double l0 = length0[0];
-      length0 = Vector(bondList.size(), l0);
+      length0 = vector<double>(bondList.size(), l0);
     }
     if (theta0.empty()) {
-      theta0 = Vector(hingeList.size());
+      theta0 = vector<double>(hingeList.size());
       for (int iH=0; iH<(int)hingeList.size(); iH++) {
         auto n = hingeList[iH];
-        Vector x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
-        Vector x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
-        Vector x3 = {coords[3*n[2]], coords[3*n[2]+1], coords[3*n[2]+2]};
-        Vector x4 = {coords[3*n[3]], coords[3*n[3]+1], coords[3*n[3]+2]};
+        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
+        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
+        vector<double> x3 = {coords[3*n[2]], coords[3*n[2]+1], coords[3*n[2]+2]};
+        vector<double> x4 = {coords[3*n[3]], coords[3*n[3]+1], coords[3*n[3]+2]};
         auto n1 = vec::crossProduct(x2-x1, x3-x2);
         auto n2 = vec::crossProduct(x3-x2, x4-x3);
         double c = vec::dotProduct(n1, n2) / (vec::norm(n1) * vec::norm(n2));
@@ -89,13 +89,13 @@ namespace minim {
       }
     } else if (theta0.size() == 1) {
       double t0 = theta0[0];
-      theta0 = Vector(hingeList.size(), t0);
+      theta0 = vector<double>(hingeList.size(), t0);
     }
 
     // Assign elements
     elements = {};
     for (int iB=0; iB<(int)bondList.size(); iB++) {
-      std::vector<int> idofs(6);
+      vector<int> idofs(6);
       for (int iN=0; iN<2; iN++) {
         auto n = bondList[iB][iN];
         idofs[3*iN+0] = 3 * n;
@@ -105,7 +105,7 @@ namespace minim {
       elements.push_back({0, idofs, {kBond[iB], length0[iB]}});
     }
     for (int iH=0; iH<(int)hingeList.size(); iH++) {
-      std::vector<int> idofs(12);
+      vector<int> idofs(12);
       for (int iN=0; iN<4; iN++) {
         auto n = hingeList[iH][iN];
         idofs[3*iN+0] = 3 * n;
@@ -124,7 +124,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void BarAndHinge::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
       case 0:
         stretching(coords, el, e, g);
@@ -142,9 +142,9 @@ namespace minim {
   }
 
 
-  void BarAndHinge::stretching(const Vector& coords, const Element& el, double* e, Vector* g) const {
-    Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-    Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
+  void BarAndHinge::stretching(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
+    vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
 
     // Compute distance
     auto dx = x1 - x2;
@@ -166,11 +166,11 @@ namespace minim {
   }
 
 
-  void BarAndHinge::bending(const Vector& coords, const Element& el, double* e, Vector* g) const {
-    Vector x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-    Vector x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
-    Vector x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
-    Vector x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
+  void BarAndHinge::bending(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
+    vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
+    vector<double> x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
+    vector<double> x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
 
     // Compute bond vectors
     auto b1 = x2 - x1;
@@ -232,9 +232,9 @@ namespace minim {
   }
 
 
-  void BarAndHinge::forceEnergy(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void BarAndHinge::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     if (!fixed.empty() && fixed[el.idof[2]]) return;
-    Vector force(3);
+    vector<double> force(3);
     if (this->force.size() == 3) {
       force = this->force;
     } else if (!this->force.empty()) {
@@ -246,7 +246,7 @@ namespace minim {
   }
 
 
-  void BarAndHinge::substrate(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void BarAndHinge::substrate(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     if (!fixed.empty() && fixed[el.idof[2]]) return;
     // Height
     double lj_r0 = 0.858374218932559*lj_sigma;
@@ -265,7 +265,7 @@ namespace minim {
   }
 
 
-  BarAndHinge& BarAndHinge::setTriangulation(const std::vector<std::vector<int>>& triList) {
+  BarAndHinge& BarAndHinge::setTriangulation(const vector2d<int>& triList) {
     // BondList
     bondList.reserve(3*triList.size());
     for (auto tri: triList) {
@@ -278,7 +278,7 @@ namespace minim {
     bondList.erase(std::unique(bondList.begin(), bondList.end()), bondList.end());
     // HingeList
     hingeList.reserve(3*triList.size());
-    std::vector<bool> shared(6, false);
+    vector<bool> shared(6, false);
     for (int it1=0; it1<(int)triList.size(); it1++) {
       for (int it2=it1+1; it2<(int)triList.size(); it2++) {
         int nShared = 0;
@@ -293,12 +293,12 @@ namespace minim {
         if (nShared == 0) {
           continue;
         } else if (nShared != 2) {
-          shared = std::vector<bool>(6, false);
+          shared = vector<bool>(6, false);
           continue;
         }
         // Keep the cyclic order of the first triangle
         // This allows the user to use theta0 in the full 2pi range
-        std::vector<int> nodes(4);
+        vector<int> nodes(4);
         for (int in1=0; in1<3; in1++) {
           if (!shared[in1]) {
             nodes[0] = triList[it1][in1];
@@ -309,19 +309,19 @@ namespace minim {
         for (int in2=0; in2<3; in2++) {
           if (!shared[3+in2]) nodes[3] = triList[it2][in2];
         }
-        shared = std::vector<bool>(6, false);
+        shared = vector<bool>(6, false);
         hingeList.push_back(nodes);
       }
     }
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setBondList(const std::vector<std::vector<int>>& bondList) {
+  BarAndHinge& BarAndHinge::setBondList(const vector2d<int>& bondList) {
     this->bondList = bondList;
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setHingeList(const std::vector<std::vector<int>>& hingeList) {
+  BarAndHinge& BarAndHinge::setHingeList(const vector2d<int>& hingeList) {
     this->hingeList = hingeList;
     return *this;
   }
@@ -336,7 +336,7 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setThickness(const Vector& thickness) {
+  BarAndHinge& BarAndHinge::setThickness(const vector<double>& thickness) {
     this->thickness = thickness;
     return *this;
   }
@@ -347,7 +347,7 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setRigidity(const Vector& kBond, const Vector& kHinge) {
+  BarAndHinge& BarAndHinge::setRigidity(const vector<double>& kBond, const vector<double>& kHinge) {
     this->kBond = kBond;
     this->kHinge = kHinge;
     return *this;
@@ -358,7 +358,7 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setLength0(const Vector& length0) {
+  BarAndHinge& BarAndHinge::setLength0(const vector<double>& length0) {
     this->length0 = length0;
     return *this;
   }
@@ -368,7 +368,7 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setTheta0(const Vector& theta0) {
+  BarAndHinge& BarAndHinge::setTheta0(const vector<double>& theta0) {
     this->theta0 = theta0;
     return *this;
   }
@@ -389,12 +389,12 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setForce(const Vector& force) {
+  BarAndHinge& BarAndHinge::setForce(const vector<double>& force) {
     this->force = force;
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setForce(const std::vector<Vector>& force) {
+  BarAndHinge& BarAndHinge::setForce(const vector2d<double>& force) {
     this->force.reserve(3*force.size());
     for (int i=0; i<(int)force.size(); i++) {
       for (int j=0; j<3; j++) {
@@ -404,7 +404,7 @@ namespace minim {
     return *this;
   }
 
-  BarAndHinge& BarAndHinge::setFixed(const std::vector<bool>& fixed) {
+  BarAndHinge& BarAndHinge::setFixed(const vector<bool>& fixed) {
     this->fixed = fixed;
     return *this;
   }

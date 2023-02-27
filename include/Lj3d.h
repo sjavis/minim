@@ -6,11 +6,10 @@
 #include "Potential.h"
 
 namespace minim {
+  using std::vector;
 
 
   class Lj3d : public NewPotential<Lj3d> {
-    typedef std::vector<double> Vector;
-
     public:
       int n_particle;
       double sigma = 1;
@@ -20,14 +19,12 @@ namespace minim {
       Lj3d(double sigma, double epsilon);
       ~Lj3d() {};
 
-      void init(const Vector& coords) override;
+      void init(const vector<double>& coords) override;
 
-      void elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const override;
+      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
       Lj3d& setSigma(double sigma);
       Lj3d& setEpsilon(double epsilon);
-
-    private:
   };
 
 }

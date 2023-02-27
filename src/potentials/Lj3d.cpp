@@ -5,8 +5,7 @@
 #include "State.h"
 
 namespace minim {
-
-  typedef std::vector<double> Vector;
+  using std::vector;
 
 
   Lj3d::Lj3d(double sigma, double epsilon) : Lj3d() {
@@ -15,7 +14,7 @@ namespace minim {
   }
 
 
-  void Lj3d::init(const Vector& coords) {
+  void Lj3d::init(const vector<double>& coords) {
     int ndof = coords.size();
     if (ndof % 3 != 0) throw std::invalid_argument("Length of coords must be a multiple of 3.");
     n_particle = ndof / 3;
@@ -29,7 +28,7 @@ namespace minim {
   }
 
 
-  void Lj3d::elementEnergyGradient(const Vector& coords, const Element& el, double* e, Vector* g) const {
+  void Lj3d::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     double dx = coords[el.idof[0]] - coords[el.idof[3]];
     double dy = coords[el.idof[1]] - coords[el.idof[4]];
     double dz = coords[el.idof[2]] - coords[el.idof[5]];

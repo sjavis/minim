@@ -4,12 +4,11 @@
 #include "utils/mpi.h"
 
 namespace minim {
-
+  using std::vector;
   class Potential;
-  typedef std::vector<double> Vector;
 
 
-  State::State(const Potential& pot, const Vector& coords, const std::vector<int>& ranks)
+  State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
     : ndof(coords.size()), pot(pot.clone())
   {
     this->pot->init(coords);
@@ -46,12 +45,12 @@ namespace minim {
     return energy(_coords);
   }
 
-  Vector State::gradient() const {
-    if (!usesThisProc) return Vector();
+  vector<double> State::gradient() const {
+    if (!usesThisProc) return vector<double>();
     return gradient(_coords);
   }
 
-  void State::energyGradient(double* e, Vector* g) const {
+  void State::energyGradient(double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     energyGradient(_coords, e, g);
   }
@@ -62,12 +61,12 @@ namespace minim {
     return blockEnergy(_coords);
   }
 
-  Vector State::blockGradient() const {
-    if (!usesThisProc) return Vector();
+  vector<double> State::blockGradient() const {
+    if (!usesThisProc) return vector<double>();
     return blockGradient(_coords);
   }
 
-  void State::blockEnergyGradient(double* e, Vector* g) const {
+  void State::blockEnergyGradient(double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     blockEnergyGradient(_coords, e, g);
   }
@@ -78,12 +77,12 @@ namespace minim {
     return procEnergy(_coords);
   }
 
-  Vector State::procGradient() const {
-    if (!usesThisProc) return Vector();
+  vector<double> State::procGradient() const {
+    if (!usesThisProc) return vector<double>();
     return procGradient(_coords);
   }
 
-  void State::procEnergyGradient(double* e, Vector* g) const {
+  void State::procEnergyGradient(double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     procEnergyGradient(_coords, e, g);
   }
@@ -91,14 +90,14 @@ namespace minim {
 
   // Energy and gradient functions using given coordinates
   // Total energy / gradient
-  double State::energy(const Vector& coords) const {
+  double State::energy(const vector<double>& coords) const {
     if (!usesThisProc) return 0;
     if (pot->serialDef()) {
-      Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
+      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       return pot->energy(allCoords);
 
     } else if (pot->parallelDef()) {
-      Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
       return comm.sum(blockEnergy(blockCoords));
 
     } else {
@@ -106,15 +105,15 @@ namespace minim {
     }
   }
 
-  Vector State::gradient(const Vector& coords) const {
-    if (!usesThisProc) return Vector();
+  vector<double> State::gradient(const vector<double>& coords) const {
+    if (!usesThisProc) return vector<double>();
 
     if (pot->serialDef()) {
-      Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
+      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       return pot->gradient(allCoords);
 
     } else if (pot->parallelDef()) {
-      Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
       return comm.gather(blockGradient(blockCoords));
 
     } else {
@@ -122,15 +121,15 @@ namespace minim {
     }
   }
 
-  void State::energyGradient(const Vector& coords, double* e, Vector* g) const {
+  void State::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
     if (pot->serialDef()) {
-      Vector allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
+      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       pot->energyGradient(allCoords, e, g);
 
     } else if (pot->parallelDef()) {
-      Vector blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
       blockEnergyGradient(blockCoords, e, g);
       if (e != nullptr) *e = comm.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
@@ -142,7 +141,7 @@ namespace minim {
 
 
   // Block energy / gradient (the gradient includes the halo, but not required to be correct)
-  double State::blockEnergy(const Vector& coords) const {
+  double State::blockEnergy(const vector<double>& coords) const {
     if (!usesThisProc) return 0;
 
     if (pot->parallelDef()) {
@@ -151,7 +150,7 @@ namespace minim {
       return e;
 
     } else if (pot->serialDef()) {
-      Vector allCoords = comm.gather(coords, 0);
+      vector<double> allCoords = comm.gather(coords, 0);
       if (comm.rank() != 0) {
         return 0;
       } else {
@@ -163,11 +162,11 @@ namespace minim {
     }
   }
 
-  Vector State::blockGradient(const Vector& coords) const {
-    if (!usesThisProc) return Vector();
+  vector<double> State::blockGradient(const vector<double>& coords) const {
+    if (!usesThisProc) return vector<double>();
 
     if (pot->parallelDef()) {
-      Vector g;
+      vector<double> g;
       blockEnergyGradient(coords, nullptr, &g);
       return g;
 
@@ -179,12 +178,12 @@ namespace minim {
     }
   }
 
-  void State::blockEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void State::blockEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
     if (pot->parallelDef()) {
       if (e) *e = 0;
-      if (g) *g = Vector(coords.size());
+      if (g) *g = vector<double>(coords.size());
       // Compute any system-wide contributions
       pot->blockEnergyGradient(coords, comm, e, g);
       // Compute the energy elements
@@ -202,7 +201,7 @@ namespace minim {
       if (g == nullptr) {
         pot->energyGradient(comm.gather(coords), e, nullptr);
       } else {
-        Vector gAll(ndof);
+        vector<double> gAll(ndof);
         pot->energyGradient(comm.gather(coords), e, &gAll);
         *g = comm.scatter(gAll);
       }
@@ -215,19 +214,19 @@ namespace minim {
 
 
   // Processor energy / gradient (the gradient includes the halo)
-  double State::procEnergy(const Vector& coords) const {
+  double State::procEnergy(const vector<double>& coords) const {
     if (!usesThisProc) return 0;
     return blockEnergy(coords);
   }
 
-  Vector State::procGradient(const Vector& coords) const {
-    if (!usesThisProc) return Vector();
-    Vector g = blockGradient(coords);
+  vector<double> State::procGradient(const vector<double>& coords) const {
+    if (!usesThisProc) return vector<double>();
+    vector<double> g = blockGradient(coords);
     if (pot->parallelDef()) comm.communicate(g);
     return g;
   }
 
-  void State::procEnergyGradient(const Vector& coords, double* e, Vector* g) const {
+  void State::procEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     blockEnergyGradient(coords, e, g);
     if (pot->parallelDef()) comm.communicate(*g);
@@ -241,13 +240,13 @@ namespace minim {
     return e;
   }
 
-  Vector State::allGradient() const {
-    Vector g = gradient();
+  vector<double> State::allGradient() const {
+    vector<double> g = gradient();
     mpi.bcast(g, comm.ranks[0]);
     return g;
   }
 
-  void State::allEnergyGradient(double* e, Vector* g) const {
+  void State::allEnergyGradient(double* e, vector<double>* g) const {
     energyGradient(e, g);
     mpi.bcast(*e, comm.ranks[0]);
     mpi.bcast(*g, comm.ranks[0]);
@@ -259,26 +258,26 @@ namespace minim {
   }
 
 
-  Vector State::coords() const {
+  vector<double> State::coords() const {
     return comm.gather(_coords, -1);
   }
 
-  void State::coords(const Vector& in) {
+  void State::coords(const vector<double>& in) {
     _coords = comm.scatter(in, -1);
   }
 
 
-  Vector State::blockCoords() const {
+  vector<double> State::blockCoords() const {
     return _coords;
   }
 
-  void State::blockCoords(const Vector& in) {
+  void State::blockCoords(const vector<double>& in) {
     _coords = in;
   }
 
 
-  Vector State::allCoords() const {
-    Vector coords = comm.gather(_coords, 0);
+  vector<double> State::allCoords() const {
+    vector<double> coords = comm.gather(_coords, 0);
     mpi.bcast(coords, comm.ranks[0], ndof);
     return coords;
   }
