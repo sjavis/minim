@@ -33,6 +33,8 @@ namespace minim {
       void bcast(double& value, int root=0) const;
       void bcast(vector<double>& data, int root=0, int nData=0) const;
 
+      void barrier() const;
+
     private:
       bool _init = false;
   };

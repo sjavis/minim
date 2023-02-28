@@ -96,4 +96,11 @@ namespace minim {
   #endif
   }
 
+
+  void Mpi::barrier() const {
+  #ifdef PARALLEL
+    MPI_Barrier(MPI_COMM_WORLD);
+  #endif
+  }
+
 }
