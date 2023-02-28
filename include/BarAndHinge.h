@@ -6,6 +6,8 @@
 
 namespace minim {
   using std::vector;
+  class Communicator;
+
 
   class BarAndHinge : public NewPotential<BarAndHinge> {
     public:
@@ -13,6 +15,7 @@ namespace minim {
       ~BarAndHinge() {};
 
       void init(const vector<double>& coords) override;
+      void distributeParameters(const Communicator& comm) override;
 
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 

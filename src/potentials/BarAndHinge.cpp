@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdexcept>
 #include <algorithm>
+#include "Communicator.h"
 #include "utils/vec.h"
 
 namespace minim {
@@ -121,6 +122,11 @@ namespace minim {
       // Substrate interaction
       if (wallOn) elements.push_back({3, {3*iN, 3*iN+1, 3*iN+2}});
     }
+  }
+
+
+  void BarAndHinge::distributeParameters(const Communicator& comm) {
+    fixed = comm.assignProc(fixed);
   }
 
 
