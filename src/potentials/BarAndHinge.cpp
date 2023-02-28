@@ -23,6 +23,9 @@ namespace minim {
         if (iNode >= nNode) throw std::logic_error("The triangulation expects more coordinates than are given.");
       }
     }
+    if (!fixed.empty() && fixed.size()!=coords.size()) {
+      throw std::logic_error("The vector for the fixed degrees of freedom has the wrong size");
+    }
 
     // Get rigidities
     if (thickness.size() == 1) {
@@ -126,7 +129,7 @@ namespace minim {
 
 
   void BarAndHinge::distributeParameters(const Communicator& comm) {
-    fixed = comm.assignProc(fixed);
+    if (!fixed.empty()) fixed = comm.assignProc(fixed);
   }
 
 
