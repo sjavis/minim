@@ -3,6 +3,7 @@
 #include <math.h>
 #include "State.h"
 #include "utils/vec.h"
+#include "utils/print.h"
 
 namespace minim {
 
@@ -20,7 +21,14 @@ namespace minim {
   void Fire::init(State& state) {
     _v = std::vector<double>(state.ndof);
     _g = state.gradient();
-    if (_dt_max == 0) _dt_max = 0.1 / sqrt(vec::norm(_g));
+    _gnorm = vec::norm(_g);
+    if (_dt_max != 0) return;
+    if (_gnorm!=0) {
+      _dt_max = 0.1 / sqrt(_gnorm);
+    } else {
+      print("Warning: Unable to estimate dt_max parameter for FIRE.");
+      _dt_max = 1;
+    }
   }
 
 
