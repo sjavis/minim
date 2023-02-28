@@ -28,6 +28,7 @@ namespace minim {
       vector<int> irecv;  // Starting indicies for each proc in halo
       vector<bool> send;  // States if data is to be sent to each proc
       vector2d<int> recv_lists; // List of indicies to recieve from each proc
+      vector2d<int> send_lists; // List of block indicies to send to each other proc
   #ifdef PARALLEL
       MPI_Comm comm;
       vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
@@ -98,7 +99,7 @@ namespace minim {
 
       // Populate lists of indicies being sent to and received from each proc
       void setCommLists(const vector<Potential::Element>& elements, const vector2d<int>& blocks,
-                        const vector2d<bool>& in_block, vector2d<int>& send_lists)
+                        const vector2d<bool>& in_block)
       {
         recv_lists = vector2d<int>(commSize);
         send_lists = vector2d<int>(commSize);
@@ -196,7 +197,7 @@ namespace minim {
       }
 
       // Make the MPI datatypes to send to each proc
-      void setSendType(const vector2d<int>& send_lists) {
+      void setSendType() {
         send = vector<bool>(commSize);
 #ifdef PARALLEL
         sendtype = vector<MPI_Datatype>(commSize);
@@ -224,7 +225,7 @@ namespace minim {
       }
 
 
-      void checkWellDistributed(int ndof, Potential& pot, vector2d<int>& blocks, vector2d<bool>& in_block, vector2d<int>& send_lists) {
+      void checkWellDistributed(int ndof, Potential& pot, vector2d<int>& blocks, vector2d<bool>& in_block) {
         if (commSize <= 1) return;
         int nproc = irecv[commSize-1] + nrecv[commSize-1];
         bool notDistributed = (nproc == ndof);
@@ -240,7 +241,7 @@ namespace minim {
           iblocks = vector<int>(commSize, ndof);
           iblocks[0] = 0;
           getElementBlocks(pot.elements, blocks, in_block);
-          setCommLists(pot.elements, blocks, in_block, send_lists);
+          setCommLists(pot.elements, blocks, in_block);
           setRecvSizes();
         }
       }
@@ -257,14 +258,13 @@ namespace minim {
         getElementBlocks(pot.elements, blocks, in_block);
 
         // Identify coordinates to send and receive based upon the list of energy elements
-        vector2d<int> send_lists; // Block indicies to send to each other block
-        setCommLists(pot.elements, blocks, in_block, send_lists);
+        setCommLists(pot.elements, blocks, in_block);
         setRecvSizes();
 
-        checkWellDistributed(ndof, pot, blocks, in_block, send_lists);
+        checkWellDistributed(ndof, pot, blocks, in_block);
 
         distributeElements(pot, blocks, in_block);
-        setSendType(send_lists);
+        setSendType();
       }
   };
 
@@ -277,7 +277,9 @@ namespace minim {
   Communicator::Communicator(const Communicator& comm)
     : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), iblock(comm.iblock),
       usesThisProc(comm.usesThisProc), ranks(comm.ranks), p(std::make_unique<Priv>(*comm.p))
-  {}
+  {
+    p->setSendType();
+  }
 
 
   Communicator& Communicator::operator=(const Communicator& comm) {
@@ -288,6 +290,7 @@ namespace minim {
     usesThisProc = comm.usesThisProc;
     ranks = comm.ranks;
     p = std::make_unique<Priv>(*comm.p);
+    p->setSendType();
     return *this;
   }
 
