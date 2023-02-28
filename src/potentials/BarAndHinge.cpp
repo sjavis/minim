@@ -152,8 +152,8 @@ namespace minim {
 
 
   void BarAndHinge::stretching(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-    vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
+    vector<double> x1{coords[el.idof[0]], coords[el.idof[1]], coords[el.idof[2]]};
+    vector<double> x2{coords[el.idof[3]], coords[el.idof[4]], coords[el.idof[5]]};
 
     // Compute distance
     auto dx = x1 - x2;
@@ -176,10 +176,10 @@ namespace minim {
 
 
   void BarAndHinge::bending(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    vector<double> x1(coords.cbegin()+el.idof[0], coords.cbegin()+el.idof[2]+1);
-    vector<double> x2(coords.cbegin()+el.idof[3], coords.cbegin()+el.idof[5]+1);
-    vector<double> x3(coords.cbegin()+el.idof[6], coords.cbegin()+el.idof[8]+1);
-    vector<double> x4(coords.cbegin()+el.idof[9], coords.cbegin()+el.idof[11]+1);
+    vector<double> x1{coords[el.idof[0]], coords[el.idof[1]], coords[el.idof[2]]};
+    vector<double> x2{coords[el.idof[3]], coords[el.idof[4]], coords[el.idof[5]]};
+    vector<double> x3{coords[el.idof[6]], coords[el.idof[7]], coords[el.idof[8]]};
+    vector<double> x4{coords[el.idof[9]], coords[el.idof[10]], coords[el.idof[11]]};
 
     // Compute bond vectors
     auto b1 = x2 - x1;
@@ -258,10 +258,10 @@ namespace minim {
   void BarAndHinge::substrate(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     if (!fixed.empty() && fixed[el.idof[2]]) return;
     // Height
-    double lj_r0 = 0.858374218932559*lj_sigma;
-    double height = coords[el.idof[2]] + lj_r0;
-    height = std::max(height, lj_r0*lj_sigma/2);
+    double height = coords[el.idof[2]];
     if (!wallAdhesion && height>0) return;
+    double lj_r0 = 0.858374218932559*lj_sigma;
+    height = std::max(height + lj_r0, lj_r0/2);
     // Lennard-Jones potential
     double lj9 = 2.0/15 * pow(lj_sigma / height, 9);
     double lj3 = pow(lj_sigma / height, 3);
