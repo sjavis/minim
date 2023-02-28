@@ -229,7 +229,7 @@ namespace minim {
         int nproc = irecv[commSize-1] + nrecv[commSize-1];
         bool notDistributed = (nproc == ndof);
 #ifdef PARALLEL
-        MPI_Allreduce(MPI_IN_PLACE, &notDistributed, 1, MPI_C_BOOL, MPI_LAND, comm);
+        MPI_Allreduce(MPI_IN_PLACE, &notDistributed, 1, MPI_C_BOOL, MPI_LOR, comm);
 #endif
         if (notDistributed) {
           if (warnBadDistr) print("Warning: The state coordinates have not been effectively distributed. Reconsider if MPI is needed.");
