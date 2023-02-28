@@ -341,25 +341,30 @@ namespace minim {
   }
 
 
-  vector<double> Communicator::assignBlock(const vector<double>& in) const {
-    if (!usesThisProc) return vector<double>();
+  template <typename T>
+  vector<T> Communicator::assignBlock(const vector<T>& in) const {
+    if (!usesThisProc) return vector<T>();
     if (p->commSize == 1) return in;
 
-    vector<double> out = vector<double>(nblock);
+    vector<T> out(nblock);
     int i0 = (in.size() == ndof) ? iblock : 0;
     for (size_t i=0; i<nblock; i++) {
       out[i] = in[i0+i];
     }
     return out;
   }
+  template vector<int> Communicator::assignBlock(const vector<int>&) const;
+  template vector<bool> Communicator::assignBlock(const vector<bool>&) const;
+  template vector<double> Communicator::assignBlock(const vector<double>&) const;
 
 
-  vector<double> Communicator::assignProc(const vector<double>& in) const {
-    if (!usesThisProc) return vector<double>();
+  template <typename T>
+  vector<T> Communicator::assignProc(const vector<T>& in) const {
+    if (!usesThisProc) return vector<T>();
     if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
     if (p->commSize == 1) return in;
 
-    vector<double> out = vector<double>(nproc);
+    vector<T> out(nproc);
     // Assign the main blocks
     for (size_t i=0; i<nblock; i++) {
       out[i] = in[iblock+i];
@@ -372,6 +377,9 @@ namespace minim {
     }
     return out;
   }
+  template vector<int> Communicator::assignProc(const vector<int>&) const;
+  template vector<bool> Communicator::assignProc(const vector<bool>&) const;
+  template vector<double> Communicator::assignProc(const vector<double>&) const;
 
 
   void Communicator::communicate(vector<double>& vector) const {

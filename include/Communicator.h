@@ -27,8 +27,8 @@ namespace minim {
       int rank() const;
       int size() const;
 
-      vector<double> assignBlock(const vector<double>& in) const;
-      vector<double> assignProc(const vector<double>& in) const;
+      template<typename T> vector<T> assignBlock(const vector<T>& in) const;
+      template<typename T> vector<T> assignProc(const vector<T>& in) const;
 
       void communicate(vector<double>& vector) const;
       double get(const vector<double>& vector, int i) const;
