@@ -25,6 +25,7 @@ namespace minim {
 
       Lbfgs& setM(int m);
       Lbfgs& setMaxIter(int maxIter);
+      Lbfgs& setMaxStep(double maxStep);
 
       void init(State& state);
       void iteration(State& state);
@@ -35,6 +36,7 @@ namespace minim {
       int _m = 5;
       int _i;
       double _init_hessian = 1e-4;
+      double _maxStep = 0;
       bool _root;
       vector<double> _g;
       vector<double> _gNew;

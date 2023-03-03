@@ -20,6 +20,11 @@ namespace minim {
     return *this;
   }
 
+  Lbfgs& Lbfgs::setMaxStep(double maxStep) {
+    _maxStep = maxStep;
+    return *this;
+  }
+
 
   void Lbfgs::init(State& state) {
     if (state.comm.rank() == 0) {
@@ -43,12 +48,18 @@ namespace minim {
 
     // Find minimisation direction
     vector<double> step = getDirection();
-    vector<double> step_block = state.comm.scatter(step, 0);
 
     // Perform linesearch
     double de0;
-    if (_root) de0 = vec::dotProduct(_g, step);
+    if (_root) {
+      de0 = vec::dotProduct(_g, step);
+      if (de0 > 0) {
+        de0 = -de0;
+        step = -step;
+      }
+    }
     state.comm.bcast(de0);
+    vector<double> step_block = state.comm.scatter(step, 0);
     double step_multiplier = backtrackingLinesearch(state, step_block, de0);
 
     // Get new gradient
@@ -107,7 +118,10 @@ namespace minim {
         step += (alpha[i]-beta) * _s[i];
       }
 
-      if (vec::dotProduct(step, _g) > 0) step = -step;
+      if (_maxStep != 0) {
+        double stepSize = vec::norm(step);
+        if (stepSize > _maxStep) step *= _maxStep / stepSize;
+      }
     }
 
     return step;
