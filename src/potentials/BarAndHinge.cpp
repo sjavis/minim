@@ -39,7 +39,7 @@ namespace minim {
       kBond.reserve(bondList.size());
       for (auto bond: bondList) {
         double t = (thickness[bond[0]] + thickness[bond[1]]) / 2;
-        double k = sqrt(3)/4 * modulus * t;
+        double k = sqrt(3)/2 * modulus * t;
         kBond.push_back(k);
       }
     }
@@ -50,6 +50,7 @@ namespace minim {
       kHinge.reserve(hingeList.size());
       for (auto hinge: hingeList) {
         double t = (thickness[hinge[0]] + thickness[hinge[1]] + thickness[hinge[2]] + thickness[hinge[3]]) / 4;
+        double rigidity = modulus * pow(t,3) / (12 * (1 - pow(poissonRatio,2)));
         vector<double> x1 = {coords[3*hinge[0]], coords[3*hinge[0]+1], coords[3*hinge[0]+2]};
         vector<double> x2 = {coords[3*hinge[1]], coords[3*hinge[1]+1], coords[3*hinge[1]+2]};
         vector<double> x3 = {coords[3*hinge[2]], coords[3*hinge[2]+1], coords[3*hinge[2]+2]};
@@ -58,8 +59,7 @@ namespace minim {
         double area1 = std::abs(vec::norm(vec::crossProduct(x2-x1, x3-x1))) / 2;
         double area2 = std::abs(vec::norm(vec::crossProduct(x2-x4, x3-x4))) / 2;
         double areaSum = area1 + area2;
-        double k = modulus * pow(t,3) / (12 * (1 - pow(poissonRatio,2)));
-        k *= lengthSq / areaSum;
+        double k = rigidity * lengthSq / areaSum;
         kHinge.push_back(k);
       }
     }
@@ -161,7 +161,7 @@ namespace minim {
     auto dl = l - el.parameters[1];
 
     if (e != nullptr) {
-      *e += el.parameters[0] * pow(dl, 2);
+      *e += 0.5 * el.parameters[0] * pow(dl, 2);
     }
     if (g != nullptr) {
       auto g_factor = 2 * el.parameters[0] * dl / l;
@@ -212,7 +212,7 @@ namespace minim {
       // E = k (1 - cos(\theta - \theta_0))
       // *e += el.parameters[0] * (1 - c*c0 + s*s0); // Double angle formula for cos(t - t0)
       // E = k/2 (\theta - \theta_0)^2
-      *e += el.parameters[0] * 0.5 * pow(dtheta, 2);
+      *e += 0.5 * el.parameters[0] * pow(dtheta, 2);
     }
     if (g != nullptr) {
       // E = k (1 - cos(\theta - \theta_0))
