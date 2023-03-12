@@ -1,6 +1,7 @@
 #ifndef VEC_HPP
 #define VEC_HPP
 
+#include <set>
 #include <math.h>
 #include <cassert>
 #include <numeric>
@@ -220,6 +221,15 @@ namespace vec {
   template<typename T>
   bool all(const std::vector<T>& a) {
     return std::all_of(a.begin(), a.end(), [](bool i){ return i; });
+  }
+
+
+  // Check if value is contained in vector
+  template<typename T>
+  bool isIn(const std::vector<T>& vec, T value) {
+    std::set<T> set(vec.begin(), vec.end());
+    bool isInVector = (set.find(value) != set.end());
+    return isInVector;
   }
 
 

@@ -97,6 +97,17 @@ TEST(VecTest, TestRandom) {
 }
 
 
+TEST(VecTest, TestIsIn) {
+  EXPECT_TRUE(vec::isIn({0.8, -0.5}, -0.5));
+  EXPECT_FALSE(vec::isIn({0.8, -0.5}, 0.5));
+
+  std::vector<std::string> b{"b1", "B_2"};
+  EXPECT_TRUE(vec::isIn(b, std::string{"b1"}));
+  EXPECT_TRUE(vec::isIn({"b1", "B_2"}, "B_2"));
+  EXPECT_FALSE(vec::isIn({"b1", "B_2"}, std::string("B1")));
+}
+
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   minim::mpiInit(&argc, &argv);
