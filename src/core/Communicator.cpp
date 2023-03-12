@@ -278,7 +278,7 @@ namespace minim {
     : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), iblock(comm.iblock),
       usesThisProc(comm.usesThisProc), ranks(comm.ranks), p(std::make_unique<Priv>(*comm.p))
   {
-    p->setSendType();
+    if (usesThisProc) p->setSendType();
   }
 
 
@@ -290,7 +290,7 @@ namespace minim {
     usesThisProc = comm.usesThisProc;
     ranks = comm.ranks;
     p = std::make_unique<Priv>(*comm.p);
-    p->setSendType();
+    if (usesThisProc) p->setSendType();
     return *this;
   }
 
