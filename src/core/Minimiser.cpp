@@ -1,11 +1,21 @@
 #include "Minimiser.h"
 
+#include <stdexcept>
 #include "State.h"
+#include "utils/vec.h"
 
 namespace minim {
 
   Minimiser& Minimiser::setMaxIter(int maxIter) {
     this->maxIter = maxIter;
+    return *this;
+  }
+
+  Minimiser& Minimiser::setLinesearch(std::string method) {
+    if (!vec::isIn({"backtracking","none"}, method)) {
+      throw std::invalid_argument("Invalid line search method.");
+    }
+    linesearch = method;
     return *this;
   }
 

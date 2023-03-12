@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <functional>
 
 namespace minim {
@@ -12,6 +13,7 @@ namespace minim {
   class Minimiser {
     public:
       int maxIter = 100000;
+      std::string linesearch = "backtracking";
 
       typedef void (*AdjustFunc)(int, State&);
       int iter;
@@ -21,6 +23,7 @@ namespace minim {
       virtual std::unique_ptr<Minimiser> clone() const = 0;
 
       virtual Minimiser& setMaxIter(int maxIter);
+      Minimiser& setLinesearch(std::string method);
 
       std::vector<double> minimise(State& state, std::function<void(int,State&)> adjustState=nullptr);
       virtual void init(State& state) {};
