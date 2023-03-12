@@ -48,26 +48,32 @@ namespace minim {
 
     // Find minimisation direction
     vector<double> step = getDirection();
-
-    // Perform linesearch
-    double de0;
+    // Ensure it is going downhill
+    double gs;
     if (_root) {
-      de0 = vec::dotProduct(_g, step);
-      if (de0 > 0) {
-        de0 = -de0;
+      gs = vec::dotProduct(_g, step);
+      if (gs > 0) {
+        gs = -gs;
         step = -step;
       }
     }
-    state.comm.bcast(de0);
+
+    // Perform linesearch
     vector<double> step_block = state.comm.scatter(step, 0);
-    double step_multiplier = backtrackingLinesearch(state, step_block, de0);
+    if (linesearch == "backtracking") {
+      state.comm.bcast(gs);
+      double step_multiplier = backtrackingLinesearch(state, step_block, gs);
+      if (_root) step *= step_multiplier;
+    } else {
+      state.blockCoords(state.blockCoords() + step_block);
+    }
 
     // Get new gradient
     _gNew = state.gradient();
 
     // Store the changes required for LBFGS
     if (_root) {
-      auto s = step_multiplier * step;
+      auto s = step;
       auto y = _gNew - _g;
       double sy = vec::dotProduct(s, y);
       if (sy != 0) {
