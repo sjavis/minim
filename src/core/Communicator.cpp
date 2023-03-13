@@ -20,8 +20,8 @@ namespace minim {
 
   class Communicator::Priv {
     public:
-      int commRank;
-      int commSize;
+      int commRank = 0;
+      int commSize = 1;
       vector<int> nblocks; // Size of each block
       vector<int> iblocks; // Global index for the start of each block
       vector<int> nrecv;  // Number of halo coordinates to recieve from each proc
@@ -33,9 +33,6 @@ namespace minim {
       MPI_Comm comm;
       vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
   #endif
-
-
-      Priv() : commRank(mpi.rank), commSize(mpi.size) {};
 
 
       int getBlock(int loc) {
@@ -316,20 +313,27 @@ namespace minim {
 
 
   void Communicator::setup(Potential& pot, size_t ndof, vector<int> ranks) {
-    // Serial parameters
     this->ndof = ndof;
-    this->nproc = ndof;
-    this->nblock = ndof;
-    if (mpi.size == 1) return;
+    nproc = ndof;
+    nblock = ndof;
 
-    // Parallel parameters
-    p->setup(pot, ndof, ranks);
-    usesThisProc = (p->commRank >= 0);
     this->ranks = ranks;
     if (ranks.empty()) {
       this->ranks = vector<int>(mpi.size);
       std::iota(this->ranks.begin(), this->ranks.end(), 0);
     }
+    usesThisProc = (ranks.empty() || vec::isIn(ranks, mpi.rank));
+    if (!usesThisProc) {
+      nblock = -1;
+      nproc = -1;
+      iblock = -1;
+    }
+
+    // Serial
+    if (mpi.size == 1 || !pot.parallelDef()) return;
+
+    // Parallel
+    p->setup(pot, ndof, ranks);
     if (usesThisProc) {
       nblock = p->nblocks[p->commRank];
       nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
