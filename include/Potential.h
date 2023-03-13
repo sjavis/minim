@@ -28,6 +28,7 @@ namespace minim {
       };
       vector<Element> elements;
       vector<Element> elements_halo;
+      bool distributed = false;
 
 
       Potential(EFunc energy, GFunc gradient);

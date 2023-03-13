@@ -11,6 +11,7 @@ namespace minim {
   State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
     : ndof(coords.size()), pot(pot.clone())
   {
+    if (this->pot->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
     this->pot->init(coords);
     this->comm.setup(*this->pot, ndof, ranks);
     this->usesThisProc = comm.usesThisProc;

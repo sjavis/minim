@@ -194,6 +194,7 @@ namespace minim {
           }
         }
         pot.elements = elements_tmp;
+        pot.distributed = true;
       }
 
       // Make the MPI datatypes to send to each proc
@@ -249,6 +250,11 @@ namespace minim {
 
 
       void setup(Potential& pot, int ndof, vector<int> ranks) {
+        if (pot.distributed) {
+          print("Warning: Attempting to parallelise a potential that has already been distributed.");
+          return;
+        }
+
         setComm(ranks);
         if (commRank<0) return;
 

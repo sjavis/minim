@@ -50,7 +50,7 @@ namespace minim {
       double lj_sigma = 1e-5;
 
     private:
-      bool distributed = false;
+      bool paramsDistributed = false;
       vector<bool> fixed;
       vector2d<int> bondList;
       vector2d<int> hingeList;
