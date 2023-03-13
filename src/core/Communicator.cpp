@@ -198,6 +198,7 @@ namespace minim {
 
       // Make the MPI datatypes to send to each proc
       void setSendType() {
+        if (commSize <= 1) return;
         send = vector<bool>(commSize);
 #ifdef PARALLEL
         sendtype = vector<MPI_Datatype>(commSize);
