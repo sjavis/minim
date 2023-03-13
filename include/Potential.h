@@ -38,7 +38,7 @@ namespace minim {
       }
 
       virtual void init(const vector<double>& coords) {};
-      virtual void distributeParameters(const Communicator& comm) {};
+      virtual void distributeParameters(const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
 
 
       virtual double energy(const vector<double>& coords) const;

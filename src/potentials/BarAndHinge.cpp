@@ -14,6 +14,8 @@ namespace minim {
 
 
   void BarAndHinge::init(const vector<double>& coords) {
+    if (distributed) return; // Do not reinitialise because the fixed parameter will have been distributed
+
     // Check element DOFs are valid
     int nNode = coords.size() / 3;
     vector2d<int> elementList = bondList;
@@ -129,7 +131,9 @@ namespace minim {
 
 
   void BarAndHinge::distributeParameters(const Communicator& comm) {
+    if (distributed) return;
     if (!fixed.empty()) fixed = comm.assignProc(fixed);
+    distributed = true;
   }
 
 
