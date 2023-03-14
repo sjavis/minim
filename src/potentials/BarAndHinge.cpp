@@ -361,8 +361,8 @@ namespace minim {
   }
 
   BarAndHinge& BarAndHinge::setRigidity(const vector<double>& kBond, const vector<double>& kHinge) {
-    this->kBond = kBond;
-    this->kHinge = kHinge;
+    if (!kBond.empty()) this->kBond = kBond;
+    if (!kHinge.empty()) this->kHinge = kHinge;
     return *this;
   }
 
