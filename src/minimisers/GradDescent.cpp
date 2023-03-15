@@ -24,7 +24,7 @@ namespace minim {
 
 
   void GradDescent::iteration(State& state) {
-    _g = state.blockGradient();
+    _g = state.procGradient();
     auto step = -_alpha * _g;
     state.blockCoords(state.blockCoords() + step);
   }
