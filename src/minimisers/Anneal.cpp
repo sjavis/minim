@@ -12,58 +12,58 @@ namespace minim {
   }
 
 
-  Anneal& Anneal::setTempInit(double temp_init) {
-    _temp_init = temp_init;
+  Anneal& Anneal::setTempInit(double tempInit) {
+    this->tempInit = tempInit;
     return *this;
   }
 
 
   Anneal& Anneal::setDisplacement(double displacement) {
-    _displacement = displacement;
+    this->displacement = displacement;
     return *this;
   }
 
 
   void Anneal::init(State& state) {
-    _since_accepted = 0;
-    _current_state = state.blockCoords();
-    _current_e = state.energy();
+    _sinceAccepted = 0;
+    _currentState = state.blockCoords();
+    _currentE = state.energy();
     srand(time(0)+state.comm.rank()); // Set a different random seed on all processors
   }
 
 
   void Anneal::iteration(State& state) {
-    _temp = _temp_init / (1 + iter);
+    _temp = tempInit / (1 + coolingRate*iter);
 
     // Randomly perturb state
-    std::vector<double> new_state(state.comm.nproc);
+    std::vector<double> newState(state.comm.nproc);
     for (size_t i=0; i<state.comm.nblock; i++) {
       double random = 2 * ((double) rand() / RAND_MAX) - 1;
-      new_state[i] = _current_state[i] + random*_displacement;
+      newState[i] = _currentState[i] + random*displacement;
     }
-    state.blockCoords(new_state);
+    state.blockCoords(newState);
     state.communicate(); // Communicate to ensure halo regions are correct and not random
 
     // Accept or reject state
     double energy = state.energy();
     if (acceptMetropolis(energy)) {
-      _current_state = state.blockCoords();
-      _current_e = energy;
-      _since_accepted = 0;
+      _currentState = state.blockCoords();
+      _currentE = energy;
+      _sinceAccepted = 0;
     } else {
-      _since_accepted++;
+      _sinceAccepted++;
     }
 
     // Set final state
-    if ((checkConvergence(state)) || (iter == maxIter-1)) state.blockCoords(_current_state);
+    if ((checkConvergence(state)) || (iter == maxIter-1)) state.blockCoords(_currentState);
   }
 
 
   bool Anneal::acceptMetropolis(double energy) {
     double random = (double) rand() / RAND_MAX;
-    if (energy < _current_e) {
+    if (energy < _currentE) {
       return true;
-    } else if (random < exp((_current_e-energy)/_temp)) {
+    } else if (random < exp((_currentE-energy)/_temp)) {
       return true;
     } else {
       return false;
@@ -72,8 +72,8 @@ namespace minim {
 
 
   bool Anneal::checkConvergence(const State& state) {
-    bool is_converged = (_max_rejections > 0) && (_since_accepted >= _max_rejections);
-    return is_converged;
+    bool isConverged = (maxRejections > 0) && (_sinceAccepted >= maxRejections);
+    return isConverged;
   }
 
 }

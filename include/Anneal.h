@@ -8,11 +8,16 @@ namespace minim {
 
   class Anneal : public NewMinimiser<Anneal> {
     public:
-      Anneal(double temp_init, double displacement) : _temp_init(temp_init), _displacement(displacement) {};
+      Anneal(double tempInit, double displacement) : tempInit(tempInit), displacement(displacement) {};
       ~Anneal() {};
 
+      int maxRejections = 0;
+      double tempInit;
+      double displacement;
+      double coolingRate = 1;
+
       Anneal& setMaxIter(int maxIter);
-      Anneal& setTempInit(double temp_init);
+      Anneal& setTempInit(double tempInit);
       Anneal& setDisplacement(double displacement);
 
       void init(State& state);
@@ -20,13 +25,10 @@ namespace minim {
       bool checkConvergence(const State& state) override;
 
     private:
-      int _since_accepted;
-      int _max_rejections;
+      int _sinceAccepted;
       double _temp;
-      double _temp_init;
-      double _displacement;
-      double _current_e;
-      std::vector<double> _current_state;
+      double _currentE;
+      std::vector<double> _currentState;
 
       bool acceptMetropolis(double energy);
   };
