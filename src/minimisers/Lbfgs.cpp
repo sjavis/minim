@@ -135,9 +135,7 @@ namespace minim {
 
 
   bool Lbfgs::checkConvergence(const State& state) {
-    double rms;
-    if (_root) rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
-    state.comm.bcast(rms);
+    double rms = sqrt(vec::dotProduct(_g, _g) / state.ndof);
     return (rms < state.convergence);
   }
 
