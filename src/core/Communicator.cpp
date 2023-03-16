@@ -330,7 +330,7 @@ namespace minim {
     }
 
     // Serial
-    if (mpi.size == 1 || !pot.parallelDef()) return;
+    if (mpi.size==1 || ranks.size()==1 || !pot.parallelDef()) return;
 
     // Parallel
     p->setup(pot, ndof, ranks);
@@ -338,10 +338,6 @@ namespace minim {
       nblock = p->nblocks[p->commRank];
       nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
       iblock = p->iblocks[p->commRank];
-    } else {
-      nblock = -1;
-      nproc = -1;
-      iblock = -1;
     }
   }
 
