@@ -21,7 +21,7 @@ namespace minim {
       bool checkConvergence(const State& state) override;
 
     private:
-      double _alpha = 1e-3;
+      double _alpha = 1e-1;
       std::vector<double> _g;
   };
 

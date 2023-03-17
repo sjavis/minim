@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include "State.h"
+#include "linesearch.h"
 #include "utils/vec.h"
 
 namespace minim {
@@ -24,9 +25,17 @@ namespace minim {
 
 
   void GradDescent::iteration(State& state) {
+    // Get step
     _g = state.procGradient();
     auto step = -_alpha * _g;
-    state.blockCoords(state.blockCoords() + step);
+
+    // Perform linesearch
+    if (linesearch == "backtracking") {
+      double gs = state.comm.dotProduct(_g, step);
+      backtrackingLinesearch(state, step, gs);
+    } else {
+      state.blockCoords(state.blockCoords() + step); // The step is correct on the halo, so no need to communicate the coords
+    }
   }
 
 
