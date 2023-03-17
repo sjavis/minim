@@ -12,14 +12,28 @@ namespace minim {
   }
 
 
+  Anneal& Anneal::setDisplacement(double displacement) {
+    this->displacement = displacement;
+    return *this;
+  }
+
   Anneal& Anneal::setTempInit(double tempInit) {
     this->tempInit = tempInit;
     return *this;
   }
 
+  Anneal& Anneal::setCoolingRate(double coolingRate) {
+    this->coolingRate = coolingRate;
+    return *this;
+  }
 
-  Anneal& Anneal::setDisplacement(double displacement) {
-    this->displacement = displacement;
+  Anneal& Anneal::setCoolingSchedule(std::function<double(int)> coolingSchedule) {
+    this->coolingSchedule = coolingSchedule;
+    return *this;
+  }
+
+  Anneal& Anneal::setMaxRejections(int maxRejections) {
+    this->maxRejections = maxRejections;
     return *this;
   }
 
@@ -33,7 +47,11 @@ namespace minim {
 
 
   void Anneal::iteration(State& state) {
-    _temp = tempInit / (1 + coolingRate*iter);
+    if (coolingSchedule) {
+      _temp = coolingSchedule(iter);
+    } else {
+      _temp = tempInit / (1 + coolingRate*iter);
+    }
 
     // Randomly perturb state
     std::vector<double> newState(state.comm.nproc);

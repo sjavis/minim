@@ -8,18 +8,27 @@ namespace minim {
 
   class Anneal : public NewMinimiser<Anneal> {
     public:
-      Anneal(double tempInit, double displacement) : tempInit(tempInit), displacement(displacement) {};
-      ~Anneal() {};
+      Anneal(double tempInit, double displacement) : displacement(displacement), tempInit(tempInit) {};
 
-      int maxRejections = 0;
-      double tempInit;
+      // Simulated annealing parameters
       double displacement;
+      double tempInit;
       double coolingRate = 1;
+      std::function<double(int)> coolingSchedule = nullptr;
+
+      Anneal& setDisplacement(double displacement);
+      Anneal& setTempInit(double tempInit);
+      Anneal& setCoolingRate(double coolingRate);
+      Anneal& setCoolingSchedule(std::function<double(int)> coolingSchedule);
+
+      // Convergence parameters
+      int maxRejections = 0;
 
       Anneal& setMaxIter(int maxIter);
-      Anneal& setTempInit(double tempInit);
-      Anneal& setDisplacement(double displacement);
+      Anneal& setMaxRejections(int maxRejections);
 
+      // Other functions
+      ~Anneal() {};
       void init(State& state);
       void iteration(State& state);
       bool checkConvergence(const State& state) override;
