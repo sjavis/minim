@@ -34,12 +34,13 @@ namespace minim {
     double dz = coords[el.idof[2]] - coords[el.idof[5]];
     double r2 = dx*dx + dy*dy + dz*dz;
     double lj6 = pow(sigma, 6) / pow(r2, 3);
+    double lj12 = lj6 * lj6;
 
-    if (e != nullptr) *e += 4*epsilon * (lj6*lj6 - lj6);
+    if (e != nullptr) *e += 4*epsilon * (lj12 - lj6);
 
     if (g != nullptr) {
       double r = sqrt(r2);
-      double dedr = -24 * epsilon * (2*lj6*lj6 - lj6) / r;
+      double dedr = -24 * epsilon * (2*lj12 - lj6) / r;
       (*g)[el.idof[0]] += dx/r * dedr;
       (*g)[el.idof[1]] += dy/r * dedr;
       (*g)[el.idof[2]] += dz/r * dedr;
