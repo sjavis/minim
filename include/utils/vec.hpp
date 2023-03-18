@@ -233,6 +233,47 @@ namespace vec {
   }
 
 
+  // Get the sorted vector
+  template<typename T>
+  vector<T> sort(const vector<T>& in, vector<int>* index) {
+    if (!index) {
+      vector<T> out = in;
+      std::sort(out.begin(), out.end());
+      return out;
+    }
+    *index = vector<int>(in.size());
+    std::iota(index->begin(), index->end(), 0);
+    std::stable_sort(index->begin(), index->end(), [&in](int i1, int i2) {return in[i1] < in[i2];});
+    vector<T> out(index->size());
+    for (size_t i=0; i<out.size(); i++) {
+      out[i] = in[(*index)[i]];
+    }
+    return out;
+  }
+
+  // Get the sorted unique vector
+  template<typename T>
+  vector<T> unique(const vector<T>& in, vector<int>* index) {
+    vector<T> out = sort(in, index);
+    if (!index) {
+      out.erase(std::unique(out.begin(), out.end()), out.end());
+      return out;
+    }
+    T value = out[0];
+    for (auto iOut=out.begin()+1, iIdx=index->begin()+1; iOut!=out.end();) {
+      if (*iOut == value) {
+        iOut = out.erase(iOut);
+        iIdx = index->erase(iIdx);
+      } else {
+        value = *iOut;
+        iOut++;
+        iIdx++;
+      }
+    }
+    return out;
+  }
+
+
   // Insert
   template<typename T>
   void insert_unique(std::vector<T>& vec, T value) {

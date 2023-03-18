@@ -97,6 +97,24 @@ TEST(VecTest, TestRandom) {
 }
 
 
+TEST(VecTest, TestSort) {
+  EXPECT_TRUE(ArraysMatch(vec::sort<int>({1,1,0,5,5,-4}), {-4,0,1,1,5,5}));
+  vector<int> index;
+  vector<int> sorted = vec::sort<int>({1,1,0,5,5,-4}, &index);
+  EXPECT_TRUE(ArraysMatch(sorted, {-4,0,1,1,5,5}));
+  EXPECT_TRUE(ArraysMatch(index, {5,2,0,1,3,4}));
+}
+
+
+TEST(VecTest, TestUnique) {
+  EXPECT_TRUE(ArraysMatch(vec::unique<int>({1,1,0,5,5,-4}), {-4,0,1,5}));
+  vector<int> index;
+  vector<int> unique = vec::unique<int>({1,1,0,5,5,-4}, &index);
+  EXPECT_TRUE(ArraysMatch(unique, {-4,0,1,5}));
+  EXPECT_TRUE(ArraysMatch(index, {5,2,0,3}));
+}
+
+
 TEST(VecTest, TestIsIn) {
   EXPECT_TRUE(vec::isIn({0.8, -0.5}, -0.5));
   EXPECT_FALSE(vec::isIn({0.8, -0.5}, 0.5));

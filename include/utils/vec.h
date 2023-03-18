@@ -46,6 +46,9 @@ namespace vec {
 
   template<typename T> bool isIn(const vector<T>& vec, T value);
 
+  template<typename T> vector<T> sort(const vector<T>& in, vector<int>* index=nullptr);
+  template<typename T> vector<T> unique(const vector<T>& in, vector<int>* index=nullptr);
+
   template<typename T> void insert_unique(vector<T>& vec, T value);
 
   void random(vector<double>& vec, double max);
