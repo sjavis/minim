@@ -52,14 +52,21 @@ namespace minim {
     private:
       bool paramsDistributed = false;
       vector<bool> fixed;
-      vector2d<int> bondList;
-      vector2d<int> hingeList;
+      vector2d<int> _bondList;
+      vector2d<int> _hingeList;
+      vector2d<int> _triList;
       vector<double> thickness;
       vector<double> kBond;
       vector<double> kHinge;
       vector<double> length0;
       vector<double> theta0;
       vector<double> force;
+
+      vector2d<int> computeBondList();
+      vector2d<int> computeHingeList(const vector2d<int>& bondList);
+      void computeRigidities(const vector<double>& coords, const vector2d<int>& bondList, const vector2d<int>& hingeList);
+      void computeLength0(const vector<double>& coords, const vector2d<int>& bondList);
+      void computeTheta0(const vector<double>& coords, const vector2d<int>& hingeList);
 
       void stretching(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void bending(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;

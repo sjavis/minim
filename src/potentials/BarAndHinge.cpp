@@ -16,6 +16,13 @@ namespace minim {
   void BarAndHinge::init(const vector<double>& coords) {
     if (paramsDistributed) return; // Do not reinitialise because the fixed parameter will have been distributed
 
+    // Get the information required for the elements
+    vector2d<int> bondList = computeBondList();
+    vector2d<int> hingeList = computeHingeList(bondList);
+    computeRigidities(coords, bondList, hingeList);
+    computeLength0(coords, bondList);
+    computeTheta0(coords, hingeList);
+
     // Check element DOFs are valid
     int nNode = coords.size() / 3;
     vector2d<int> elementList = bondList;
@@ -27,75 +34,6 @@ namespace minim {
     }
     if (!fixed.empty() && fixed.size()!=coords.size()) {
       throw std::logic_error("The vector for the fixed degrees of freedom has the wrong size");
-    }
-
-    // Get rigidities
-    if (thickness.size() == 1) {
-      double t = thickness[0];
-      thickness = vector<double>(coords.size()/3, t);
-    }
-    if (kBond.size() == 1) {
-      double k = kBond[0];
-      kBond = vector<double>(bondList.size(), k);
-    } else if (kBond.empty() && !thickness.empty()) {
-      kBond.reserve(bondList.size());
-      for (auto bond: bondList) {
-        double t = (thickness[bond[0]] + thickness[bond[1]]) / 2;
-        double k = sqrt(3)/2 * modulus * t;
-        kBond.push_back(k);
-      }
-    }
-    if (kHinge.size() == 1) {
-      double k = kHinge[0];
-      kHinge = vector<double>(hingeList.size(), k);
-    } else if (kHinge.empty() && !thickness.empty()) {
-      kHinge.reserve(hingeList.size());
-      for (auto hinge: hingeList) {
-        double t = (thickness[hinge[0]] + thickness[hinge[1]] + thickness[hinge[2]] + thickness[hinge[3]]) / 4;
-        double rigidity = modulus * pow(t,3) / (12 * (1 - pow(poissonRatio,2)));
-        vector<double> x1 = {coords[3*hinge[0]], coords[3*hinge[0]+1], coords[3*hinge[0]+2]};
-        vector<double> x2 = {coords[3*hinge[1]], coords[3*hinge[1]+1], coords[3*hinge[1]+2]};
-        vector<double> x3 = {coords[3*hinge[2]], coords[3*hinge[2]+1], coords[3*hinge[2]+2]};
-        vector<double> x4 = {coords[3*hinge[3]], coords[3*hinge[3]+1], coords[3*hinge[3]+2]};
-        double lengthSq = vec::sum(vec::pow(x3-x2, 2));
-        double area1 = std::abs(vec::norm(vec::crossProduct(x2-x1, x3-x1))) / 2;
-        double area2 = std::abs(vec::norm(vec::crossProduct(x2-x4, x3-x4))) / 2;
-        double areaSum = area1 + area2;
-        double k = rigidity * lengthSq / areaSum;
-        kHinge.push_back(k);
-      }
-    }
-
-    // Get equilibrium values
-    if (length0.empty()) {
-      length0 = vector<double>(bondList.size());
-      for (int iB=0; iB<(int)bondList.size(); iB++) {
-        auto n = bondList[iB];
-        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
-        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
-        length0[iB] = vec::norm(x1 - x2);
-      }
-    } else if (length0.size() == 1) {
-      double l0 = length0[0];
-      length0 = vector<double>(bondList.size(), l0);
-    }
-    if (theta0.empty()) {
-      theta0 = vector<double>(hingeList.size());
-      for (int iH=0; iH<(int)hingeList.size(); iH++) {
-        auto n = hingeList[iH];
-        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
-        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
-        vector<double> x3 = {coords[3*n[2]], coords[3*n[2]+1], coords[3*n[2]+2]};
-        vector<double> x4 = {coords[3*n[3]], coords[3*n[3]+1], coords[3*n[3]+2]};
-        auto n1 = vec::crossProduct(x2-x1, x3-x2);
-        auto n2 = vec::crossProduct(x3-x2, x4-x3);
-        double c = vec::dotProduct(n1, n2) / (vec::norm(n1) * vec::norm(n2));
-        double n1b3 = vec::dotProduct(n1, x4-x3);
-        theta0[iH] = (n1b3>=0) ? acos(c) : 2*pi()-acos(c);
-      }
-    } else if (theta0.size() == 1) {
-      double t0 = theta0[0];
-      theta0 = vector<double>(hingeList.size(), t0);
     }
 
     // Assign elements
@@ -126,6 +64,187 @@ namespace minim {
       elements.push_back({2, {3*iN, 3*iN+1, 3*iN+2}, {(double)iN}});
       // Substrate interaction
       if (wallOn) elements.push_back({3, {3*iN, 3*iN+1, 3*iN+2}});
+    }
+  }
+
+
+  vector2d<int> BarAndHinge::computeBondList() {
+    if (!_bondList.empty()) return _bondList;
+    if (_triList.empty()) throw std::invalid_argument("BarAndHinge: The triangulation has not been set.");
+    vector2d<int> bondList;
+    bondList.reserve(3*_triList.size());
+    // Get the list of pairs
+    for (auto tri: _triList) {
+      std::sort(tri.begin(), tri.end());
+      bondList.push_back({tri[0], tri[1]});
+      bondList.push_back({tri[0], tri[2]});
+      bondList.push_back({tri[1], tri[2]});
+    }
+    bondList = vec::unique(bondList);
+    // Add the additional indicies for each triangle
+    for (auto& bond: bondList) {
+      for (auto tri: _triList) {
+        if (!vec::isIn(tri, bond[0]) || !vec::isIn(tri, bond[1])) continue;
+        for (int iN: tri) {
+          if (!vec::isIn(bond, iN)) bond.push_back(iN);
+        }
+      }
+    }
+    return bondList;
+  }
+
+
+  vector2d<int> BarAndHinge::computeHingeList(const vector2d<int>& bondList) {
+    if (!_hingeList.empty()) return _hingeList;
+    if (_triList.empty()) throw std::invalid_argument("BarAndHinge: The triangulation has not been set.");
+    vector2d<int> hingeList;
+    hingeList.reserve(3*_triList.size());
+    vector<bool> shared(6, false);
+    for (int it1=0; it1<(int)_triList.size(); it1++) {
+      for (int it2=it1+1; it2<(int)_triList.size(); it2++) {
+        int nShared = 0;
+        for (int in1=0; in1<3; in1++) {
+          for (int in2=0; in2<3; in2++) {
+            if (_triList[it1][in1] != _triList[it2][in2]) continue;
+            nShared++;
+            shared[in1] = true;
+            shared[3+in2] = true;
+          }
+        }
+        if (nShared == 0) {
+          continue;
+        } else if (nShared != 2) {
+          shared = vector<bool>(6, false);
+          continue;
+        }
+        // Keep the cyclic order of the first triangle
+        // This allows the user to use theta0 in the full 2pi range
+        vector<int> nodes(4);
+        for (int in1=0; in1<3; in1++) {
+          if (!shared[in1]) {
+            nodes[0] = _triList[it1][in1];
+            nodes[1] = _triList[it1][(in1+1)%3];
+            nodes[2] = _triList[it1][(in1+2)%3];
+          }
+        }
+        for (int in2=0; in2<3; in2++) {
+          if (!shared[3+in2]) nodes[3] = _triList[it2][in2];
+        }
+        shared = vector<bool>(6, false);
+        hingeList.push_back(nodes);
+      }
+    }
+    // Append the bond number of each hinge
+    for (auto& hinge: hingeList) {
+      for (int iBond=0; iBond<(int)bondList.size(); iBond++) {
+        vector<int> bond = {bondList[iBond][0], bondList[iBond][1]};
+        if (vec::isIn(bond, hinge[1]) && vec::isIn(bond, hinge[2])) {
+          hinge.push_back(iBond);
+          break;
+        }
+      }
+    }
+    return hingeList;
+  }
+
+
+  void BarAndHinge::computeRigidities(const vector<double>& coords, const vector2d<int>& bondList, const vector2d<int>& hingeList) {
+    // All rigidities the same
+    if (kBond.size() == 1) {
+      double k = kBond[0];
+      kBond = vector<double>(bondList.size(), k);
+    }
+    if (kHinge.size() == 1) {
+      double k = kHinge[0];
+      kHinge = vector<double>(hingeList.size(), k);
+    }
+    if (!kBond.empty() && !kHinge.empty()) return;
+
+    // Ensure thickness is set
+    if (thickness.empty()) {
+      throw std::invalid_argument("BarAndHinge requires either the rigidities or the thickness to be set");
+    } else if (thickness.size() == 1) {
+      double t = thickness[0];
+      thickness = vector<double>(coords.size()/3, t);
+    }
+
+    // Calculate the length and area sum of each bond
+    int nBond = bondList.size();
+    vector<double> lengthSq(nBond);
+    vector<double> areaSum(nBond);
+    for (int iBond=0; iBond<nBond; iBond++) {
+      vector<int> bond = bondList[iBond];
+      if (bond.size()==2) throw std::invalid_argument("The bondList should contain the indicies of the adjacent triangles.");
+      vector<double> x1 = {coords[3*bond[0]], coords[3*bond[0]+1], coords[3*bond[0]+2]};
+      vector<double> x2 = {coords[3*bond[1]], coords[3*bond[1]+1], coords[3*bond[1]+2]};
+      lengthSq[iBond] = vec::sum(vec::pow(x2-x1, 2));
+      // Triangle area
+      for (int i3: vector<int>(bond.begin()+2, bond.end())) {
+        vector<double> x3 = {coords[3*i3], coords[3*i3+1], coords[3*i3+2]};
+        areaSum[iBond] += std::abs(vec::norm(vec::crossProduct(x2-x1, x3-x1))) / 2;
+      }
+    }
+
+    // Stretching rigidities
+    if (kBond.empty()) {
+      kBond.reserve(nBond);
+      for (int iBond=0; iBond<nBond; iBond++) {
+        vector<int> bond = bondList[iBond];
+        double t = (thickness[bond[0]] + thickness[bond[1]]) / 2;
+        double rigidity = modulus * t;
+        double factor = areaSum[iBond] / lengthSq[iBond];
+        kBond.push_back(rigidity * factor);
+      }
+    }
+
+    // Bending rigidities
+    if (kHinge.empty()) {
+      kHinge.reserve(hingeList.size());
+      for (auto hinge: hingeList) {
+        if (hinge.size()==4) throw std::invalid_argument("The hingeList should contain the index of the bond.");
+        double t = (thickness[hinge[0]] + thickness[hinge[1]] + thickness[hinge[2]] + thickness[hinge[3]]) / 4;
+        double rigidity = modulus * pow(t,3) / (12 * (1 - pow(poissonRatio,2)));
+        double factor = lengthSq[hinge[4]] / areaSum[hinge[4]];
+        kHinge.push_back(rigidity * factor);
+      }
+    }
+  }
+
+
+  void BarAndHinge::computeLength0(const vector<double>& coords, const vector2d<int>& bondList) {
+    if (length0.empty()) {
+      length0 = vector<double>(bondList.size());
+      for (int iB=0; iB<(int)bondList.size(); iB++) {
+        auto n = bondList[iB];
+        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
+        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
+        length0[iB] = vec::norm(x1 - x2);
+      }
+    } else if (length0.size() == 1) {
+      double l0 = length0[0];
+      length0 = vector<double>(bondList.size(), l0);
+    }
+  }
+
+
+  void BarAndHinge::computeTheta0(const vector<double>& coords, const vector2d<int>& hingeList) {
+    if (theta0.empty()) {
+      theta0 = vector<double>(hingeList.size());
+      for (int iH=0; iH<(int)hingeList.size(); iH++) {
+        auto n = hingeList[iH];
+        vector<double> x1 = {coords[3*n[0]], coords[3*n[0]+1], coords[3*n[0]+2]};
+        vector<double> x2 = {coords[3*n[1]], coords[3*n[1]+1], coords[3*n[1]+2]};
+        vector<double> x3 = {coords[3*n[2]], coords[3*n[2]+1], coords[3*n[2]+2]};
+        vector<double> x4 = {coords[3*n[3]], coords[3*n[3]+1], coords[3*n[3]+2]};
+        auto n1 = vec::crossProduct(x2-x1, x3-x2);
+        auto n2 = vec::crossProduct(x3-x2, x4-x3);
+        double c = vec::dotProduct(n1, n2) / (vec::norm(n1) * vec::norm(n2));
+        double n1b3 = vec::dotProduct(n1, x4-x3);
+        theta0[iH] = (n1b3>=0) ? acos(c) : 2*pi()-acos(c);
+      }
+    } else if (theta0.size() == 1) {
+      double t0 = theta0[0];
+      theta0 = vector<double>(hingeList.size(), t0);
     }
   }
 
@@ -279,63 +398,17 @@ namespace minim {
 
 
   BarAndHinge& BarAndHinge::setTriangulation(const vector2d<int>& triList) {
-    // BondList
-    bondList.reserve(3*triList.size());
-    for (auto tri: triList) {
-      std::sort(tri.begin(), tri.end());
-      bondList.push_back({tri[0], tri[1]});
-      bondList.push_back({tri[0], tri[2]});
-      bondList.push_back({tri[1], tri[2]});
-    }
-    std::sort(bondList.begin(), bondList.end());
-    bondList.erase(std::unique(bondList.begin(), bondList.end()), bondList.end());
-    // HingeList
-    hingeList.reserve(3*triList.size());
-    vector<bool> shared(6, false);
-    for (int it1=0; it1<(int)triList.size(); it1++) {
-      for (int it2=it1+1; it2<(int)triList.size(); it2++) {
-        int nShared = 0;
-        for (int in1=0; in1<3; in1++) {
-          for (int in2=0; in2<3; in2++) {
-            if (triList[it1][in1] != triList[it2][in2]) continue;
-            nShared++;
-            shared[in1] = true;
-            shared[3+in2] = true;
-          }
-        }
-        if (nShared == 0) {
-          continue;
-        } else if (nShared != 2) {
-          shared = vector<bool>(6, false);
-          continue;
-        }
-        // Keep the cyclic order of the first triangle
-        // This allows the user to use theta0 in the full 2pi range
-        vector<int> nodes(4);
-        for (int in1=0; in1<3; in1++) {
-          if (!shared[in1]) {
-            nodes[0] = triList[it1][in1];
-            nodes[1] = triList[it1][(in1+1)%3];
-            nodes[2] = triList[it1][(in1+2)%3];
-          }
-        }
-        for (int in2=0; in2<3; in2++) {
-          if (!shared[3+in2]) nodes[3] = triList[it2][in2];
-        }
-        shared = vector<bool>(6, false);
-        hingeList.push_back(nodes);
-      }
-    }
+    this->_triList = triList;
     return *this;
   }
 
   BarAndHinge& BarAndHinge::setBondList(const vector2d<int>& bondList) {
-    this->bondList = bondList;
+    this->_bondList = bondList;
     return *this;
   }
 
   BarAndHinge& BarAndHinge::setHingeList(const vector2d<int>& hingeList) {
-    this->hingeList = hingeList;
+    this->_hingeList = hingeList;
     return *this;
   }
 
