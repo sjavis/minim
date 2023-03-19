@@ -35,6 +35,7 @@ namespace vec {
   template<typename T, typename U> auto crossProduct(const vector<T>& a, const vector<U>& b);
   template<typename T> auto sum(const vector<T>& a);
   template<typename T> auto norm(const vector<T>& a);
+  template<typename T> auto rms(const vector<T>& a);
 
   template<typename T> vector<T> abs(const vector<T>& a);
   template<typename T> vector<T> sqrt(const vector<T>& a);

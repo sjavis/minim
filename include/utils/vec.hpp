@@ -180,6 +180,13 @@ namespace vec {
   }
 
 
+  // Root mean square
+  template<typename T>
+  auto rms(const vector<T>& a) {
+    return std::sqrt(vec::dotProduct(a,a) / a.size());
+  }
+
+
   // Element-wise absolute value
   template<typename T>
   vector<T> abs(const vector<T>& a) {
