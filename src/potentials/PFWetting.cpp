@@ -147,7 +147,7 @@ namespace minim {
 
       // Set surface fluid elements
       if (type > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
-        double wettingParam = sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
+        double wettingParam = 1/sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           int idof = i * nFluid + iFluid;
           elements.push_back({2, {idof}, {surfaceArea, wettingParam}});
@@ -307,11 +307,11 @@ namespace minim {
       case 2: {
         // Surface energy
         // parameter[0]: Surface area
-        // parameter[1]: Wetting parameter sqrt(2)cos(theta)
+        // parameter[1]: Wetting parameter 1/sqrt(2) cos(theta)
         if (nFluid == 1) {
           double phi = coords[el.idof[0]];
-          if (e) *e += el.parameters[1] * (pow(phi,3)/3 - pow(phi,2)/2) * el.parameters[0];
-          if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - phi) * el.parameters[0];
+          if (e) *e += el.parameters[1] * (pow(phi,3)/3 - phi - 2.0/3) * el.parameters[0];
+          if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - 1) * el.parameters[0];
         }
       } break;
 

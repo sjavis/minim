@@ -7,7 +7,7 @@ LIBS =
 HLIBS = gsl
 
 CXX      = mpicxx#            C++ compiler
-CXXFLAGS = -Wall -DPARALLEL -std=c++14#  Flags for the C++ compiler
+CXXFLAGS = -O3 -Wall -DPARALLEL -std=c++14#  Flags for the C++ compiler
 
 TARGET := $(BUILD_DIR)/$(TARGET)
 VPATH = $(SRC_DIR)
