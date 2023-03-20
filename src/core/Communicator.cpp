@@ -210,7 +210,7 @@ namespace minim {
           for (int current : send_lists[i]) {
             if (current-previous > 1) {
               disps.push_back(current);
-              blocklens.push_back(disps.back() - *std::prev(disps.end(), 2));
+              blocklens.push_back(previous+1 - *std::prev(disps.end(), 2));
             }
             previous = current;
           }
@@ -402,6 +402,9 @@ namespace minim {
         int tag = p->commRank*p->commSize + i;
         MPI_Send(&vector[0], 1, p->sendtype[i], i, tag, p->comm);
       }
+    }
+    for (int i=0; i<p->commSize; i++) {
+      if (i == p->commRank) continue;
       // Receive
       if (p->nrecv[i] > 0) {
         int tag = i*p->commSize + p->commRank;
