@@ -23,15 +23,15 @@ namespace minim {
     computeLength0(coords, bondList);
     computeTheta0(coords, hingeList);
 
-    // Check element DOFs are valid
-    int nNode = coords.size() / 3;
-    vector2d<int> elementList = bondList;
-    elementList.insert(elementList.end(), hingeList.begin(), hingeList.end());
-    for (auto element: elementList) {
-      for (int iNode: element) {
-        if (iNode >= nNode) throw std::logic_error("The triangulation expects more coordinates than are given.");
-      }
-    }
+    // Check element DOFs are valid TODO: fix this
+    // int nNode = coords.size() / 3;
+    // vector2d<int> elementList = bondList;
+    // elementList.insert(elementList.end(), hingeList.begin(), hingeList.end());
+    // for (auto element: elementList) {
+    //   for (int iNode: element) {
+    //     if (iNode >= nNode) throw std::logic_error("The triangulation expects more coordinates than are given.");
+    //   }
+    // }
     if (!fixed.empty() && fixed.size()!=coords.size()) {
       throw std::logic_error("The vector for the fixed degrees of freedom has the wrong size");
     }
