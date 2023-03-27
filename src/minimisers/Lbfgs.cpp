@@ -27,14 +27,9 @@ namespace minim {
 
 
   void Lbfgs::init(State& state) {
-    if (state.comm.rank() == 0) {
-      _root = true;
-      _s = vector2d<double>(_m, vector<double>(state.ndof));
-      _y = vector2d<double>(_m, vector<double>(state.ndof));
-      _rho = vector<double>(_m);
-    } else {
-      _root = false;
-    }
+    _s = vector2d<double>(_m, vector<double>(state.ndof));
+    _y = vector2d<double>(_m, vector<double>(state.ndof));
+    _rho = vector<double>(_m);
   }
 
 
@@ -49,21 +44,18 @@ namespace minim {
     // Find minimisation direction
     vector<double> step = getDirection();
     // Ensure it is going downhill
-    double gs;
-    if (_root) {
-      gs = vec::dotProduct(_g, step);
-      if (gs > 0) {
-        gs = -gs;
-        step = -step;
-      }
+    double gs = vec::dotProduct(_g, step);
+    if (gs > 0) {
+      gs = -gs;
+      step = -step;
     }
 
     // Perform linesearch
-    vector<double> step_block = state.comm.scatter(step, 0);
+    vector<double> step_block = state.comm.scatter(step);
     if (linesearch == "backtracking") {
       state.comm.bcast(gs);
       double step_multiplier = backtrackingLinesearch(state, step_block, gs);
-      if (_root) step *= step_multiplier;
+      step *= step_multiplier;
     } else {
       state.blockCoords(state.blockCoords() + step_block);
     }
@@ -72,18 +64,16 @@ namespace minim {
     _gNew = state.gradient();
 
     // Store the changes required for LBFGS
-    if (_root) {
-      auto s = step;
-      auto y = _gNew - _g;
-      double sy = vec::dotProduct(s, y);
-      if (sy != 0) {
-        int i_cycle = _i % _m;
-        _s[i_cycle] = s;
-        _y[i_cycle] = y;
-        _rho[i_cycle] = 1 / sy;
-      } else {
-        _i --;
-      }
+    auto s = step;
+    auto y = _gNew - _g;
+    double sy = vec::dotProduct(s, y);
+    if (sy != 0) {
+      int i_cycle = _i % _m;
+      _s[i_cycle] = s;
+      _y[i_cycle] = y;
+      _rho[i_cycle] = 1 / sy;
+    } else {
+      _i --;
     }
 
     _g = _gNew;
@@ -94,40 +84,38 @@ namespace minim {
     vector<double> step;
 
     // Compute the step on the main processor
-    if (_root) {
-      double alpha[_m] = {0};
-      int m_tmp = std::min(_m, _i);
-      int i_cycle = _i % _m;
+    double alpha[_m] = {0};
+    int m_tmp = std::min(_m, _i);
+    int i_cycle = _i % _m;
 
-      if (m_tmp == 0) {
-        step = -_init_hessian * _g;
-        return step;
+    if (m_tmp == 0) {
+      step = -_init_hessian * _g;
+      return step;
+    }
+
+    step = -_g;
+    int ndof = step.size();
+    for (int i1=0; i1<m_tmp; i1++) {
+      int i = (i_cycle - 1 - i1 + _m) % _m;
+      alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
+      for (int j=0; j<ndof; j++) {
+        step[j] -= alpha[i] * _y[i][j];
       }
+    }
 
-      step = -_g;
-      int ndof = step.size();
-      for (int i1=0; i1<m_tmp; i1++) {
-        int i = (i_cycle - 1 - i1 + _m) % _m;
-        alpha[i] = _rho[i] * vec::dotProduct(step, _s[i]);
-        for (int j=0; j<ndof; j++) {
-          step[j] -= alpha[i] * _y[i][j];
-        }
-      }
+    int i = (i_cycle - 1 + _m) % _m;
+    double gamma = 1 / (_rho[i] * vec::dotProduct(_y[i], _y[i]));
+    step = gamma * step;
 
-      int i = (i_cycle - 1 + _m) % _m;
-      double gamma = 1 / (_rho[i] * vec::dotProduct(_y[i], _y[i]));
-      step = gamma * step;
+    for (int i1=0; i1<m_tmp; i1++) {
+      int i = (i_cycle - m_tmp + i1 + _m) % _m;
+      double beta = _rho[i] * vec::dotProduct(step, _y[i]);
+      step += (alpha[i]-beta) * _s[i];
+    }
 
-      for (int i1=0; i1<m_tmp; i1++) {
-        int i = (i_cycle - m_tmp + i1 + _m) % _m;
-        double beta = _rho[i] * vec::dotProduct(step, _y[i]);
-        step += (alpha[i]-beta) * _s[i];
-      }
-
-      if (_maxStep != 0) {
-        double stepSize = vec::norm(step);
-        if (stepSize > _maxStep) step *= _maxStep / stepSize;
-      }
+    if (_maxStep != 0) {
+      double stepSize = vec::norm(step);
+      if (stepSize > _maxStep) step *= _maxStep / stepSize;
     }
 
     return step;
