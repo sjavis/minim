@@ -4,6 +4,3 @@
 [submodule "test/gtest-mpi-listener"]
 	path = test/gtest-mpi-listener
 	url = https://github.com/LLNL/gtest-mpi-listener
-[submodule "lib/gsl"]
-	path = lib/gsl
-	url = https://github.com/microsoft/GSL

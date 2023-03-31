@@ -4,7 +4,7 @@ INC_DIR = include
 BUILD_DIR = bin
 LIB_DIR = lib
 LIBS =
-HLIBS = gsl
+HLIBS =
 
 CXX      = mpicxx#            C++ compiler
 CXXFLAGS = -O3 -Wall -DPARALLEL -std=c++14#  Flags for the C++ compiler
