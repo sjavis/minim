@@ -4,7 +4,7 @@
 #include "gtest-mpi-listener.hpp"
 #include "ArraysMatch.h"
 
-#include "Lj3d.h"
+#include "LjNd.h"
 #include "utils/mpi.h"
 
 using namespace minim;
@@ -16,7 +16,7 @@ TEST(StateTest, TestInit) {
   State s = pot.newState({0,0,0, 1,0,0});
   EXPECT_EQ(s.ndof, 6);
   EXPECT_TRUE(ArraysMatch(s.coords(), {0,0,0, 1,0,0}));
-  EXPECT_NO_THROW(dynamic_cast<Lj3d&>(*s.pot));
+  EXPECT_NO_THROW(dynamic_cast<LjNd&>(*s.pot));
 }
 
 
@@ -26,7 +26,7 @@ TEST(StateTest, TestClone) {
   State sClone = s;
   EXPECT_EQ(sClone.ndof, 6);
   EXPECT_TRUE(ArraysMatch(sClone.coords(), {0,0,0, 1,0,0}));
-  EXPECT_NO_THROW(dynamic_cast<Lj3d&>(*sClone.pot));
+  EXPECT_NO_THROW(dynamic_cast<LjNd&>(*sClone.pot));
 }
 
 

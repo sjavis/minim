@@ -14,7 +14,7 @@
 #include "Fire.h"
 #include "Anneal.h"
 
-#include "Lj3d.h"
+#include "LjNd.h"
 #include "BarAndHinge.h"
 #include "PFWetting.h"
 
