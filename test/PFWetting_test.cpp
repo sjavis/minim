@@ -82,8 +82,8 @@ TEST(PFWettingTest, TestSurfaceEnergy) {
   for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
     if (el->type==0) state.pot->elements.erase(el); // Remove the bulk fluid energy elements
   }
-  EXPECT_FLOAT_EQ(state.energy(), 0.5*sqrt(2.0)*(-1.0/12));
-  EXPECT_TRUE(ArraysNear(state.gradient(), {0, 0.5*sqrt(2.0)*(-0.25)}, 1e-6));
+  EXPECT_FLOAT_EQ(state.energy(), 0.5/sqrt(2.0)*(-27.0/24));
+  EXPECT_TRUE(ArraysNear(state.gradient(), {0, 0.5/sqrt(2.0)*(-0.75)}, 1e-6));
 }
 
 
@@ -139,8 +139,8 @@ TEST(PFWettingTest, TestResolution) {
   for (auto el=s3.pot->elements.begin(); el!=s3.pot->elements.end(); el++) {
     if (el->type==0) s3.pot->elements.erase(el); // Remove the bulk fluid energy elements
   }
-  EXPECT_FLOAT_EQ(s3.energy(), 0.5*sqrt(2.0)*(-1.0/12)*4);
-  EXPECT_TRUE(ArraysNear(s3.gradient(), {0, 0.5*sqrt(2.0)*(-0.25)*4}, 1e-6));
+  EXPECT_FLOAT_EQ(s3.energy(), 0.5/sqrt(2.0)*(-27.0/24)*4);
+  EXPECT_TRUE(ArraysNear(s3.gradient(), {0, 0.5/sqrt(2.0)*(-0.75)*4}, 1e-6));
 
   // Pressure
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setPressure({10});
