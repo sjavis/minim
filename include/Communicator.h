@@ -35,6 +35,7 @@ namespace minim {
 
       double sum(double a) const;
       double sum(const vector<double>& a) const;
+      double norm(const vector<double>& a) const;
       double dotProduct(const vector<double>& a, const vector<double>& b) const;
 
       vector<double> gather(const vector<double>& block, int root=-1) const;

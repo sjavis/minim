@@ -442,7 +442,13 @@ namespace minim {
 
   double Communicator::sum(const vector<double>& a) const {
     if (!usesThisProc) return 0;
-    return sum(vec::sum(a));
+    return sum(vec::sum(a)); // TODO: Ignore halo?
+  }
+
+
+  double Communicator::norm(const vector<double>& a) const {
+    if (!usesThisProc) return 0;
+    return sqrt(dotProduct(a, a));
   }
 
 
