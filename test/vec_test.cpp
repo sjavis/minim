@@ -93,6 +93,12 @@ TEST(VecTest, TestRandom) {
 }
 
 
+TEST(VecTest, TestSlice) {
+  auto slice = vec::slice<double>({1,2,3,4,5}, {1,1,4,0});
+  EXPECT_TRUE(ArraysMatch(slice, {2,2,5,1}));
+}
+
+
 TEST(VecTest, TestSort) {
   EXPECT_TRUE(ArraysMatch(vec::sort<int>({1,1,0,5,5,-4}), {-4,0,1,1,5,5}));
   vector<int> index;

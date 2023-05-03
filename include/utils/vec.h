@@ -47,6 +47,7 @@ namespace vec {
 
   template<typename T> bool isIn(const vector<T>& vec, T value);
 
+  template<typename T> vector<T> slice(const vector<T>& in, const vector<int>& index);
   template<typename T> vector<T> sort(const vector<T>& in, vector<int>* index=nullptr);
   template<typename T> vector<T> unique(const vector<T>& in, vector<int>* index=nullptr);
 
