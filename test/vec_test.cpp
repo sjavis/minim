@@ -1,10 +1,6 @@
+#include "test_main.cpp"
 #include "utils/vec.h"
 
-#include "gtest/gtest.h"
-#include "gtest-mpi-listener.hpp"
-#include "ArraysMatch.h"
-
-#include "utils/mpi.h"
 #include <algorithm>
 
 typedef std::vector<double> Vector;
@@ -123,17 +119,4 @@ TEST(VecTest, TestIsIn) {
   EXPECT_TRUE(vec::isIn(b, std::string{"b1"}));
   EXPECT_TRUE(vec::isIn({"b1", "B_2"}, "B_2"));
   EXPECT_FALSE(vec::isIn({"b1", "B_2"}, std::string("B1")));
-}
-
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  minim::mpiInit(&argc, &argv);
-
-  // Add an MPI listener (https://github.com/LLNL/gtest-mpi-listener)
-  ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
-  ::testing::TestEventListener *l = listeners.Release(listeners.default_result_printer());
-  listeners.Append(new GTestMPIListener::MPIWrapperPrinter(l, MPI_COMM_WORLD));
-
-  return RUN_ALL_TESTS();
 }
