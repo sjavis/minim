@@ -109,4 +109,30 @@ namespace minim {
     return *this;
   }
 
+
+  Potential& Potential::setConstraints(vector<int> iFix) {
+    constraints = {};
+    for (int i: iFix) {
+      constraints.push_back({{i}});
+    }
+    return *this;
+  }
+
+  Potential& Potential::setConstraints(vector2d<int> idofs, vector<double> normal, std::function<void(vector<double>&)> correction) {
+    constraints = {};
+    for (const vector<int>& idof: idofs) {
+      constraints.push_back({idof, [normal](auto&&){return normal;}, correction});
+    }
+    return *this;
+  }
+
+  Potential& Potential::setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction) {
+    constraints = {};
+    for (const vector<int>& idof: idofs) {
+      constraints.push_back({idof, normal, correction});
+    }
+    return *this;
+  }
+
+
 }

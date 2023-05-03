@@ -65,7 +65,6 @@ namespace minim {
       };
       vector<Constraint> constraints;
 
-      Potential& setConstraints(vector<Constraint> constraints);
       Potential& setConstraints(vector<int> iFix);
       Potential& setConstraints(vector2d<int> idofs, vector<double> normal, std::function<void(vector<double>&)> correction=nullptr);
       Potential& setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction=nullptr);
@@ -103,9 +102,6 @@ namespace minim {
         return static_cast<Derived&>(Potential::setElements(idofs, types, parameters));
       }
 
-      Derived& setConstraints(vector<Constraint> constraints) {
-        return static_cast<Derived&>(Potential::setConstraints(constraints));
-      }
       Derived& setConstraints(vector<int> iFix) {
         return static_cast<Derived&>(Potential::setConstraints(iFix));
       }
