@@ -136,12 +136,12 @@ namespace minim {
   }
 
 
-  vector<double> Potential::applyConstraints(vector<double>& grad) const {
+  vector<double> Potential::applyConstraints(const vector<double>& coords, vector<double>& grad) const {
     for (const auto& constraint: constraints) {
       if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
       else {
         // Remove the component of grad in the direction of the normal
-        auto normal = constraint.normal(grad);
+        auto normal = constraint.normal(coords);
         auto gradSlice = vec::slice(grad, constraint.idof);
         double normalSq = vec::dotProduct(normal, normal);
         double gradNormal = vec::dotProduct(gradSlice, normal);

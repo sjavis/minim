@@ -69,7 +69,7 @@ namespace minim {
       Potential& setConstraints(vector2d<int> idofs, vector<double> normal);
       Potential& setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction=nullptr);
 
-      vector<double> applyConstraints(vector<double>& grad) const;
+      vector<double> applyConstraints(const vector<double>& coords, vector<double>& grad) const;
       vector<double> correctConstraints(vector<double>& coords) const;
 
       // Copy / destruct
