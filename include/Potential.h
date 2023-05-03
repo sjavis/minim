@@ -72,6 +72,9 @@ namespace minim {
       vector<double> applyConstraints(const vector<double>& coords, vector<double>& grad) const;
       vector<double> correctConstraints(vector<double>& coords) const;
 
+      bool isFixed(int index) const;
+      vector<bool> isFixed(const vector<int>& indicies) const;
+
       // Copy / destruct
       ~Potential() {};
       virtual std::unique_ptr<Potential> clone() const {

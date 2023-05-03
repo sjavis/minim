@@ -49,4 +49,11 @@ TEST(PotentialTest, TestConstraints) {
   EXPECT_TRUE(ArraysMatch(g, {2,0}));
   s.blockEnergyGradient(nullptr, &g);
   EXPECT_TRUE(ArraysMatch(g, {2,0}));
+
+  // Check if fixed
+  pot.constraints = {};
+  pot.setConstraints({1});
+  EXPECT_TRUE(pot.isFixed(1));
+  EXPECT_FALSE(pot.isFixed(0));
+  EXPECT_TRUE(ArraysMatch(pot.isFixed({0,1}), {false,true}));
 }
