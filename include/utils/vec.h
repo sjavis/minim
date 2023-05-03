@@ -55,6 +55,8 @@ namespace vec {
 
   void random(vector<double>& vec, double max);
   vector<double> random(int n, double max);
+
+  vector<int> iota(int n, int start=0);
 }
 
 #include "vec.hpp"

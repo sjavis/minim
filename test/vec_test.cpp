@@ -126,3 +126,9 @@ TEST(VecTest, TestIsIn) {
   EXPECT_TRUE(vec::isIn({"b1", "B_2"}, "B_2"));
   EXPECT_FALSE(vec::isIn({"b1", "B_2"}, std::string("B1")));
 }
+
+
+TEST(VecTest, TestIota) {
+  EXPECT_TRUE(ArraysMatch(vec::iota(5), {0,1,2,3,4}));
+  EXPECT_TRUE(ArraysMatch(vec::iota(3,-1), {-1,0,1}));
+}
