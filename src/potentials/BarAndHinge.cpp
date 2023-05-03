@@ -22,6 +22,7 @@ namespace minim {
     computeRigidities(coords, bondList, hingeList);
     computeLength0(coords, bondList);
     computeTheta0(coords, hingeList);
+    vector<bool> fixed = isFixed(vec::iota(coords.size()));
 
     // Check element DOFs are valid TODO: fix this
     // int nNode = coords.size() / 3;
@@ -32,9 +33,6 @@ namespace minim {
     //     if (iNode >= nNode) throw std::logic_error("The triangulation expects more coordinates than are given.");
     //   }
     // }
-    if (!fixed.empty() && fixed.size()!=coords.size()) {
-      throw std::logic_error("The vector for the fixed degrees of freedom has the wrong size");
-    }
 
     // Assign elements
     elements = {};
@@ -46,6 +44,7 @@ namespace minim {
         idofs[3*iN+1] = 3 * n + 1;
         idofs[3*iN+2] = 3 * n + 2;
       }
+      if (!vec::any(vec::slice(fixed, idofs))) continue;
       elements.push_back({0, idofs, {kBond[iB], length0[iB]}});
     }
     for (int iH=0; iH<(int)hingeList.size(); iH++) {
@@ -56,14 +55,16 @@ namespace minim {
         idofs[3*iN+1] = 3 * n + 1;
         idofs[3*iN+2] = 3 * n + 2;
       }
+      if (!vec::any(vec::slice(fixed, idofs))) continue;
       elements.push_back({1, idofs, {kHinge[iH], theta0[iH]}});
     }
     for (int iN=0; iN<(int)coords.size()/3; iN++) {
-      if (!fixed.empty() && fixed[3*iN]) continue;
+      vector<int> idofs{3*iN, 3*iN+1, 3*iN+2};
+      if (!vec::any(vec::slice(fixed, idofs))) continue;
       // External force
-      elements.push_back({2, {3*iN, 3*iN+1, 3*iN+2}, {(double)iN}});
+      elements.push_back({2, idofs, {(double)iN}});
       // Substrate interaction
-      if (wallOn) elements.push_back({3, {3*iN, 3*iN+1, 3*iN+2}});
+      if (wallOn) elements.push_back({3, idofs});
     }
   }
 
@@ -251,7 +252,6 @@ namespace minim {
 
   void BarAndHinge::distributeParameters(const Communicator& comm) {
     if (paramsDistributed) return;
-    if (!fixed.empty()) fixed = comm.assignProc(fixed);
     paramsDistributed = true;
   }
 
@@ -288,12 +288,12 @@ namespace minim {
     }
     if (g != nullptr) {
       auto g_factor = 2 * el.parameters[0] * dl / l;
-      if (fixed.empty() || !fixed[el.idof[0]]) (*g)[el.idof[0]] += g_factor * dx[0];
-      if (fixed.empty() || !fixed[el.idof[1]]) (*g)[el.idof[1]] += g_factor * dx[1];
-      if (fixed.empty() || !fixed[el.idof[2]]) (*g)[el.idof[2]] += g_factor * dx[2];
-      if (fixed.empty() || !fixed[el.idof[3]]) (*g)[el.idof[3]] -= g_factor * dx[0];
-      if (fixed.empty() || !fixed[el.idof[4]]) (*g)[el.idof[4]] -= g_factor * dx[1];
-      if (fixed.empty() || !fixed[el.idof[5]]) (*g)[el.idof[5]] -= g_factor * dx[2];
+      (*g)[el.idof[0]] += g_factor * dx[0];
+      (*g)[el.idof[1]] += g_factor * dx[1];
+      (*g)[el.idof[2]] += g_factor * dx[2];
+      (*g)[el.idof[3]] -= g_factor * dx[0];
+      (*g)[el.idof[4]] -= g_factor * dx[1];
+      (*g)[el.idof[5]] -= g_factor * dx[2];
     }
   }
 
@@ -348,24 +348,23 @@ namespace minim {
       // Quantify triangular skew, 0.5 if symmetric
       double skew1 = -vec::dotProduct(b1, b2) / (b2m*b2m);
       double skew2 = -vec::dotProduct(b3, b2) / (b2m*b2m);
-      if (fixed.empty() || !fixed[el.idof[0]])  (*g)[el.idof[0]] += -gfactor * n1h[0];
-      if (fixed.empty() || !fixed[el.idof[1]])  (*g)[el.idof[1]] += -gfactor * n1h[1];
-      if (fixed.empty() || !fixed[el.idof[2]])  (*g)[el.idof[2]] += -gfactor * n1h[2];
-      if (fixed.empty() || !fixed[el.idof[3]])  (*g)[el.idof[3]] +=  gfactor * ((1-skew1)*n1h[0] - skew2*n2h[0]);
-      if (fixed.empty() || !fixed[el.idof[4]])  (*g)[el.idof[4]] +=  gfactor * ((1-skew1)*n1h[1] - skew2*n2h[1]);
-      if (fixed.empty() || !fixed[el.idof[5]])  (*g)[el.idof[5]] +=  gfactor * ((1-skew1)*n1h[2] - skew2*n2h[2]);
-      if (fixed.empty() || !fixed[el.idof[6]])  (*g)[el.idof[6]] += -gfactor * ((1-skew2)*n2h[0] - skew1*n1h[0]);
-      if (fixed.empty() || !fixed[el.idof[7]])  (*g)[el.idof[7]] += -gfactor * ((1-skew2)*n2h[1] - skew1*n1h[1]);
-      if (fixed.empty() || !fixed[el.idof[8]])  (*g)[el.idof[8]] += -gfactor * ((1-skew2)*n2h[2] - skew1*n1h[2]);
-      if (fixed.empty() || !fixed[el.idof[9]])  (*g)[el.idof[9]]  += gfactor * n2h[0];
-      if (fixed.empty() || !fixed[el.idof[10]]) (*g)[el.idof[10]] += gfactor * n2h[1];
-      if (fixed.empty() || !fixed[el.idof[11]]) (*g)[el.idof[11]] += gfactor * n2h[2];
+      (*g)[el.idof[0]] += -gfactor * n1h[0];
+      (*g)[el.idof[1]] += -gfactor * n1h[1];
+      (*g)[el.idof[2]] += -gfactor * n1h[2];
+      (*g)[el.idof[3]] +=  gfactor * ((1-skew1)*n1h[0] - skew2*n2h[0]);
+      (*g)[el.idof[4]] +=  gfactor * ((1-skew1)*n1h[1] - skew2*n2h[1]);
+      (*g)[el.idof[5]] +=  gfactor * ((1-skew1)*n1h[2] - skew2*n2h[2]);
+      (*g)[el.idof[6]] += -gfactor * ((1-skew2)*n2h[0] - skew1*n1h[0]);
+      (*g)[el.idof[7]] += -gfactor * ((1-skew2)*n2h[1] - skew1*n1h[1]);
+      (*g)[el.idof[8]] += -gfactor * ((1-skew2)*n2h[2] - skew1*n1h[2]);
+      (*g)[el.idof[9]]  += gfactor * n2h[0];
+      (*g)[el.idof[10]] += gfactor * n2h[1];
+      (*g)[el.idof[11]] += gfactor * n2h[2];
     }
   }
 
 
   void BarAndHinge::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    if (!fixed.empty() && fixed[el.idof[2]]) return;
     vector<double> force(3);
     if (this->force.size() == 3) {
       force = this->force;
@@ -379,7 +378,6 @@ namespace minim {
 
 
   void BarAndHinge::substrate(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    if (!fixed.empty() && fixed[el.idof[2]]) return;
     // Height
     double height = coords[el.idof[2]];
     if (!wallAdhesion && height>0) return;
@@ -487,11 +485,6 @@ namespace minim {
         this->force.push_back(force[i][j]);
       }
     }
-    return *this;
-  }
-
-  BarAndHinge& BarAndHinge::setFixed(const vector<bool>& fixed) {
-    this->fixed = fixed;
     return *this;
   }
 

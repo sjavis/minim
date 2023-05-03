@@ -40,8 +40,6 @@ namespace minim {
       BarAndHinge& setForce(const vector<double>& force);
       BarAndHinge& setForce(const vector2d<double>& force);
 
-      BarAndHinge& setFixed(const vector<bool>& fixed);
-
       double modulus = 1;
       double poissonRatio = 0.3;
       bool wallOn = false;
@@ -51,7 +49,6 @@ namespace minim {
 
     private:
       bool paramsDistributed = false;
-      vector<bool> fixed;
       vector2d<int> _bondList;
       vector2d<int> _hingeList;
       vector2d<int> _triList;
