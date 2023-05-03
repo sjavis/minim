@@ -66,8 +66,11 @@ namespace minim {
       vector<Constraint> constraints;
 
       Potential& setConstraints(vector<int> iFix);
-      Potential& setConstraints(vector2d<int> idofs, vector<double> normal, std::function<void(vector<double>&)> correction=nullptr);
+      Potential& setConstraints(vector2d<int> idofs, vector<double> normal);
       Potential& setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction=nullptr);
+
+      vector<double> applyConstraints(vector<double>& grad) const;
+      vector<double> correctConstraints(vector<double>& coords) const;
 
       // Copy / destruct
       ~Potential() {};
@@ -105,8 +108,8 @@ namespace minim {
       Derived& setConstraints(vector<int> iFix) {
         return static_cast<Derived&>(Potential::setConstraints(iFix));
       }
-      Derived& setConstraints(vector2d<int> idofs, vector<double> normal, std::function<void(vector<double>&)> correction=nullptr) {
-        return static_cast<Derived&>(Potential::setConstraints(idofs, normal, correction));
+      Derived& setConstraints(vector2d<int> idofs, vector<double> normal) {
+        return static_cast<Derived&>(Potential::setConstraints(idofs, normal));
       }
       Derived& setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction=nullptr) {
         return static_cast<Derived&>(Potential::setConstraints(idofs, normal, correction));

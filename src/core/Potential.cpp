@@ -1,6 +1,7 @@
 #include "Potential.h"
 
 #include "State.h"
+#include "utils/vec.h"
 #include <stdexcept>
 
 namespace minim {
@@ -118,10 +119,10 @@ namespace minim {
     return *this;
   }
 
-  Potential& Potential::setConstraints(vector2d<int> idofs, vector<double> normal, std::function<void(vector<double>&)> correction) {
+  Potential& Potential::setConstraints(vector2d<int> idofs, vector<double> normal) {
     constraints = {};
     for (const vector<int>& idof: idofs) {
-      constraints.push_back({idof, [normal](auto&&){return normal;}, correction});
+      constraints.push_back({idof, [normal](auto&&){return normal;}});
     }
     return *this;
   }
@@ -132,6 +133,29 @@ namespace minim {
       constraints.push_back({idof, normal, correction});
     }
     return *this;
+  }
+
+
+  vector<double> Potential::applyConstraints(vector<double>& grad) const {
+    for (const auto& constraint: constraints) {
+      if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
+      else {
+        // Remove the component of grad in the direction of the normal
+        auto normal = constraint.normal(grad);
+        double normalSq = vec::dotProduct(normal, normal);
+        double gradNormal = 0;
+        for (size_t i=0; i<normal.size(); i++) gradNormal += grad[constraint.idof[i]] * normal[i];
+        for (size_t i=0; i<normal.size(); i++) grad[constraint.idof[i]] -= gradNormal * normal[i] / normalSq;
+      }
+    }
+    return grad;
+  }
+
+  vector<double> Potential::correctConstraints(vector<double>& coords) const {
+    for (const auto& constraint: constraints) {
+      if (constraint.correction) constraint.correction(coords);
+    }
+    return coords;
   }
 
 

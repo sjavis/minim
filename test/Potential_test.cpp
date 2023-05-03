@@ -16,16 +16,25 @@ TEST(PotentialTest, TestConstraints) {
   pot.setConstraints({1});
   EXPECT_EQ(pot.constraints.size(), 1);
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].idof, {1}));
+  auto g = pot.gradient({1,2});
+  EXPECT_TRUE(ArraysMatch(g, {2,4}));
+  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(g), {2,0}));
 
   // Vector constraint
   pot.constraints = {};
   pot.setConstraints({{0,1}}, {1,-1});
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].idof, {0,1}));
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].normal({1,2}), {1,-1}));
+  g = pot.gradient({1,2});
+  EXPECT_TRUE(ArraysMatch(g, {2,4}));
+  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(g), {3,3}));
 
   // Function constraint
   pot.constraints = {};
   pot.setConstraints({{0,1}}, [](const vector<double>& x){ return x; });
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].idof, {0,1}));
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].normal({1,2}), {1,2}));
+  g = pot.gradient({1,2});
+  EXPECT_TRUE(ArraysMatch(g, {2,4}));
+  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(g), {0,0}));
 }
