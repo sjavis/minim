@@ -15,7 +15,6 @@ namespace minim {
       ~BarAndHinge() {};
 
       void init(const vector<double>& coords) override;
-      void distributeParameters(const Communicator& comm) override;
 
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
@@ -48,7 +47,6 @@ namespace minim {
       double lj_sigma = 1e-5;
 
     private:
-      bool paramsDistributed = false;
       vector2d<int> _bondList;
       vector2d<int> _hingeList;
       vector2d<int> _triList;

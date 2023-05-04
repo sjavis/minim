@@ -14,8 +14,6 @@ namespace minim {
 
 
   void BarAndHinge::init(const vector<double>& coords) {
-    if (paramsDistributed) return; // Do not reinitialise because the fixed parameter will have been distributed
-
     // Get the information required for the elements
     vector2d<int> bondList = computeBondList();
     vector2d<int> hingeList = computeHingeList(bondList);
@@ -44,7 +42,7 @@ namespace minim {
         idofs[3*iN+1] = 3 * n + 1;
         idofs[3*iN+2] = 3 * n + 2;
       }
-      if (!vec::any(vec::slice(fixed, idofs))) continue;
+      if (vec::all(vec::slice(fixed, idofs))) continue;
       elements.push_back({0, idofs, {kBond[iB], length0[iB]}});
     }
     for (int iH=0; iH<(int)hingeList.size(); iH++) {
@@ -55,12 +53,12 @@ namespace minim {
         idofs[3*iN+1] = 3 * n + 1;
         idofs[3*iN+2] = 3 * n + 2;
       }
-      if (!vec::any(vec::slice(fixed, idofs))) continue;
+      if (vec::all(vec::slice(fixed, idofs))) continue;
       elements.push_back({1, idofs, {kHinge[iH], theta0[iH]}});
     }
     for (int iN=0; iN<(int)coords.size()/3; iN++) {
       vector<int> idofs{3*iN, 3*iN+1, 3*iN+2};
-      if (!vec::any(vec::slice(fixed, idofs))) continue;
+      if (vec::all(vec::slice(fixed, idofs))) continue;
       // External force
       elements.push_back({2, idofs, {(double)iN}});
       // Substrate interaction
@@ -247,12 +245,6 @@ namespace minim {
       double t0 = theta0[0];
       theta0 = vector<double>(hingeList.size(), t0);
     }
-  }
-
-
-  void BarAndHinge::distributeParameters(const Communicator& comm) {
-    if (paramsDistributed) return;
-    paramsDistributed = true;
   }
 
 
