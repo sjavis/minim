@@ -240,6 +240,15 @@ namespace vec {
   }
 
 
+  template<typename T>
+  vector<T> slice(const vector<T>& in, const vector<int>& index) {
+    vector<T> slice;
+    slice.reserve(index.size());
+    for (int i: index) slice.push_back(in[i]);
+    return slice;
+  }
+
+
   // Get the sorted vector
   template<typename T>
   vector<T> sort(const vector<T>& in, vector<int>* index) {

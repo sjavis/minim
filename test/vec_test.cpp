@@ -1,10 +1,6 @@
+#include "test_main.cpp"
 #include "utils/vec.h"
 
-#include "gtest/gtest.h"
-#include "gtest-mpi-listener.hpp"
-#include "ArraysMatch.h"
-
-#include "utils/mpi.h"
 #include <algorithm>
 
 typedef std::vector<double> Vector;
@@ -97,6 +93,12 @@ TEST(VecTest, TestRandom) {
 }
 
 
+TEST(VecTest, TestSlice) {
+  auto slice = vec::slice<double>({1,2,3,4,5}, {1,1,4,0});
+  EXPECT_TRUE(ArraysMatch(slice, {2,2,5,1}));
+}
+
+
 TEST(VecTest, TestSort) {
   EXPECT_TRUE(ArraysMatch(vec::sort<int>({1,1,0,5,5,-4}), {-4,0,1,1,5,5}));
   vector<int> index;
@@ -126,14 +128,7 @@ TEST(VecTest, TestIsIn) {
 }
 
 
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  minim::mpiInit(&argc, &argv);
-
-  // Add an MPI listener (https://github.com/LLNL/gtest-mpi-listener)
-  ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
-  ::testing::TestEventListener *l = listeners.Release(listeners.default_result_printer());
-  listeners.Append(new GTestMPIListener::MPIWrapperPrinter(l, MPI_COMM_WORLD));
-
-  return RUN_ALL_TESTS();
+TEST(VecTest, TestIota) {
+  EXPECT_TRUE(ArraysMatch(vec::iota(5), {0,1,2,3,4}));
+  EXPECT_TRUE(ArraysMatch(vec::iota(3,-1), {-1,0,1}));
 }

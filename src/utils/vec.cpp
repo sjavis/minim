@@ -1,6 +1,7 @@
 #include "utils/vec.h"
 
 #include <random>
+#include <numeric>
 
 namespace vec {
 
@@ -17,6 +18,12 @@ namespace vec {
   vector<double> random(int n, double max) {
     vector<double> vec(n);
     random(vec, max);
+    return vec;
+  }
+
+  vector<int> iota(int n, int start) {
+    vector<int> vec(n);
+    std::iota(vec.begin(), vec.end(), start);
     return vec;
   }
 

@@ -111,7 +111,8 @@ namespace minim {
 
     if (pot->serialDef()) {
       vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
-      return pot->gradient(allCoords);
+      auto g = pot->gradient(allCoords);
+      return pot->applyConstraints(coords, g);
 
     } else if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
@@ -128,6 +129,7 @@ namespace minim {
     if (pot->serialDef()) {
       vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       pot->energyGradient(allCoords, e, g);
+      if (g) pot->applyConstraints(coords, *g);
 
     } else if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
@@ -172,7 +174,9 @@ namespace minim {
       return g;
 
     } else if (pot->serialDef()) {
-      return comm.scatter(pot->gradient(comm.gather(coords)));
+      auto g = pot->gradient(comm.gather(coords));
+      pot->applyConstraints(coords, g);
+      return comm.scatter(g);
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -196,6 +200,7 @@ namespace minim {
         for (auto el : pot->elements_halo) {
           pot->elementEnergyGradient(coords, el, nullptr, g);
         }
+        pot->applyConstraints(coords, *g);
       }
 
     } else if (pot->serialDef()) {
@@ -205,6 +210,7 @@ namespace minim {
         vector<double> gAll(ndof);
         pot->energyGradient(comm.gather(coords), e, &gAll);
         *g = comm.scatter(gAll);
+        pot->applyConstraints(coords, *g);
       }
       if (comm.rank() != 0 && e != nullptr) *e = 0;
 
