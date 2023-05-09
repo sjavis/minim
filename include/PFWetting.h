@@ -34,6 +34,7 @@ namespace minim {
       PFWetting& setContactAngle(vector<double> contactAngle);
       PFWetting& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
       PFWetting& setForce(vector<double> force, vector<int> iFluid={});
+      PFWetting& setFixFluid(int iFluid, bool fix=true);
 
       std::array<int,3> gridSize;
       vector<bool> solid;
@@ -48,6 +49,7 @@ namespace minim {
       vector<double> kappaP;
       vector<double> contactAngle;
       vector<vector<double>> force;
+      vector<bool> fixFluid = {false};
 
     private:
       vector<double> nodeVol;

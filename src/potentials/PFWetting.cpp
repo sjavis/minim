@@ -164,6 +164,14 @@ namespace minim {
           }
         }
       }
+
+      // Set constraints
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) continue;
+        vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
+        setConstraints(idofs);
+      }
+
     }
   }
 
@@ -349,6 +357,7 @@ namespace minim {
 
   PFWetting& PFWetting::setNFluid(int nFluid) {
     this->nFluid = nFluid;
+    this->fixFluid = vector<bool>(nFluid, false);
     return *this;
   }
 
@@ -426,6 +435,11 @@ namespace minim {
         this->force[i] = force;
       }
     }
+    return *this;
+  }
+
+  PFWetting& PFWetting::setFixFluid(int iFluid, bool fix) {
+    this->fixFluid[iFluid] = fix;
     return *this;
   }
 

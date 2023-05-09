@@ -159,3 +159,20 @@ TEST(PFWettingTest, TestNFluid) {
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
+
+TEST(PFWettingTest, TestFixFluid) {
+  PFWetting pot;
+  pot.setNFluid(3).setGridSize({2,2,1});
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
+  pot.setFixFluid(1);
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,true,false}));
+  pot.setFixFluid(1, false);
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
+
+  pot.setFixFluid(0);
+  pot.init({1,1,1, 1,1,1, 1,1,1, 1,1,1});
+  EXPECT_EQ(pot.constraints.size(), 4);
+  for (int i=0; i<4; i++) {
+    EXPECT_TRUE(ArraysMatch(pot.constraints[i].idof, {3*i}));
+  }
+}
