@@ -95,6 +95,16 @@ namespace minim {
     } else if ((int)pressure.size() != nFluid) {
       throw std::invalid_argument("Invalid size of pressure array.");
     }
+    if (fixFluid.empty()) {
+      fixFluid = vector<bool>(nFluid, false);
+    } else if ((int)fixFluid.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of fixed fluid array.");
+    }
+    if (confinementStrength.empty()) {
+      confinementStrength = vector<double>(nFluid, 0);
+    } else if ((int)confinementStrength.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of confinement strength array.");
+    }
 
     // Set values
     assignKappa();
@@ -136,8 +146,8 @@ namespace minim {
         elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
       }
 
-      // Set density constraint elements
-      if (nFluid > 1) {
+      // Set soft density constraint elements
+      if (nFluid>1 && densityConstraint==1) {
         idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
@@ -165,13 +175,28 @@ namespace minim {
         }
       }
 
-      // Set constraints
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (!fixFluid[iFluid]) continue;
-        vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
-        setConstraints(idofs);
+      // Set confining potential elements for the frozen fluid method
+      if (vec::any(confinementStrength)) {
+        idofs = vector<int>(nFluid);
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          idofs[iFluid] = i * nFluid + iFluid;
+        }
+        elements.push_back({4, {idofs}});
       }
+    }
 
+    // Set constraints
+    // Fixed fluid
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (!fixFluid[iFluid]) continue;
+      vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
+      setConstraints(idofs);
+    }
+    // Hard density constraint
+    if (nFluid>1 && densityConstraint==0) {
+      vector2d<int> idofs(nGrid);
+      for (int i=0; i<nGrid; i++) idofs[i] = i*nFluid + vec::iota(nFluid);
+      setConstraints(idofs, vector<double>(nFluid, 1));
     }
   }
 
@@ -344,6 +369,20 @@ namespace minim {
         }
       } break;
 
+      case 4: {
+        // Confining potential for the frozen fluid method
+        for (int i=0; i<nFluid; i++) {
+          if (confinementStrength[i] == 0) continue;
+          double c = coords[el.idof[i]];
+          double t = (confinementStrength[i] > 0) ? 1 : 0;
+          double factor1 = nodeVol[el.idof[i]] * confinementStrength[i] * (2*t - 1);
+          double factor2 = pow(c-t, 3);
+          double factor3 = (3*c - 4 + 5*t);
+          if (e) *e += factor1 * factor2 * factor3;
+          if (g) (*g)[el.idof[i]] += 3 * factor1 * (factor2 + pow(c-t,2)*factor3);
+        }
+      } break;
+
       default:
         throw std::invalid_argument("Unknown energy element type.");
     }
@@ -357,7 +396,11 @@ namespace minim {
 
   PFWetting& PFWetting::setNFluid(int nFluid) {
     this->nFluid = nFluid;
-    this->fixFluid = vector<bool>(nFluid, false);
+    return *this;
+  }
+
+  PFWetting& PFWetting::setResolution(double resolution) {
+    this->resolution = resolution;
     return *this;
   }
 
@@ -371,8 +414,14 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setResolution(double resolution) {
-    this->resolution = resolution;
+  PFWetting& PFWetting::setDensityConstraint(std::string method) {
+    if (vec::isIn({"gradient","hard"}, method)) {
+      densityConstraint = 0;
+    } else if (vec::isIn({"energy penalty","soft"}, method)) {
+      densityConstraint = 1;
+    } else {
+      throw std::invalid_argument("Invalid density constraint. Allowed methods are: gradient / hard or energy penalty / soft");
+    }
     return *this;
   }
 
@@ -439,13 +488,14 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setFixFluid(int iFluid, bool fix) {
-    this->fixFluid[iFluid] = fix;
+    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
+    fixFluid[iFluid] = fix;
     return *this;
   }
 
-
-  State PFWetting::newState(const vector<double>& coords, const vector<int>& ranks) {
-    return State(*this, coords, ranks);
+  PFWetting& PFWetting::setConfinement(vector<double> strength) {
+    this->confinementStrength = strength;
+    return *this;
   }
 
 
