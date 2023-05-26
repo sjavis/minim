@@ -147,7 +147,7 @@ namespace minim {
       }
 
       // Set soft density constraint elements
-      if (nFluid>1 && densityConstraint==1) {
+      if (nFluid>1 && densityConstraint==2) {
         idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
@@ -193,10 +193,14 @@ namespace minim {
       setConstraints(idofs);
     }
     // Hard density constraint
-    if (nFluid>1 && densityConstraint==0) {
+    if (nFluid>1 && densityConstraint==1) {
+      vector<int> iVariableFluid;
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+      }
       vector2d<int> idofs(nGrid);
-      for (int i=0; i<nGrid; i++) idofs[i] = i*nFluid + vec::iota(nFluid);
-      setConstraints(idofs, vector<double>(nFluid, 1));
+      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iVariableFluid;
+      setConstraints(idofs, vector<double>(iVariableFluid.size(), 1));
     }
   }
 
@@ -439,12 +443,14 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setDensityConstraint(std::string method) {
-    if (vec::isIn({"gradient","hard"}, method)) {
+    if (method == "none") {
       densityConstraint = 0;
-    } else if (vec::isIn({"energy penalty","soft"}, method)) {
+    } else if (vec::isIn({"gradient","hard"}, method)) {
       densityConstraint = 1;
+    } else if (vec::isIn({"energy penalty","soft"}, method)) {
+      densityConstraint = 2;
     } else {
-      throw std::invalid_argument("Invalid density constraint. Allowed methods are: gradient / hard or energy penalty / soft");
+      throw std::invalid_argument("Invalid density constraint. Allowed methods are: none, gradient / hard, or energy penalty / soft");
     }
     return *this;
   }
