@@ -268,57 +268,81 @@ namespace minim {
         }
         // Gradient energy
         double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-        double diffxm = (el.idof[1]!=el.idof[0]) ? c - coords[el.idof[1]] : 0;
-        double diffym = (el.idof[2]!=el.idof[0]) ? c - coords[el.idof[2]] : 0;
-        double diffzm = (el.idof[3]!=el.idof[0]) ? c - coords[el.idof[3]] : 0;
-        double diffzp = (el.idof[4]!=el.idof[0]) ? c - coords[el.idof[4]] : 0;
-        double diffyp = (el.idof[5]!=el.idof[0]) ? c - coords[el.idof[5]] : 0;
-        double diffxp = (el.idof[6]!=el.idof[0]) ? c - coords[el.idof[6]] : 0;
-        double grad2 = 0;
         double res2 = pow(resolution, 2);
-        if (diffxm != 0 && diffxp != 0) { // No solid in x direction
+        double grad2 = 0;
+
+        if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
+          double diffxm = c - coords[el.idof[1]];
+          double diffxp = c - coords[el.idof[6]];
           if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
             (*g)[el.idof[1]] -= factor * diffxm / res2;
             (*g)[el.idof[6]] -= factor * diffxp / res2;
           }
-        } else { // Solid on one side in x direction
-          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / res2;
+        } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
+          double diffxp = c - coords[el.idof[6]];
+          if (e) grad2 += pow(diffxp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp) / res2;
-            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffxp / res2;
             (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
           }
+        } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
+          double diffxm = c - coords[el.idof[1]];
+          if (e) grad2 += pow(diffxm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffxm / res2;
+            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+          }
         }
-        if (diffym != 0 && diffyp != 0) { // No solid in y direction
+
+        if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
+          double diffym = c - coords[el.idof[2]];
+          double diffyp = c - coords[el.idof[5]];
           if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
             (*g)[el.idof[2]] -= factor * diffym / res2;
             (*g)[el.idof[5]] -= factor * diffyp / res2;
           }
-        } else { // Solid on one side in y direction
-          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / res2;
+        } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
+          double diffyp = c - coords[el.idof[5]];
+          if (e) grad2 += pow(diffyp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp) / res2;
-            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+            (*g)[el.idof[0]] += factor * 2*diffyp / res2;
             (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
           }
+        } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
+          double diffym = c - coords[el.idof[2]];
+          if (e) grad2 += pow(diffym,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffym / res2;
+            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+          }
         }
-        if (diffzm != 0 && diffzp != 0) { // No solid in z direction
+
+        if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
+          double diffzm = c - coords[el.idof[3]];
+          double diffzp = c - coords[el.idof[4]];
           if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
             (*g)[el.idof[3]] -= factor * diffzm / res2;
             (*g)[el.idof[4]] -= factor * diffzp / res2;
           }
-        } else { // Solid on one side in z direction
-          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / res2;
+        } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
+          double diffzp = c - coords[el.idof[4]];
+          if (e) grad2 += pow(diffzp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp) / res2;
-            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffzp / res2;
             (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
+          }
+        } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
+          double diffzm = c - coords[el.idof[3]];
+          if (e) grad2 += pow(diffzm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffzm / res2;
+            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
           }
         }
         if (e) *e += factor * grad2;
