@@ -186,6 +186,7 @@ namespace minim {
     }
 
     // Set constraints
+    constraints = {};
     // Fixed fluid
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!fixFluid[iFluid]) continue;
