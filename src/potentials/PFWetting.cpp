@@ -176,12 +176,10 @@ namespace minim {
       }
 
       // Set confining potential elements for the frozen fluid method
-      if (vec::any(confinementStrength)) {
-        idofs = vector<int>(nFluid);
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          idofs[iFluid] = i * nFluid + iFluid;
-        }
-        elements.push_back({4, {idofs}});
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (confinementStrength[iFluid] == 0) continue;
+        int idof = i * nFluid + iFluid;
+        elements.push_back({4, {idof}, {confinementStrength[iFluid], coords[idof]}});
       }
     }
 
@@ -400,15 +398,15 @@ namespace minim {
 
       case 4: {
         // Confining potential for the frozen fluid method
-        for (int i=0; i<nFluid; i++) {
-          if (confinementStrength[i] == 0) continue;
-          double c = coords[el.idof[i]];
-          double t = (confinementStrength[i] > 0) ? 1 : 0;
-          double factor1 = nodeVol[el.idof[i]] * confinementStrength[i] * (2*t - 1);
-          double factor2 = pow(c-t, 3);
-          double factor3 = (3*c - 4 + 5*t);
-          if (e) *e += factor1 * factor2 * factor3;
-          if (g) (*g)[el.idof[i]] += 3 * factor1 * (factor2 + pow(c-t,2)*factor3);
+        // Parameters:
+        //   0: Confinement strength
+        //   1: Initial concentration
+        double c = coords[el.idof[0]];
+        double strength = el.parameters[0];
+        double c0 = el.parameters[1];
+        if ((c0-0.5)*(c-0.5) < 0) {
+          if (e) *e += strength * pow(c-0.5, 2);
+          if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5);
         }
       } break;
 
