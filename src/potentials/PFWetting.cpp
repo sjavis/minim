@@ -61,9 +61,25 @@ namespace minim {
     } else if ((int)surfaceTension.size() != nFluid) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
-    // TODO: Calculate different values of kappa and kappaP
-    kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
-    kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    if (nFluid <= 2) {
+      kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
+      kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    } else {
+      kappa = vector<double>(nFluid);
+      kappaP = vector<double>(nFluid);
+      auto kappaSums = 6 * surfaceTension / interfaceSize;
+      auto kappaPSums = 6 * surfaceTension * interfaceSize;
+      kappa[0] = 0.5 * ( kappaSums[0] + kappaSums[1] - kappaSums[nFluid-1]);
+      kappa[1] = 0.5 * ( kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]);
+      kappa[2] = 0.5 * (-kappaSums[0] + kappaSums[1] + kappaSums[nFluid-1]);
+      kappaP[0] = 0.5 * ( kappaPSums[0] + kappaPSums[1] - kappaPSums[nFluid-1]);
+      kappaP[1] = 0.5 * ( kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]);
+      kappaP[2] = 0.5 * (-kappaPSums[0] + kappaPSums[1] + kappaPSums[nFluid-1]);
+      for (int i=3; i<nFluid; i++) {
+        kappa[i] = 0.5 * (-kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]) + kappaSums[i-1];
+        kappaP[i] = 0.5 * (-kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]) + kappaPSums[i-1];
+      }
+    }
   }
 
 
@@ -436,8 +452,18 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setInterfaceSize(vector<double> interfaceSize) {
+    this->interfaceSize = interfaceSize;
+    return *this;
+  }
+
   PFWetting& PFWetting::setSurfaceTension(double surfaceTension) {
     this->surfaceTension = vector<double>(nFluid, surfaceTension);
+    return *this;
+  }
+
+  PFWetting& PFWetting::setSurfaceTension(vector<double> surfaceTension) {
+    this->surfaceTension = surfaceTension;
     return *this;
   }
 

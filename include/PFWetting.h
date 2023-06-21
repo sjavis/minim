@@ -26,7 +26,9 @@ namespace minim {
       vector<double> surfaceTension = {1};
       PFWetting& setResolution(double resolution);
       PFWetting& setInterfaceSize(double interfaceSize);
+      PFWetting& setInterfaceSize(vector<double> interfaceSize);
       PFWetting& setSurfaceTension(double surfaceTension);
+      PFWetting& setSurfaceTension(vector<double> surfaceTension);
 
       // Density constraint
       int densityConstraint = 0;
