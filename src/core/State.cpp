@@ -189,8 +189,6 @@ namespace minim {
     if (pot->parallelDef()) {
       if (e) *e = 0;
       if (g) *g = vector<double>(coords.size());
-      // Compute any system-wide contributions
-      pot->blockEnergyGradient(coords, comm, e, g);
       // Compute the energy elements
       for (auto el : pot->elements) {
         pot->elementEnergyGradient(coords, el, e, g);
@@ -200,8 +198,11 @@ namespace minim {
         for (auto el : pot->elements_halo) {
           pot->elementEnergyGradient(coords, el, nullptr, g);
         }
-        pot->applyConstraints(coords, *g);
       }
+      // Compute any system-wide contributions
+      pot->blockEnergyGradient(coords, comm, e, g);
+      // Constraints
+      if (g) pot->applyConstraints(coords, *g);
 
     } else if (pot->serialDef()) {
       if (g == nullptr) {

@@ -61,9 +61,25 @@ namespace minim {
     } else if ((int)surfaceTension.size() != nFluid) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
-    // TODO: Calculate different values of kappa and kappaP
-    kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
-    kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    if (nFluid <= 2) {
+      kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
+      kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    } else {
+      kappa = vector<double>(nFluid);
+      kappaP = vector<double>(nFluid);
+      auto kappaSums = 6 * surfaceTension / interfaceSize;
+      auto kappaPSums = 6 * surfaceTension * interfaceSize;
+      kappa[0] = 0.5 * ( kappaSums[0] + kappaSums[1] - kappaSums[nFluid-1]);
+      kappa[1] = 0.5 * ( kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]);
+      kappa[2] = 0.5 * (-kappaSums[0] + kappaSums[1] + kappaSums[nFluid-1]);
+      kappaP[0] = 0.5 * ( kappaPSums[0] + kappaPSums[1] - kappaPSums[nFluid-1]);
+      kappaP[1] = 0.5 * ( kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]);
+      kappaP[2] = 0.5 * (-kappaPSums[0] + kappaPSums[1] + kappaPSums[nFluid-1]);
+      for (int i=3; i<nFluid; i++) {
+        kappa[i] = 0.5 * (-kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]) + kappaSums[i-1];
+        kappaP[i] = 0.5 * (-kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]) + kappaPSums[i-1];
+      }
+    }
   }
 
 
@@ -94,6 +110,16 @@ namespace minim {
       pressure = vector<double>(nFluid, 0);
     } else if ((int)pressure.size() != nFluid) {
       throw std::invalid_argument("Invalid size of pressure array.");
+    }
+    if (fixFluid.empty()) {
+      fixFluid = vector<bool>(nFluid, false);
+    } else if ((int)fixFluid.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of fixed fluid array.");
+    }
+    if (confinementStrength.empty()) {
+      confinementStrength = vector<double>(nFluid, 0);
+    } else if ((int)confinementStrength.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of confinement strength array.");
     }
 
     // Set values
@@ -136,8 +162,8 @@ namespace minim {
         elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
       }
 
-      // Set density constraint elements
-      if (nFluid > 1) {
+      // Set soft density constraint elements
+      if (nFluid>1 && densityConstraint==2) {
         idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
@@ -164,6 +190,32 @@ namespace minim {
           }
         }
       }
+
+      // Set confining potential elements for the frozen fluid method
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (confinementStrength[iFluid] == 0) continue;
+        int idof = i * nFluid + iFluid;
+        elements.push_back({4, {idof}, {confinementStrength[iFluid], coords[idof]}});
+      }
+    }
+
+    // Set constraints
+    constraints = {};
+    // Fixed fluid
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (!fixFluid[iFluid]) continue;
+      vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
+      setConstraints(idofs);
+    }
+    // Hard density constraint
+    if (nFluid>1 && densityConstraint==1) {
+      vector<int> iVariableFluid;
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+      }
+      vector2d<int> idofs(nGrid);
+      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iVariableFluid;
+      setConstraints(idofs, vector<double>(iVariableFluid.size(), 1));
     }
   }
 
@@ -235,57 +287,81 @@ namespace minim {
         }
         // Gradient energy
         double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-        double diffxm = (el.idof[1]!=el.idof[0]) ? c - coords[el.idof[1]] : 0;
-        double diffym = (el.idof[2]!=el.idof[0]) ? c - coords[el.idof[2]] : 0;
-        double diffzm = (el.idof[3]!=el.idof[0]) ? c - coords[el.idof[3]] : 0;
-        double diffzp = (el.idof[4]!=el.idof[0]) ? c - coords[el.idof[4]] : 0;
-        double diffyp = (el.idof[5]!=el.idof[0]) ? c - coords[el.idof[5]] : 0;
-        double diffxp = (el.idof[6]!=el.idof[0]) ? c - coords[el.idof[6]] : 0;
-        double grad2 = 0;
         double res2 = pow(resolution, 2);
-        if (diffxm != 0 && diffxp != 0) { // No solid in x direction
+        double grad2 = 0;
+
+        if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
+          double diffxm = c - coords[el.idof[1]];
+          double diffxp = c - coords[el.idof[6]];
           if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
             (*g)[el.idof[1]] -= factor * diffxm / res2;
             (*g)[el.idof[6]] -= factor * diffxp / res2;
           }
-        } else { // Solid on one side in x direction
-          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / res2;
+        } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
+          double diffxp = c - coords[el.idof[6]];
+          if (e) grad2 += pow(diffxp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp) / res2;
-            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffxp / res2;
             (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
           }
+        } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
+          double diffxm = c - coords[el.idof[1]];
+          if (e) grad2 += pow(diffxm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffxm / res2;
+            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+          }
         }
-        if (diffym != 0 && diffyp != 0) { // No solid in y direction
+
+        if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
+          double diffym = c - coords[el.idof[2]];
+          double diffyp = c - coords[el.idof[5]];
           if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
             (*g)[el.idof[2]] -= factor * diffym / res2;
             (*g)[el.idof[5]] -= factor * diffyp / res2;
           }
-        } else { // Solid on one side in y direction
-          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / res2;
+        } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
+          double diffyp = c - coords[el.idof[5]];
+          if (e) grad2 += pow(diffyp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp) / res2;
-            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+            (*g)[el.idof[0]] += factor * 2*diffyp / res2;
             (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
           }
+        } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
+          double diffym = c - coords[el.idof[2]];
+          if (e) grad2 += pow(diffym,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffym / res2;
+            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+          }
         }
-        if (diffzm != 0 && diffzp != 0) { // No solid in z direction
+
+        if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
+          double diffzm = c - coords[el.idof[3]];
+          double diffzp = c - coords[el.idof[4]];
           if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
             (*g)[el.idof[3]] -= factor * diffzm / res2;
             (*g)[el.idof[4]] -= factor * diffzp / res2;
           }
-        } else { // Solid on one side in z direction
-          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / res2;
+        } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
+          double diffzp = c - coords[el.idof[4]];
+          if (e) grad2 += pow(diffzp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp) / res2;
-            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffzp / res2;
             (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
+          }
+        } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
+          double diffzm = c - coords[el.idof[3]];
+          if (e) grad2 += pow(diffzm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffzm / res2;
+            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
           }
         }
         if (e) *e += factor * grad2;
@@ -336,6 +412,20 @@ namespace minim {
         }
       } break;
 
+      case 4: {
+        // Confining potential for the frozen fluid method
+        // Parameters:
+        //   0: Confinement strength
+        //   1: Initial concentration
+        double c = coords[el.idof[0]];
+        double strength = el.parameters[0];
+        double c0 = el.parameters[1];
+        if ((c0-0.5)*(c-0.5) < 0) {
+          if (e) *e += strength * pow(c-0.5, 2);
+          if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5);
+        }
+      } break;
+
       default:
         throw std::invalid_argument("Unknown energy element type.");
     }
@@ -352,8 +442,18 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setResolution(double resolution) {
+    this->resolution = resolution;
+    return *this;
+  }
+
   PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
     this->interfaceSize = vector<double>(nFluid, interfaceSize);
+    return *this;
+  }
+
+  PFWetting& PFWetting::setInterfaceSize(vector<double> interfaceSize) {
+    this->interfaceSize = interfaceSize;
     return *this;
   }
 
@@ -362,8 +462,21 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setResolution(double resolution) {
-    this->resolution = resolution;
+  PFWetting& PFWetting::setSurfaceTension(vector<double> surfaceTension) {
+    this->surfaceTension = surfaceTension;
+    return *this;
+  }
+
+  PFWetting& PFWetting::setDensityConstraint(std::string method) {
+    if (method == "none") {
+      densityConstraint = 0;
+    } else if (vec::isIn({"gradient","hard"}, method)) {
+      densityConstraint = 1;
+    } else if (vec::isIn({"energy penalty","soft"}, method)) {
+      densityConstraint = 2;
+    } else {
+      throw std::invalid_argument("Invalid density constraint. Allowed methods are: none, gradient / hard, or energy penalty / soft");
+    }
     return *this;
   }
 
@@ -429,9 +542,15 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setFixFluid(int iFluid, bool fix) {
+    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
+    fixFluid[iFluid] = fix;
+    return *this;
+  }
 
-  State PFWetting::newState(const vector<double>& coords, const vector<int>& ranks) {
-    return State(*this, coords, ranks);
+  PFWetting& PFWetting::setConfinement(vector<double> strength) {
+    this->confinementStrength = strength;
+    return *this;
   }
 
 

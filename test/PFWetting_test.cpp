@@ -13,7 +13,7 @@ TEST(PFWettingTest, TestBulkEnergy) {
   pot.setSurfaceTension(sqrt(8.0/9));
 
   // Constant bulk fluid
-  State s1 = pot.setGridSize({1,1,1}).newState({1});
+  State s1(pot.setGridSize({1,1,1}), {1});
   EXPECT_FLOAT_EQ(s1.energy(), 0);
   EXPECT_TRUE(ArraysNear(s1.gradient(), {0}, 1e-6));
   s1.coords({0.1});
@@ -74,7 +74,7 @@ TEST(PFWettingTest, TestSurfaceEnergy) {
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
-  auto state = pot.newState({0, 0.5});
+  auto state = pot.newState({0.0, 0.5});
   for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
     if (el->type==0) state.pot->elements.erase(el); // Remove the bulk fluid energy elements
   }
@@ -158,4 +158,22 @@ TEST(PFWettingTest, TestNFluid) {
   EXPECT_FLOAT_EQ(pot.nFluid, 1);
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
+}
+
+TEST(PFWettingTest, TestFixFluid) {
+  PFWetting pot;
+  pot.setNFluid(3).setGridSize({2,2,1});
+  pot.init(vector<double>(12));
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
+  pot.setFixFluid(1);
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,true,false}));
+  pot.setFixFluid(1, false);
+  EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
+
+  pot.setFixFluid(0);
+  pot.init({1,1,1, 1,1,1, 1,1,1, 1,1,1});
+  EXPECT_EQ(pot.constraints.size(), 4);
+  for (int i=0; i<4; i++) {
+    EXPECT_TRUE(ArraysMatch(pot.constraints[i].idof, {3*i}));
+  }
 }
