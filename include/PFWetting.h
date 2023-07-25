@@ -22,7 +22,7 @@ namespace minim {
 
       // Fluid interfaces
       double resolution = 1;
-      vector<double> interfaceSize = {1};
+      vector<double> interfaceSize;
       vector<double> surfaceTension = {1};
       PFWetting& setResolution(double resolution);
       PFWetting& setInterfaceSize(double interfaceSize);

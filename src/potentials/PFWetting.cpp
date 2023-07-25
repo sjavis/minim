@@ -90,6 +90,11 @@ namespace minim {
     }
 
     // Check the arrays
+    if (interfaceSize.empty()) {
+      interfaceSize = vector<double>(nFluid, resolution);
+    } else if ((int)interfaceSize.size()!=nFluid) {
+      throw std::invalid_argument("Invalid size interfaceSize array.");
+    }
     if (solid.empty()) {
       solid = vector<bool>(nGrid, false);
     } else if ((int)solid.size() != nGrid) {
