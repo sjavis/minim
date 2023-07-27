@@ -276,7 +276,8 @@ namespace vec {
       return out;
     }
     T value = out[0];
-    for (auto iOut=out.begin()+1, iIdx=index->begin()+1; iOut!=out.end();) {
+    auto iIdx = index->begin()+1;
+    for (auto iOut=out.begin()+1; iOut!=out.end();) {
       if (*iOut == value) {
         iOut = out.erase(iOut);
         iIdx = index->erase(iIdx);
