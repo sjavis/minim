@@ -225,6 +225,9 @@ namespace minim {
 
 
   void PFWetting::distributeParameters(const Communicator& comm) {
+    if (gridSize[0]*gridSize[1]*gridSize[2] % comm.size() != 0) {
+      throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
+    }
     // Store only the relevant node volumes and fluid numbers
     // These are required by pressure / volume constraints so cannot be stored in element parameters
     int nGrid = gridSize[0] * gridSize[1] * gridSize[2];

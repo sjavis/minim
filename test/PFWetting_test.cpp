@@ -7,13 +7,30 @@
 using namespace minim;
 
 
+TEST(PFWettingTest, gridSizeMpi) {
+  PFWetting pot;
+  EXPECT_NO_THROW({
+    pot.setGridSize({2,1,2});
+    State s(pot, {0,0,0,0});
+  });
+  EXPECT_ANY_THROW({
+    pot.setGridSize({3,1,1});
+    State s(pot, {0,0,0});
+  });
+  EXPECT_NO_THROW({
+    pot.setGridSize({3,1,1});
+    State s(pot, {0,0,0}, {0});
+  });
+}
+
+
 TEST(PFWettingTest, TestBulkEnergy) {
   PFWetting pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
 
   // Constant bulk fluid
-  State s1(pot.setGridSize({1,1,1}), {1});
+  State s1(pot.setGridSize({1,1,1}), {1}, {0});
   EXPECT_FLOAT_EQ(s1.energy(), 0);
   EXPECT_TRUE(ArraysNear(s1.gradient(), {0}, 1e-6));
   s1.coords({0.1});
@@ -21,9 +38,9 @@ TEST(PFWettingTest, TestBulkEnergy) {
   EXPECT_TRUE(ArraysNear(s1.gradient(), {-0.099}, 1e-6));
 
   // Bulk fluid gradient
-  State s2x = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
-  State s2y = pot.setGridSize({1,5,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
-  State s2z = pot.setGridSize({1,1,5}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
+  State s2x = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
+  State s2y = pot.setGridSize({1,5,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
+  State s2z = pot.setGridSize({1,1,5}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   EXPECT_FLOAT_EQ(s2x.energy(), 1.25);
   EXPECT_FLOAT_EQ(s2y.energy(), 1.25);
   EXPECT_FLOAT_EQ(s2z.energy(), 1.25);
@@ -31,9 +48,9 @@ TEST(PFWettingTest, TestBulkEnergy) {
   EXPECT_TRUE(ArraysNear(s2y.gradient(), {0,-1,0,1,0}, 1e-6));
   EXPECT_TRUE(ArraysNear(s2z.gradient(), {0,-1,0,1,0}, 1e-6));
   // Test periodic boundary
-  State s3x = pot.setGridSize({3,1,1}).setSolid({0,1,0}).newState({-1,0,1});
-  State s3y = pot.setGridSize({1,3,1}).setSolid({0,1,0}).newState({-1,0,1});
-  State s3z = pot.setGridSize({1,1,3}).setSolid({0,1,0}).newState({-1,0,1});
+  State s3x = pot.setGridSize({3,1,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
+  State s3y = pot.setGridSize({1,3,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
+  State s3z = pot.setGridSize({1,1,3}).setSolid({0,1,0}).newState({-1,0,1}, {0});
   EXPECT_FLOAT_EQ(s3x.energy(), 2);
   EXPECT_FLOAT_EQ(s3y.energy(), 2);
   EXPECT_FLOAT_EQ(s3z.energy(), 2);
@@ -115,7 +132,7 @@ TEST(PFWettingTest, TestResolution) {
   ASSERT_FLOAT_EQ(pot.resolution, 2);
 
   // Bulk fluid
-  State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0});
+  State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   EXPECT_FLOAT_EQ(s1.energy(), 4); // Bulk: 2, Gradient: 2
   EXPECT_TRUE(ArraysNear(s1.gradient(), {0,-2,0,2,0}, 1e-6));
 
