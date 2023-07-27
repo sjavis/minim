@@ -1,6 +1,7 @@
 #ifndef PFWETTING_H
 #define PFWETTING_H
 
+#include <array>
 #include <vector>
 #include <functional>
 #include "Potential.h"

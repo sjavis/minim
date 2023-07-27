@@ -1,6 +1,5 @@
 #include "PFWetting.h"
 
-#include <array>
 #include <math.h>
 #include <stdexcept>
 #include <functional>
