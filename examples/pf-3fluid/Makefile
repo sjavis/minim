@@ -7,7 +7,7 @@ CXX = mpic++
 CXXFLAGS = -DPARALLEL -Wall
 
 all:
-	$(CXX) $(CXXFLAGS) $(INC) $(BIN) 3fluid.cpp $(LIBS) -o run.exe
+	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe
 
 clean:
-	rm run.exe
+	rm run.exe *.txt

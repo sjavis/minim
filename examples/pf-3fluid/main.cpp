@@ -56,6 +56,17 @@ vector<bool> getSolid() {
 }
 
 
+vector<double> getTotVolumes(vector<double> coords) {
+  vector<double> volumes(3);
+  for (int i=0; i<nx*ny; i++) {
+    volumes[0] += coords[3*i+0];
+    volumes[1] += coords[3*i+1];
+    volumes[2] += coords[3*i+2];
+  }
+  return volumes;
+}
+
+
 void output(vector<double> data) {
   char *filename;
   asprintf(&filename, "%.2f-%.2f.txt", c1, c2);
@@ -70,24 +81,26 @@ void output(vector<double> data) {
 }
 
 
-void log(int iter, State& state) {
-  if (iter%100 == 0) {
-    print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
-    output(state.coords());
-  }
-}
-
-
 int main(int argc, char** argv) {
   mpi.init(&argc, &argv);
-  print("RUNNING");
 
-  auto pot = PFWetting().setNFluid(3).setGridSize({nx, ny, 1});
+  auto log = [](int iter, State& state) {
+    if (iter%100 == 0) {
+      print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
+    }
+  };
+
+  auto pot = PFWetting();
+  pot.setNFluid(3);
+  pot.setGridSize({nx, ny, 1});
   pot.setSolid(getSolid());
+  pot.setDensityConstraint("hard");
   auto init = initCoords(nx*ny, c1, c2);
-  auto state = pot.newState(init);
+  pot.setVolume(getTotVolumes(init), 1e-4);
+  State state(pot, init);
 
   auto min = Lbfgs();
+  min.setMaxIter(5000);
   min.minimise(state, log);
 
   output(state.coords());
