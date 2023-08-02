@@ -72,11 +72,13 @@ namespace minim {
 
 
     private:
+      int nGrid;
       vector<double> nodeVol;
       vector<int> fluidType;
-      int nGrid() const;
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;
+      void setDefaults();
+      void checkArraySizes();
       void assignKappa();
   };
 

@@ -83,49 +83,15 @@ namespace minim {
 
 
   void PFWetting::init(const vector<double>& coords) {
-    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("Size of coordinates array does not match the grid size.");
     }
 
-    // Check the arrays
-    if (interfaceSize.empty()) {
-      interfaceSize = vector<double>(nFluid, resolution);
-    } else if ((int)interfaceSize.size()!=nFluid) {
-      throw std::invalid_argument("Invalid size interfaceSize array.");
-    }
-    if (solid.empty()) {
-      solid = vector<bool>(nGrid, false);
-    } else if ((int)solid.size() != nGrid) {
-      throw std::invalid_argument("Invalid size of solid array.");
-    }
-    if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluid) {
-      throw std::invalid_argument("Invalid size of contactAngle array.");
-    }
-    if (!force.empty() && (int)force.size()!=nFluid) {
-      throw std::invalid_argument("Invalid size of force array.");
-    }
-    if (!volume.empty() && (int)volume.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of volume array.");
-    }
-    if (pressure.empty()) {
-      pressure = vector<double>(nFluid, 0);
-    } else if ((int)pressure.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of pressure array.");
-    }
-    if (fixFluid.empty()) {
-      fixFluid = vector<bool>(nFluid, false);
-    } else if ((int)fixFluid.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of fixed fluid array.");
-    }
-    if (confinementStrength.empty()) {
-      confinementStrength = vector<double>(nFluid, 0);
-    } else if ((int)confinementStrength.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of confinement strength array.");
-    }
-
-    // Set values
+    setDefaults();
+    checkArraySizes();
     assignKappa();
+
+    // Forces
     vector<double> fMag(nFluid);
     vector2d<double> fNorm(nFluid);
     if (!force.empty()) {
@@ -152,6 +118,7 @@ namespace minim {
       surfaceArea[iGrid] = surfaceArea[iGrid] * pow(resolution, 2);
     }
 
+    // Set initial volumes
     if (volume.empty() && volumeFixed) {
       volume = vector<double>(nFluid, 0);
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
@@ -235,12 +202,11 @@ namespace minim {
 
 
   void PFWetting::distributeParameters(const Communicator& comm) {
-    if (gridSize[0]*gridSize[1]*gridSize[2] % comm.size() != 0) {
+    if (nGrid % comm.size() != 0) {
       throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
     }
     // Store only the relevant node volumes and fluid numbers
     // These are required by pressure / volume constraints so cannot be stored in element parameters
-    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     vector<double> nodeVolTmp(nGrid * nFluid);
     vector<double> fluidTypeTmp(nGrid * nFluid);
     for (int iNode=0; iNode<nGrid; iNode++) {
@@ -458,6 +424,7 @@ namespace minim {
 
   PFWetting& PFWetting::setGridSize(std::array<int,3> gridSize) {
     this->gridSize = gridSize;
+    this->nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     return *this;
   }
 
@@ -528,7 +495,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setSolid(std::function<bool(int,int,int)> solidFn) {
-    solid = vector<bool>(gridSize[0]*gridSize[1]*gridSize[2]);
+    solid = vector<bool>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -547,7 +514,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setContactAngle(std::function<double(int,int,int)> contactAngleFn) {
-    contactAngle = vector<double>(gridSize[0]*gridSize[1]*gridSize[2]);
+    contactAngle = vector<double>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -582,11 +549,6 @@ namespace minim {
   PFWetting& PFWetting::setConfinement(vector<double> strength) {
     this->confinementStrength = strength;
     return *this;
-  }
-
-
-  int PFWetting::nGrid() const {
-    return gridSize[0] * gridSize[1] * gridSize[2];
   }
 
 
@@ -648,6 +610,43 @@ namespace minim {
       return 7;
     }
     throw std::runtime_error("Undefined surface type");
+  }
+
+
+  void PFWetting::setDefaults() {
+    if (interfaceSize.empty()) interfaceSize = vector<double>(nFluid, resolution);
+    if (solid.empty()) solid = vector<bool>(nGrid, false);
+    if (pressure.empty()) pressure = vector<double>(nFluid, 0);
+    if (fixFluid.empty()) fixFluid = vector<bool>(nFluid, false);
+    if (confinementStrength.empty()) confinementStrength = vector<double>(nFluid, 0);
+  }
+
+
+  void PFWetting::checkArraySizes() {
+    if ((int)interfaceSize.size() != nFluid) {
+      throw std::invalid_argument("Invalid size interfaceSize array.");
+    }
+    if ((int)solid.size() != nGrid) {
+      throw std::invalid_argument("Invalid size of solid array.");
+    }
+    if ((int)contactAngle.size() != nGrid*nFluid && !contactAngle.empty()) {
+      throw std::invalid_argument("Invalid size of contactAngle array.");
+    }
+    if ((int)force.size() != nFluid && !force.empty()) {
+      throw std::invalid_argument("Invalid size of force array.");
+    }
+    if ((int)volume.size() != nFluid && !volume.empty()) {
+      throw std::invalid_argument("Invalid size of volume array.");
+    }
+    if ((int)pressure.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of pressure array.");
+    }
+    if ((int)fixFluid.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of fixed fluid array.");
+    }
+    if ((int)confinementStrength.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of confinement strength array.");
+    }
   }
 
 }
