@@ -56,17 +56,6 @@ vector<bool> getSolid() {
 }
 
 
-vector<double> getTotVolumes(vector<double> coords) {
-  vector<double> volumes(3);
-  for (int i=0; i<nx*ny; i++) {
-    volumes[0] += coords[3*i+0];
-    volumes[1] += coords[3*i+1];
-    volumes[2] += coords[3*i+2];
-  }
-  return volumes;
-}
-
-
 void output(vector<double> data) {
   char *filename;
   asprintf(&filename, "%.2f-%.2f.txt", c1, c2);
@@ -95,9 +84,8 @@ int main(int argc, char** argv) {
   pot.setGridSize({nx, ny, 1});
   pot.setSolid(getSolid());
   pot.setDensityConstraint("hard");
-  auto init = initCoords(nx*ny, c1, c2);
-  pot.setVolume(getTotVolumes(init), 1e-4);
-  State state(pot, init);
+  pot.setVolumeFixed(true, 1e-4);
+  State state(pot, initCoords(nx*ny, c1, c2));
 
   auto min = Lbfgs();
   min.setMaxIter(5000);

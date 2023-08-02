@@ -36,11 +36,13 @@ namespace minim {
       PFWetting& setDensityConstraint(std::string method);
 
       // Total volume / pressure constraints
+      bool volumeFixed = false;
       double volConst = 1e5;
       vector<double> pressure;
       vector<double> volume;
       PFWetting& setPressure(vector<double> pressure);
       PFWetting& setVolume(vector<double> volume, double volConst=1e5);
+      PFWetting& setVolumeFixed(bool volumeFixed, double volConst=1e5);
 
       // Solid nodes
       vector<bool> solid;

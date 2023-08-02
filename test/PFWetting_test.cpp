@@ -113,12 +113,19 @@ TEST(PFWettingTest, TestPressureConstraint) {
 
 TEST(PFWettingTest, TestVolumeConstraint) {
   PFWetting pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setVolume({1}, 100);
-  auto state = pot.newState({1,1,1,1,1,1});
-  EXPECT_FLOAT_EQ(state.energy(), 400);
-  EXPECT_TRUE(ArraysNear(state.gradient(), {0, 100, 200, 200, 100, 0}, 1e-6));
+  pot.setGridSize({6,1,1});
+  pot.setSolid({1,0,0,0,0,1});
+
+  pot.setVolumeFixed(true, 1);
+  State state1(pot, {1,1,1,1,1,1});
+  EXPECT_TRUE(static_cast<PFWetting&>(*state1.pot).volumeFixed);
+  EXPECT_TRUE(ArraysNear(static_cast<PFWetting&>(*state1.pot).volume, {3}, 1e-6));
+  EXPECT_FLOAT_EQ(state1.energy(), 0);
+
+  pot.setVolume({1}, 100);
+  State state2(pot, {1,1,1,1,1,1});
+  EXPECT_FLOAT_EQ(state2.energy(), 400);
+  EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 100, 200, 200, 100, 0}, 1e-6));
 }
 
 
