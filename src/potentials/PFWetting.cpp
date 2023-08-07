@@ -164,11 +164,12 @@ namespace minim {
       // Set external force elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (fMag[iFluid]>0 && !solid[i]) {
-          vector<double> params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
-          for (int iFluid=0; iFluid<nFluid; iFluid++) {
-            int idof = i * nFluid + iFluid;
-            elements.push_back({3, {idof}, params});
-          }
+          std::array<int,3> coordI = getCoord(i);
+          vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
+          double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
+          vector<double> params{nodeVol[i], fMag[iFluid], h};
+          int idof = i * nFluid + iFluid;
+          elements.push_back({3, {idof}, params});
         }
       }
 
@@ -385,20 +386,20 @@ namespace minim {
         // External force
         // Parameters:
         //   0: Volume
-        //   1: Magnitude of force on component 1
-        //   2-4: Direction force on component 1
+        //   1: Magnitude of force
+        //   2: Height
+        double c = (nFluid==1) ? 0.5*(1+coords[el.idof[0]]) : coords[el.idof[0]];
+        if (c < 0.01) return;
         double vol = el.parameters[0];
         double f = el.parameters[1];
-        vector<double> fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
-        std::array<int,3> coordI = getCoord(el.idof[0]);
-        vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
-        double h = - vec::dotProduct(coord, fNorm) * resolution;
-        if (nFluid == 1) {
-          if (e) *e += 0.5*(1+coords[el.idof[0]]) * vol * f * h;
-          if (g) (*g)[el.idof[0]] += 0.5 * vol * f * h;
-        } else {
-          if (e) *e += coords[el.idof[0]] * vol * f * h;
-          if (g) (*g)[el.idof[0]] += vol * f * h;
+        double h = el.parameters[2];
+        if (e) *e += c * vol * f * h;
+        if (g) {
+          if (nFluid == 1) {
+            (*g)[el.idof[0]] += 0.5 * vol * f * h;
+          } else {
+            (*g)[el.idof[0]] += vol * f * h;
+          }
         }
       } break;
 
