@@ -291,6 +291,15 @@ namespace minim {
   }
 
 
+  double State::componentEnergy(int component) const {
+    double e = 0;
+    for (auto el : pot->elements) {
+      if (el.type == component) pot->elementEnergyGradient(_coords, el, &e, nullptr);
+    }
+    return e;
+  }
+
+
   void State::communicate() {
     comm.communicate(_coords);
   }

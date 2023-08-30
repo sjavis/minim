@@ -60,6 +60,8 @@ namespace minim {
       void allEnergyGradient(double* e, vector<double>* g) const;
       vector<double> allCoords() const;
 
+      double componentEnergy(int component) const;
+
       void communicate();
 
     private:
