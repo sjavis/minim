@@ -79,38 +79,41 @@ namespace minim {
 
 
       // For each element's dofs get the block that contains it and if it is this block
-      void getElementBlocks(const vector<Potential::Element>& elements, vector2d<int>& blocks, vector2d<bool>& in_block) {
-        int nelements = elements.size();
-        blocks = vector2d<int>(nelements);
-        in_block = vector2d<bool>(nelements);
-        for (int ie=0; ie<nelements; ie++) {
-          auto e = elements[ie];
-          int e_ndof = e.idof.size();
+      void getElementBlocks(const Potential& pot, vector2d<int>& blocks, vector2d<bool>& in_block) {
+        int nElements = pot.elements.size();
+        int nConstraints = pot.constraints.size();
+        int nTot = nElements + nConstraints;
+        blocks = vector2d<int>(nTot);
+        in_block = vector2d<bool>(nTot);
+        for (int ie=0; ie<nTot; ie++) {
+          auto e_idof = (ie<nElements) ? pot.elements[ie].idof : pot.constraints[ie-nElements].idof;
+          int e_ndof = e_idof.size();
           blocks[ie] = vector<int>(e_ndof);
           in_block[ie] = vector<bool>(e_ndof);
           for (int i=0; i<e_ndof; i++) {
-            blocks[ie][i] = getBlock(e.idof[i]);
+            blocks[ie][i] = getBlock(e_idof[i]);
             in_block[ie][i] = (blocks[ie][i] == commRank);
           }
         }
       }
 
       // Populate lists of indicies being sent to and received from each proc
-      void setCommLists(const vector<Potential::Element>& elements, const vector2d<int>& blocks,
-                        const vector2d<bool>& in_block)
-      {
+      void setCommLists(const Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block) {
+        int nElements = pot.elements.size();
+        int nConstraints = pot.constraints.size();
+        int nTot = nElements + nConstraints;
         recv_lists = vector2d<int>(commSize);
         send_lists = vector2d<int>(commSize);
-        for (size_t ie=0; ie<elements.size(); ie++) {
+        for (int ie=0; ie<nTot; ie++) {
           if (vec::all(in_block[ie]) || !vec::any(in_block[ie])) continue;
-          auto e = elements[ie];
-          int e_ndof = e.idof.size();
+          auto e_idof = (ie<nElements) ? pot.elements[ie].idof : pot.constraints[ie-nElements].idof;
+          int e_ndof = e_idof.size();
           for (int i=0; i<e_ndof; i++) {
             if (in_block[ie][i]) continue;
-            vec::insert_unique(recv_lists[blocks[ie][i]], e.idof[i]);
+            vec::insert_unique(recv_lists[blocks[ie][i]], e_idof[i]);
             for (int j=0; j<e_ndof; j++) { // TODO: Improve this part, it will attempt to add the same values multiple times
               if (in_block[ie][j]) {
-                vec::insert_unique(send_lists[blocks[ie][i]], e.idof[j] - iblocks[commRank]);
+                vec::insert_unique(send_lists[blocks[ie][i]], e_idof[j] - iblocks[commRank]);
               }
             }
           }
@@ -165,32 +168,40 @@ namespace minim {
       // Equally distribute the elements among the processors
       void distributeElements(Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block) {
         vector<int> el_proc = assignElements(pot.elements, blocks);
+
+        int nElements = pot.elements.size();
+        int nConstraints = pot.constraints.size();
+        int nTot = nElements + nConstraints;
         vector<Potential::Element> elements_tmp;
-        for (size_t ie=0; ie<pot.elements.size(); ie++) {
+        vector<Potential::Constraint> constraints_tmp;
+
+        for (int ie=0; ie<nTot; ie++) {
           if (! vec::any(in_block[ie])) continue;
           // Update element.idof with local index
-          auto e = pot.elements[ie];
-          int idof_size = e.idof.size();
-          for (int i=0; i<idof_size; i++) {
+          auto &idof = (ie<nElements) ? pot.elements[ie].idof : pot.constraints[ie-nElements].idof;
+          for (int i=0; i<(int)idof.size(); i++) {
             if (in_block[ie][i]) {
-              e.idof[i] = e.idof[i] - iblocks[commRank];
+              idof[i] = idof[i] - iblocks[commRank];
             } else {
               int block = blocks[ie][i];
               for (int j=0; j<nrecv[block]; j++) {
-                if (e.idof[i] == recv_lists[block][j]) {
-                  e.idof[i] = irecv[block] + j;
+                if (idof[i] == recv_lists[block][j]) {
+                  idof[i] = irecv[block] + j;
                   break;
                 }
               }
             }
           }
           // Assign to the local list of elements or the halo
-          if (el_proc[ie] == commRank) {
-            elements_tmp.push_back(e);
+          if (ie >= nElements) {
+            constraints_tmp.push_back(pot.constraints[ie-nElements]);
+          } else if (el_proc[ie] == commRank) {
+            elements_tmp.push_back(pot.elements[ie]);
           } else {
-            pot.elements_halo.push_back(e);
+            pot.elements_halo.push_back(pot.elements[ie]);
           }
         }
+        pot.constraints = constraints_tmp;
         pot.elements = elements_tmp;
         pot.distributed = true;
       }
@@ -240,8 +251,8 @@ namespace minim {
           nblocks[0] = ndof;
           iblocks = vector<int>(commSize, ndof);
           iblocks[0] = 0;
-          getElementBlocks(pot.elements, blocks, in_block);
-          setCommLists(pot.elements, blocks, in_block);
+          getElementBlocks(pot, blocks, in_block);
+          setCommLists(pot, blocks, in_block);
           setRecvSizes();
         }
       }
@@ -260,10 +271,10 @@ namespace minim {
 
         vector2d<int> blocks;
         vector2d<bool> in_block;
-        getElementBlocks(pot.elements, blocks, in_block);
+        getElementBlocks(pot, blocks, in_block);
 
         // Identify coordinates to send and receive based upon the list of energy elements
-        setCommLists(pot.elements, blocks, in_block);
+        setCommLists(pot, blocks, in_block);
         setRecvSizes();
 
         checkWellDistributed(ndof, pot, blocks, in_block);

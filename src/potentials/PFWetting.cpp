@@ -1,6 +1,5 @@
 #include "PFWetting.h"
 
-#include <array>
 #include <math.h>
 #include <stdexcept>
 #include <functional>
@@ -61,44 +60,38 @@ namespace minim {
     } else if ((int)surfaceTension.size() != nFluid) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
-    // TODO: Calculate different values of kappa and kappaP
-    kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
-    kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    if (nFluid <= 2) {
+      kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
+      kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
+    } else {
+      kappa = vector<double>(nFluid);
+      kappaP = vector<double>(nFluid);
+      auto kappaSums = 6 * surfaceTension / interfaceSize;
+      auto kappaPSums = 6 * surfaceTension * interfaceSize;
+      kappa[0] = 0.5 * ( kappaSums[0] + kappaSums[1] - kappaSums[nFluid-1]);
+      kappa[1] = 0.5 * ( kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]);
+      kappa[2] = 0.5 * (-kappaSums[0] + kappaSums[1] + kappaSums[nFluid-1]);
+      kappaP[0] = 0.5 * ( kappaPSums[0] + kappaPSums[1] - kappaPSums[nFluid-1]);
+      kappaP[1] = 0.5 * ( kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]);
+      kappaP[2] = 0.5 * (-kappaPSums[0] + kappaPSums[1] + kappaPSums[nFluid-1]);
+      for (int i=3; i<nFluid; i++) {
+        kappa[i] = 0.5 * (-kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]) + kappaSums[i-1];
+        kappaP[i] = 0.5 * (-kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]) + kappaPSums[i-1];
+      }
+    }
   }
 
 
   void PFWetting::init(const vector<double>& coords) {
-    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("Size of coordinates array does not match the grid size.");
     }
 
-    // Check the arrays
-    if (solid.empty()) {
-      solid = vector<bool>(nGrid, false);
-    } else if ((int)solid.size() != nGrid) {
-      throw std::invalid_argument("Invalid size of solid array.");
-    }
-    if (!contactAngle.empty() && (int)contactAngle.size() != nGrid*nFluid) {
-      throw std::invalid_argument("Invalid size of contactAngle array.");
-    }
-    if (!force.empty() && (int)force.size()!=nFluid) {
-      throw std::invalid_argument("Invalid size of force array.");
-    }
-    if (volume.empty()) {
-      volume = vector<double>(nFluid, 0);
-    } else if ((int)volume.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of volume array.");
-    }
-    if (pressure.empty()) {
-      pressure = vector<double>(nFluid, 0);
-    } else if ((int)pressure.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of pressure array.");
-    }
-
-    // Set values
+    setDefaults();
+    checkArraySizes();
     assignKappa();
-    nodeVol = vector<double>(nGrid);
+
+    // Forces
     vector<double> fMag(nFluid);
     vector2d<double> fNorm(nFluid);
     if (!force.empty()) {
@@ -108,23 +101,37 @@ namespace minim {
       }
     }
 
+    // Get fluid volume and solid surface area for each node
+    nodeVol = vector<double>(nGrid, 0);
+    auto surfaceArea = vector<double>(nGrid, 0);
+    for (int iGrid=0; iGrid<nGrid; iGrid++) {
+      int type = getType(iGrid);
+      if (type == 0) {
+        nodeVol[iGrid] = 1;
+      } else if (type > 0) {
+        nodeVol[iGrid] = type / 8.0;
+        if (type == 2 || type == 4 || type == 6) surfaceArea[iGrid] = 1;
+        if (type == 1 || type == 7) surfaceArea[iGrid] = 0.75;
+        if (type == 3 || type == 5) surfaceArea[iGrid] = 1.25;
+      }
+      nodeVol[iGrid] = nodeVol[iGrid] * pow(resolution, 3);
+      surfaceArea[iGrid] = surfaceArea[iGrid] * pow(resolution, 2);
+    }
+
+    // Set initial volumes
+    if (volume.empty() && volumeFixed) {
+      volume = vector<double>(nFluid, 0);
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          volume[iFluid] += coords[iFluid+nFluid*iGrid] * nodeVol[iGrid];
+        }
+      }
+    }
+
     // Assign elements
     elements = {};
     for (int i=0; i<nGrid; i++) {
       if (solid[i]) continue;
-
-      // Get fluid volume and solid surface area for each node
-      nodeVol[i] = 1;
-      double surfaceArea = 0;
-      int type = getType(i);
-      if (type > 0) {
-        nodeVol[i] = type / 8.0;
-        if (type == 2 || type == 4 || type == 6) surfaceArea = 1;
-        if (type == 1 || type == 7) surfaceArea = 0.75;
-        if (type == 3 || type == 5) surfaceArea = 1.25;
-      }
-      nodeVol[i] = nodeVol[i] * pow(resolution, 3);
-      surfaceArea = surfaceArea * pow(resolution, 2);
 
       // Set bulk fluid elements
       Neighbours di(gridSize, i);
@@ -136,8 +143,8 @@ namespace minim {
         elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
       }
 
-      // Set density constraint elements
-      if (nFluid > 1) {
+      // Set soft density constraint elements
+      if (nFluid>1 && densityConstraint==2) {
         idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
@@ -146,32 +153,61 @@ namespace minim {
       }
 
       // Set surface fluid elements
-      if (type > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
+      if (surfaceArea[i] > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
         double wettingParam = 1/sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           int idof = i * nFluid + iFluid;
-          elements.push_back({2, {idof}, {surfaceArea, wettingParam}});
+          elements.push_back({2, {idof}, {surfaceArea[i], wettingParam}});
         }
       }
 
       // Set external force elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (fMag[iFluid]>0 && !solid[i]) {
-          vector<double> params{nodeVol[i], fMag[iFluid], fNorm[iFluid][0], fNorm[iFluid][1], fNorm[iFluid][2]};
-          for (int iFluid=0; iFluid<nFluid; iFluid++) {
-            int idof = i * nFluid + iFluid;
-            elements.push_back({3, {idof}, params});
-          }
+          std::array<int,3> coordI = getCoord(i);
+          vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
+          double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
+          vector<double> params{nodeVol[i], fMag[iFluid], h};
+          int idof = i * nFluid + iFluid;
+          elements.push_back({3, {idof}, params});
         }
       }
+
+      // Set confining potential elements for the frozen fluid method
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (confinementStrength[iFluid] == 0) continue;
+        int idof = i * nFluid + iFluid;
+        elements.push_back({4, {idof}, {confinementStrength[iFluid], coords[idof]}});
+      }
+    }
+
+    // Set constraints
+    constraints = {};
+    // Fixed fluid
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (!fixFluid[iFluid]) continue;
+      vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
+      setConstraints(idofs);
+    }
+    // Hard density constraint
+    if (nFluid>1 && densityConstraint==1) {
+      vector<int> iVariableFluid;
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+      }
+      vector2d<int> idofs(nGrid);
+      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iVariableFluid;
+      setConstraints(idofs, vector<double>(iVariableFluid.size(), 1));
     }
   }
 
 
   void PFWetting::distributeParameters(const Communicator& comm) {
+    if (nGrid % comm.size() != 0) {
+      throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
+    }
     // Store only the relevant node volumes and fluid numbers
     // These are required by pressure / volume constraints so cannot be stored in element parameters
-    int nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     vector<double> nodeVolTmp(nGrid * nFluid);
     vector<double> fluidTypeTmp(nGrid * nFluid);
     for (int iNode=0; iNode<nGrid; iNode++) {
@@ -188,7 +224,7 @@ namespace minim {
 
   void PFWetting::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Constant volume / pressure constraints rely upon the whole system
-    if (!vec::any(volume) && !vec::any(pressure)) return;
+    if (!volumeFixed && !vec::any(pressure)) return;
     vector<double> volFluid(nFluid, 0);
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
       if (nFluid == 1) {
@@ -198,21 +234,28 @@ namespace minim {
       }
     }
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (volume[iFluid]==0 && pressure[iFluid]==0) continue;
+      if (!volumeFixed && pressure[iFluid]==0) continue;
       volFluid[iFluid] = comm.sum(volFluid[iFluid]);
       if (e) {
-        if (volume[iFluid]!=0) *e += volConst * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
+        if (volumeFixed) *e += volConst * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
         if (pressure[iFluid]!=0) *e -= pressure[iFluid] * volFluid[iFluid] / comm.size();
       }
     }
 
     if (!g) return;
-    vector<double> vFactor = volConst * (volFluid - volume);
-    vector<double> pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
-    for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
-      int f = fluidType[iDof];
-      if (volume[f]!=0) (*g)[iDof] += vFactor[f] * nodeVol[iDof];
-      if (pressure[f]!=0) (*g)[iDof] += pFactor[f] * nodeVol[iDof];
+    if (volumeFixed) {
+      vector<double> vFactor = volConst * (volFluid - volume);
+      for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
+        int f = fluidType[iDof];
+        (*g)[iDof] += vFactor[f] * nodeVol[iDof];
+      }
+    }
+    if (vec::any(pressure)) {
+      vector<double> pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
+      for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
+        int f = fluidType[iDof];
+        if (pressure[f]!=0) (*g)[iDof] += pFactor[f] * nodeVol[iDof];
+      }
     }
   }
 
@@ -235,57 +278,81 @@ namespace minim {
         }
         // Gradient energy
         double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-        double diffxm = (el.idof[1]!=el.idof[0]) ? c - coords[el.idof[1]] : 0;
-        double diffym = (el.idof[2]!=el.idof[0]) ? c - coords[el.idof[2]] : 0;
-        double diffzm = (el.idof[3]!=el.idof[0]) ? c - coords[el.idof[3]] : 0;
-        double diffzp = (el.idof[4]!=el.idof[0]) ? c - coords[el.idof[4]] : 0;
-        double diffyp = (el.idof[5]!=el.idof[0]) ? c - coords[el.idof[5]] : 0;
-        double diffxp = (el.idof[6]!=el.idof[0]) ? c - coords[el.idof[6]] : 0;
-        double grad2 = 0;
         double res2 = pow(resolution, 2);
-        if (diffxm != 0 && diffxp != 0) { // No solid in x direction
+        double grad2 = 0;
+
+        if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
+          double diffxm = c - coords[el.idof[1]];
+          double diffxp = c - coords[el.idof[6]];
           if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
             (*g)[el.idof[1]] -= factor * diffxm / res2;
             (*g)[el.idof[6]] -= factor * diffxp / res2;
           }
-        } else { // Solid on one side in x direction
-          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / res2;
+        } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
+          double diffxp = c - coords[el.idof[6]];
+          if (e) grad2 += pow(diffxp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffxm + diffxp) / res2;
-            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffxp / res2;
             (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
           }
+        } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
+          double diffxm = c - coords[el.idof[1]];
+          if (e) grad2 += pow(diffxm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffxm / res2;
+            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+          }
         }
-        if (diffym != 0 && diffyp != 0) { // No solid in y direction
+
+        if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
+          double diffym = c - coords[el.idof[2]];
+          double diffyp = c - coords[el.idof[5]];
           if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
             (*g)[el.idof[2]] -= factor * diffym / res2;
             (*g)[el.idof[5]] -= factor * diffyp / res2;
           }
-        } else { // Solid on one side in y direction
-          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / res2;
+        } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
+          double diffyp = c - coords[el.idof[5]];
+          if (e) grad2 += pow(diffyp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffym + diffyp) / res2;
-            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+            (*g)[el.idof[0]] += factor * 2*diffyp / res2;
             (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
           }
+        } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
+          double diffym = c - coords[el.idof[2]];
+          if (e) grad2 += pow(diffym,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffym / res2;
+            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+          }
         }
-        if (diffzm != 0 && diffzp != 0) { // No solid in z direction
+
+        if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
+          double diffzm = c - coords[el.idof[3]];
+          double diffzp = c - coords[el.idof[4]];
           if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
           if (g) {
             (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
             (*g)[el.idof[3]] -= factor * diffzm / res2;
             (*g)[el.idof[4]] -= factor * diffzp / res2;
           }
-        } else { // Solid on one side in z direction
-          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / res2;
+        } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
+          double diffzp = c - coords[el.idof[4]];
+          if (e) grad2 += pow(diffzp,2) / res2;
           if (g) {
-            (*g)[el.idof[0]] += factor * 2*(diffzm + diffzp) / res2;
-            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+            (*g)[el.idof[0]] += factor * 2*diffzp / res2;
             (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
+          }
+        } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
+          double diffzm = c - coords[el.idof[3]];
+          if (e) grad2 += pow(diffzm,2) / res2;
+          if (g) {
+            (*g)[el.idof[0]] += factor * 2*diffzm / res2;
+            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
           }
         }
         if (e) *e += factor * grad2;
@@ -319,20 +386,34 @@ namespace minim {
         // External force
         // Parameters:
         //   0: Volume
-        //   1: Magnitude of force on component 1
-        //   2-4: Direction force on component 1
+        //   1: Magnitude of force
+        //   2: Height
+        double c = (nFluid==1) ? 0.5*(1+coords[el.idof[0]]) : coords[el.idof[0]];
+        if (c < 0.01) return;
         double vol = el.parameters[0];
         double f = el.parameters[1];
-        vector<double> fNorm = {el.parameters[2], el.parameters[3], el.parameters[4]};
-        std::array<int,3> coordI = getCoord(el.idof[0]);
-        vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
-        double h = - vec::dotProduct(coord, fNorm) * resolution;
-        if (nFluid == 1) {
-          if (e) *e += 0.5*(1+coords[el.idof[0]]) * vol * f * h;
-          if (g) (*g)[el.idof[0]] += 0.5 * vol * f * h;
-        } else {
-          if (e) *e += coords[el.idof[0]] * vol * f * h;
-          if (g) (*g)[el.idof[0]] += vol * f * h;
+        double h = el.parameters[2];
+        if (e) *e += c * vol * f * h;
+        if (g) {
+          if (nFluid == 1) {
+            (*g)[el.idof[0]] += 0.5 * vol * f * h;
+          } else {
+            (*g)[el.idof[0]] += vol * f * h;
+          }
+        }
+      } break;
+
+      case 4: {
+        // Confining potential for the frozen fluid method
+        // Parameters:
+        //   0: Confinement strength
+        //   1: Initial concentration
+        double c = coords[el.idof[0]];
+        double strength = el.parameters[0];
+        double c0 = el.parameters[1];
+        if ((c0-0.5)*(c-0.5) < 0) {
+          if (e) *e += strength * pow(c-0.5, 2);
+          if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5);
         }
       } break;
 
@@ -344,6 +425,7 @@ namespace minim {
 
   PFWetting& PFWetting::setGridSize(std::array<int,3> gridSize) {
     this->gridSize = gridSize;
+    this->nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     return *this;
   }
 
@@ -352,8 +434,18 @@ namespace minim {
     return *this;
   }
 
+  PFWetting& PFWetting::setResolution(double resolution) {
+    this->resolution = resolution;
+    return *this;
+  }
+
   PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
     this->interfaceSize = vector<double>(nFluid, interfaceSize);
+    return *this;
+  }
+
+  PFWetting& PFWetting::setInterfaceSize(vector<double> interfaceSize) {
+    this->interfaceSize = interfaceSize;
     return *this;
   }
 
@@ -362,8 +454,21 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setResolution(double resolution) {
-    this->resolution = resolution;
+  PFWetting& PFWetting::setSurfaceTension(vector<double> surfaceTension) {
+    this->surfaceTension = surfaceTension;
+    return *this;
+  }
+
+  PFWetting& PFWetting::setDensityConstraint(std::string method) {
+    if (method == "none") {
+      densityConstraint = 0;
+    } else if (vec::isIn({"gradient","hard"}, method)) {
+      densityConstraint = 1;
+    } else if (vec::isIn({"energy penalty","soft"}, method)) {
+      densityConstraint = 2;
+    } else {
+      throw std::invalid_argument("Invalid density constraint. Allowed methods are: none, gradient / hard, or energy penalty / soft");
+    }
     return *this;
   }
 
@@ -373,7 +478,14 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setVolume(vector<double> volume, double volConst) {
+    this->volumeFixed = true;
+    this->volConst = volConst;
     this->volume = volume;
+    return *this;
+  }
+
+  PFWetting& PFWetting::setVolumeFixed(bool volumeFixed, double volConst) {
+    this->volumeFixed = volumeFixed;
     this->volConst = volConst;
     return *this;
   }
@@ -384,7 +496,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setSolid(std::function<bool(int,int,int)> solidFn) {
-    solid = vector<bool>(gridSize[0]*gridSize[1]*gridSize[2]);
+    solid = vector<bool>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -403,7 +515,7 @@ namespace minim {
   }
 
   PFWetting& PFWetting::setContactAngle(std::function<double(int,int,int)> contactAngleFn) {
-    contactAngle = vector<double>(gridSize[0]*gridSize[1]*gridSize[2]);
+    contactAngle = vector<double>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -429,14 +541,15 @@ namespace minim {
     return *this;
   }
 
-
-  State PFWetting::newState(const vector<double>& coords, const vector<int>& ranks) {
-    return State(*this, coords, ranks);
+  PFWetting& PFWetting::setFixFluid(int iFluid, bool fix) {
+    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
+    fixFluid[iFluid] = fix;
+    return *this;
   }
 
-
-  int PFWetting::nGrid() const {
-    return gridSize[0] * gridSize[1] * gridSize[2];
+  PFWetting& PFWetting::setConfinement(vector<double> strength) {
+    this->confinementStrength = strength;
+    return *this;
   }
 
 
@@ -498,6 +611,43 @@ namespace minim {
       return 7;
     }
     throw std::runtime_error("Undefined surface type");
+  }
+
+
+  void PFWetting::setDefaults() {
+    if (interfaceSize.empty()) interfaceSize = vector<double>(nFluid, resolution);
+    if (solid.empty()) solid = vector<bool>(nGrid, false);
+    if (pressure.empty()) pressure = vector<double>(nFluid, 0);
+    if (fixFluid.empty()) fixFluid = vector<bool>(nFluid, false);
+    if (confinementStrength.empty()) confinementStrength = vector<double>(nFluid, 0);
+  }
+
+
+  void PFWetting::checkArraySizes() {
+    if ((int)interfaceSize.size() != nFluid) {
+      throw std::invalid_argument("Invalid size interfaceSize array.");
+    }
+    if ((int)solid.size() != nGrid) {
+      throw std::invalid_argument("Invalid size of solid array.");
+    }
+    if ((int)contactAngle.size() != nGrid*nFluid && !contactAngle.empty()) {
+      throw std::invalid_argument("Invalid size of contactAngle array.");
+    }
+    if ((int)force.size() != nFluid && !force.empty()) {
+      throw std::invalid_argument("Invalid size of force array.");
+    }
+    if ((int)volume.size() != nFluid && !volume.empty()) {
+      throw std::invalid_argument("Invalid size of volume array.");
+    }
+    if ((int)pressure.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of pressure array.");
+    }
+    if ((int)fixFluid.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of fixed fluid array.");
+    }
+    if ((int)confinementStrength.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of confinement strength array.");
+    }
   }
 
 }

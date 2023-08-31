@@ -111,7 +111,8 @@ namespace minim {
 
     if (pot->serialDef()) {
       vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
-      return pot->gradient(allCoords);
+      auto g = pot->gradient(allCoords);
+      return pot->applyConstraints(coords, g);
 
     } else if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
@@ -128,6 +129,7 @@ namespace minim {
     if (pot->serialDef()) {
       vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
       pot->energyGradient(allCoords, e, g);
+      if (g) pot->applyConstraints(coords, *g);
 
     } else if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
@@ -172,7 +174,9 @@ namespace minim {
       return g;
 
     } else if (pot->serialDef()) {
-      return comm.scatter(pot->gradient(comm.gather(coords)));
+      auto g = pot->gradient(comm.gather(coords));
+      pot->applyConstraints(coords, g);
+      return comm.scatter(g);
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -185,8 +189,6 @@ namespace minim {
     if (pot->parallelDef()) {
       if (e) *e = 0;
       if (g) *g = vector<double>(coords.size());
-      // Compute any system-wide contributions
-      pot->blockEnergyGradient(coords, comm, e, g);
       // Compute the energy elements
       for (auto el : pot->elements) {
         pot->elementEnergyGradient(coords, el, e, g);
@@ -197,6 +199,10 @@ namespace minim {
           pot->elementEnergyGradient(coords, el, nullptr, g);
         }
       }
+      // Compute any system-wide contributions
+      pot->blockEnergyGradient(coords, comm, e, g);
+      // Constraints
+      if (g) pot->applyConstraints(coords, *g);
 
     } else if (pot->serialDef()) {
       if (g == nullptr) {
@@ -205,6 +211,7 @@ namespace minim {
         vector<double> gAll(ndof);
         pot->energyGradient(comm.gather(coords), e, &gAll);
         *g = comm.scatter(gAll);
+        pot->applyConstraints(coords, *g);
       }
       if (comm.rank() != 0 && e != nullptr) *e = 0;
 
@@ -281,6 +288,15 @@ namespace minim {
     vector<double> coords = comm.gather(_coords, 0);
     mpi.bcast(coords, comm.ranks[0], ndof);
     return coords;
+  }
+
+
+  double State::componentEnergy(int component) const {
+    double e = 0;
+    for (auto el : pot->elements) {
+      if (el.type == component) pot->elementEnergyGradient(_coords, el, &e, nullptr);
+    }
+    return e;
   }
 
 

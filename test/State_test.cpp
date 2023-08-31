@@ -1,8 +1,5 @@
+#include "test_main.cpp"
 #include "State.h"
-
-#include "gtest/gtest.h"
-#include "gtest-mpi-listener.hpp"
-#include "ArraysMatch.h"
 
 #include "LjNd.h"
 #include "utils/mpi.h"
@@ -129,19 +126,4 @@ TEST(StateTest, TestAllEnergy) {
   EXPECT_FLOAT_EQ(e2, -63./1024);
   EXPECT_TRUE(ArraysNear(g1, {-93./512,0,0, 93./512,0,0}, 1e-6));
   EXPECT_TRUE(ArraysNear(g2, {-93./512,0,0, 93./512,0,0}, 1e-6));
-}
-
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  MPI_Init(&argc, &argv);
-  mpi.getSizeRank(MPI_COMM_WORLD);
-
-  // Add an MPI listener (https://github.com/LLNL/gtest-mpi-listener)
-  ::testing::AddGlobalTestEnvironment(new GTestMPIListener::MPIEnvironment);
-  ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
-  ::testing::TestEventListener *l = listeners.Release(listeners.default_result_printer());
-  listeners.Append(new GTestMPIListener::MPIWrapperPrinter(l, MPI_COMM_WORLD));
-
-  return RUN_ALL_TESTS();
 }

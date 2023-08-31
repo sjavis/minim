@@ -13,20 +13,33 @@ namespace minim {
       size_t ndof;
       double convergence = 1e-6;
       std::unique_ptr<Potential> pot;
-      Communicator comm;
-      bool usesThisProc = true;
 
       State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks={});
-      State(const State& state);
-      State& operator=(const State& state);
-      ~State() {};
 
+      // Energy / Gradient
       double energy() const;
       double energy(const vector<double>& coords) const;
       vector<double> gradient() const;
       vector<double> gradient(const vector<double>& coords) const;
       void energyGradient(double* e, vector<double>* g) const;
       void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
+
+      // Coordinates
+      double operator[](int i);
+      vector<double> coords() const;
+      void coords(const vector<double>& in);
+
+      // Copy constructor / destructor
+      State(const State& state);
+      State& operator=(const State& state);
+      ~State() {};
+
+      // Parallel functions
+      Communicator comm;
+      bool usesThisProc = true;
+
+      vector<double> blockCoords() const;
+      void blockCoords(const vector<double>& in);
 
       double blockEnergy() const;
       double blockEnergy(const vector<double>& coords) const;
@@ -45,16 +58,9 @@ namespace minim {
       double allEnergy() const;
       vector<double> allGradient() const;
       void allEnergyGradient(double* e, vector<double>* g) const;
-
-      double operator[](int i);
-
-      vector<double> coords() const;
-      void coords(const vector<double>& in);
-
-      vector<double> blockCoords() const;
-      void blockCoords(const vector<double>& in);
-
       vector<double> allCoords() const;
+
+      double componentEnergy(int component) const;
 
       void communicate();
 

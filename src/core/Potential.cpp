@@ -1,6 +1,7 @@
 #include "Potential.h"
 
 #include "State.h"
+#include "utils/vec.h"
 #include <stdexcept>
 
 namespace minim {
@@ -108,5 +109,76 @@ namespace minim {
     }
     return *this;
   }
+
+
+  Potential& Potential::setConstraints(vector<int> iFix) {
+    for (int i: iFix) {
+      constraints.push_back({{i}});
+    }
+    return *this;
+  }
+
+  Potential& Potential::setConstraints(vector2d<int> idofs, vector<double> normal) {
+    for (const vector<int>& idof: idofs) {
+      constraints.push_back({idof, [normal](auto&&){return normal;}});
+    }
+    return *this;
+  }
+
+  Potential& Potential::setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction) {
+    for (const vector<int>& idof: idofs) {
+      constraints.push_back({idof, normal, correction});
+    }
+    return *this;
+  }
+
+
+  vector<double> Potential::applyConstraints(const vector<double>& coords, vector<double>& grad) const {
+    for (const auto& constraint: constraints) {
+      if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
+      else {
+        // Remove the component of grad in the direction of the normal
+        auto normal = constraint.normal(coords);
+        auto gradSlice = vec::slice(grad, constraint.idof);
+        double normalSq = vec::dotProduct(normal, normal);
+        double gradNormal = vec::dotProduct(gradSlice, normal);
+        for (size_t i=0; i<normal.size(); i++) grad[constraint.idof[i]] -= gradNormal * normal[i] / normalSq;
+      }
+    }
+    return grad;
+  }
+
+  vector<double> Potential::correctConstraints(vector<double>& coords) const {
+    for (const auto& constraint: constraints) {
+      if (constraint.correction) constraint.correction(coords);
+    }
+    return coords;
+  }
+
+
+  bool Potential::isFixed(int index) const {
+    for (const auto& constraint: constraints) {
+      if (constraint.idof.size()!=1) continue;
+      if (constraint.idof[0]==index) return true;
+    }
+    return false;
+  }
+
+  vector<bool> Potential::isFixed(const vector<int>& indicies) const {
+    // Get array of fixed indicies
+    vector<int> iFixed;
+    iFixed.reserve(constraints.size());
+    for (const auto& constraint: constraints) {
+      if (constraint.idof.size()!=1) continue;
+      iFixed.push_back(constraint.idof[0]);
+    }
+    // Find if the chosen indicies are included
+    vector<bool> fixed(indicies.size(), false);
+    for (int i=0; i<(int)indicies.size(); i++) {
+      if (vec::isIn(iFixed, indicies[i])) fixed[i] = true;
+    }
+    return fixed;
+  }
+
 
 }

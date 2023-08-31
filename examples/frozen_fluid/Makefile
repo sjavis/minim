@@ -10,4 +10,4 @@ all:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe
 
 clean:
-	rm run.exe *.txt
+	rm run.exe

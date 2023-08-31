@@ -240,6 +240,15 @@ namespace vec {
   }
 
 
+  template<typename T>
+  vector<T> slice(const vector<T>& in, const vector<int>& index) {
+    vector<T> slice;
+    slice.reserve(index.size());
+    for (int i: index) slice.push_back(in[i]);
+    return slice;
+  }
+
+
   // Get the sorted vector
   template<typename T>
   vector<T> sort(const vector<T>& in, vector<int>* index) {
@@ -267,7 +276,8 @@ namespace vec {
       return out;
     }
     T value = out[0];
-    for (auto iOut=out.begin()+1, iIdx=index->begin()+1; iOut!=out.end();) {
+    auto iIdx = index->begin()+1;
+    for (auto iOut=out.begin()+1; iOut!=out.end();) {
       if (*iOut == value) {
         iOut = out.erase(iOut);
         iIdx = index->erase(iIdx);

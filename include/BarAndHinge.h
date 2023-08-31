@@ -15,7 +15,6 @@ namespace minim {
       ~BarAndHinge() {};
 
       void init(const vector<double>& coords) override;
-      void distributeParameters(const Communicator& comm) override;
 
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
@@ -40,8 +39,6 @@ namespace minim {
       BarAndHinge& setForce(const vector<double>& force);
       BarAndHinge& setForce(const vector2d<double>& force);
 
-      BarAndHinge& setFixed(const vector<bool>& fixed);
-
       double modulus = 1;
       double poissonRatio = 0.3;
       bool wallOn = false;
@@ -50,8 +47,6 @@ namespace minim {
       double lj_sigma = 1e-5;
 
     private:
-      bool paramsDistributed = false;
-      vector<bool> fixed;
       vector2d<int> _bondList;
       vector2d<int> _hingeList;
       vector2d<int> _triList;

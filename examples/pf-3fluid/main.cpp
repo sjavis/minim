@@ -70,24 +70,25 @@ void output(vector<double> data) {
 }
 
 
-void log(int iter, State& state) {
-  if (iter%100 == 0) {
-    print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
-    output(state.coords());
-  }
-}
-
-
 int main(int argc, char** argv) {
   mpi.init(&argc, &argv);
-  print("RUNNING");
 
-  auto pot = PFWetting().setNFluid(3).setGridSize({nx, ny, 1});
+  auto log = [](int iter, State& state) {
+    if (iter%100 == 0) {
+      print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
+    }
+  };
+
+  auto pot = PFWetting();
+  pot.setNFluid(3);
+  pot.setGridSize({nx, ny, 1});
   pot.setSolid(getSolid());
-  auto init = initCoords(nx*ny, c1, c2);
-  auto state = pot.newState(init);
+  pot.setDensityConstraint("hard");
+  pot.setVolumeFixed(true, 1e-4);
+  State state(pot, initCoords(nx*ny, c1, c2));
 
   auto min = Lbfgs();
+  min.setMaxIter(5000);
   min.minimise(state, log);
 
   output(state.coords());
