@@ -93,6 +93,18 @@ void output(vector<double> data, std::string filename) {
 }
 
 
+void energyComponents(State& state) {
+  double e0 = state.componentEnergy(0);
+  double e2 = state.componentEnergy(2);
+  double e3 = state.componentEnergy(3);
+  double e4 = state.componentEnergy(4);
+  double e_pv = 0;
+  state.pot->blockEnergyGradient(state.blockCoords(), state.comm, &e_pv, nullptr);
+  e_pv = state.comm.sum(e_pv);
+  print("Interfaces:", e0, "Surfaces:", e2, "Force:", e3, "Confinement:", e4, "Pressure/volume:", e_pv);
+}
+
+
 
 int main(int argc, char** argv) {
   mpi.init(&argc, &argv);
