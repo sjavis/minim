@@ -304,4 +304,9 @@ namespace minim {
     comm.communicate(_coords);
   }
 
+
+  void State::failed() {
+    this->isFailed = true;
+  }
+
 }

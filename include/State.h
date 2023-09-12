@@ -64,6 +64,9 @@ namespace minim {
 
       void communicate();
 
+      bool isFailed = false;
+      void failed();
+
     private:
       vector<double> _coords;
   };

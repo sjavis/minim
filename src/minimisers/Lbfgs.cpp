@@ -120,6 +120,7 @@ namespace minim {
 
 
   bool Lbfgs::checkConvergence(const State& state) {
+    if (state.isFailed) return true;
     double rms = sqrt(state.comm.dotProduct(_g, _g) / state.ndof);
     return (rms < state.convergence);
   }
