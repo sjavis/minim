@@ -193,7 +193,7 @@ namespace minim {
       for (auto el : pot->elements) {
         pot->elementEnergyGradient(coords, el, e, g);
       }
-      // Compute the gradient of the halo energy elements
+      // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
       if (g) {
         for (auto el : pot->elements_halo) {
           pot->elementEnergyGradient(coords, el, nullptr, g);

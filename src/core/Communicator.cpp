@@ -407,12 +407,14 @@ namespace minim {
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc) return;
   #ifdef PARALLEL
+    MPI_Request requests[p->commSize];
     for (int i=0; i<p->commSize; i++) {
-      if (i == p->commRank) continue;
       // Send
       if (p->send[i]) {
         int tag = p->commRank*p->commSize + i;
-        MPI_Send(&vector[0], 1, p->sendtype[i], i, tag, p->comm);
+        MPI_Isend(&vector[0], 1, p->sendtype[i], i, tag, p->comm, &requests[i]);
+      } else {
+        requests[i] = MPI_REQUEST_NULL;
       }
     }
     for (int i=0; i<p->commSize; i++) {
@@ -424,6 +426,7 @@ namespace minim {
         MPI_Recv(&vector[irecv], p->nrecv[i], MPI_DOUBLE, i, tag, p->comm, nullptr);
       }
     }
+    MPI_Waitall(p->commSize, requests, MPI_STATUSES_IGNORE);
   #endif
   }
 
@@ -453,7 +456,13 @@ namespace minim {
 
   double Communicator::sum(const vector<double>& a) const {
     if (!usesThisProc) return 0;
-    return sum(vec::sum(a));
+    return sum(vec::sum(a)); // TODO: Ignore halo?
+  }
+
+
+  double Communicator::norm(const vector<double>& a) const {
+    if (!usesThisProc) return 0;
+    return sqrt(dotProduct(a, a));
   }
 
 

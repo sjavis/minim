@@ -14,6 +14,7 @@
 namespace minim {
   using std::vector;
   template<typename T> using vector2d = vector<vector<T>>;
+  class Communicator;
 
 
   //! \class Lbfgs
@@ -38,13 +39,11 @@ namespace minim {
       double _init_hessian = 1e-4;
       double _maxStep = 0;
       vector<double> _g;
-      vector<double> _gNew;
-      vector<double> _step;
       vector<double> _rho;
       vector2d<double> _s;
       vector2d<double> _y;
 
-      vector<double> getDirection();
+      vector<double> getDirection(const Communicator& comm);
   };
 
 }
