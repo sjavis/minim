@@ -12,10 +12,12 @@ int nx = 100;
 int ny = 100;
 int nz = 1;
 
+// Solid parameters
 double solidHeight = 9.5;
-double confinementStrength = 100;
+double confinementStrength = 10; // units: energy per unit area
 
-double surfaceTension = 1;
+// Liquid parameters
+double surfaceTension = 1; // units: energy per unit area
 double contactAngle = 150;
 double dropRad = 30;
 
