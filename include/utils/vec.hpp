@@ -306,8 +306,9 @@ namespace vec {
 
   // Create a vector with an incremented value
   template<typename T, typename T1, typename T2>
-  vector<T> arange(T1 start, T2 stop, T step) {
-    int n = (stop - start) / step;
+  vector<T> arange(T1 start, T2 stop, T step, bool inclusive) {
+    int n = ceil((stop - start) / step);
+    if (inclusive && fmod(stop-start,step)==0) n++;
     vector<T> vec(n);
     T value = start;
     for (int i=0; i<n; i++) {

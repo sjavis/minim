@@ -138,4 +138,9 @@ TEST(VecTest, TestArange) {
   EXPECT_TRUE(ArraysMatch(vec::arange(0,5,1), {0,1,2,3,4}));
   EXPECT_TRUE(ArraysMatch(vec::arange(3,1,-1), {3,2}));
   EXPECT_TRUE(ArraysNear(vec::arange(0,0.5,0.1), {0.0,0.1,0.2,0.3,0.4}, 1e-6));
+  EXPECT_TRUE(ArraysNear(vec::arange(0,0.45,0.1), {0.0,0.1,0.2,0.3,0.4}, 1e-6));
+
+  EXPECT_TRUE(ArraysNear(vec::arange(0,0.10,0.1,true), {0,0.1}, 1e-6));
+  EXPECT_TRUE(ArraysNear(vec::arange(0,0.11,0.1,true), {0,0.1}, 1e-6));
+  EXPECT_TRUE(ArraysNear(vec::arange(0,0.09,0.1,true), {0}, 1e-6));
 }

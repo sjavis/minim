@@ -57,7 +57,7 @@ namespace vec {
   vector<double> random(int n, double max);
 
   vector<int> iota(int n, int start=0);
-  template<typename T, typename T1, typename T2> vector<T> arange(T1 start, T2 stop, T step);
+  template<typename T, typename T1, typename T2> vector<T> arange(T1 start, T2 stop, T step, bool inclusive=false);
 }
 
 #include "vec.hpp"
