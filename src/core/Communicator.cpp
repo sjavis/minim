@@ -405,7 +405,7 @@ namespace minim {
 
 
   void Communicator::communicate(vector<double>& vector) const {
-    if (!usesThisProc) return;
+    if (!usesThisProc || p->commSize==1) return;
   #ifdef PARALLEL
     MPI_Request requests[p->commSize];
     for (int i=0; i<p->commSize; i++) {
