@@ -303,6 +303,20 @@ namespace vec {
     vec.push_back(value);
   }
 
+
+  // Create a vector with an incremented value
+  template<typename T, typename T1, typename T2>
+  vector<T> arange(T1 start, T2 stop, T step) {
+    int n = (stop - start) / step;
+    vector<T> vec(n);
+    T value = start;
+    for (int i=0; i<n; i++) {
+      vec[i] = value;
+      value += step;
+    }
+    return vec;
+  }
+
 }
 
 #endif
