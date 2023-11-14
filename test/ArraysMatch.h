@@ -8,10 +8,8 @@ template<typename T>
     return ::testing::AssertionFailure() << "array 1 has size " << a.size() << " != expected size " << b.size();
   }
 
-  for (size_t i(0); i < a.size(); ++i) {
-    if (a[i] != b[i]) {
-      return ::testing::AssertionFailure() << "a["<<i<< "] ("<<a[i]<<") != b["<< i<<"] ("<<b[i]<<")";
-    }
+  if (a != b) {
+    return ::testing::AssertionFailure() << ::testing::PrintToString(a) << " != " << ::testing::PrintToString(b);
   }
 
   return ::testing::AssertionSuccess();
@@ -26,7 +24,7 @@ template<typename T>
 
   for (size_t i(0); i < a.size(); ++i) {
     if (std::abs(a[i] - b[i]) > delta) {
-      return ::testing::AssertionFailure() << "a["<<i<< "] ("<<a[i]<<") != b["<< i<<"] ("<<b[i]<<")";
+      return ::testing::AssertionFailure() << ::testing::PrintToString(a) << " != " << ::testing::PrintToString(b);
     }
   }
 

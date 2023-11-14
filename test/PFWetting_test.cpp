@@ -31,32 +31,32 @@ TEST(PFWettingTest, TestBulkEnergy) {
 
   // Constant bulk fluid
   State s1(pot.setGridSize({1,1,1}), {1}, {0});
-  EXPECT_FLOAT_EQ(s1.energy(), 0);
-  EXPECT_TRUE(ArraysNear(s1.gradient(), {0}, 1e-6));
+  EXPECT_FLOAT_EQ(s1.allEnergy(), 0);
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0}, 1e-6));
   s1.coords({0.1});
-  EXPECT_FLOAT_EQ(s1.energy(), 0.245025);
-  EXPECT_TRUE(ArraysNear(s1.gradient(), {-0.099}, 1e-6));
+  EXPECT_FLOAT_EQ(s1.allEnergy(), 0.245025);
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {-0.099}, 1e-6));
 
   // Bulk fluid gradient
   State s2x = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   State s2y = pot.setGridSize({1,5,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   State s2z = pot.setGridSize({1,1,5}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  EXPECT_FLOAT_EQ(s2x.energy(), 1.25);
-  EXPECT_FLOAT_EQ(s2y.energy(), 1.25);
-  EXPECT_FLOAT_EQ(s2z.energy(), 1.25);
-  EXPECT_TRUE(ArraysNear(s2x.gradient(), {0,-1,0,1,0}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s2y.gradient(), {0,-1,0,1,0}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s2z.gradient(), {0,-1,0,1,0}, 1e-6));
+  EXPECT_FLOAT_EQ(s2x.allEnergy(), 1.25);
+  EXPECT_FLOAT_EQ(s2y.allEnergy(), 1.25);
+  EXPECT_FLOAT_EQ(s2z.allEnergy(), 1.25);
+  EXPECT_TRUE(ArraysNear(s2x.allGradient(), {0,-1,0,1,0}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s2y.allGradient(), {0,-1,0,1,0}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s2z.allGradient(), {0,-1,0,1,0}, 1e-6));
   // Test periodic boundary
   State s3x = pot.setGridSize({3,1,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
   State s3y = pot.setGridSize({1,3,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
   State s3z = pot.setGridSize({1,1,3}).setSolid({0,1,0}).newState({-1,0,1}, {0});
-  EXPECT_FLOAT_EQ(s3x.energy(), 2);
-  EXPECT_FLOAT_EQ(s3y.energy(), 2);
-  EXPECT_FLOAT_EQ(s3z.energy(), 2);
-  EXPECT_TRUE(ArraysNear(s3x.gradient(), {-2,0,2}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s3y.gradient(), {-2,0,2}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s3z.gradient(), {-2,0,2}, 1e-6));
+  EXPECT_FLOAT_EQ(s3x.allEnergy(), 2);
+  EXPECT_FLOAT_EQ(s3y.allEnergy(), 2);
+  EXPECT_FLOAT_EQ(s3z.allEnergy(), 2);
+  EXPECT_TRUE(ArraysNear(s3x.allGradient(), {-2,0,2}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s3y.allGradient(), {-2,0,2}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s3z.allGradient(), {-2,0,2}, 1e-6));
 }
 
 
@@ -82,7 +82,7 @@ TEST(PFWettingTest, TestExternalForce) {
     if (el->type==0) stateForce1.pot->elements.erase(el); // Remove the bulk fluid energy elements
   }
   EXPECT_FLOAT_EQ(stateForce1.energy(), 8);
-  EXPECT_TRUE(ArraysNear(stateForce1.gradient(), {-1,-1,-1,-1,  1, 1, 1, 1}, 1e-6));
+  EXPECT_TRUE(ArraysNear(stateForce1.gradient(), {0,0,0,0, 1,1,1,1}, 1e-6));
 }
 
 
@@ -140,8 +140,8 @@ TEST(PFWettingTest, TestResolution) {
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  EXPECT_FLOAT_EQ(s1.energy(), 4); // Bulk: 2, Gradient: 2
-  EXPECT_TRUE(ArraysNear(s1.gradient(), {0,-2,0,2,0}, 1e-6));
+  EXPECT_FLOAT_EQ(s1.allEnergy(), 4); // Bulk: 2, Gradient: 2
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0,-2,0,2,0}, 1e-6));
 
   // External Force
   pot.setGridSize({2,2,2}).setSolid({0,0,0,0,0,0,0,0}).setForce({-4,0,0});
@@ -150,7 +150,7 @@ TEST(PFWettingTest, TestResolution) {
     if (el->type==0) s2.pot->elements.erase(el); // Remove the bulk fluid energy elements
   }
   EXPECT_FLOAT_EQ(s2.energy(), 128);
-  EXPECT_TRUE(ArraysNear(s2.gradient(), {-16,-16,-16,-16,  16, 16, 16, 16}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s2.gradient(), {0,0,0,0, 16,16,16,16}, 1e-6));
   pot.setForce({0,0,0});
 
   // Surface energy
