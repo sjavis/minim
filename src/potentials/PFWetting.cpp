@@ -82,6 +82,34 @@ namespace minim {
   }
 
 
+  void PFWetting::assignKappa2() {
+    if ((int)surfaceTension2.size()==1 && nFluid>1) {
+      surfaceTension2 = vector<double>(nFluid, surfaceTension2[0]);
+    } else if ((int)surfaceTension2.size() != nFluid) {
+      throw std::invalid_argument("Invalid size of surfaceTension2 array.");
+    }
+    if (nFluid <= 2) {
+      kappa2 = vector<double>(nFluid, 3*surfaceTension2[0]/interfaceSize[0]);
+      kappaP2 = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa2[0]);
+    } else {
+      kappa2 = vector<double>(nFluid);
+      kappaP2 = vector<double>(nFluid);
+      auto kappaSums = 6 * surfaceTension2 / interfaceSize;
+      auto kappaPSums = 6 * surfaceTension2 * interfaceSize;
+      kappa2[0] = 0.5 * ( kappaSums[0] + kappaSums[1] - kappaSums[nFluid-1]);
+      kappa2[1] = 0.5 * ( kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]);
+      kappa2[2] = 0.5 * (-kappaSums[0] + kappaSums[1] + kappaSums[nFluid-1]);
+      kappaP2[0] = 0.5 * ( kappaPSums[0] + kappaPSums[1] - kappaPSums[nFluid-1]);
+      kappaP2[1] = 0.5 * ( kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]);
+      kappaP2[2] = 0.5 * (-kappaPSums[0] + kappaPSums[1] + kappaPSums[nFluid-1]);
+      for (int i=3; i<nFluid; i++) {
+        kappa2[i] = 0.5 * (-kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]) + kappaSums[i-1];
+        kappaP2[i] = 0.5 * (-kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]) + kappaPSums[i-1];
+      }
+    }
+  }
+
+
   void PFWetting::init(const vector<double>& coords) {
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("Size of coordinates array does not match the grid size.");
@@ -90,6 +118,7 @@ namespace minim {
     setDefaults();
     checkArraySizes();
     assignKappa();
+    assignKappa2();
 
     // Forces
     vector<double> fMag(nFluid);
@@ -139,8 +168,12 @@ namespace minim {
       for (auto &idof: idofs) {
         if (solid[idof]) idof = i;
       }
+      // Choose whether to use contact angle 1 or 2
+      int x = getCoord(i)[0];
+      double contactAngleNumber = (x<gridSize[0]/2) ? 1 : 2;
+      // Elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
+        elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid, contactAngleNumber}});
       }
 
       // Set soft density constraint elements
@@ -263,18 +296,29 @@ namespace minim {
         double vol = el.parameters[0];
         int iFluid = el.parameters[1];
         double c = coords[el.idof[0]];
+        int contactAngleNumber = el.parameters[2];
         // Bulk energy
         if (nFluid == 1) {
-          double factor = kappa[0] / 16 * vol;
+          // double factor = kappa[0] / 16 * vol;
+          double kappa_local = (contactAngleNumber==1) ? kappa[0] : kappa2[0];
+          double factor = kappa_local / 16 * vol;
           if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
           if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
         } else {
-          double factor = 0.5 * kappa[iFluid] * vol;
+          // double factor = 0.5 * kappa[iFluid] * vol;
+          double kappa_local = (contactAngleNumber==1) ? kappa[iFluid] : kappa2[iFluid];
+          double factor = 0.5 * kappa_local * vol;
           if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
           if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
         }
         // Gradient energy
-        double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
+        // double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
+        double factor;
+        if (contactAngleNumber==1) {
+          factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
+        } else {
+          factor = (nFluid==1) ? 0.25*kappaP2[0]*vol : 0.5*kappaP2[iFluid]*vol;
+        }
         double res2 = pow(resolution, 2);
         double grad2 = 0;
 

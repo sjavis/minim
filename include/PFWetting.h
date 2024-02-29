@@ -15,6 +15,13 @@ namespace minim {
       PFWetting() { _parallelDef = true; };
       ~PFWetting() {};
 
+      vector<double> kappa;
+      vector<double> kappaP;
+      vector<double> kappa2;
+      vector<double> kappaP2;
+      vector<double> surfaceTension2 = {1};
+      void assignKappa2();
+
       // System size
       int nFluid = 1;
       std::array<int,3> gridSize;
@@ -46,8 +53,6 @@ namespace minim {
 
       // Solid nodes
       vector<bool> solid;
-      vector<double> kappa;
-      vector<double> kappaP;
       vector<double> contactAngle;
       PFWetting& setSolid(vector<bool> solid);
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
