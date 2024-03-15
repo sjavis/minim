@@ -60,8 +60,9 @@ namespace minim {
       // Constraints
       struct Constraint {
         vector<int> idof;
-        std::function<vector<double>(const vector<int>&, const vector<double>&)> normal;
+        std::function<vector<double>(const vector<int>&, const vector<double>&)> normalFn;
         std::function<void(vector<double>&)> correction = nullptr;
+        vector<double> normal(const vector<double>& normalVec) const { return normalFn(idof, normalVec); }
       };
       vector<Constraint> constraints;
 

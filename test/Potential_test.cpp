@@ -32,7 +32,7 @@ TEST(PotentialTest, TestConstraints) {
 
   // Function constraint
   pot.constraints = {};
-  pot.setConstraints({{0,1}}, [](const vector<double>& x){ return x-1; });
+  pot.setConstraints({{0,1}}, [](const vector<int>& idof, const vector<double>& x){ return x-1; });
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].idof, {0,1}));
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].normal(coords), {0,1}));
   g = pot.gradient(coords);

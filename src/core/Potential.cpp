@@ -138,7 +138,7 @@ namespace minim {
       if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
       else {
         // Remove the component of grad in the direction of the normal
-        auto normal = constraint.normal(constraint.idof, coords);
+        auto normal = constraint.normal(coords);
         auto gradSlice = vec::slice(grad, constraint.idof);
         double normalSq = vec::dotProduct(normal, normal);
         double gradNormal = vec::dotProduct(gradSlice, normal);
