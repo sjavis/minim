@@ -120,12 +120,12 @@ namespace minim {
 
   Potential& Potential::setConstraints(vector2d<int> idofs, vector<double> normal) {
     for (const vector<int>& idof: idofs) {
-      constraints.push_back({idof, [normal](auto&&){return normal;}});
+      constraints.push_back({idof, [normal](auto&&, auto&&){return normal;}});
     }
     return *this;
   }
 
-  Potential& Potential::setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<double>&)> normal, std::function<void(vector<double>&)> correction) {
+  Potential& Potential::setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<int>&, const vector<double>&)> normal, std::function<void(vector<double>&)> correction) {
     for (const vector<int>& idof: idofs) {
       constraints.push_back({idof, normal, correction});
     }
@@ -138,7 +138,7 @@ namespace minim {
       if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
       else {
         // Remove the component of grad in the direction of the normal
-        auto normal = constraint.normal(coords);
+        auto normal = constraint.normal(constraint.idof, coords);
         auto gradSlice = vec::slice(grad, constraint.idof);
         double normalSq = vec::dotProduct(normal, normal);
         double gradNormal = vec::dotProduct(gradSlice, normal);
