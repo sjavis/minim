@@ -1,4 +1,4 @@
-#include "Anneal.h"
+#include "minimisers/Anneal.h"
 
 #include <math.h>
 #include <time.h>

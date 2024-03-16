@@ -1,5 +1,5 @@
 TARGET = libminim.a
-SRC_DIR = src/core src/minimisers src/potentials src/utils
+SRC_DIR = src
 INC_DIR = include
 BUILD_DIR = bin
 LIB_DIR = lib
@@ -10,8 +10,9 @@ CXX      = mpicxx#            C++ compiler
 CXXFLAGS = -O3 -Wall -DPARALLEL -std=c++14#  Flags for the C++ compiler
 
 TARGET := $(BUILD_DIR)/$(TARGET)
-VPATH = $(SRC_DIR)
-SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
+SRC_DIRS := $(shell find $(SRC_DIR) -type d)
+VPATH = $(SRC_DIRS)
+SRC = $(foreach sdir, $(SRC_DIRS), $(wildcard $(sdir)/*.cpp))
 OBJ = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(notdir $(SRC)))
 INC = $(addprefix -I, $(INC_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))

@@ -1,4 +1,4 @@
-#include "GradDescent.h"
+#include "minimisers/GradDescent.h"
 
 #include <math.h>
 #include "State.h"

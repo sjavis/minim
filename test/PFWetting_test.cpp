@@ -1,5 +1,5 @@
 #include "test_main.cpp"
-#include "PFWetting.h"
+#include "potentials/PFWetting.h"
 
 #include "State.h"
 #include "utils/vec.h"

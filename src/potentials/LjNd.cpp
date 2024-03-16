@@ -1,4 +1,4 @@
-#include "LjNd.h"
+#include "potentials/LjNd.h"
 
 #include <math.h>
 #include <stdexcept>

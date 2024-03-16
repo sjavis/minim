@@ -5,18 +5,18 @@
  * This file is the wrapper for the Minim library.
  */
 
-#include "Minimiser.h"
 #include "State.h"
+#include "Minimiser.h"
 #include "Potential.h"
 
-#include "GradDescent.h"
-#include "Lbfgs.h"
-#include "Fire.h"
-#include "Anneal.h"
+#include "minimisers/GradDescent.h"
+#include "minimisers/Lbfgs.h"
+#include "minimisers/Fire.h"
+#include "minimisers/Anneal.h"
 
-#include "LjNd.h"
-#include "BarAndHinge.h"
-#include "PFWetting.h"
+#include "potentials/LjNd.h"
+#include "potentials/BarAndHinge.h"
+#include "potentials/PFWetting.h"
 
 #include "utils/mpi.h"
 #include "utils/print.h"

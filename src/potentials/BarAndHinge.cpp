@@ -1,4 +1,4 @@
-#include "BarAndHinge.h"
+#include "potentials/BarAndHinge.h"
 
 #include <math.h>
 #include <stdexcept>

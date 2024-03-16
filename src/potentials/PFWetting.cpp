@@ -1,4 +1,4 @@
-#include "PFWetting.h"
+#include "potentials/PFWetting.h"
 
 #include <math.h>
 #include <stdexcept>

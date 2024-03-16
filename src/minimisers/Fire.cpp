@@ -1,4 +1,4 @@
-#include "Fire.h"
+#include "minimisers/Fire.h"
 
 #include <math.h>
 #include "State.h"

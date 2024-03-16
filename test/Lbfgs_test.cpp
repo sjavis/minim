@@ -1,5 +1,5 @@
 #include "test_main.cpp"
-#include "Lbfgs.h"
+#include "minimisers/Lbfgs.h"
 
 using namespace minim;
 

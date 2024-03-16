@@ -1,7 +1,7 @@
 #include "test_main.cpp"
 #include "State.h"
 
-#include "LjNd.h"
+#include "potentials/LjNd.h"
 #include "utils/mpi.h"
 
 using namespace minim;

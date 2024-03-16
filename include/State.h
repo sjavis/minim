@@ -2,6 +2,9 @@
 #define STATE_H
 
 #include <vector>
+#include <memory>
+#include <cstddef>
+#include "Potential.h"
 #include "Communicator.h"
 
 namespace minim {

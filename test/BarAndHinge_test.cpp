@@ -1,9 +1,9 @@
 #include "test_main.cpp"
-#include "BarAndHinge.h"
+#include "potentials/BarAndHinge.h"
 
 #include <math.h>
 #include "State.h"
-#include "Lbfgs.h"
+#include "minimisers/Lbfgs.h"
 #include "utils/mpi.h"
 #include "utils/print.h"
 
