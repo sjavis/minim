@@ -17,15 +17,15 @@ namespace minim {
 
       // System size
       int nFluid = 1;
+      double resolution = 1;
       std::array<int,3> gridSize;
       PFWetting& setNFluid(int nFluid);
       PFWetting& setGridSize(std::array<int,3> gridSize);
+      PFWetting& setResolution(double resolution);
 
       // Fluid interfaces
-      double resolution = 1;
       vector<double> interfaceSize;
       vector<double> surfaceTension = {1};
-      PFWetting& setResolution(double resolution);
       PFWetting& setInterfaceSize(double interfaceSize);
       PFWetting& setInterfaceSize(vector<double> interfaceSize);
       PFWetting& setSurfaceTension(double surfaceTension);
@@ -46,8 +46,6 @@ namespace minim {
 
       // Solid nodes
       vector<bool> solid;
-      vector<double> kappa;
-      vector<double> kappaP;
       vector<double> contactAngle;
       PFWetting& setSolid(vector<bool> solid);
       PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
@@ -73,6 +71,8 @@ namespace minim {
 
     private:
       int nGrid;
+      vector<double> kappa;
+      vector<double> kappaP;
       vector<double> nodeVol;
       vector<int> fluidType;
       std::array<int,3> getCoord(int i) const;
@@ -80,6 +80,19 @@ namespace minim {
       void setDefaults();
       void checkArraySizes();
       void assignKappa();
+
+      enum{
+        FLUID_ENERGY = 0,
+        DENSITY_CONSTRAINT_ENERGY = 1,
+        SURFACE_ENERGY = 2,
+        FORCE_ENERGY = 3,
+        FF_CONFINEMENT_ENERGY = 4,
+      };
+      void fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
   };
 
 }

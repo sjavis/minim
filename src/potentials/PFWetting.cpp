@@ -140,7 +140,7 @@ namespace minim {
         if (solid[idof]) idof = i;
       }
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        elements.push_back({0, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
+        elements.push_back({FLUID_ENERGY, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
       }
 
       // Set soft density constraint elements
@@ -149,7 +149,7 @@ namespace minim {
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
         }
-        elements.push_back({1, idofs});
+        elements.push_back({DENSITY_CONSTRAINT_ENERGY, idofs});
       }
 
       // Set surface fluid elements
@@ -157,7 +157,7 @@ namespace minim {
         double wettingParam = 1/sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           int idof = i * nFluid + iFluid;
-          elements.push_back({2, {idof}, {surfaceArea[i], wettingParam}});
+          elements.push_back({SURFACE_ENERGY, {idof}, {surfaceArea[i], wettingParam}});
         }
       }
 
@@ -169,7 +169,7 @@ namespace minim {
           double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
           vector<double> params{nodeVol[i], fMag[iFluid], h};
           int idof = i * nFluid + iFluid;
-          elements.push_back({3, {idof}, params});
+          elements.push_back({FORCE_ENERGY, {idof}, params});
         }
       }
 
@@ -177,7 +177,7 @@ namespace minim {
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (confinementStrength[iFluid] == 0) continue;
         int idof = i * nFluid + iFluid;
-        elements.push_back({4, {idof}, {confinementStrength[iFluid], coords[idof]}});
+        elements.push_back({FF_CONFINEMENT_ENERGY, {idof}, {confinementStrength[iFluid], coords[idof]}});
       }
     }
 
@@ -257,164 +257,179 @@ namespace minim {
   }
 
 
+  void PFWetting::fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    double vol = el.parameters[0];
+    int iFluid = el.parameters[1];
+    double c = coords[el.idof[0]];
+    // Bulk energy
+    if (nFluid == 1) {
+      double factor = kappa[0] / 16 * vol;
+      if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
+      if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
+    } else {
+      double factor = 0.5 * kappa[iFluid] * vol;
+      if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
+      if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
+    }
+    // Gradient energy
+    double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
+    double res2 = pow(resolution, 2);
+    double grad2 = 0;
+
+    if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
+      double diffxm = c - coords[el.idof[1]];
+      double diffxp = c - coords[el.idof[6]];
+      if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
+      if (g) {
+        (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
+        (*g)[el.idof[1]] -= factor * diffxm / res2;
+        (*g)[el.idof[6]] -= factor * diffxp / res2;
+      }
+    } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
+      double diffxp = c - coords[el.idof[6]];
+      if (e) grad2 += pow(diffxp,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffxp / res2;
+        (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
+      }
+    } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
+      double diffxm = c - coords[el.idof[1]];
+      if (e) grad2 += pow(diffxm,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffxm / res2;
+        (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+      }
+    }
+
+    if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
+      double diffym = c - coords[el.idof[2]];
+      double diffyp = c - coords[el.idof[5]];
+      if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
+      if (g) {
+        (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
+        (*g)[el.idof[2]] -= factor * diffym / res2;
+        (*g)[el.idof[5]] -= factor * diffyp / res2;
+      }
+    } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
+      double diffyp = c - coords[el.idof[5]];
+      if (e) grad2 += pow(diffyp,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffyp / res2;
+        (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
+      }
+    } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
+      double diffym = c - coords[el.idof[2]];
+      if (e) grad2 += pow(diffym,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffym / res2;
+        (*g)[el.idof[2]] -= factor * 2*diffym / res2;
+      }
+    }
+
+    if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
+      double diffzm = c - coords[el.idof[3]];
+      double diffzp = c - coords[el.idof[4]];
+      if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
+      if (g) {
+        (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
+        (*g)[el.idof[3]] -= factor * diffzm / res2;
+        (*g)[el.idof[4]] -= factor * diffzp / res2;
+      }
+    } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
+      double diffzp = c - coords[el.idof[4]];
+      if (e) grad2 += pow(diffzp,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffzp / res2;
+        (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
+      }
+    } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
+      double diffzm = c - coords[el.idof[3]];
+      if (e) grad2 += pow(diffzm,2) / res2;
+      if (g) {
+        (*g)[el.idof[0]] += factor * 2*diffzm / res2;
+        (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+      }
+    }
+    if (e) *e += factor * grad2;
+  }
+
+  void PFWetting::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+     // Total density soft constraint
+     if (nFluid == 1) return;
+     double coef = volConst * pow(resolution, 3);
+     double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
+     if (e) *e += coef * pow(rhoDiff, 2);
+     if (g) {
+       (*g)[el.idof[0]] += 2 * coef * rhoDiff;
+       (*g)[el.idof[1]] += 2 * coef * rhoDiff;
+       (*g)[el.idof[2]] += 2 * coef * rhoDiff;
+     }
+  }
+
+  void PFWetting::surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    // Solid surface energy
+    // parameter[0]: Surface area
+    // parameter[1]: Wetting parameter 1/sqrt(2) cos(theta)
+    if (nFluid == 1) {
+      double phi = coords[el.idof[0]];
+      if (e) *e += el.parameters[1] * (pow(phi,3)/3 - phi - 2.0/3) * el.parameters[0];
+      if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - 1) * el.parameters[0];
+    }
+  }
+
+  void PFWetting::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    // External force
+    // Parameters:
+    //   0: Volume
+    //   1: Magnitude of force
+    //   2: Height
+    double c = (nFluid==1) ? 0.5*(1+coords[el.idof[0]]) : coords[el.idof[0]];
+    if (c < 0.01) return;
+    double vol = el.parameters[0];
+    double f = el.parameters[1];
+    double h = el.parameters[2];
+    if (e) *e += c * vol * f * h;
+    if (g) {
+      if (nFluid == 1) {
+        (*g)[el.idof[0]] += 0.5 * vol * f * h;
+      } else {
+        (*g)[el.idof[0]] += vol * f * h;
+      }
+    }
+  }
+
+  void PFWetting::ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    // Confining potential for the frozen fluid method
+    // Parameters:
+    //   0: Confinement strength
+    //   1: Initial concentration
+    double c = coords[el.idof[0]];
+    double strength = el.parameters[0];
+    double c0 = el.parameters[1];
+    double area = pow(resolution, 2);
+    if ((c0-0.5)*(c-0.5) < 0) {
+      if (e) *e += strength * pow(c-0.5, 2) * area;
+      if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5) * area;
+    }
+  }
+
   void PFWetting::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
-      case 0: {
-        double vol = el.parameters[0];
-        int iFluid = el.parameters[1];
-        double c = coords[el.idof[0]];
-        // Bulk energy
-        if (nFluid == 1) {
-          double factor = kappa[0] / 16 * vol;
-          if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
-          if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
-        } else {
-          double factor = 0.5 * kappa[iFluid] * vol;
-          if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
-          if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
-        }
-        // Gradient energy
-        double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-        double res2 = pow(resolution, 2);
-        double grad2 = 0;
-
-        if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
-          double diffxm = c - coords[el.idof[1]];
-          double diffxp = c - coords[el.idof[6]];
-          if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
-          if (g) {
-            (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
-            (*g)[el.idof[1]] -= factor * diffxm / res2;
-            (*g)[el.idof[6]] -= factor * diffxp / res2;
-          }
-        } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
-          double diffxp = c - coords[el.idof[6]];
-          if (e) grad2 += pow(diffxp,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffxp / res2;
-            (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
-          }
-        } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
-          double diffxm = c - coords[el.idof[1]];
-          if (e) grad2 += pow(diffxm,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffxm / res2;
-            (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
-          }
-        }
-
-        if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
-          double diffym = c - coords[el.idof[2]];
-          double diffyp = c - coords[el.idof[5]];
-          if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
-          if (g) {
-            (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
-            (*g)[el.idof[2]] -= factor * diffym / res2;
-            (*g)[el.idof[5]] -= factor * diffyp / res2;
-          }
-        } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
-          double diffyp = c - coords[el.idof[5]];
-          if (e) grad2 += pow(diffyp,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffyp / res2;
-            (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
-          }
-        } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
-          double diffym = c - coords[el.idof[2]];
-          if (e) grad2 += pow(diffym,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffym / res2;
-            (*g)[el.idof[2]] -= factor * 2*diffym / res2;
-          }
-        }
-
-        if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
-          double diffzm = c - coords[el.idof[3]];
-          double diffzp = c - coords[el.idof[4]];
-          if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
-          if (g) {
-            (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
-            (*g)[el.idof[3]] -= factor * diffzm / res2;
-            (*g)[el.idof[4]] -= factor * diffzp / res2;
-          }
-        } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
-          double diffzp = c - coords[el.idof[4]];
-          if (e) grad2 += pow(diffzp,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffzp / res2;
-            (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
-          }
-        } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
-          double diffzm = c - coords[el.idof[3]];
-          if (e) grad2 += pow(diffzm,2) / res2;
-          if (g) {
-            (*g)[el.idof[0]] += factor * 2*diffzm / res2;
-            (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
-          }
-        }
-        if (e) *e += factor * grad2;
-      } break;
-
-      case 1: {
-        // Total density soft constraint
-        if (nFluid == 1) break;
-        double coef = volConst * pow(resolution, 3);
-        double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
-        if (e) *e += coef * pow(rhoDiff, 2);
-        if (g) {
-          (*g)[el.idof[0]] += 2 * coef * rhoDiff;
-          (*g)[el.idof[1]] += 2 * coef * rhoDiff;
-          (*g)[el.idof[2]] += 2 * coef * rhoDiff;
-        }
-      } break;
-
-      case 2: {
-        // Surface energy
-        // parameter[0]: Surface area
-        // parameter[1]: Wetting parameter 1/sqrt(2) cos(theta)
-        if (nFluid == 1) {
-          double phi = coords[el.idof[0]];
-          if (e) *e += el.parameters[1] * (pow(phi,3)/3 - phi - 2.0/3) * el.parameters[0];
-          if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - 1) * el.parameters[0];
-        }
-      } break;
-
-      case 3: {
-        // External force
-        // Parameters:
-        //   0: Volume
-        //   1: Magnitude of force
-        //   2: Height
-        double c = (nFluid==1) ? 0.5*(1+coords[el.idof[0]]) : coords[el.idof[0]];
-        if (c < 0.01) return;
-        double vol = el.parameters[0];
-        double f = el.parameters[1];
-        double h = el.parameters[2];
-        if (e) *e += c * vol * f * h;
-        if (g) {
-          if (nFluid == 1) {
-            (*g)[el.idof[0]] += 0.5 * vol * f * h;
-          } else {
-            (*g)[el.idof[0]] += vol * f * h;
-          }
-        }
-      } break;
-
-      case 4: {
-        // Confining potential for the frozen fluid method
-        // Parameters:
-        //   0: Confinement strength
-        //   1: Initial concentration
-        double c = coords[el.idof[0]];
-        double strength = el.parameters[0];
-        double c0 = el.parameters[1];
-        double area = pow(resolution, 2);
-        if ((c0-0.5)*(c-0.5) < 0) {
-          if (e) *e += strength * pow(c-0.5, 2) * area;
-          if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5) * area;
-        }
-      } break;
-
+      case FLUID_ENERGY:
+        fluidEnergy(coords, el, e, g);
+        break;
+      case DENSITY_CONSTRAINT_ENERGY:
+        densityConstraintEnergy(coords, el, e, g);
+        break;
+      case SURFACE_ENERGY:
+        surfaceEnergy(coords, el, e, g);
+        break;
+      case FORCE_ENERGY:
+        forceEnergy(coords, el, e, g);
+        break;
+      case FF_CONFINEMENT_ENERGY:
+        ffConfinementEnergy(coords, el, e, g);
+        break;
       default:
         throw std::invalid_argument("Unknown energy element type.");
     }
