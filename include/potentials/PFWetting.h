@@ -79,7 +79,10 @@ namespace minim {
       int getType(int i) const;
       void setDefaults();
       void checkArraySizes();
-      void assignKappa();
+      void assignFluidCoefficients();
+
+      enum{ MODEL_BASIC=0, MODEL_NCOMP=1 };
+      int model = MODEL_BASIC;
 
       enum{
         FLUID_ENERGY = 0,
@@ -89,6 +92,7 @@ namespace minim {
         FF_CONFINEMENT_ENERGY = 4,
       };
       void fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;

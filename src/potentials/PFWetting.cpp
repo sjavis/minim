@@ -49,21 +49,26 @@ namespace minim {
   };
 
 
-  void PFWetting::assignKappa() {
-    if ((int)interfaceSize.size()==1 && nFluid>1) {
-      interfaceSize = vector<double>(nFluid, interfaceSize[0]);
-    } else if ((int)interfaceSize.size() != nFluid) {
+  void PFWetting::assignFluidCoefficients() {
+    int nParams = (model==MODEL_BASIC) ? nFluid : 0.5*nFluid*(nFluid-1);
+
+    // Ensure surface tension and interface widths are the correct size
+    if ((int)interfaceSize.size() == 1) {
+      interfaceSize = vector<double>(nParams, interfaceSize[0]);
+    } else if ((int)interfaceSize.size() != nParams) {
       throw std::invalid_argument("Invalid size of interfaceSize array.");
     }
-    if ((int)surfaceTension.size()==1 && nFluid>1) {
-      surfaceTension = vector<double>(nFluid, surfaceTension[0]);
-    } else if ((int)surfaceTension.size() != nFluid) {
+    if ((int)surfaceTension.size() == 1) {
+      surfaceTension = vector<double>(nParams, surfaceTension[0]);
+    } else if ((int)surfaceTension.size() != nParams) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
-    if (nFluid <= 2) {
-      kappa = vector<double>(nFluid, 3*surfaceTension[0]/interfaceSize[0]);
-      kappaP = vector<double>(nFluid, pow(interfaceSize[0], 2)*kappa[0]);
-    } else {
+
+    // Set the parameters
+    if (nFluid<=2 || model==MODEL_NCOMP) {
+      kappa = 3 * surfaceTension / interfaceSize;
+      kappaP = 3 * surfaceTension * interfaceSize;
+    } else { // Compute kappa from the subset of surface tensions
       kappa = vector<double>(nFluid);
       kappaP = vector<double>(nFluid);
       auto kappaSums = 6 * surfaceTension / interfaceSize;
@@ -89,7 +94,7 @@ namespace minim {
 
     setDefaults();
     checkArraySizes();
-    assignKappa();
+    assignFluidCoefficients();
 
     // Forces
     vector<double> fMag(nFluid);
@@ -135,17 +140,34 @@ namespace minim {
 
       // Set bulk fluid elements
       Neighbours di(gridSize, i);
-      vector<int> idofs = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
-      for (auto &idof: idofs) {
-        if (solid[idof]) idof = i;
+      vector<int> iNodes = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
+      for (auto &iNode: iNodes) {
+        if (solid[iNode]) iNode = i;
       }
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        elements.push_back({FLUID_ENERGY, idofs*nFluid+iFluid, {nodeVol[i], (double)iFluid}});
+      if (model == MODEL_BASIC) {
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          vector<int> idofs = iNodes*nFluid+iFluid;
+          elements.push_back({FLUID_ENERGY, idofs, {nodeVol[i], (double)iFluid}});
+        }
+      } else if (model == MODEL_NCOMP) {
+        int iPair = 0;
+        for (int iFluid1=0; iFluid1<nFluid; iFluid1++) {
+          for (int iFluid2=iFluid1+1; iFluid2<nFluid; iFluid2++) {
+            vector<int> idofs;
+            idofs.reserve(14);
+            for (auto iNode: iNodes) {
+              idofs.push_back(iNode*nFluid+iFluid1);
+              idofs.push_back(iNode*nFluid+iFluid2);
+            }
+            elements.push_back({FLUID_ENERGY, idofs, {nodeVol[i], (double)iPair}});
+            iPair++;
+          }
+        }
       }
 
       // Set soft density constraint elements
       if (nFluid>1 && densityConstraint==2) {
-        idofs = vector<int>(nFluid);
+        vector<int> idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
           idofs[iFluid] = i * nFluid + iFluid;
         }
@@ -261,6 +283,7 @@ namespace minim {
     double vol = el.parameters[0];
     int iFluid = el.parameters[1];
     double c = coords[el.idof[0]];
+
     // Bulk energy
     if (nFluid == 1) {
       double factor = kappa[0] / 16 * vol;
@@ -271,6 +294,7 @@ namespace minim {
       if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
       if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
     }
+
     // Gradient energy
     double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
     double res2 = pow(resolution, 2);
@@ -353,6 +377,120 @@ namespace minim {
     if (e) *e += factor * grad2;
   }
 
+
+  void PFWetting::fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    double vol = el.parameters[0];
+    int iPair = el.parameters[1];
+    double c1 = coords[el.idof[0]];
+    double c2 = coords[el.idof[1]];
+
+    // Bulk energy
+    double factor = 2 * kappa[iPair] * vol; // kappa = beta
+    if (e) {
+      auto quartic = [](double c){ return pow(c,2)*pow(c-1,2); };
+      *e += factor * (quartic(c1) + quartic(c2) + quartic(c1+c2));
+    }
+    if (g) {
+      auto gQuartic = [](double c){ return 2*c*(c-1)*(2*c-1); };
+      (*g)[el.idof[0]] += factor * (gQuartic(c1) + gQuartic(c2) + gQuartic(c1+c2));
+    }
+
+    // Gradient energy
+    double res2 = pow(resolution, 2);
+    factor = -0.25 * kappaP[iPair] * vol / res2; // kappaP = -4 lambda
+    std::vector<double> grad1(3);
+    std::vector<double> grad2(3);
+
+    if ((el.idof[2]!=el.idof[0]) && (el.idof[12]!=el.idof[0])) { // No solid in x direction
+      grad1[0] = coords[el.idof[12]] - coords[el.idof[2]];
+      grad2[0] = coords[el.idof[13]] - coords[el.idof[3]];
+      if (g) {
+        (*g)[el.idof[2]] -= factor * grad2[0];
+        (*g)[el.idof[3]] -= factor * grad1[0];
+        (*g)[el.idof[12]] += factor * grad2[0];
+        (*g)[el.idof[13]] += factor * grad1[0];
+      }
+    } else if (el.idof[12] != el.idof[0]) { // Solid on negative side in x direction
+      grad1[0] = coords[el.idof[12]] - c1;
+      grad2[0] = coords[el.idof[13]] - c2;
+      if (g) {
+        (*g)[el.idof[0]] -= factor * grad2[0];
+        (*g)[el.idof[1]] -= factor * grad1[0];
+        (*g)[el.idof[12]] += factor * grad2[0];
+        (*g)[el.idof[13]] += factor * grad1[0];
+      }
+    } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in x direction
+      grad1[0] = c1 - coords[el.idof[2]];
+      grad2[0] = c2 - coords[el.idof[3]];
+      if (g) {
+        (*g)[el.idof[0]] += factor * grad2[0];
+        (*g)[el.idof[1]] += factor * grad1[0];
+        (*g)[el.idof[2]] -= factor * grad2[0];
+        (*g)[el.idof[3]] -= factor * grad1[0];
+      }
+    }
+
+    if ((el.idof[4]!=el.idof[0]) && (el.idof[10]!=el.idof[0])) { // No solid in y direction
+      grad1[1] = coords[el.idof[10]] - coords[el.idof[4]];
+      grad2[1] = coords[el.idof[11]] - coords[el.idof[5]];
+      if (g) {
+        (*g)[el.idof[4]] -= factor * grad2[1];
+        (*g)[el.idof[5]] -= factor * grad1[1];
+        (*g)[el.idof[10]] += factor * grad2[1];
+        (*g)[el.idof[11]] += factor * grad1[1];
+      }
+    } else if (el.idof[10] != el.idof[0]) { // Solid on negative side in y direction
+      grad1[1] = coords[el.idof[10]] - c1;
+      grad2[1] = coords[el.idof[11]] - c2;
+      if (g) {
+        (*g)[el.idof[0]] -= factor * grad2[1];
+        (*g)[el.idof[1]] -= factor * grad1[1];
+        (*g)[el.idof[10]] += factor * grad2[1];
+        (*g)[el.idof[11]] += factor * grad1[1];
+      }
+    } else if (el.idof[4] != el.idof[0]) { // Solid on positive side in y direction
+      grad1[1] = c1 - coords[el.idof[4]];
+      grad2[1] = c2 - coords[el.idof[5]];
+      if (g) {
+        (*g)[el.idof[0]] += factor * grad2[1];
+        (*g)[el.idof[1]] += factor * grad1[1];
+        (*g)[el.idof[4]] -= factor * grad2[1];
+        (*g)[el.idof[5]] -= factor * grad1[1];
+      }
+    }
+
+    if ((el.idof[6]!=el.idof[0]) && (el.idof[8]!=el.idof[0])) { // No solid in z direction
+      grad1[2] = coords[el.idof[8]] - coords[el.idof[6]];
+      grad2[2] = coords[el.idof[9]] - coords[el.idof[7]];
+      if (g) {
+        (*g)[el.idof[6]] -= factor * grad2[2];
+        (*g)[el.idof[7]] -= factor * grad1[2];
+        (*g)[el.idof[8]] += factor * grad2[2];
+        (*g)[el.idof[9]] += factor * grad1[2];
+      }
+    } else if (el.idof[8] != el.idof[0]) { // Solid on negative side in z direction
+      grad1[2] = coords[el.idof[8]] - c1;
+      grad2[2] = coords[el.idof[9]] - c2;
+      if (g) {
+        (*g)[el.idof[0]] -= factor * grad2[2];
+        (*g)[el.idof[1]] -= factor * grad1[2];
+        (*g)[el.idof[8]] += factor * grad2[2];
+        (*g)[el.idof[9]] += factor * grad1[2];
+      }
+    } else if (el.idof[6] != el.idof[0]) { // Solid on positive side in z direction
+      grad1[2] = c1 - coords[el.idof[6]];
+      grad2[2] = c2 - coords[el.idof[7]];
+      if (g) {
+        (*g)[el.idof[0]] += factor * grad2[2];
+        (*g)[el.idof[1]] += factor * grad1[2];
+        (*g)[el.idof[6]] -= factor * grad2[2];
+        (*g)[el.idof[7]] -= factor * grad1[2];
+      }
+    }
+
+    if (e) *e += factor * vec::dotProduct(grad1, grad2);
+  }
+
   void PFWetting::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
@@ -416,7 +554,11 @@ namespace minim {
   void PFWetting::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
       case FLUID_ENERGY:
-        fluidEnergy(coords, el, e, g);
+        if (model == MODEL_BASIC) {
+          fluidEnergy(coords, el, e, g);
+        } else if (model == MODEL_NCOMP) {
+          fluidPairEnergy(coords, el, e, g);
+        }
         break;
       case DENSITY_CONSTRAINT_ENERGY:
         densityConstraintEnergy(coords, el, e, g);
