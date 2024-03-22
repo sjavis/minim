@@ -207,10 +207,13 @@ namespace minim {
     constraints = {};
     // Hard density constraint
     if (nFluid>1 && densityConstraint==1) {
+      vector<int> iVariableFluid;
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+      }
       vector2d<int> idofs(nGrid);
-      vector<int> iFluids = vec::iota(nFluid);
-      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iFluids;
-      setConstraints(idofs, vector<double>(nFluid, 1));
+      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iVariableFluid;
+      setConstraints(idofs, vector<double>(iVariableFluid.size(), 1));
     }
     // Fixed fluid
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
