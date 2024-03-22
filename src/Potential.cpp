@@ -125,7 +125,7 @@ namespace minim {
     return *this;
   }
 
-  Potential& Potential::setConstraints(vector2d<int> idofs, std::function<vector<double>(const vector<int>&, const vector<double>&)> normal, std::function<void(vector<double>&)> correction) {
+  Potential& Potential::setConstraints(vector2d<int> idofs, Constraint::NormalFn normal, Constraint::CorrectionFn correction) {
     for (const vector<int>& idof: idofs) {
       constraints.push_back({idof, normal, correction});
     }
@@ -150,7 +150,7 @@ namespace minim {
 
   vector<double> Potential::correctConstraints(vector<double>& coords) const {
     for (const auto& constraint: constraints) {
-      if (constraint.correction) constraint.correction(coords);
+      if (constraint.correction) constraint.correction(constraint.idof, coords);
     }
     return coords;
   }
