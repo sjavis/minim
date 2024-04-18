@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
   pot.setFixFluid(0);
   pot.setConfinement({});
   pot.setDensityConstraint("hard");
-  pot.setVolume(getTotVolumes(initFluid), 1e-2);
+  pot.setVolumeFixed(true, 1e-2);
   State state2(pot, initFluid);
   min.setMaxIter(10000);
   auto minimum = min.minimise(state2, log);
