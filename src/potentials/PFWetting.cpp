@@ -63,6 +63,7 @@ namespace minim {
     } else if ((int)surfaceTension.size() != nParams) {
       throw std::invalid_argument("Invalid size of surfaceTension array.");
     }
+    surfaceTensionMean = vec::sum(surfaceTension) / nParams; // Used to scale energies
 
     // Set the parameters
     if (nFluid<=2 || model==MODEL_NCOMP) {
@@ -266,7 +267,8 @@ namespace minim {
 
     if (!g) return;
     if (volumeFixed) {
-      vector<double> vFactor = volConst * (volFluid - volume);
+      double coef = volConst * surfaceTensionMean / pow(resolution, 4);
+      vector<double> vFactor = coef * (volFluid - volume);
       for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
         int f = fluidType[iDof];
         (*g)[iDof] += vFactor[f] * nodeVol[iDof];
@@ -497,7 +499,7 @@ namespace minim {
   void PFWetting::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
-     double coef = volConst * pow(resolution, 3);
+     double coef = volConst * surfaceTensionMean / resolution;
      double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
      if (e) *e += coef * pow(rhoDiff, 2);
      if (g) {

@@ -41,8 +41,8 @@ namespace minim {
       vector<double> pressure;
       vector<double> volume;
       PFWetting& setPressure(vector<double> pressure);
-      PFWetting& setVolume(vector<double> volume, double volConst=1e5);
-      PFWetting& setVolumeFixed(bool volumeFixed, double volConst=1e5);
+      PFWetting& setVolume(vector<double> volume, double volConst=0.001);
+      PFWetting& setVolumeFixed(bool volumeFixed, double volConst=0.001);
 
       // Solid nodes
       vector<bool> solid;
@@ -71,6 +71,7 @@ namespace minim {
 
     private:
       int nGrid;
+      double surfaceTensionMean;
       vector<double> kappa;
       vector<double> kappaP;
       vector<double> nodeVol;
