@@ -256,19 +256,19 @@ namespace minim {
         volFluid[fluidType[iDof]] += coords[iDof] * nodeVol[iDof];
       }
     }
+    double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!volumeFixed && pressure[iFluid]==0) continue;
       volFluid[iFluid] = comm.sum(volFluid[iFluid]);
       if (e) {
-        if (volumeFixed) *e += volConst * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
+        if (volumeFixed) *e += volCoef * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
         if (pressure[iFluid]!=0) *e -= pressure[iFluid] * volFluid[iFluid] / comm.size();
       }
     }
 
     if (!g) return;
     if (volumeFixed) {
-      double coef = volConst * surfaceTensionMean / pow(resolution, 4);
-      vector<double> vFactor = coef * (volFluid - volume);
+      vector<double> vFactor = volCoef * (volFluid - volume);
       for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
         int f = fluidType[iDof];
         (*g)[iDof] += vFactor[f] * nodeVol[iDof];
@@ -499,7 +499,7 @@ namespace minim {
   void PFWetting::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
-     double coef = volConst * surfaceTensionMean / resolution;
+     double coef = 100 * surfaceTensionMean * pow(resolution, 2);
      double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
      if (e) *e += coef * pow(rhoDiff, 2);
      if (g) {

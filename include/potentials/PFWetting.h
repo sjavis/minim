@@ -37,7 +37,7 @@ namespace minim {
 
       // Total volume / pressure constraints
       bool volumeFixed = false;
-      double volConst = 1e5;
+      double volConst = 1e-3;
       vector<double> pressure;
       vector<double> volume;
       PFWetting& setPressure(vector<double> pressure);
