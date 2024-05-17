@@ -549,10 +549,10 @@ namespace minim {
     double c = coords[el.idof[0]];
     double strength = el.parameters[0];
     double c0 = el.parameters[1];
-    double area = pow(resolution, 2);
+    double coef = strength * surfaceTensionMean * pow(resolution, 2);
     if ((c0-0.5)*(c-0.5) < 0) {
-      if (e) *e += strength * pow(c-0.5, 2) * area;
-      if (g) (*g)[el.idof[0]] += strength * 2 * (c-0.5) * area;
+      if (e) *e += coef * pow(c-0.5, 2);
+      if (g) (*g)[el.idof[0]] += coef * 2 * (c-0.5);
     }
   }
 
