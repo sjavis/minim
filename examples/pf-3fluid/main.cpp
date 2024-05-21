@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     }
   };
 
-  auto pot = PFWetting();
+  auto pot = PhaseField();
   pot.setNFluid(3);
   pot.setGridSize({nx, ny, 1});
   pot.setSolid(getSolid());

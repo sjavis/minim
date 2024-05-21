@@ -10,57 +10,57 @@ namespace minim {
   using std::vector;
 
 
-  class PFWetting : public NewPotential<PFWetting> {
+  class PhaseField : public NewPotential<PhaseField> {
     public:
-      PFWetting() { _parallelDef = true; };
-      ~PFWetting() {};
+      PhaseField() { _parallelDef = true; };
+      ~PhaseField() {};
 
       // System size
       int nFluid = 1;
       double resolution = 1;
       std::array<int,3> gridSize;
-      PFWetting& setNFluid(int nFluid);
-      PFWetting& setGridSize(std::array<int,3> gridSize);
-      PFWetting& setResolution(double resolution);
+      PhaseField& setNFluid(int nFluid);
+      PhaseField& setGridSize(std::array<int,3> gridSize);
+      PhaseField& setResolution(double resolution);
 
       // Fluid interfaces
       vector<double> interfaceSize;
       vector<double> surfaceTension = {1};
-      PFWetting& setInterfaceSize(double interfaceSize);
-      PFWetting& setInterfaceSize(vector<double> interfaceSize);
-      PFWetting& setSurfaceTension(double surfaceTension);
-      PFWetting& setSurfaceTension(vector<double> surfaceTension);
+      PhaseField& setInterfaceSize(double interfaceSize);
+      PhaseField& setInterfaceSize(vector<double> interfaceSize);
+      PhaseField& setSurfaceTension(double surfaceTension);
+      PhaseField& setSurfaceTension(vector<double> surfaceTension);
 
       // Density constraint
       int densityConstraint = 0;
-      PFWetting& setDensityConstraint(std::string method);
+      PhaseField& setDensityConstraint(std::string method);
 
       // Total volume / pressure constraints
       bool volumeFixed = false;
       double volConst = 1e-3;
       vector<double> pressure;
       vector<double> volume;
-      PFWetting& setPressure(vector<double> pressure);
-      PFWetting& setVolume(vector<double> volume, double volConst=0.001);
-      PFWetting& setVolumeFixed(bool volumeFixed, double volConst=0.001);
+      PhaseField& setPressure(vector<double> pressure);
+      PhaseField& setVolume(vector<double> volume, double volConst=0.001);
+      PhaseField& setVolumeFixed(bool volumeFixed, double volConst=0.001);
 
       // Solid nodes
       vector<bool> solid;
       vector<double> contactAngle;
-      PFWetting& setSolid(vector<bool> solid);
-      PFWetting& setSolid(std::function<bool(int,int,int)> solidFn);
-      PFWetting& setContactAngle(vector<double> contactAngle);
-      PFWetting& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
+      PhaseField& setSolid(vector<bool> solid);
+      PhaseField& setSolid(std::function<bool(int,int,int)> solidFn);
+      PhaseField& setContactAngle(vector<double> contactAngle);
+      PhaseField& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
 
       // External force
       vector<vector<double>> force;
-      PFWetting& setForce(vector<double> force, vector<int> iFluid={});
+      PhaseField& setForce(vector<double> force, vector<int> iFluid={});
 
       // Frozen fluid method
       vector<bool> fixFluid;
       vector<double> confinementStrength;
-      PFWetting& setFixFluid(int iFluid, bool fix=true);
-      PFWetting& setConfinement(vector<double> strength);
+      PhaseField& setFixFluid(int iFluid, bool fix=true);
+      PhaseField& setConfinement(vector<double> strength);
 
       void init(const vector<double>& coords) override;
       void distributeParameters(const Communicator& comm) override;

@@ -1,4 +1,4 @@
-#include "potentials/PFWetting.h"
+#include "potentials/PhaseField.h"
 
 #include <math.h>
 #include <stdexcept>
@@ -49,7 +49,7 @@ namespace minim {
   };
 
 
-  void PFWetting::assignFluidCoefficients() {
+  void PhaseField::assignFluidCoefficients() {
     int nParams = (model==MODEL_BASIC) ? nFluid : 0.5*nFluid*(nFluid-1);
 
     // Ensure surface tension and interface widths are the correct size
@@ -88,7 +88,7 @@ namespace minim {
   }
 
 
-  void PFWetting::init(const vector<double>& coords) {
+  void PhaseField::init(const vector<double>& coords) {
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("Size of coordinates array does not match the grid size.");
     }
@@ -225,7 +225,7 @@ namespace minim {
   }
 
 
-  void PFWetting::distributeParameters(const Communicator& comm) {
+  void PhaseField::distributeParameters(const Communicator& comm) {
     if (nGrid % comm.size() != 0) {
       throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
     }
@@ -245,7 +245,7 @@ namespace minim {
   }
 
 
-  void PFWetting::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
+  void PhaseField::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Constant volume / pressure constraints rely upon the whole system
     if (!volumeFixed && !vec::any(pressure)) return;
     vector<double> volFluid(nFluid, 0);
@@ -284,7 +284,7 @@ namespace minim {
   }
 
 
-  void PFWetting::fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     double vol = el.parameters[0];
     int iFluid = el.parameters[1];
     double c = coords[el.idof[0]];
@@ -383,7 +383,7 @@ namespace minim {
   }
 
 
-  void PFWetting::fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     double vol = el.parameters[0];
     int iPair = el.parameters[1];
     double c1 = coords[el.idof[0]];
@@ -496,7 +496,7 @@ namespace minim {
     if (e) *e += factor * vec::dotProduct(grad1, grad2);
   }
 
-  void PFWetting::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
      double coef = 100 * surfaceTensionMean * pow(resolution, 2);
@@ -509,7 +509,7 @@ namespace minim {
      }
   }
 
-  void PFWetting::surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // Solid surface energy
     // parameter[0]: Surface area
     // parameter[1]: Wetting parameter 1/sqrt(2) cos(theta)
@@ -520,7 +520,7 @@ namespace minim {
     }
   }
 
-  void PFWetting::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // External force
     // Parameters:
     //   0: Volume
@@ -541,7 +541,7 @@ namespace minim {
     }
   }
 
-  void PFWetting::ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // Confining potential for the frozen fluid method
     // Parameters:
     //   0: Confinement strength
@@ -556,7 +556,7 @@ namespace minim {
     }
   }
 
-  void PFWetting::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+  void PhaseField::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
       case FLUID_ENERGY:
         if (model == MODEL_BASIC) {
@@ -583,43 +583,43 @@ namespace minim {
   }
 
 
-  PFWetting& PFWetting::setGridSize(std::array<int,3> gridSize) {
+  PhaseField& PhaseField::setGridSize(std::array<int,3> gridSize) {
     this->gridSize = gridSize;
     this->nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     return *this;
   }
 
-  PFWetting& PFWetting::setNFluid(int nFluid) {
+  PhaseField& PhaseField::setNFluid(int nFluid) {
     this->nFluid = nFluid;
     return *this;
   }
 
-  PFWetting& PFWetting::setResolution(double resolution) {
+  PhaseField& PhaseField::setResolution(double resolution) {
     this->resolution = resolution;
     return *this;
   }
 
-  PFWetting& PFWetting::setInterfaceSize(double interfaceSize) {
+  PhaseField& PhaseField::setInterfaceSize(double interfaceSize) {
     this->interfaceSize = vector<double>(nFluid, interfaceSize);
     return *this;
   }
 
-  PFWetting& PFWetting::setInterfaceSize(vector<double> interfaceSize) {
+  PhaseField& PhaseField::setInterfaceSize(vector<double> interfaceSize) {
     this->interfaceSize = interfaceSize;
     return *this;
   }
 
-  PFWetting& PFWetting::setSurfaceTension(double surfaceTension) {
+  PhaseField& PhaseField::setSurfaceTension(double surfaceTension) {
     this->surfaceTension = vector<double>(nFluid, surfaceTension);
     return *this;
   }
 
-  PFWetting& PFWetting::setSurfaceTension(vector<double> surfaceTension) {
+  PhaseField& PhaseField::setSurfaceTension(vector<double> surfaceTension) {
     this->surfaceTension = surfaceTension;
     return *this;
   }
 
-  PFWetting& PFWetting::setDensityConstraint(std::string method) {
+  PhaseField& PhaseField::setDensityConstraint(std::string method) {
     if (method == "none") {
       densityConstraint = 0;
     } else if (vec::isIn({"gradient","hard"}, method)) {
@@ -632,30 +632,30 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setPressure(vector<double> pressure) {
+  PhaseField& PhaseField::setPressure(vector<double> pressure) {
     this->pressure = pressure;
     return *this;
   }
 
-  PFWetting& PFWetting::setVolume(vector<double> volume, double volConst) {
+  PhaseField& PhaseField::setVolume(vector<double> volume, double volConst) {
     this->volumeFixed = true;
     this->volConst = volConst;
     this->volume = volume;
     return *this;
   }
 
-  PFWetting& PFWetting::setVolumeFixed(bool volumeFixed, double volConst) {
+  PhaseField& PhaseField::setVolumeFixed(bool volumeFixed, double volConst) {
     this->volumeFixed = volumeFixed;
     this->volConst = volConst;
     return *this;
   }
 
-  PFWetting& PFWetting::setSolid(vector<bool> solid) {
+  PhaseField& PhaseField::setSolid(vector<bool> solid) {
     this->solid = solid;
     return *this;
   }
 
-  PFWetting& PFWetting::setSolid(std::function<bool(int,int,int)> solidFn) {
+  PhaseField& PhaseField::setSolid(std::function<bool(int,int,int)> solidFn) {
     solid = vector<bool>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
@@ -669,12 +669,12 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setContactAngle(vector<double> contactAngle) {
+  PhaseField& PhaseField::setContactAngle(vector<double> contactAngle) {
     this->contactAngle = contactAngle;
     return *this;
   }
 
-  PFWetting& PFWetting::setContactAngle(std::function<double(int,int,int)> contactAngleFn) {
+  PhaseField& PhaseField::setContactAngle(std::function<double(int,int,int)> contactAngleFn) {
     contactAngle = vector<double>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
@@ -688,7 +688,7 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setForce(vector<double> force, vector<int> iFluid) {
+  PhaseField& PhaseField::setForce(vector<double> force, vector<int> iFluid) {
     if ((int)force.size() != 3) throw std::invalid_argument("Invalid size of force array.");
     if (nFluid==1 || iFluid.empty()) {
       this->force = vector2d<double>(nFluid, force);
@@ -701,24 +701,24 @@ namespace minim {
     return *this;
   }
 
-  PFWetting& PFWetting::setFixFluid(int iFluid, bool fix) {
+  PhaseField& PhaseField::setFixFluid(int iFluid, bool fix) {
     if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
     fixFluid[iFluid] = fix;
     return *this;
   }
 
-  PFWetting& PFWetting::setConfinement(vector<double> strength) {
+  PhaseField& PhaseField::setConfinement(vector<double> strength) {
     this->confinementStrength = strength;
     return *this;
   }
 
 
-  std::array<int,3> PFWetting::getCoord(int i) const {
+  std::array<int,3> PhaseField::getCoord(int i) const {
     return minim::getCoord(i, gridSize);
   }
 
 
-  int PFWetting::getType(int i) const {
+  int PhaseField::getType(int i) const {
     // Types:
     // -1: Solid (▪▪)   0: Bulk fluid (  )
     //           (▪▪)                 (  )
@@ -774,7 +774,7 @@ namespace minim {
   }
 
 
-  void PFWetting::setDefaults() {
+  void PhaseField::setDefaults() {
     if (interfaceSize.empty()) interfaceSize = vector<double>(nFluid, resolution);
     if (solid.empty()) solid = vector<bool>(nGrid, false);
     if (pressure.empty()) pressure = vector<double>(nFluid, 0);
@@ -783,7 +783,7 @@ namespace minim {
   }
 
 
-  void PFWetting::checkArraySizes() {
+  void PhaseField::checkArraySizes() {
     if ((int)interfaceSize.size() != nFluid) {
       throw std::invalid_argument("Invalid size interfaceSize array.");
     }

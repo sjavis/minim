@@ -16,7 +16,7 @@
 
 #include "potentials/LjNd.h"
 #include "potentials/BarAndHinge.h"
-#include "potentials/PFWetting.h"
+#include "potentials/PhaseField.h"
 
 #include "utils/mpi.h"
 #include "utils/print.h"

@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     }
   };
 
-  PFWetting pot;
+  PhaseField pot;
   pot.setGridSize({nx, ny, 1});
   pot.setSolid([](int x, int y, int z){ return (y==0); });
   pot.setVolumeFixed(true, 1e-4);

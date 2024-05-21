@@ -1,5 +1,5 @@
 #include "test_main.cpp"
-#include "potentials/PFWetting.h"
+#include "potentials/PhaseField.h"
 
 #include "State.h"
 #include "utils/vec.h"
@@ -7,8 +7,8 @@
 using namespace minim;
 
 
-TEST(PFWettingTest, gridSizeMpi) {
-  PFWetting pot;
+TEST(PhaseFieldTest, gridSizeMpi) {
+  PhaseField pot;
   EXPECT_NO_THROW({
     pot.setGridSize({2,1,2});
     State s(pot, {0,0,0,0});
@@ -24,8 +24,8 @@ TEST(PFWettingTest, gridSizeMpi) {
 }
 
 
-TEST(PFWettingTest, TestBulkEnergy) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestBulkEnergy) {
+  PhaseField pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
 
@@ -60,8 +60,8 @@ TEST(PFWettingTest, TestBulkEnergy) {
 }
 
 
-TEST(PFWettingTest, TestExternalForce) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestExternalForce) {
+  PhaseField pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
 
@@ -86,8 +86,8 @@ TEST(PFWettingTest, TestExternalForce) {
 }
 
 
-TEST(PFWettingTest, TestSurfaceEnergy) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestSurfaceEnergy) {
+  PhaseField pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
@@ -100,8 +100,8 @@ TEST(PFWettingTest, TestSurfaceEnergy) {
 }
 
 
-TEST(PFWettingTest, TestPressureConstraint) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestPressureConstraint) {
+  PhaseField pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure({10});
@@ -111,15 +111,15 @@ TEST(PFWettingTest, TestPressureConstraint) {
 }
 
 
-TEST(PFWettingTest, TestVolumeConstraint) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestVolumeConstraint) {
+  PhaseField pot;
   pot.setGridSize({6,1,1});
   pot.setSolid({1,0,0,0,0,1});
 
   pot.setVolumeFixed(true, 1);
   State state1(pot, {1,1,1,1,1,1});
-  EXPECT_TRUE(static_cast<PFWetting&>(*state1.pot).volumeFixed);
-  EXPECT_TRUE(ArraysNear(static_cast<PFWetting&>(*state1.pot).volume, {3}, 1e-6));
+  EXPECT_TRUE(static_cast<PhaseField&>(*state1.pot).volumeFixed);
+  EXPECT_TRUE(ArraysNear(static_cast<PhaseField&>(*state1.pot).volume, {3}, 1e-6));
   EXPECT_FLOAT_EQ(state1.energy(), 0);
 
   pot.setVolume({1}, 100);
@@ -129,8 +129,8 @@ TEST(PFWettingTest, TestVolumeConstraint) {
 }
 
 
-TEST(PFWettingTest, TestResolution) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestResolution) {
+  PhaseField pot;
   pot.setInterfaceSize(1/sqrt(2.0));
   pot.setSurfaceTension(sqrt(8.0/9));
   EXPECT_FLOAT_EQ(pot.resolution, 1);
@@ -177,15 +177,15 @@ TEST(PFWettingTest, TestResolution) {
 }
 
 
-TEST(PFWettingTest, TestNFluid) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestNFluid) {
+  PhaseField pot;
   EXPECT_FLOAT_EQ(pot.nFluid, 1);
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
 
-TEST(PFWettingTest, TestFixFluid) {
-  PFWetting pot;
+TEST(PhaseFieldTest, TestFixFluid) {
+  PhaseField pot;
   pot.setNFluid(3).setGridSize({2,2,1});
   pot.init(vector<double>(12));
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));

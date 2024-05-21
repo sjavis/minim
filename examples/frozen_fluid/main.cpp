@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
   // Set up minimiser and potential
   Lbfgs min;
   min.setLinesearch("none");
-  PFWetting pot;
+  PhaseField pot;
   pot.setNFluid(3);
   pot.setGridSize({nx, ny, nz});
   pot.setSurfaceTension(surfaceTensions);
