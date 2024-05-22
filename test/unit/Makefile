@@ -1,7 +1,7 @@
 TESTS = State_test Communicator_test Potential_test Lbfgs_test Fire_test PhaseField_test BarAndHinge_test vec_test
 RUN_TESTS = $(addprefix run_, $(TESTS))
 
-ROOT_DIR = ..
+ROOT_DIR = ../..
 INC_DIR = $(ROOT_DIR)/include
 BUILD_DIR = $(ROOT_DIR)/bin
 LIBS = minim

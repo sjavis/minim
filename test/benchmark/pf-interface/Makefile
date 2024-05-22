@@ -1,4 +1,4 @@
-ROOT_DIR = ../..
+ROOT_DIR = ../../..
 INC = -I$(ROOT_DIR)/include
 BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim

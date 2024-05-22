@@ -64,5 +64,5 @@ $(HLIB): $(INC_DIR)/%:
 
 check:
 	@echo Testing...
-	@$(MAKE) --no-print-directory -C test gtest
-	@$(MAKE) --no-print-directory -C test
+	@$(MAKE) --no-print-directory -C test/unit gtest
+	@$(MAKE) --no-print-directory -C test/unit
