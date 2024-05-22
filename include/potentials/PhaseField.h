@@ -33,16 +33,17 @@ namespace minim {
 
       // Density constraint
       int densityConstraint = 0;
+      double densityConst = 1;
       PhaseField& setDensityConstraint(std::string method);
 
       // Total volume / pressure constraints
       bool volumeFixed = false;
-      double volConst = 1e-3;
+      double volConst = 0.01;
       vector<double> pressure;
       vector<double> volume;
       PhaseField& setPressure(vector<double> pressure);
-      PhaseField& setVolume(vector<double> volume, double volConst=0.001);
-      PhaseField& setVolumeFixed(bool volumeFixed, double volConst=0.001);
+      PhaseField& setVolume(vector<double> volume, double volConst=0.01);
+      PhaseField& setVolumeFixed(bool volumeFixed, double volConst=0.01);
 
       // Solid nodes
       vector<bool> solid;

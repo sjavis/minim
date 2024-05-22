@@ -501,7 +501,7 @@ namespace minim {
   void PhaseField::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
-     double coef = 100 * surfaceTensionMean * pow(resolution, 2);
+     double coef = densityConst * surfaceTensionMean * pow(resolution, 2);
      double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
      if (e) *e += coef * pow(rhoDiff, 2);
      if (g) {

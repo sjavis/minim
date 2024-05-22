@@ -1,4 +1,4 @@
-BENCHMARKS = pf-interface
+BENCHMARKS = pf-interface pf-volume
 
 .PHONY: all clean $(BENCHMARKS)
 
@@ -8,7 +8,7 @@ all: $(BENCHMARKS) clean
 
 $(BENCHMARKS): %:
 	@echo "Running $*"
-	$(MAKE) -C $* > /dev/null && (echo "\033[0;32mSUCCESS\033[0m") || (echo "\033[0;31mFAILED\033[0m" && touch failed)
+	@$(MAKE) -C $* > /dev/null && (echo "\033[0;32mSUCCESS\033[0m") || (echo "\033[0;31mFAILED\033[0m" && touch failed)
 
 clean:
 	-@for dir in $(BENCHMARKS); do $(MAKE) -C $$dir clean > /dev/null; done
