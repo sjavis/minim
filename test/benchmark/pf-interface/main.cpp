@@ -63,8 +63,11 @@ void run(double width) {
 int main(int argc, char** argv) {
   mpi.init(&argc, &argv);
 
-  vector<double> widths = {0.25, 0.5, 1, 2, 4};
-  for (auto width: widths) {
+  if (argc != 2) return 1;
+  std::istringstream ss(argv[1]);
+
+  double width;
+  while (ss >> width) {
     run(width);
   }
 

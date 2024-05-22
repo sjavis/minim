@@ -2,7 +2,9 @@ import sys
 import numpy as np
 from scipy.optimize import curve_fit
 
-plot = True if (len(sys.argv)!=2) else bool(int(sys.argv[1]))
+assert (len(sys.argv) >= 2)
+widths = np.fromstring(sys.argv[1], sep=' ')
+plot = True if (len(sys.argv)!=3) else bool(int(sys.argv[2]))
 
 
 def interface(x, x0, width):
@@ -14,7 +16,6 @@ def fit_interface(phi):
     return x0, width
 
 
-widths = np.array([0.25, 0.5, 1, 2, 4])
 errors = np.zeros(len(widths))
 for i_w, w0 in enumerate(widths):
     data = np.loadtxt(f"width-{w0:g}.txt")

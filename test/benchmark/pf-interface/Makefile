@@ -7,12 +7,12 @@ CXX = mpic++
 CXXFLAGS = -DPARALLEL -Wall
 
 all: run.exe
-	mpirun -np 1 run.exe > /dev/null
-	python3 check.py 0 || exit 1
+	mpirun -np 1 run.exe "1" > /dev/null
+	python3 check.py "1" 0 || exit 1
 
 plot: run.exe
-	mpirun -np 1 run.exe > /dev/null
-	python3 check.py 1
+	mpirun -np 1 run.exe "0.25 0.5 1 2 4" > /dev/null
+	python3 check.py "0.25 0.5 1 2 4"
 
 run.exe:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe
