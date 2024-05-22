@@ -86,7 +86,7 @@ namespace minim {
     int i_cycle = _i % _m;
 
     if (m_tmp == 0) {
-      step = -_init_hessian * _g;
+      step = -_g / vec::norm(_g) * _init_step;
       return step;
     }
 

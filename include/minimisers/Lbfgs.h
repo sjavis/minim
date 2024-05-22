@@ -36,7 +36,7 @@ namespace minim {
     private:
       int _m = 5;
       int _i;
-      double _init_hessian = 1e-4;
+      double _init_step = 1e-3;
       double _maxStep = 0;
       vector<double> _g;
       vector<double> _rho;
