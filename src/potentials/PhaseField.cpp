@@ -271,7 +271,9 @@ namespace minim {
       vector<double> vFactor = volCoef * (volFluid - volume);
       for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
         int f = fluidType[iDof];
-        (*g)[iDof] += vFactor[f] * nodeVol[iDof];
+        double c = coords[iDof];
+        double interfaceWeight = std::max(0.0, 4*c*(1-c)); // Only apply the force to the interface nodes
+        (*g)[iDof] += vFactor[f] * nodeVol[iDof] * interfaceWeight;
       }
     }
     if (vec::any(pressure)) {
