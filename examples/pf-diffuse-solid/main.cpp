@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
   pf.setSolid([](int x, int y, int z) { return (x==0 || x==nx-1 || y==0 || y==ny-1); });
 
   print("Step 1: Evolving solid");
-  auto solid = diffuseSolid(initialiseSolid(), pf);
+  auto solid = pf.diffuseSolid(initialiseSolid());
 
   print("Step 2: Evolving fluid");
   pf.setFixFluid(0);

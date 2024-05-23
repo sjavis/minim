@@ -57,12 +57,17 @@ namespace minim {
       vector<vector<double>> force;
       PhaseField& setForce(vector<double> force, vector<int> iFluid={});
 
-      // Frozen fluid method
+      // Diffuse solid method
       vector<bool> fixFluid;
       vector<double> confinementStrength;
       PhaseField& setFixFluid(int iFluid, bool fix=true);
       PhaseField& setConfinement(vector<double> strength);
 
+      vector<double> diffuseSolid(vector<bool> solid, int iFluid=0);
+      static vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0);
+      static vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0);
+
+      // Overrides
       void init(const vector<double>& coords) override;
       void distributeParameters(const Communicator& comm) override;
 
@@ -102,10 +107,6 @@ namespace minim {
       void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
   };
-
-
-  vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0);
-  vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0);
 
 }
 

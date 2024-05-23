@@ -814,15 +814,18 @@ namespace minim {
   }
 
 
-  vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid) {
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, int iFluid) {
+    return diffuseSolid(solid, *this, iFluid);
+  }
+
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid) {
     PhaseField potential;
     potential.setNFluid(nFluid);
     potential.setGridSize(gridSize);
     return diffuseSolid(solid, potential, iFluid);
   }
 
-
-  vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid) {
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid) {
     vector<double> confinement(potential.nFluid);
     confinement[iFluid] = 100;
     potential.setConfinement(confinement);
