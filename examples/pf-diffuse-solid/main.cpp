@@ -26,21 +26,21 @@ double gammaDiff = surfaceTension * cos(contactAngle*PI/180);
 vector<double> surfaceTensions = {surfaceTension-gammaDiff/2, surfaceTension+gammaDiff/2, surfaceTension};
 
 
-vector<double> initialiseSolid() {
-  vector<double> data(3*nx*ny*nz);
+vector<bool> initialiseSolid() {
+  vector<bool> solid(nx*ny*nz);
   for (int x=0; x<nx; x++) {
   for (int y=0; y<ny; y++) {
   for (int z=0; z<nz; z++) {
     int i = x*ny*nz + y*nz + z;
 
     if (y < solidHeight) {
-      data[3*i+0] = 1;
+      solid[i] = true;
     }
 
   }
   }
   }
-  return data;
+  return solid;
 }
 
 
@@ -70,17 +70,6 @@ vector<double> initialiseFluid(vector<double> solid) {
   }
   }
   return data;
-}
-
-
-vector<double> getTotVolumes(vector<double> coords) {
-  vector<double> volumes(3);
-  for (int i=0; i<nx*ny*nz; i++) {
-    volumes[0] += coords[3*i+0];
-    volumes[1] += coords[3*i+1];
-    volumes[2] += coords[3*i+2];
-  }
-  return volumes;
 }
 
 
@@ -117,32 +106,25 @@ int main(int argc, char** argv) {
     }
   };
 
-  // Set up minimiser and potential
-  Lbfgs min;
-  min.setLinesearch("none");
-  PhaseField pot;
-  pot.setNFluid(3);
-  pot.setGridSize({nx, ny, nz});
-  pot.setSurfaceTension(surfaceTensions);
-  // Set a simulation boundary (optional)
-  pot.setSolid([](int x, int y, int z) { return (x==0 || x==nx-1 || y==0 || y==ny-1); });
+  PhaseField pf;
+  pf.setNFluid(3);
+  pf.setGridSize({nx, ny, nz});
+  pf.setSurfaceTension(surfaceTensions);
+  pf.setSolid([](int x, int y, int z) { return (x==0 || x==nx-1 || y==0 || y==ny-1); });
 
   print("Step 1: Evolving solid");
-  pot.setConfinement({confinementStrength, 0, 0});
-  pot.setDensityConstraint("none");
-  State state1(pot, initialiseSolid());
-  min.setMaxIter(100);
-  auto solid = min.minimise(state1, log);
+  auto solid = diffuseSolid(initialiseSolid(), pf);
 
   print("Step 2: Evolving fluid");
-  auto initFluid = initialiseFluid(solid);
-  pot.setFixFluid(0);
-  pot.setConfinement({});
-  pot.setDensityConstraint("hard");
-  pot.setVolume(getTotVolumes(initFluid), 1e-2);
-  State state2(pot, initFluid);
+  pf.setFixFluid(0);
+  pf.setVolumeFixed(true);
+  pf.setDensityConstraint("hard");
+  State state(pf, initialiseFluid(solid));
+
+  Lbfgs min;
+  min.setLinesearch("none");
   min.setMaxIter(10000);
-  auto minimum = min.minimise(state2, log);
+  auto minimum = min.minimise(state, log);
   output(minimum, "minimum.txt");
 
   return 0;

@@ -5,6 +5,7 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
+#include "minimisers/Lbfgs.h"
 
 
 namespace minim {
@@ -810,6 +811,37 @@ namespace minim {
     if ((int)confinementStrength.size() != nFluid) {
       throw std::invalid_argument("Invalid size of confinement strength array.");
     }
+  }
+
+
+  vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid) {
+    PhaseField potential;
+    potential.setNFluid(nFluid);
+    potential.setGridSize(gridSize);
+    return diffuseSolid(solid, potential, iFluid);
+  }
+
+
+  vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid) {
+    vector<double> confinement(potential.nFluid);
+    confinement[iFluid] = 100;
+    potential.setConfinement(confinement);
+    potential.setDensityConstraint("none");
+
+    double nGrid = potential.gridSize[0] * potential.gridSize[1] * potential.gridSize[2];
+    vector<double> init(potential.nFluid * nGrid);
+    for (int iGrid=0; iGrid<nGrid; iGrid++) {
+      int i = iGrid * potential.nFluid + iFluid;
+      init[i] = solid[iGrid];
+    }
+    State state(potential, init);
+    state.convergence = 1e-8 * potential.surfaceTension[iFluid] * pow(potential.resolution, 2);
+
+    Lbfgs min;
+    min.setLinesearch("none");
+    min.setMaxIter(100);
+    auto minimum = min.minimise(state);
+    return minimum;
   }
 
 }

@@ -101,6 +101,10 @@ namespace minim {
       void ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
   };
 
+
+  vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0);
+  vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0);
+
 }
 
 #endif

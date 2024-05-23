@@ -14,10 +14,10 @@ def load(file):
 def plot(filename):
     data = load(filename)
     data = data.swapaxes(0,1)
-    plt.imshow(data, origin='lower', cmap='Blues', vmin=0, vmax=1)
     solid = data[:,:,0]
     liquid = data[:,:,1]
     gas = data[:,:,2]
+    plt.imshow(data, origin='lower', cmap='Blues', vmin=0, vmax=1)
     plt.contour(solid, levels=[0.5], colors='k')
     plt.contour(np.ma.masked_where(solid>0.5, liquid-gas), levels=[0], colors='k')
 
