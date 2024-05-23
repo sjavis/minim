@@ -17,7 +17,7 @@ template<typename T>
 
 
 template<typename T>
-::testing::AssertionResult ArraysNear(const std::vector<T>& a, const std::vector<T>& b, float delta) {
+::testing::AssertionResult ArraysNear(const std::vector<T>& a, const std::vector<T>& b, float delta=1e-6) {
   if (a.size() != b.size()) {
     return ::testing::AssertionFailure() << "array 1 has size " << a.size() << " != expected size " << b.size();
   }

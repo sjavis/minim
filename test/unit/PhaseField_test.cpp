@@ -26,44 +26,47 @@ TEST(PhaseFieldTest, gridSizeMpi) {
 
 TEST(PhaseFieldTest, TestBulkEnergy) {
   PhaseField pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
 
   // Constant bulk fluid
   State s1(pot.setGridSize({1,1,1}), {1}, {0});
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 3);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 3);
   EXPECT_FLOAT_EQ(s1.allEnergy(), 0);
-  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0}, 1e-6));
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0}));
   s1.coords({0.1});
-  EXPECT_FLOAT_EQ(s1.allEnergy(), 0.245025);
-  EXPECT_TRUE(ArraysNear(s1.allGradient(), {-0.099}, 1e-6));
+  EXPECT_FLOAT_EQ(s1.allEnergy(), 3.0/16*1.21*0.81);
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {-3.0/4*0.099}));
 
   // Bulk fluid gradient
+  // Gradient is 1 over the 1 and 2 half fluid nodes
   State s2x = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   State s2y = pot.setGridSize({1,5,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
   State s2z = pot.setGridSize({1,1,5}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  EXPECT_FLOAT_EQ(s2x.allEnergy(), 1.25);
-  EXPECT_FLOAT_EQ(s2y.allEnergy(), 1.25);
-  EXPECT_FLOAT_EQ(s2z.allEnergy(), 1.25);
-  EXPECT_TRUE(ArraysNear(s2x.allGradient(), {0,-1,0,1,0}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s2y.allGradient(), {0,-1,0,1,0}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s2z.allGradient(), {0,-1,0,1,0}, 1e-6));
+  double ebulk = 3.0 / 16;
+  double egrad = 2 * (3.0/4);
+  EXPECT_FLOAT_EQ(s2x.allEnergy(), ebulk+egrad);
+  EXPECT_FLOAT_EQ(s2y.allEnergy(), ebulk+egrad);
+  EXPECT_FLOAT_EQ(s2z.allEnergy(), ebulk+egrad);
+  EXPECT_TRUE(ArraysNear(s2x.allGradient(), {0,-1.5,0,1.5,0}));
+  EXPECT_TRUE(ArraysNear(s2y.allGradient(), {0,-1.5,0,1.5,0}));
+  EXPECT_TRUE(ArraysNear(s2z.allGradient(), {0,-1.5,0,1.5,0}));
   // Test periodic boundary
+  // Gradient is 2 over the 2 half fluid nodes
   State s3x = pot.setGridSize({3,1,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
   State s3y = pot.setGridSize({1,3,1}).setSolid({0,1,0}).newState({-1,0,1}, {0});
   State s3z = pot.setGridSize({1,1,3}).setSolid({0,1,0}).newState({-1,0,1}, {0});
-  EXPECT_FLOAT_EQ(s3x.allEnergy(), 2);
-  EXPECT_FLOAT_EQ(s3y.allEnergy(), 2);
-  EXPECT_FLOAT_EQ(s3z.allEnergy(), 2);
-  EXPECT_TRUE(ArraysNear(s3x.allGradient(), {-2,0,2}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s3y.allGradient(), {-2,0,2}, 1e-6));
-  EXPECT_TRUE(ArraysNear(s3z.allGradient(), {-2,0,2}, 1e-6));
+  egrad = 3.0/4 * 4;
+  EXPECT_FLOAT_EQ(s3x.allEnergy(), egrad);
+  EXPECT_FLOAT_EQ(s3y.allEnergy(), egrad);
+  EXPECT_FLOAT_EQ(s3z.allEnergy(), egrad);
+  EXPECT_TRUE(ArraysNear(s3x.allGradient(), {-3,0,3}));
+  EXPECT_TRUE(ArraysNear(s3y.allGradient(), {-3,0,3}));
+  EXPECT_TRUE(ArraysNear(s3z.allGradient(), {-3,0,3}));
 }
 
 
 TEST(PhaseFieldTest, TestExternalForce) {
   PhaseField pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
 
   // Test force in x, y, z directions
   auto stateForceX = pot.setGridSize({2,2,2}).setForce({-2,0,0}).newState({1,1,1,1,1,1,1,1});
@@ -88,8 +91,6 @@ TEST(PhaseFieldTest, TestExternalForce) {
 
 TEST(PhaseFieldTest, TestSurfaceEnergy) {
   PhaseField pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
   auto state = pot.newState({0.0, 0.5});
   for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
@@ -102,8 +103,6 @@ TEST(PhaseFieldTest, TestSurfaceEnergy) {
 
 TEST(PhaseFieldTest, TestPressureConstraint) {
   PhaseField pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure({10});
   auto state = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(state.energy(), -30);
@@ -124,15 +123,14 @@ TEST(PhaseFieldTest, TestVolumeConstraint) {
 
   pot.setVolume({1}, 100);
   State state2(pot, {1,1,1,1,1,1});
-  EXPECT_FLOAT_EQ(state2.energy(), 400);
-  EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 100, 200, 200, 100, 0}, 1e-6));
+  EXPECT_FLOAT_EQ(state2.energy(), 100 * pow(2, 2));
+  // EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 100, 200, 200, 100, 0}));
+  EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 0, 0, 0, 0, 0})); // Zero gradient when not on interfaces
 }
 
 
 TEST(PhaseFieldTest, TestResolution) {
   PhaseField pot;
-  pot.setInterfaceSize(1/sqrt(2.0));
-  pot.setSurfaceTension(sqrt(8.0/9));
   EXPECT_FLOAT_EQ(pot.resolution, 1);
 
   pot.setResolution(2);
@@ -140,8 +138,12 @@ TEST(PhaseFieldTest, TestResolution) {
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  EXPECT_FLOAT_EQ(s1.allEnergy(), 4); // Bulk: 2, Gradient: 2
-  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0,-2,0,2,0}, 1e-6));
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 1.5);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 6);
+  double ebulk = 1.5/16 * 8;
+  double egrad = 2 * (6.0/4) * 2;
+  EXPECT_FLOAT_EQ(s1.allEnergy(), ebulk+egrad); // Bulk: 2, Gradient: 2
+  EXPECT_TRUE(ArraysNear(s1.allGradient(), {0,-6,0,6,0}));
 
   // External Force
   pot.setGridSize({2,2,2}).setSolid({0,0,0,0,0,0,0,0}).setForce({-4,0,0});
@@ -172,8 +174,9 @@ TEST(PhaseFieldTest, TestResolution) {
   // Volume
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
   auto s5 = pot.newState({1,1,1,1,1,1});
-  EXPECT_FLOAT_EQ(s5.energy(), 64*400);
-  EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}, 1e-6));
+  EXPECT_FLOAT_EQ(s5.energy(), 100.0/16 * pow(2*8, 2));
+  // EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}));
+  EXPECT_TRUE(ArraysNear(s5.gradient(), {0,0,0,0,0,0})); // Zero gradient unless at interface
 }
 
 

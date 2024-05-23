@@ -70,13 +70,15 @@ namespace minim {
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
 
-    private:
+      // Read only
       int nGrid;
       double surfaceTensionMean;
       vector<double> kappa;
       vector<double> kappaP;
       vector<double> nodeVol;
       vector<int> fluidType;
+
+    private:
       std::array<int,3> getCoord(int i) const;
       int getType(int i) const;
       void setDefaults();
