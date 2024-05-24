@@ -20,8 +20,10 @@ namespace minim {
 
       Mpi();
       ~Mpi();
+      void init();
       void init(int* argc, char*** argv);
 #ifdef PARALLEL
+      void init(MPI_Comm comm);
       void getSizeRank(MPI_Comm comm);
 #endif
 

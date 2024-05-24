@@ -9,7 +9,7 @@ using namespace std::chrono;
 using namespace minim;
 
 int main(int argc, char **argv) {
-  mpiInit(&argc, &argv);
+  mpi.init(&argc, &argv);
   print();
 
   Lj3d potential = Lj3d();

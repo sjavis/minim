@@ -22,7 +22,7 @@ class Toy2d : public NewPotential<Toy2d> {
 
 
 int main(int argc, char** argv) {
-  mpiInit(&argc, &argv);
+  mpi.init(&argc, &argv);
   print("Number of processors:", mpi.size, "; Rank:", mpi.rank);
 
   Toy2d potential = Toy2d();

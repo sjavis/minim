@@ -9,15 +9,6 @@ namespace minim {
   using std::vector;
 
 
-  void mpiInit() {
-    minim::mpi.init(0, 0);
-  }
-
-  void mpiInit(int* argc, char*** argv) {
-    minim::mpi.init(argc, argv);
-  }
-
-
   Mpi mpi;
 
   Mpi::Mpi() {
@@ -25,6 +16,10 @@ namespace minim {
     rank = 0;
   }
 
+
+  void Mpi::init() {
+    init(0, 0);
+  }
 
   void Mpi::init(int* argc, char*** argv) {
 #ifdef PARALLEL
@@ -36,8 +31,12 @@ namespace minim {
 #endif
   }
 
-
 #ifdef PARALLEL
+  void Mpi::init(MPI_Comm comm) {
+    getSizeRank(comm);
+  }
+
+
   void Mpi::getSizeRank(MPI_Comm comm) {
     MPI_Comm_size(comm, &size);
     MPI_Comm_rank(comm, &rank);
