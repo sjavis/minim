@@ -97,6 +97,7 @@ namespace minim {
     setDefaults();
     checkArraySizes();
     assignFluidCoefficients();
+    this->convergence = 1e-8 * surfaceTensionMean * pow(resolution, 2);
 
     // Forces
     vector<double> fMag(nFluid);

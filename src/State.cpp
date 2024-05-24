@@ -17,6 +17,7 @@ namespace minim {
     this->usesThisProc = comm.usesThisProc;
     this->coords(coords);
     this->pot->distributeParameters(comm);
+    this->convergence = this->pot->convergence;
   }
 
   State::State(const State& state)

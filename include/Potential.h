@@ -22,6 +22,8 @@ namespace minim {
     EGFunc _energyGradient;
 
     public:
+      double convergence = 1e-6;
+
       // Basic user functions
       Potential(EFunc energy, GFunc gradient);
       Potential(EGFunc energyGradient);

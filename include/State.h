@@ -14,7 +14,7 @@ namespace minim {
   class State {
     public:
       size_t ndof;
-      double convergence = 1e-6;
+      double convergence;
       std::unique_ptr<Potential> pot;
 
       State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks={});
