@@ -1,6 +1,12 @@
 #ifndef MINIM_MPI_H
 #define MINIM_MPI_H
 
+#ifndef PARALLEL
+#ifdef MPI_VERSION
+#define PARALLEL
+#endif
+#endif
+
 #ifdef PARALLEL
 #include <mpi.h>
 #endif
