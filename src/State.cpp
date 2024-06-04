@@ -12,12 +12,15 @@ namespace minim {
     : ndof(coords.size()), pot(pot.clone())
   {
     if (this->pot->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
+    // Initialise the potential
     this->pot->init(coords);
+    this->convergence = this->pot->convergence;
+    // Set-up the communicator & distribute the potential
     this->comm.setup(*this->pot, ndof, ranks);
     this->usesThisProc = comm.usesThisProc;
-    this->coords(coords);
     this->pot->distributeParameters(comm);
-    this->convergence = this->pot->convergence;
+    // Initial
+    this->coords(coords);
   }
 
   State::State(const State& state)
@@ -37,6 +40,31 @@ namespace minim {
     usesThisProc = state.usesThisProc;
     _coords = state._coords;
     return *this;
+  }
+
+
+  void serialEnergyGradient(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g) {
+    pot.energyGradient(coords, e, g);
+    if (g) pot.applyConstraints(coords, *g);
+  }
+
+  void parallelEnergyGradient(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
+      if (e) *e = 0;
+      if (g) *g = vector<double>(coords.size());
+      // Compute the energy elements
+      for (auto el : pot.elements) {
+        pot.elementEnergyGradient(coords, el, e, g);
+      }
+      // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
+      if (g) {
+        for (auto el : pot.elements_halo) {
+          pot.elementEnergyGradient(coords, el, nullptr, g);
+        }
+      }
+      // Compute any system-wide contributions
+      pot.blockEnergyGradient(coords, comm, e, g);
+      // Constraints
+      if (g) pot.applyConstraints(coords, *g);
   }
 
 
@@ -94,13 +122,16 @@ namespace minim {
   // Total energy / gradient
   double State::energy(const vector<double>& coords) const {
     if (!usesThisProc) return 0;
-    if (pot->serialDef()) {
-      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
-      return pot->energy(allCoords);
+    double e;
 
-    } else if (pot->parallelDef()) {
+    if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.sum(blockEnergy(blockCoords));
+      parallelEnergyGradient(*pot, blockCoords, &e, nullptr, comm);
+      return comm.sum(e);
+
+    } else if (pot->serialDef()) {
+      serialEnergyGradient(*pot, coords, &e, nullptr);
+      return e;
 
     } else {
       throw std::logic_error("Energy function not defined");
@@ -109,15 +140,16 @@ namespace minim {
 
   vector<double> State::gradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
+    vector<double> g;
 
-    if (pot->serialDef()) {
-      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
-      auto g = pot->gradient(allCoords);
-      return pot->applyConstraints(coords, g);
-
-    } else if (pot->parallelDef()) {
+    if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      return comm.gather(blockGradient(blockCoords));
+      parallelEnergyGradient(*pot, blockCoords, nullptr, &g, comm);
+      return comm.gather(g);
+
+    } else if (pot->serialDef()) {
+      serialEnergyGradient(*pot, coords, nullptr, &g);
+      return g;
 
     } else {
       throw std::logic_error("Gradient function not defined");
@@ -127,16 +159,14 @@ namespace minim {
   void State::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
-    if (pot->serialDef()) {
-      vector<double> allCoords = (coords.size() == ndof) ? coords : comm.gather(coords);
-      pot->energyGradient(allCoords, e, g);
-      if (g) pot->applyConstraints(coords, *g);
-
-    } else if (pot->parallelDef()) {
+    if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
-      blockEnergyGradient(blockCoords, e, g);
+      parallelEnergyGradient(*pot, blockCoords, e, g, comm);
       if (e != nullptr) *e = comm.sum(*e);
       if (g != nullptr) *g = comm.gather(*g);
+
+    } else if (pot->serialDef()) {
+      serialEnergyGradient(*pot, coords, e, g);
 
     } else {
       throw std::logic_error("Energy and/or gradient function not defined");
@@ -148,73 +178,41 @@ namespace minim {
   double State::blockEnergy(const vector<double>& coords) const {
     if (!usesThisProc) return 0;
 
+    double e;
     if (pot->parallelDef()) {
-      double e;
-      blockEnergyGradient(coords, &e, nullptr);
-      return e;
-
+      parallelEnergyGradient(*pot, coords, &e, nullptr, comm);
     } else if (pot->serialDef()) {
-      vector<double> allCoords = comm.gather(coords, 0);
-      if (comm.rank() != 0) {
-        return 0;
-      } else {
-        return pot->energy(allCoords);
-      }
-
+      serialEnergyGradient(*pot, coords, &e, nullptr);
+      if (comm.rank() != 0) e = 0;
     } else {
       throw std::logic_error("Energy function not defined");
     }
+    return e;
   }
 
   vector<double> State::blockGradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
 
+    vector<double> g;
     if (pot->parallelDef()) {
-      vector<double> g;
-      blockEnergyGradient(coords, nullptr, &g);
-      return g;
-
+      parallelEnergyGradient(*pot, coords, nullptr, &g, comm);
     } else if (pot->serialDef()) {
-      auto g = pot->gradient(comm.gather(coords));
-      pot->applyConstraints(coords, g);
-      return comm.scatter(g);
-
+      serialEnergyGradient(*pot, coords, nullptr, &g);
     } else {
       throw std::logic_error("Gradient function not defined");
     }
+    return g;
   }
 
   void State::blockEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
     if (pot->parallelDef()) {
-      if (e) *e = 0;
-      if (g) *g = vector<double>(coords.size());
-      // Compute the energy elements
-      for (auto el : pot->elements) {
-        pot->elementEnergyGradient(coords, el, e, g);
-      }
-      // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
-      if (g) {
-        for (auto el : pot->elements_halo) {
-          pot->elementEnergyGradient(coords, el, nullptr, g);
-        }
-      }
-      // Compute any system-wide contributions
-      pot->blockEnergyGradient(coords, comm, e, g);
-      // Constraints
-      if (g) pot->applyConstraints(coords, *g);
+      parallelEnergyGradient(*pot, coords, e, g, comm);
 
     } else if (pot->serialDef()) {
-      if (g == nullptr) {
-        pot->energyGradient(comm.gather(coords), e, nullptr);
-      } else {
-        vector<double> gAll(ndof);
-        pot->energyGradient(comm.gather(coords), e, &gAll);
-        *g = comm.scatter(gAll);
-        pot->applyConstraints(coords, *g);
-      }
-      if (comm.rank() != 0 && e != nullptr) *e = 0;
+      serialEnergyGradient(*pot, coords, e, g);
+      if (e && comm.rank() != 0) *e = 0;
 
     } else {
       throw std::logic_error("Energy and/or gradient function not defined");
