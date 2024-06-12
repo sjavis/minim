@@ -49,22 +49,22 @@ namespace minim {
   }
 
   void parallelEnergyGradient(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
-      if (e) *e = 0;
-      if (g) *g = vector<double>(coords.size());
-      // Compute the energy elements
-      for (auto el : pot.elements) {
-        pot.elementEnergyGradient(coords, el, e, g);
+    if (e) *e = 0;
+    if (g) *g = vector<double>(coords.size());
+    // Compute the energy elements
+    for (auto el : pot.elements) {
+      pot.elementEnergyGradient(coords, el, e, g);
+    }
+    // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
+    if (g) {
+      for (auto el : pot.elements_halo) {
+        pot.elementEnergyGradient(coords, el, nullptr, g);
       }
-      // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
-      if (g) {
-        for (auto el : pot.elements_halo) {
-          pot.elementEnergyGradient(coords, el, nullptr, g);
-        }
-      }
-      // Compute any system-wide contributions
-      pot.blockEnergyGradient(coords, comm, e, g);
-      // Constraints
-      if (g) pot.applyConstraints(coords, *g);
+    }
+    // Compute any system-wide contributions
+    pot.blockEnergyGradient(coords, comm, e, g);
+    // Constraints
+    if (g) pot.applyConstraints(coords, *g);
   }
 
 

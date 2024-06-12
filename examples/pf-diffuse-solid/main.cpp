@@ -118,7 +118,6 @@ int main(int argc, char** argv) {
   print("Step 2: Evolving fluid");
   pf.setFixFluid(0);
   pf.setVolumeFixed(true);
-  pf.setDensityConstraint("hard");
   State state(pf, initialiseFluid(solid));
 
   Lbfgs min;

@@ -70,7 +70,6 @@ namespace minim {
       bool isFailed = false;
       void failed();
 
-    private:
       vector<double> _coords;
   };
 

@@ -8,9 +8,17 @@
 #include "minimisers/Lbfgs.h"
 
 
+#include "utils/print.h"
 namespace minim {
   using std::vector;
   template<typename T> using vector2d = vector<vector<T>>;
+
+  enum{
+    DENSITY_HARD = 0, // Apply a constraint to the gradient
+    DENSITY_SOFT = 1, // Use an energy penalty
+    DENSITY_NONE = 2, // No density constraint, independent fluids
+    DENSITY_FIXED = 3, // Use N-1 fluids, calculate Nth fluid concentration
+  };
 
 
   std::array<int,3> getCoord(int i, std::array<int,3> gridSize) {
@@ -98,6 +106,7 @@ namespace minim {
     checkArraySizes();
     assignFluidCoefficients();
     this->convergence = 1e-8 * surfaceTensionMean * pow(resolution, 2);
+    if (densityConstraint == DENSITY_FIXED) fixFluid[nFluid-1] = true;
 
     // Forces
     vector<double> fMag(nFluid);
@@ -138,19 +147,23 @@ namespace minim {
 
     // Assign elements
     elements = {};
-    for (int i=0; i<nGrid; i++) {
-      if (solid[i]) continue;
+    for (int iGrid=0; iGrid<nGrid; iGrid++) {
+      if (solid[iGrid]) continue;
 
       // Set bulk fluid elements
-      Neighbours di(gridSize, i);
-      vector<int> iNodes = {i, di[0], di[1], di[2], di[3], di[4], di[5]};
+      Neighbours di(gridSize, iGrid);
+      vector<int> iNodes = {iGrid, di[0], di[1], di[2], di[3], di[4], di[5]};
       for (auto &iNode: iNodes) {
-        if (solid[iNode]) iNode = i;
+        if (solid[iNode]) iNode = iGrid;
       }
       if (model == MODEL_BASIC) {
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          vector<int> idofs = iNodes*nFluid+iFluid;
-          elements.push_back({FLUID_ENERGY, idofs, {nodeVol[i], (double)iFluid}});
+        if (densityConstraint == DENSITY_FIXED) {
+          elements.push_back({FLUID_ENERGY_ALL, iNodes*nFluid, {nodeVol[iGrid]}});
+        } else {
+          for (int iFluid=0; iFluid<nFluid; iFluid++) {
+            vector<int> idofs = iNodes*nFluid+iFluid;
+            elements.push_back({FLUID_ENERGY, idofs, {nodeVol[iGrid], (double)iFluid}});
+          }
         }
       } else if (model == MODEL_NCOMP) {
         int iPair = 0;
@@ -162,38 +175,38 @@ namespace minim {
               idofs.push_back(iNode*nFluid+iFluid1);
               idofs.push_back(iNode*nFluid+iFluid2);
             }
-            elements.push_back({FLUID_ENERGY, idofs, {nodeVol[i], (double)iPair}});
+            elements.push_back({FLUID_PAIR_ENERGY, idofs, {nodeVol[iGrid], (double)iPair}});
             iPair++;
           }
         }
       }
 
       // Set soft density constraint elements
-      if (nFluid>1 && densityConstraint==2) {
+      if (nFluid>1 && densityConstraint==DENSITY_SOFT) {
         vector<int> idofs = vector<int>(nFluid);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          idofs[iFluid] = i * nFluid + iFluid;
+          idofs[iFluid] = iGrid * nFluid + iFluid;
         }
         elements.push_back({DENSITY_CONSTRAINT_ENERGY, idofs});
       }
 
       // Set surface fluid elements
-      if (surfaceArea[i] > 0 && !contactAngle.empty() && contactAngle[i]!=90) {
-        double wettingParam = 1/sqrt(2.0) * cos(contactAngle[i] * 3.1415926536/180);
+      if (surfaceArea[iGrid] > 0 && !contactAngle.empty() && contactAngle[iGrid]!=90) {
+        double wettingParam = 1/sqrt(2.0) * cos(contactAngle[iGrid] * 3.1415926536/180);
         for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          int idof = i * nFluid + iFluid;
-          elements.push_back({SURFACE_ENERGY, {idof}, {surfaceArea[i], wettingParam}});
+          int idof = iGrid * nFluid + iFluid;
+          elements.push_back({SURFACE_ENERGY, {idof}, {surfaceArea[iGrid], wettingParam}});
         }
       }
 
       // Set external force elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (fMag[iFluid]>0 && !solid[i]) {
-          std::array<int,3> coordI = getCoord(i);
+        if (fMag[iFluid]>0 && !solid[iGrid]) {
+          std::array<int,3> coordI = getCoord(iGrid);
           vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
           double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
-          vector<double> params{nodeVol[i], fMag[iFluid], h};
-          int idof = i * nFluid + iFluid;
+          vector<double> params{nodeVol[iGrid], fMag[iFluid], h};
+          int idof = iGrid * nFluid + iFluid;
           elements.push_back({FORCE_ENERGY, {idof}, params});
         }
       }
@@ -201,7 +214,7 @@ namespace minim {
       // Set confining potential elements for the frozen fluid method
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (confinementStrength[iFluid] == 0) continue;
-        int idof = i * nFluid + iFluid;
+        int idof = iGrid * nFluid + iFluid;
         elements.push_back({FF_CONFINEMENT_ENERGY, {idof}, {confinementStrength[iFluid], coords[idof]}});
       }
     }
@@ -209,7 +222,7 @@ namespace minim {
     // Set constraints
     constraints = {};
     // Hard density constraint
-    if (nFluid>1 && densityConstraint==1) {
+    if (nFluid>1 && densityConstraint==DENSITY_HARD) {
       vector<int> iVariableFluid;
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
@@ -250,6 +263,7 @@ namespace minim {
   void PhaseField::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Constant volume / pressure constraints rely upon the whole system
     if (!volumeFixed && !vec::any(pressure)) return;
+    double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
     vector<double> volFluid(nFluid, 0);
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
       if (nFluid == 1) {
@@ -258,10 +272,13 @@ namespace minim {
         volFluid[fluidType[iDof]] += coords[iDof] * nodeVol[iDof];
       }
     }
-    double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!volumeFixed && pressure[iFluid]==0) continue;
-      volFluid[iFluid] = comm.sum(volFluid[iFluid]);
+      if (fixFluid[iFluid]) {
+        volFluid[iFluid] = volume[iFluid];
+      } else {
+        volFluid[iFluid] = comm.sum(volFluid[iFluid]);
+      }
       if (e) {
         if (volumeFixed) *e += volCoef * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
         if (pressure[iFluid]!=0) *e -= pressure[iFluid] * volFluid[iFluid] / comm.size();
@@ -288,6 +305,213 @@ namespace minim {
   }
 
 
+  void phaseGradient(const vector<double>& coords, const vector<int> idof, double factor, double* e, vector<double>* g) {
+    double c1 = coords[idof[0]];
+    double grad2 = 0;
+
+    // Single phase
+    if (idof.size() == 7) {
+
+      // X-gradient
+      if ((idof[1]!=idof[0]) && (idof[6]!=idof[0])) { // No solid in x direction
+        double gradm = c1 - coords[idof[1]];
+        double gradp = c1 - coords[idof[6]];
+        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm + gradp);
+          (*g)[idof[1]] -= factor * gradm;
+          (*g)[idof[6]] -= factor * gradp;
+        }
+      } else if (idof[6] != idof[0]) { // Solid on negative side in x direction
+        double gradp = c1 - coords[idof[6]];
+        if (e) grad2 += pow(gradp,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradp;
+          (*g)[idof[6]] -= factor * 2*gradp;
+        }
+      } else if (idof[1] != idof[0]) { // Solid on positive side in x direction
+        double gradm = c1 - coords[idof[1]];
+        if (e) grad2 += pow(gradm,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm;
+          (*g)[idof[1]] -= factor * 2*gradm;
+        }
+      }
+
+      // Y-gradient
+      if ((idof[2]!=idof[0]) && (idof[5]!=idof[0])) { // No solid in y direction
+        double gradm = c1 - coords[idof[2]];
+        double gradp = c1 - coords[idof[5]];
+        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm + gradp);
+          (*g)[idof[2]] -= factor * gradm;
+          (*g)[idof[5]] -= factor * gradp;
+        }
+      } else if (idof[5] != idof[0]) { // Solid on negative side in y direction
+        double gradp = c1 - coords[idof[5]];
+        if (e) grad2 += pow(gradp,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradp;
+          (*g)[idof[5]] -= factor * 2*gradp;
+        }
+      } else if (idof[2] != idof[0]) { // Solid on positive side in y direction
+        double gradm = c1 - coords[idof[2]];
+        if (e) grad2 += pow(gradm,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm;
+          (*g)[idof[2]] -= factor * 2*gradm;
+        }
+      }
+
+      // Z-gradient
+      if ((idof[3]!=idof[0]) && (idof[4]!=idof[0])) { // No solid in z direction
+        double gradm = c1 - coords[idof[3]];
+        double gradp = c1 - coords[idof[4]];
+        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm + gradp);
+          (*g)[idof[3]] -= factor * gradm;
+          (*g)[idof[4]] -= factor * gradp;
+        }
+      } else if (idof[4] != idof[0]) { // Solid on negative side in z direction
+        double gradp = c1 - coords[idof[4]];
+        if (e) grad2 += pow(gradp,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradp;
+          (*g)[idof[4]] -= factor * 2*gradp;
+        }
+      } else if (idof[3] != idof[0]) { // Solid on positive side in z direction
+        double gradm = c1 - coords[idof[3]];
+        if (e) grad2 += pow(gradm,2);
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm;
+          (*g)[idof[3]] -= factor * 2*gradm;
+        }
+      }
+
+      if (e) *e += factor * grad2;
+
+    // Pair of phases
+    } else if (idof.size() == 14) {
+      double c2 = coords[idof[1]];
+
+      // X-gradient
+      if ((idof[2]!=idof[0]) && (idof[12]!=idof[0])) { // No solid in x direction
+        double gradm1 = c1 - coords[idof[2]];
+        double gradm2 = c2 - coords[idof[3]];
+        double gradp1 = c1 - coords[idof[12]];
+        double gradp2 = c2 - coords[idof[13]];
+        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm2 + gradp2);
+          (*g)[idof[1]] += factor * (gradm1 + gradp1);
+          (*g)[idof[2]] -= factor * gradm2;
+          (*g)[idof[3]] -= factor * gradm1;
+          (*g)[idof[12]] -= factor * gradp2;
+          (*g)[idof[13]] -= factor * gradp1;
+        }
+      } else if (idof[12] != idof[0]) { // Solid on negative side in x direction
+        double gradp1 = c1 - coords[idof[12]];
+        double gradp2 = c2 - coords[idof[13]];
+        if (e) grad2 += gradp1*gradp2;
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradp2;
+          (*g)[idof[1]] += factor * 2*gradp1;
+          (*g)[idof[12]] -= factor * 2*gradp2;
+          (*g)[idof[13]] -= factor * 2*gradp1;
+        }
+      } else if (idof[2] != idof[0]) { // Solid on positive side in x direction
+        double gradm1 = c1 - coords[idof[2]];
+        double gradm2 = c2 - coords[idof[3]];
+        if (e) grad2 += gradm1*gradm2;
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm2;
+          (*g)[idof[1]] += factor * 2*gradm1;
+          (*g)[idof[2]] -= factor * 2*gradm2;
+          (*g)[idof[3]] -= factor * 2*gradm1;
+        }
+      }
+
+      // Y-gradient
+      if ((idof[4]!=idof[0]) && (idof[10]!=idof[0])) { // No solid in y direction
+        double gradm1 = c1 - coords[idof[4]];
+        double gradm2 = c2 - coords[idof[5]];
+        double gradp1 = c1 - coords[idof[10]];
+        double gradp2 = c2 - coords[idof[11]];
+        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm2 + gradp2);
+          (*g)[idof[1]] += factor * (gradm1 + gradp1);
+          (*g)[idof[4]] -= factor * gradm2;
+          (*g)[idof[5]] -= factor * gradm1;
+          (*g)[idof[10]] -= factor * gradp2;
+          (*g)[idof[11]] -= factor * gradp1;
+        }
+      } else if (idof[10] != idof[0]) { // Solid on negative side in y direction
+        double gradp1 = c1 - coords[idof[10]];
+        double gradp2 = c2 - coords[idof[11]];
+        if (e) grad2 += gradp1*gradp2;
+        if (g) {
+          (*g)[idof[0]] += factor * gradp2;
+          (*g)[idof[1]] += factor * gradp1;
+          (*g)[idof[10]] -= factor * gradp2;
+          (*g)[idof[11]] -= factor * gradp1;
+        }
+      } else if (idof[4] != idof[0]) { // Solid on positive side in y direction
+        double gradm1 = c1 - coords[idof[4]];
+        double gradm2 = c2 - coords[idof[5]];
+        if (e) grad2 += gradm1*gradm2;
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm2;
+          (*g)[idof[1]] += factor * 2*gradm1;
+          (*g)[idof[4]] -= factor * 2*gradm2;
+          (*g)[idof[5]] -= factor * 2*gradm1;
+        }
+      }
+
+      // Z-gradient
+      if ((idof[6]!=idof[0]) && (idof[8]!=idof[0])) { // No solid in z direction
+        double gradm1 = c1 - coords[idof[6]];
+        double gradm2 = c2 - coords[idof[7]];
+        double gradp1 = c1 - coords[idof[8]];
+        double gradp2 = c2 - coords[idof[9]];
+        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
+        if (g) {
+          (*g)[idof[0]] += factor * (gradm2 + gradp2);
+          (*g)[idof[1]] += factor * (gradm1 + gradp1);
+          (*g)[idof[6]] -= factor * gradm2;
+          (*g)[idof[7]] -= factor * gradm1;
+          (*g)[idof[8]] -= factor * gradp2;
+          (*g)[idof[9]] -= factor * gradp1;
+        }
+      } else if (idof[8] != idof[0]) { // Solid on negative side in z direction
+        double gradp1 = c1 - coords[idof[8]];
+        double gradp2 = c2 - coords[idof[9]];
+        if (e) grad2 += gradp1*gradp2;
+        if (g) {
+          (*g)[idof[0]] += factor * gradp2;
+          (*g)[idof[1]] += factor * gradp1;
+          (*g)[idof[8]] -= factor * gradp2;
+          (*g)[idof[9]] -= factor * gradp1;
+        }
+      } else if (idof[6] != idof[0]) { // Solid on positive side in z direction
+        double gradm1 = c1 - coords[idof[6]];
+        double gradm2 = c2 - coords[idof[7]];
+        if (e) grad2 += gradm1*gradm2;
+        if (g) {
+          (*g)[idof[0]] += factor * 2*gradm2;
+          (*g)[idof[1]] += factor * 2*gradm1;
+          (*g)[idof[6]] -= factor * 2*gradm2;
+          (*g)[idof[7]] -= factor * 2*gradm1;
+        }
+      }
+
+      if (e) *e += factor * grad2;
+    }
+  }
+
+
   void PhaseField::fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     double vol = el.parameters[0];
     int iFluid = el.parameters[1];
@@ -306,84 +530,56 @@ namespace minim {
 
     // Gradient energy
     double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-    double res2 = pow(resolution, 2);
-    double grad2 = 0;
+    factor = factor / pow(resolution, 2);
+    phaseGradient(coords, el.idof, factor, e, g);
+  }
 
-    if ((el.idof[1]!=el.idof[0]) && (el.idof[6]!=el.idof[0])) { // No solid in x direction
-      double diffxm = c - coords[el.idof[1]];
-      double diffxp = c - coords[el.idof[6]];
-      if (e) grad2 += (pow(diffxm,2) + pow(diffxp,2)) / (2 * res2);
-      if (g) {
-        (*g)[el.idof[0]] += factor * (diffxm + diffxp) / res2;
-        (*g)[el.idof[1]] -= factor * diffxm / res2;
-        (*g)[el.idof[6]] -= factor * diffxp / res2;
-      }
-    } else if (el.idof[6] != el.idof[0]) { // Solid on negative side in x direction
-      double diffxp = c - coords[el.idof[6]];
-      if (e) grad2 += pow(diffxp,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffxp / res2;
-        (*g)[el.idof[6]] -= factor * 2*diffxp / res2;
-      }
-    } else if (el.idof[1] != el.idof[0]) { // Solid on positive side in x direction
-      double diffxm = c - coords[el.idof[1]];
-      if (e) grad2 += pow(diffxm,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffxm / res2;
-        (*g)[el.idof[1]] -= factor * 2*diffxm / res2;
+
+  void PhaseField::fluidEnergyAll(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    // Compute the energy for all N-1 phases
+    double vol = el.parameters[0];
+
+    // Get energy and gradient of the Nth fluid
+    int nNodes = 7;
+    vector<double> cN(nNodes, 1);
+    vector<double> gN(nNodes);
+    for (int iFluid=0; iFluid<nFluid-1; iFluid++) {
+      for (int i=0; i<nNodes; i++) {
+        cN[i] -= coords[el.idof[i] + iFluid];
       }
     }
-
-    if ((el.idof[2]!=el.idof[0]) && (el.idof[5]!=el.idof[0])) { // No solid in y direction
-      double diffym = c - coords[el.idof[2]];
-      double diffyp = c - coords[el.idof[5]];
-      if (e) grad2 += (pow(diffym,2) + pow(diffyp,2)) / (2 * res2);
-      if (g) {
-        (*g)[el.idof[0]] += factor * (diffym + diffyp) / res2;
-        (*g)[el.idof[2]] -= factor * diffym / res2;
-        (*g)[el.idof[5]] -= factor * diffyp / res2;
-      }
-    } else if (el.idof[5] != el.idof[0]) { // Solid on negative side in y direction
-      double diffyp = c - coords[el.idof[5]];
-      if (e) grad2 += pow(diffyp,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffyp / res2;
-        (*g)[el.idof[5]] -= factor * 2*diffyp / res2;
-      }
-    } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in y direction
-      double diffym = c - coords[el.idof[2]];
-      if (e) grad2 += pow(diffym,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffym / res2;
-        (*g)[el.idof[2]] -= factor * 2*diffym / res2;
-      }
+    double bfactorN = 0.5 * kappa[nFluid-1] * vol;
+    double gfactorN = 0.5 * kappaP[nFluid-1] * vol;
+    if (e) *e += bfactorN * pow(cN[0], 2) * pow(cN[0]-1, 2);
+    if (g) {
+      gN[0] += bfactorN * 2 * cN[0] * (cN[0]-1) * (2*cN[0]-1);
+      phaseGradient(cN, vec::iota(7), gfactorN, e, &gN);
+    } else {
+      phaseGradient(cN, vec::iota(7), gfactorN, e, nullptr);
     }
 
-    if ((el.idof[3]!=el.idof[0]) && (el.idof[4]!=el.idof[0])) { // No solid in z direction
-      double diffzm = c - coords[el.idof[3]];
-      double diffzp = c - coords[el.idof[4]];
-      if (e) grad2 += (pow(diffzm,2) + pow(diffzp,2)) / (2 * res2);
+    // All other fluids
+    for (int iFluid=0; iFluid<nFluid-1; iFluid++) {
+      vector<int> idof = el.idof + iFluid;
+
+      // Bulk energy
+      double c = coords[idof[0]];
+      double bfactor = 0.5 * kappa[iFluid] * vol;
+      if (e) *e += bfactor * pow(c, 2) * pow(c-1, 2);
+      if (g) (*g)[idof[0]] += bfactor * 2 * c * (c-1) * (2*c-1);
+
+      // Gradient energy
+      double gfactor = 0.5 * kappaP[iFluid] * vol;
+      gfactor = gfactor / pow(resolution, 2);
+      phaseGradient(coords, idof, gfactor, e, g);
+
+      // Contribution to Nth fluid
       if (g) {
-        (*g)[el.idof[0]] += factor * (diffzm + diffzp) / res2;
-        (*g)[el.idof[3]] -= factor * diffzm / res2;
-        (*g)[el.idof[4]] -= factor * diffzp / res2;
-      }
-    } else if (el.idof[4] != el.idof[0]) { // Solid on negative side in z direction
-      double diffzp = c - coords[el.idof[4]];
-      if (e) grad2 += pow(diffzp,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffzp / res2;
-        (*g)[el.idof[4]] -= factor * 2*diffzp / res2;
-      }
-    } else if (el.idof[3] != el.idof[0]) { // Solid on positive side in z direction
-      double diffzm = c - coords[el.idof[3]];
-      if (e) grad2 += pow(diffzm,2) / res2;
-      if (g) {
-        (*g)[el.idof[0]] += factor * 2*diffzm / res2;
-        (*g)[el.idof[3]] -= factor * 2*diffzm / res2;
+        for (int i=0; i<nNodes; i++) {
+          (*g)[idof[i]] -= gN[i];
+        }
       }
     }
-    if (e) *e += factor * grad2;
   }
 
 
@@ -407,98 +603,9 @@ namespace minim {
     // Gradient energy
     double res2 = pow(resolution, 2);
     factor = -0.25 * kappaP[iPair] * vol / res2; // kappaP = -4 lambda
-    std::vector<double> grad1(3);
-    std::vector<double> grad2(3);
-
-    if ((el.idof[2]!=el.idof[0]) && (el.idof[12]!=el.idof[0])) { // No solid in x direction
-      grad1[0] = coords[el.idof[12]] - coords[el.idof[2]];
-      grad2[0] = coords[el.idof[13]] - coords[el.idof[3]];
-      if (g) {
-        (*g)[el.idof[2]] -= factor * grad2[0];
-        (*g)[el.idof[3]] -= factor * grad1[0];
-        (*g)[el.idof[12]] += factor * grad2[0];
-        (*g)[el.idof[13]] += factor * grad1[0];
-      }
-    } else if (el.idof[12] != el.idof[0]) { // Solid on negative side in x direction
-      grad1[0] = coords[el.idof[12]] - c1;
-      grad2[0] = coords[el.idof[13]] - c2;
-      if (g) {
-        (*g)[el.idof[0]] -= factor * grad2[0];
-        (*g)[el.idof[1]] -= factor * grad1[0];
-        (*g)[el.idof[12]] += factor * grad2[0];
-        (*g)[el.idof[13]] += factor * grad1[0];
-      }
-    } else if (el.idof[2] != el.idof[0]) { // Solid on positive side in x direction
-      grad1[0] = c1 - coords[el.idof[2]];
-      grad2[0] = c2 - coords[el.idof[3]];
-      if (g) {
-        (*g)[el.idof[0]] += factor * grad2[0];
-        (*g)[el.idof[1]] += factor * grad1[0];
-        (*g)[el.idof[2]] -= factor * grad2[0];
-        (*g)[el.idof[3]] -= factor * grad1[0];
-      }
-    }
-
-    if ((el.idof[4]!=el.idof[0]) && (el.idof[10]!=el.idof[0])) { // No solid in y direction
-      grad1[1] = coords[el.idof[10]] - coords[el.idof[4]];
-      grad2[1] = coords[el.idof[11]] - coords[el.idof[5]];
-      if (g) {
-        (*g)[el.idof[4]] -= factor * grad2[1];
-        (*g)[el.idof[5]] -= factor * grad1[1];
-        (*g)[el.idof[10]] += factor * grad2[1];
-        (*g)[el.idof[11]] += factor * grad1[1];
-      }
-    } else if (el.idof[10] != el.idof[0]) { // Solid on negative side in y direction
-      grad1[1] = coords[el.idof[10]] - c1;
-      grad2[1] = coords[el.idof[11]] - c2;
-      if (g) {
-        (*g)[el.idof[0]] -= factor * grad2[1];
-        (*g)[el.idof[1]] -= factor * grad1[1];
-        (*g)[el.idof[10]] += factor * grad2[1];
-        (*g)[el.idof[11]] += factor * grad1[1];
-      }
-    } else if (el.idof[4] != el.idof[0]) { // Solid on positive side in y direction
-      grad1[1] = c1 - coords[el.idof[4]];
-      grad2[1] = c2 - coords[el.idof[5]];
-      if (g) {
-        (*g)[el.idof[0]] += factor * grad2[1];
-        (*g)[el.idof[1]] += factor * grad1[1];
-        (*g)[el.idof[4]] -= factor * grad2[1];
-        (*g)[el.idof[5]] -= factor * grad1[1];
-      }
-    }
-
-    if ((el.idof[6]!=el.idof[0]) && (el.idof[8]!=el.idof[0])) { // No solid in z direction
-      grad1[2] = coords[el.idof[8]] - coords[el.idof[6]];
-      grad2[2] = coords[el.idof[9]] - coords[el.idof[7]];
-      if (g) {
-        (*g)[el.idof[6]] -= factor * grad2[2];
-        (*g)[el.idof[7]] -= factor * grad1[2];
-        (*g)[el.idof[8]] += factor * grad2[2];
-        (*g)[el.idof[9]] += factor * grad1[2];
-      }
-    } else if (el.idof[8] != el.idof[0]) { // Solid on negative side in z direction
-      grad1[2] = coords[el.idof[8]] - c1;
-      grad2[2] = coords[el.idof[9]] - c2;
-      if (g) {
-        (*g)[el.idof[0]] -= factor * grad2[2];
-        (*g)[el.idof[1]] -= factor * grad1[2];
-        (*g)[el.idof[8]] += factor * grad2[2];
-        (*g)[el.idof[9]] += factor * grad1[2];
-      }
-    } else if (el.idof[6] != el.idof[0]) { // Solid on positive side in z direction
-      grad1[2] = c1 - coords[el.idof[6]];
-      grad2[2] = c2 - coords[el.idof[7]];
-      if (g) {
-        (*g)[el.idof[0]] += factor * grad2[2];
-        (*g)[el.idof[1]] += factor * grad1[2];
-        (*g)[el.idof[6]] -= factor * grad2[2];
-        (*g)[el.idof[7]] -= factor * grad1[2];
-      }
-    }
-
-    if (e) *e += factor * vec::dotProduct(grad1, grad2);
+    phaseGradient(coords, el.idof, factor, e, g);
   }
+
 
   void PhaseField::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
@@ -513,6 +620,7 @@ namespace minim {
      }
   }
 
+
   void PhaseField::surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // Solid surface energy
     // parameter[0]: Surface area
@@ -523,6 +631,7 @@ namespace minim {
       if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - 1) * el.parameters[0];
     }
   }
+
 
   void PhaseField::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // External force
@@ -545,6 +654,7 @@ namespace minim {
     }
   }
 
+
   void PhaseField::ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     // Confining potential for the frozen fluid method
     // Parameters:
@@ -560,14 +670,17 @@ namespace minim {
     }
   }
 
+
   void PhaseField::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
     switch (el.type) {
       case FLUID_ENERGY:
-        if (model == MODEL_BASIC) {
-          fluidEnergy(coords, el, e, g);
-        } else if (model == MODEL_NCOMP) {
-          fluidPairEnergy(coords, el, e, g);
-        }
+        fluidEnergy(coords, el, e, g);
+        break;
+      case FLUID_ENERGY_ALL:
+        fluidEnergyAll(coords, el, e, g);
+        break;
+      case FLUID_PAIR_ENERGY:
+        fluidPairEnergy(coords, el, e, g);
         break;
       case DENSITY_CONSTRAINT_ENERGY:
         densityConstraintEnergy(coords, el, e, g);
@@ -624,14 +737,16 @@ namespace minim {
   }
 
   PhaseField& PhaseField::setDensityConstraint(std::string method) {
-    if (method == "none") {
-      densityConstraint = 0;
-    } else if (vec::isIn({"gradient","hard"}, method)) {
-      densityConstraint = 1;
+    if (vec::isIn({"gradient","hard"}, method)) {
+      densityConstraint = DENSITY_HARD;
     } else if (vec::isIn({"energy penalty","soft"}, method)) {
-      densityConstraint = 2;
+      densityConstraint = DENSITY_SOFT;
+    } else if (method == "none") {
+      densityConstraint = DENSITY_NONE;
+    } else if (method == "fixed") {
+      densityConstraint = DENSITY_FIXED;
     } else {
-      throw std::invalid_argument("Invalid density constraint. Allowed methods are: none, gradient / hard, or energy penalty / soft");
+      throw std::invalid_argument("Invalid density constraint. Allowed methods are: fixed, none, gradient / hard, or energy penalty / soft");
     }
     return *this;
   }
