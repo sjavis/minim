@@ -93,18 +93,10 @@ namespace minim {
       enum{ MODEL_BASIC=0, MODEL_NCOMP=1 };
       int model = MODEL_BASIC;
 
-      enum{
-        FLUID_ENERGY = 0,
-        FLUID_ENERGY_ALL = 1,
-        FLUID_PAIR_ENERGY = 2,
-        DENSITY_CONSTRAINT_ENERGY = 3,
-        SURFACE_ENERGY = 4,
-        FORCE_ENERGY = 5,
-        FF_CONFINEMENT_ENERGY = 6,
-      };
       void fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void fluidEnergyAll(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void pressureEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
       void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;

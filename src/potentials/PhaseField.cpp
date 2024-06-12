@@ -20,6 +20,17 @@ namespace minim {
     DENSITY_FIXED = 3, // Use N-1 fluids, calculate Nth fluid concentration
   };
 
+  enum{
+    FLUID_ENERGY = 0,
+    FLUID_ENERGY_ALL = 1,
+    FLUID_PAIR_ENERGY = 2,
+    PRESSURE_ENERGY = 3,
+    DENSITY_CONSTRAINT_ENERGY = 4,
+    SURFACE_ENERGY = 5,
+    FORCE_ENERGY = 6,
+    FF_CONFINEMENT_ENERGY = 7,
+  };
+
 
   std::array<int,3> getCoord(int i, std::array<int,3> gridSize) {
     int z = i % gridSize[2];
@@ -181,6 +192,13 @@ namespace minim {
         }
       }
 
+      // Pressure elements
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (pressure[iFluid]==0) continue;
+        int iDof = iGrid*nFluid + iFluid;
+        elements.push_back({PRESSURE_ENERGY, {iDof}});
+      }
+
       // Set soft density constraint elements
       if (nFluid>1 && densityConstraint==DENSITY_SOFT) {
         vector<int> idofs = vector<int>(nFluid);
@@ -245,7 +263,7 @@ namespace minim {
       throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
     }
     // Store only the relevant node volumes and fluid numbers
-    // These are required by pressure / volume constraints so cannot be stored in element parameters
+    // These are required by volume constraint so cannot be stored in element parameters
     vector<double> nodeVolTmp(nGrid * nFluid);
     vector<double> fluidTypeTmp(nGrid * nFluid);
     for (int iNode=0; iNode<nGrid; iNode++) {
@@ -261,9 +279,10 @@ namespace minim {
 
 
   void PhaseField::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
-    // Constant volume / pressure constraints rely upon the whole system
-    if (!volumeFixed && !vec::any(pressure)) return;
-    double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
+    // Constant volume constraint relies upon the whole system
+    if (!volumeFixed) return;
+
+    // Get the fluid volumes
     vector<double> volFluid(nFluid, 0);
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
       if (nFluid == 1) {
@@ -272,34 +291,18 @@ namespace minim {
         volFluid[fluidType[iDof]] += coords[iDof] * nodeVol[iDof];
       }
     }
-    for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (!volumeFixed && pressure[iFluid]==0) continue;
-      if (fixFluid[iFluid]) {
-        volFluid[iFluid] = volume[iFluid];
-      } else {
-        volFluid[iFluid] = comm.sum(volFluid[iFluid]);
-      }
-      if (e) {
-        if (volumeFixed) *e += volCoef * pow(volFluid[iFluid] - volume[iFluid], 2) / comm.size();
-        if (pressure[iFluid]!=0) *e -= pressure[iFluid] * volFluid[iFluid] / comm.size();
-      }
-    }
+    for (double &vol : volFluid) vol = comm.sum(vol);
 
-    if (!g) return;
-    if (volumeFixed) {
-      vector<double> vFactor = volCoef * (volFluid - volume);
-      for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
-        int f = fluidType[iDof];
-        double c = coords[iDof];
-        double interfaceWeight = std::max(0.0, 4*c*(1-c)); // Only apply the force to the interface nodes
-        (*g)[iDof] += vFactor[f] * nodeVol[iDof] * interfaceWeight;
-      }
-    }
-    if (vec::any(pressure)) {
-      vector<double> pFactor = (nFluid==1) ? -0.5*pressure : -pressure;
-      for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
-        int f = fluidType[iDof];
-        if (pressure[f]!=0) (*g)[iDof] += pFactor[f] * nodeVol[iDof];
+    // Compute the energy and gradient
+    double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      double volDiff = volFluid[iFluid] - volume[iFluid];
+      if (e) *e += volCoef * pow(volDiff, 2) / comm.size();
+      if (!g) continue;
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+        int iDof = iGrid*nFluid + iFluid;
+        double interfaceWeight = std::max(0.0, 4*coords[iDof]*(1-coords[iDof])); // Only apply the force to the interface nodes
+        (*g)[iDof] += volCoef * volDiff * nodeVol[iDof] * interfaceWeight;
       }
     }
   }
@@ -607,6 +610,24 @@ namespace minim {
   }
 
 
+  void PhaseField::pressureEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
+    // Constant volume / pressure constraints rely upon the whole system
+    int iDof = el.idof[0];
+    int iFluid = fluidType[iDof];
+
+    if (nFluid == 1) {
+      double volume = 0.5*(coords[iDof]+1) * nodeVol[iDof];
+      if (e) *e -= pressure[iFluid] * volume;
+      if (g) (*g)[iDof] -= 0.5 * pressure[iFluid] * nodeVol[iDof];
+
+    } else {
+      double volume = coords[iDof] * nodeVol[iDof];
+      if (e) *e -= pressure[iFluid] * volume;
+      if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iDof];
+    }
+  }
+
+
   void PhaseField::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
      // Total density soft constraint
      if (nFluid == 1) return;
@@ -681,6 +702,9 @@ namespace minim {
         break;
       case FLUID_PAIR_ENERGY:
         fluidPairEnergy(coords, el, e, g);
+        break;
+      case PRESSURE_ENERGY:
+        pressureEnergy(coords, el, e, g);
         break;
       case DENSITY_CONSTRAINT_ENERGY:
         densityConstraintEnergy(coords, el, e, g);
