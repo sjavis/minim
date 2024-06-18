@@ -63,9 +63,9 @@ namespace minim {
       PhaseField& setFixFluid(int iFluid, bool fix=true);
       PhaseField& setConfinement(vector<double> strength);
 
-      vector<double> diffuseSolid(vector<bool> solid, int iFluid=0);
-      static vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0);
-      static vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0);
+      vector<double> diffuseSolid(vector<bool> solid, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
       // Overrides
       void init(const vector<double>& coords) override;

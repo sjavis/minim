@@ -954,18 +954,18 @@ namespace minim {
   }
 
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, int iFluid) {
-    return diffuseSolid(solid, *this, iFluid);
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, int iFluid, bool twoStep) {
+    return diffuseSolid(solid, *this, iFluid, twoStep);
   }
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid) {
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid, bool twoStep) {
     PhaseField potential;
     potential.setNFluid(nFluid);
     potential.setGridSize(gridSize);
-    return diffuseSolid(solid, potential, iFluid);
+    return diffuseSolid(solid, potential, iFluid, twoStep);
   }
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid) {
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid, bool twoStep) {
     vector<double> confinement(potential.nFluid);
     confinement[iFluid] = 100;
     potential.setConfinement(confinement);
@@ -984,6 +984,12 @@ namespace minim {
     min.setLinesearch("none");
     min.setMaxIter(100);
     auto minimum = min.minimise(state);
+
+    if (twoStep) {
+      state = State(potential, minimum);
+      minimum = min.minimise(state);
+    }
+
     return minimum;
   }
 
