@@ -24,6 +24,7 @@ namespace minim {
       PhaseField& setResolution(double resolution);
 
       // Fluid interfaces
+      // Order: 1-2, 1-3, ..., 1-N, 2-3 (continue to (N-1)-N for N-comp)
       vector<double> interfaceSize;
       vector<double> surfaceTension = {1};
       PhaseField& setInterfaceSize(double interfaceSize);
