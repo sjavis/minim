@@ -307,8 +307,16 @@ namespace vec {
   // Create a vector with an incremented value
   template<typename T, typename T1, typename T2>
   vector<T> arange(T1 start, T2 stop, T step, bool inclusive) {
-    int n = ceil((float)(stop - start) / step);
-    if (inclusive && fmod(stop-start,step)==0) n++;
+    // Get number of values in array
+    float nFloat = (float)(stop - start) / step;
+    int n;
+    if (fmod(nFloat,1)==0) {
+      n = (int)nFloat; // Ensure that nFloat rounds correctly if is an integer with machine error
+      if (inclusive) n++;
+    } else {
+      n = ceil(nFloat);
+    }
+    // Create array
     vector<T> vec(n);
     T value = start;
     for (int i=0; i<n; i++) {
