@@ -27,11 +27,13 @@ namespace minim {
       vector<int> nrecv;  // Number of halo coordinates to recieve from each proc
       vector<int> irecv;  // Starting indicies for each proc in halo
       vector<bool> send;  // States if data is to be sent to each proc
+      vector<bool> recv;  // States if data is to be received from each proc
       vector2d<int> recv_lists; // List of indicies to recieve from each proc
       vector2d<int> send_lists; // List of block indicies to send to each other proc
   #ifdef PARALLEL
       MPI_Comm comm;
       vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
+      vector<MPI_Datatype> recvtype; // MPI derived datatype to recieve from each proc
   #endif
 
 
@@ -206,12 +208,14 @@ namespace minim {
         pot.distributed = true;
       }
 
-      // Make the MPI datatypes to send to each proc
-      void setSendType() {
+      // Make the MPI datatypes to send and receive from each proc
+      void makeMPITypes() {
         if (commSize <= 1) return;
         send = vector<bool>(commSize);
+        recv = vector<bool>(commSize);
 #ifdef PARALLEL
         sendtype = vector<MPI_Datatype>(commSize);
+        recvtype = vector<MPI_Datatype>(commSize);
 #endif
         for (int i=0; i<commSize; i++) {
           if (send_lists[i].empty()) continue;
@@ -231,6 +235,14 @@ namespace minim {
           //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
           MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendtype[i]);
           MPI_Type_commit(&sendtype[i]);
+#endif
+        }
+        for (int i=0; i<commSize; i++) {
+          if (nrecv[i] == 0) continue;
+          recv[i] = true;
+#ifdef PARALLEL
+          MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, &recvtype[i]);
+          MPI_Type_commit(&recvtype[i]);
 #endif
         }
       }
@@ -280,7 +292,7 @@ namespace minim {
         checkWellDistributed(ndof, pot, blocks, in_block);
 
         distributeElements(pot, blocks, in_block);
-        setSendType();
+        makeMPITypes();
       }
   };
 
@@ -294,7 +306,7 @@ namespace minim {
     : ndof(comm.ndof), nproc(comm.nproc), nblock(comm.nblock), iblock(comm.iblock),
       usesThisProc(comm.usesThisProc), ranks(comm.ranks), p(std::make_unique<Priv>(*comm.p))
   {
-    if (usesThisProc) p->setSendType();
+    if (usesThisProc) p->makeMPITypes();
   }
 
 
@@ -306,7 +318,7 @@ namespace minim {
     usesThisProc = comm.usesThisProc;
     ranks = comm.ranks;
     p = std::make_unique<Priv>(*comm.p);
-    if (usesThisProc) p->setSendType();
+    if (usesThisProc) p->makeMPITypes();
     return *this;
   }
 
@@ -316,9 +328,8 @@ namespace minim {
     if (p->commSize <= 1) return;
     // Free any committed MPI datatypes
     for (int i=0; i<p->commSize; i++) {
-      if (p->send[i]) {
-        MPI_Type_free(&p->sendtype[i]);
-      }
+      if (p->send[i]) MPI_Type_free(&p->sendtype[i]);
+      if (p->recv[i]) MPI_Type_free(&p->recvtype[i]);
     }
   #endif
   }
@@ -407,26 +418,24 @@ namespace minim {
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc || p->commSize==1) return;
   #ifdef PARALLEL
-    MPI_Request requests[p->commSize];
+    MPI_Request requests[2*p->commSize];
     for (int i=0; i<p->commSize; i++) {
       // Send
       if (p->send[i]) {
         int tag = p->commRank*p->commSize + i;
-        MPI_Isend(&vector[0], 1, p->sendtype[i], i, tag, p->comm, &requests[i]);
+        MPI_Isend(&vector[0], 1, p->sendtype[i], i, tag, p->comm, &requests[2*i]);
       } else {
-        requests[i] = MPI_REQUEST_NULL;
+        requests[2*i] = MPI_REQUEST_NULL;
       }
-    }
-    for (int i=0; i<p->commSize; i++) {
-      if (i == p->commRank) continue;
       // Receive
-      if (p->nrecv[i] > 0) {
+      if (p->recv[i]) {
         int tag = i*p->commSize + p->commRank;
-        int irecv = std::accumulate(p->nrecv.begin(), p->nrecv.begin()+i, nblock);
-        MPI_Recv(&vector[irecv], p->nrecv[i], MPI_DOUBLE, i, tag, p->comm, nullptr);
+        MPI_Irecv(&vector[0], 1, p->recvtype[i], i, tag, p->comm, &requests[2*i+1]);
+      } else {
+        requests[2*i+1] = MPI_REQUEST_NULL;
       }
     }
-    MPI_Waitall(p->commSize, requests, MPI_STATUSES_IGNORE);
+    MPI_Waitall(2*p->commSize, requests, MPI_STATUSES_IGNORE);
   #endif
   }
 
