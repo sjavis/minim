@@ -30,11 +30,13 @@ namespace minim {
       vector<bool> recv;  // States if data is to be received from each proc
       vector2d<int> recv_lists; // List of indicies to recieve from each proc
       vector2d<int> send_lists; // List of block indicies to send to each other proc
-  #ifdef PARALLEL
+      #ifdef PARALLEL
       MPI_Comm comm;
       vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
       vector<MPI_Datatype> recvtype; // MPI derived datatype to recieve from each proc
-  #endif
+      MPI_Datatype blockType;        // MPI derived datatype to send the local block
+      MPI_Datatype gatherType;       // MPI derived datatype to receive the blocks for gathering
+      #endif
 
 
       int getBlock(int loc) {
@@ -211,12 +213,15 @@ namespace minim {
       // Make the MPI datatypes to send and receive from each proc
       void makeMPITypes() {
         if (commSize <= 1) return;
+
+        // Send and receive types
         send = vector<bool>(commSize);
         recv = vector<bool>(commSize);
-#ifdef PARALLEL
+        #ifdef PARALLEL
         sendtype = vector<MPI_Datatype>(commSize);
         recvtype = vector<MPI_Datatype>(commSize);
-#endif
+        #endif
+        // Send
         for (int i=0; i<commSize; i++) {
           if (send_lists[i].empty()) continue;
           send[i] = true;
@@ -231,20 +236,32 @@ namespace minim {
             previous = current;
           }
           blocklens.push_back(send_lists[i].back() + 1 - disps.back());
-#ifdef PARALLEL
+          #ifdef PARALLEL
           //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
           MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendtype[i]);
           MPI_Type_commit(&sendtype[i]);
-#endif
+          #endif
         }
+        // Receive
         for (int i=0; i<commSize; i++) {
           if (nrecv[i] == 0) continue;
           recv[i] = true;
-#ifdef PARALLEL
+          #ifdef PARALLEL
           MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, &recvtype[i]);
           MPI_Type_commit(&recvtype[i]);
-#endif
+          #endif
         }
+
+        // Types for gather
+        #ifdef PARALLEL
+        // Local block type for sending
+        MPI_Type_contiguous(nblocks[commRank], MPI_DOUBLE, &blockType);
+        MPI_Type_commit(&blockType);
+        // Gather type for receiving
+        nGather = nblocks;
+        MPI_Type_contiguous(1, MPI_DOUBLE, &gatherType);
+        MPI_Type_commit(&gatherType);
+        #endif
       }
 
 
@@ -331,6 +348,8 @@ namespace minim {
       if (p->send[i]) MPI_Type_free(&p->sendtype[i]);
       if (p->recv[i]) MPI_Type_free(&p->recvtype[i]);
     }
+    MPI_Type_free(&p->blockType);
+    MPI_Type_free(&p->gatherType);
   #endif
   }
 
@@ -359,7 +378,7 @@ namespace minim {
     p->setup(pot, ndof, ranks);
     if (usesThisProc) {
       nblock = p->nblocks[p->commRank];
-      nproc = p->irecv[p->commSize-1] + p->nrecv[p->commSize-1];
+      nproc = nblock + vec::sum(p->nrecv);
       iblock = p->iblocks[p->commRank];
     }
   }
@@ -380,7 +399,7 @@ namespace minim {
     if (p->commSize == 1) return in;
 
     vector<T> out(nblock);
-    int i0 = (in.size() == ndof) ? iblock : 0;
+    int i0 = (in.size() == ndof) ? iblock : 0; // Potential issue here if in.size() == nproc == ndof
     for (size_t i=0; i<nblock; i++) {
       out[i] = in[i0+i];
     }
@@ -444,9 +463,9 @@ namespace minim {
     if (!usesThisProc) return 0;
   #ifdef PARALLEL
     if (p->commSize > 1) {
-      int i = p->getBlock(loc);
-      double value = vector[loc - p->iblocks[i]];
-      MPI_Bcast(&value, 1, MPI_DOUBLE, i, p->comm);
+      int root = p->getBlock(loc);
+      double value = vector[loc - p->iblocks[root]];
+      MPI_Bcast(&value, 1, MPI_DOUBLE, root, p->comm);
       return value;
     }
   #endif
@@ -483,25 +502,27 @@ namespace minim {
 
   vector<double> Communicator::gather(const vector<double>& block, int root) const {
     if (!usesThisProc) return vector<double>();
+    if (p->commSize == 1) return block;
 
   #ifdef PARALLEL
-    if (p->commSize > 1) {
-      vector<double> gathered;
-      if (root == -1) {
-        gathered = vector<double>(ndof);
-        MPI_Allgatherv(&block[0], nblock, MPI_DOUBLE,
-                       &gathered[0], &p->nblocks[0], &p->iblocks[0], MPI_DOUBLE,
-                       p->comm);
-      } else {
-        if (p->commRank==root) gathered = vector<double>(ndof);
-        MPI_Gatherv(&block[0], nblock, MPI_DOUBLE,
-                    &gathered[0], &p->nblocks[0], &p->iblocks[0], MPI_DOUBLE, root,
-                    p->comm);
+    vector<double> gathered;
+    if (root == -1) {
+      gathered = vector<double>(ndof);
+      MPI_Allgatherv(&block[0], 1, p->blockType,
+                     &gathered[0], &nGather, &p->iblocks[0], &p->gatherType,
+                     p->comm);
+    } else {
+      if (p->commRank==root) gathered = vector<double>(ndof);
+      MPI_gatherv(&block[0], 1, p->blockType,
+                  &gathered[0], &nGather, &p->iblocks[0], &p->gatherType, root,
+                  p->comm);
       }
-      return gathered;
     }
-  #endif
+    return gathered;
+
+  #else
     return block;
+  #endif
   }
 
 
