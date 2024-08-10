@@ -38,7 +38,7 @@ namespace minim {
       ~State() {};
 
       // Parallel functions
-      Communicator comm;
+      std::unique_ptr<Communicator> comm;
       bool usesThisProc = true;
 
       vector<double> blockCoords() const;

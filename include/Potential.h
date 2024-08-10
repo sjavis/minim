@@ -4,10 +4,10 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include "Communicator.h"
 
 namespace minim {
   class State;
-  class Communicator;
 
   using std::vector;
   template<typename T> using vector2d = vector<vector<T>>;
@@ -79,6 +79,8 @@ namespace minim {
 
       bool isFixed(int index) const;
       vector<bool> isFixed(const vector<int>& indicies) const;
+
+      using CommType = CommUnstructured;
 
       // Copy / destruct
       ~Potential() {};

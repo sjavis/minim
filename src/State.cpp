@@ -9,15 +9,15 @@ namespace minim {
 
 
   State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
-    : ndof(coords.size()), pot(pot.clone())
+    : ndof(coords.size()), pot(pot.clone()), comm(std::make_unique<pot.CommType>())
   {
     if (this->pot->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
     // Initialise the potential
     this->pot->init(coords);
     this->convergence = this->pot->convergence;
     // Set-up the communicator & distribute the potential
-    this->comm.setup(*this->pot, ndof, ranks);
-    this->usesThisProc = comm.usesThisProc;
+    this->comm->setup(*this->pot, ndof, ranks);
+    this->usesThisProc = comm->usesThisProc;
     this->pot->distributeParameters(comm);
     // Initial
     this->coords(coords);
@@ -125,9 +125,9 @@ namespace minim {
     double e;
 
     if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
       parallelEnergyGradient(*pot, blockCoords, &e, nullptr, comm);
-      return comm.sum(e);
+      return comm->sum(e);
 
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, &e, nullptr);
@@ -143,9 +143,9 @@ namespace minim {
     vector<double> g;
 
     if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
       parallelEnergyGradient(*pot, blockCoords, nullptr, &g, comm);
-      return comm.gather(g);
+      return comm->gather(g);
 
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, nullptr, &g);
@@ -160,10 +160,10 @@ namespace minim {
     if (!usesThisProc) return;
 
     if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm.scatter(coords) : coords;
+      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
       parallelEnergyGradient(*pot, blockCoords, e, g, comm);
-      if (e != nullptr) *e = comm.sum(*e);
-      if (g != nullptr) *g = comm.gather(*g);
+      if (e != nullptr) *e = comm->sum(*e);
+      if (g != nullptr) *g = comm->gather(*g);
 
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, e, g);
@@ -183,7 +183,7 @@ namespace minim {
       parallelEnergyGradient(*pot, coords, &e, nullptr, comm);
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, &e, nullptr);
-      if (comm.rank() != 0) e = 0;
+      if (comm->rank() != 0) e = 0;
     } else {
       throw std::logic_error("Energy function not defined");
     }
@@ -212,7 +212,7 @@ namespace minim {
 
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, e, g);
-      if (e && comm.rank() != 0) *e = 0;
+      if (e && comm->rank() != 0) *e = 0;
 
     } else {
       throw std::logic_error("Energy and/or gradient function not defined");
@@ -229,48 +229,48 @@ namespace minim {
   vector<double> State::procGradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
     vector<double> g = blockGradient(coords);
-    if (pot->parallelDef()) comm.communicate(g);
+    if (pot->parallelDef()) comm->communicate(g);
     return g;
   }
 
   void State::procEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     blockEnergyGradient(coords, e, g);
-    if (pot->parallelDef()) comm.communicate(*g);
+    if (pot->parallelDef()) comm->communicate(*g);
   }
 
 
   // Get energy / gradient on all procs, including those not used in the state
   double State::allEnergy() const {
     double e = energy();
-    mpi.bcast(e, comm.ranks[0]);
+    mpi.bcast(e, comm->ranks[0]);
     return e;
   }
 
   vector<double> State::allGradient() const {
     vector<double> g = gradient();
-    mpi.bcast(g, comm.ranks[0]);
+    mpi.bcast(g, comm->ranks[0]);
     return g;
   }
 
   void State::allEnergyGradient(double* e, vector<double>* g) const {
     energyGradient(e, g);
-    mpi.bcast(*e, comm.ranks[0]);
-    mpi.bcast(*g, comm.ranks[0]);
+    mpi.bcast(*e, comm->ranks[0]);
+    mpi.bcast(*g, comm->ranks[0]);
   }
 
 
   double State::operator[](int i) {
-    return comm.get(_coords, i);
+    return comm->get(_coords, i);
   }
 
 
   vector<double> State::coords() const {
-    return comm.gather(_coords, -1);
+    return comm->gather(_coords, -1);
   }
 
   void State::coords(const vector<double>& in) {
-    _coords = comm.scatter(in, -1);
+    _coords = comm->scatter(in, -1);
   }
 
 
@@ -284,8 +284,8 @@ namespace minim {
 
 
   vector<double> State::allCoords() const {
-    vector<double> coords = comm.gather(_coords, 0);
-    mpi.bcast(coords, comm.ranks[0], ndof);
+    vector<double> coords = comm->gather(_coords, 0);
+    mpi.bcast(coords, comm->ranks[0], ndof);
     return coords;
   }
 
@@ -300,7 +300,7 @@ namespace minim {
 
 
   void State::communicate() {
-    comm.communicate(_coords);
+    comm->communicate(_coords);
   }
 
 
