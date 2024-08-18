@@ -27,16 +27,31 @@ namespace minim {
 
   template <typename T, typename ... Args>
   void printAll(T first, Args ... args) {
-    std::cout << first << " ";
-    printAll(args...);
+    std::cout << "[Rank " << mpi.rank << "/" << mpi.size << "] " << first << " ";
+    printAllPlain(args...);
   }
 
   template <typename T, typename ... Args>
   void printAll(std::vector<T> first, Args ... args) {
+    std::cout << "[Rank " << mpi.rank << "/" << mpi.size << "] ";
     for (auto elem : first) {
       std::cout << elem << " ";
     }
-    printAll(args...);
+    printAllPlain(args...);
+  }
+
+  template <typename T, typename ... Args>
+  void printAllPlain(T first, Args ... args) {
+    std::cout << first << " ";
+    printAllPlain(args...);
+  }
+
+  template <typename T, typename ... Args>
+  void printAllPlain(std::vector<T> first, Args ... args) {
+    for (auto elem : first) {
+      std::cout << elem << " ";
+    }
+    printAllPlain(args...);
   }
 
 }

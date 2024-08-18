@@ -17,6 +17,12 @@ namespace minim {
   template <typename T, typename ... Args>
   void printAll(std::vector<T> first, Args ... args);
 
+  void printAllPlain();
+  template <typename T, typename ... Args>
+  void printAllPlain(T first, Args ... args);
+  template <typename T, typename ... Args>
+  void printAllPlain(std::vector<T> first, Args ... args);
+
 }
 
 #include "print.hpp"

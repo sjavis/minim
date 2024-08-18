@@ -13,6 +13,10 @@ namespace minim {
   }
 
   void printAll() {
+    std::cout << "[Rank " << mpi.rank << "/" << mpi.size << "]" << std::endl;
+  }
+
+  void printAllPlain() {
     std::cout << std::endl;
   }
 
