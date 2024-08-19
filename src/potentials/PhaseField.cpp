@@ -8,7 +8,6 @@
 #include "minimisers/Lbfgs.h"
 
 
-#include "utils/print.h"
 namespace minim {
   using std::vector;
   template<typename T> using vector2d = vector<vector<T>>;

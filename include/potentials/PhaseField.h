@@ -13,7 +13,6 @@ namespace minim {
   class PhaseField : public NewPotential<PhaseField> {
     public:
       PhaseField() { _parallelDef = true; };
-      ~PhaseField() {};
 
       // System size
       int nFluid = 1;

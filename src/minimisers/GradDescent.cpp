@@ -31,7 +31,7 @@ namespace minim {
 
     // Perform linesearch
     if (linesearch == "backtracking") {
-      double gs = state.comm.dotProduct(_g, step);
+      double gs = state.comm->dotProduct(_g, step);
       backtrackingLinesearch(state, step, gs);
     } else {
       state.blockCoords(state.blockCoords() + step); // The step is correct on the halo, so no need to communicate the coords
@@ -40,7 +40,7 @@ namespace minim {
 
 
   bool GradDescent::checkConvergence(const State& state) {
-    double sum = state.comm.dotProduct(_g, _g);
+    double sum = state.comm->dotProduct(_g, _g);
     double rms = sqrt(sum/state.ndof);
     return (rms < state.convergence);
   }

@@ -42,7 +42,7 @@ namespace minim {
     _sinceAccepted = 0;
     _currentState = state.blockCoords();
     _currentE = state.energy();
-    srand(time(0)+state.comm.rank()); // Set a different random seed on all processors
+    srand(time(0)+state.comm->rank()); // Set a different random seed on all processors
   }
 
 
@@ -54,8 +54,8 @@ namespace minim {
     }
 
     // Randomly perturb state
-    std::vector<double> newState(state.comm.nproc);
-    for (size_t i=0; i<state.comm.nblock; i++) {
+    std::vector<double> newState(state.comm->nproc);
+    for (size_t i=0; i<state.comm->nblock; i++) {
       double random = 2 * ((double) rand() / RAND_MAX) - 1;
       newState[i] = _currentState[i] + random*displacement;
     }

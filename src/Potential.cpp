@@ -1,6 +1,7 @@
 #include "Potential.h"
 
 #include "State.h"
+#include "communicators/CommUnstructured.h"
 #include "utils/vec.h"
 #include <stdexcept>
 
@@ -178,6 +179,11 @@ namespace minim {
       if (vec::isIn(iFixed, indicies[i])) fixed[i] = true;
     }
     return fixed;
+  }
+
+
+  std::unique_ptr<Communicator> Potential::newComm() const {
+    return std::make_unique<CommUnstructured>();
   }
 
 

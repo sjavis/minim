@@ -9,9 +9,6 @@ namespace minim {
   // Gradient desecent minimisation
   class GradDescent : public NewMinimiser<GradDescent> {
     public:
-      GradDescent() {};
-      ~GradDescent() {};
-
       GradDescent& setAlpha(double alpha);
       GradDescent& setMaxIter(int maxIter);
 

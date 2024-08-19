@@ -18,7 +18,6 @@ namespace minim {
 
       LjNd(int nDim) : nDim(nDim) { _parallelDef = true; };
       LjNd(int nDim, double sigma, double epsilon);
-      ~LjNd() {};
 
       void init(const vector<double>& coords) override;
 

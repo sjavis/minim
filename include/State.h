@@ -16,8 +16,15 @@ namespace minim {
       size_t ndof;
       double convergence;
       std::unique_ptr<Potential> pot;
+      std::unique_ptr<Communicator> comm;
+      bool usesThisProc = true;
+
 
       State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks={});
+
+      // Copy constructor / assignment
+      State(const State& state);
+      State& operator=(const State& state);
 
       // Energy / Gradient
       double energy() const;
@@ -32,15 +39,7 @@ namespace minim {
       vector<double> coords() const;
       void coords(const vector<double>& in);
 
-      // Copy constructor / destructor
-      State(const State& state);
-      State& operator=(const State& state);
-      ~State() {};
-
       // Parallel functions
-      std::unique_ptr<Communicator> comm;
-      bool usesThisProc = true;
-
       vector<double> blockCoords() const;
       void blockCoords(const vector<double>& in);
 

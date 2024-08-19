@@ -42,9 +42,9 @@ namespace minim {
     }
 
     // Find minimisation direction
-    vector<double> step = getDirection(state.comm);
+    vector<double> step = getDirection(*state.comm);
     // Ensure it is going downhill
-    double gs = state.comm.dotProduct(_g, step);
+    double gs = state.comm->dotProduct(_g, step);
     if (gs > 0) {
       gs = -gs;
       step = -step;
@@ -63,7 +63,7 @@ namespace minim {
     // Store the changes required for LBFGS
     auto s = step;
     auto y = gNew - _g;
-    double sy = state.comm.dotProduct(s, y);
+    double sy = state.comm->dotProduct(s, y);
     if (sy != 0) {
       int i_cycle = _i % _m;
       _s[i_cycle] = s;
@@ -123,7 +123,7 @@ namespace minim {
 
   bool Lbfgs::checkConvergence(const State& state) {
     if (state.isFailed) return true;
-    double rms = sqrt(state.comm.dotProduct(_g, _g) / state.ndof);
+    double rms = sqrt(state.comm->dotProduct(_g, _g) / state.ndof);
     return (rms < state.convergence);
   }
 

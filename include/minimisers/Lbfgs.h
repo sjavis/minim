@@ -21,9 +21,6 @@ namespace minim {
   //! LBFGS minimisation algorithm
   class Lbfgs : public NewMinimiser<Lbfgs> {
     public:
-      Lbfgs() {};
-      ~Lbfgs() {};
-
       Lbfgs& setM(int m);
       Lbfgs& setMaxIter(int maxIter);
       Lbfgs& setMaxStep(double maxStep);

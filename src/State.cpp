@@ -9,17 +9,18 @@ namespace minim {
 
 
   State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
-    : ndof(coords.size()), pot(pot.clone()), comm(std::make_unique<pot.CommType>())
+    : ndof(coords.size()), pot(pot.clone())
   {
     if (this->pot->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
     // Initialise the potential
     this->pot->init(coords);
     this->convergence = this->pot->convergence;
     // Set-up the communicator & distribute the potential
+    this->comm = this->pot->newComm();
     this->comm->setup(*this->pot, ndof, ranks);
     this->usesThisProc = comm->usesThisProc;
-    this->pot->distributeParameters(comm);
-    // Initial
+    this->pot->distributeParameters(*comm);
+    // Initialise the coords
     this->coords(coords);
   }
 
@@ -27,7 +28,7 @@ namespace minim {
     : ndof(state.ndof),
       convergence(state.convergence),
       pot(state.pot->clone()),
-      comm(state.comm),
+      comm(state.comm->clone()),
       usesThisProc(state.usesThisProc),
       _coords(state._coords)
   {}
@@ -36,7 +37,7 @@ namespace minim {
     ndof = state.ndof;
     convergence = state.convergence;
     pot = state.pot->clone();
-    comm = state.comm;
+    comm = state.comm->clone();
     usesThisProc = state.usesThisProc;
     _coords = state._coords;
     return *this;
@@ -126,7 +127,7 @@ namespace minim {
 
     if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, &e, nullptr, comm);
+      parallelEnergyGradient(*pot, blockCoords, &e, nullptr, *comm);
       return comm->sum(e);
 
     } else if (pot->serialDef()) {
@@ -144,7 +145,7 @@ namespace minim {
 
     if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, nullptr, &g, comm);
+      parallelEnergyGradient(*pot, blockCoords, nullptr, &g, *comm);
       return comm->gather(g);
 
     } else if (pot->serialDef()) {
@@ -161,7 +162,7 @@ namespace minim {
 
     if (pot->parallelDef()) {
       vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, e, g, comm);
+      parallelEnergyGradient(*pot, blockCoords, e, g, *comm);
       if (e != nullptr) *e = comm->sum(*e);
       if (g != nullptr) *g = comm->gather(*g);
 
@@ -180,7 +181,7 @@ namespace minim {
 
     double e;
     if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, &e, nullptr, comm);
+      parallelEnergyGradient(*pot, coords, &e, nullptr, *comm);
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, &e, nullptr);
       if (comm->rank() != 0) e = 0;
@@ -195,7 +196,7 @@ namespace minim {
 
     vector<double> g;
     if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, nullptr, &g, comm);
+      parallelEnergyGradient(*pot, coords, nullptr, &g, *comm);
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, nullptr, &g);
     } else {
@@ -208,7 +209,7 @@ namespace minim {
     if (!usesThisProc) return;
 
     if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, e, g, comm);
+      parallelEnergyGradient(*pot, coords, e, g, *comm);
 
     } else if (pot->serialDef()) {
       serialEnergyGradient(*pot, coords, e, g);

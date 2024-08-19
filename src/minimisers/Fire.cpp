@@ -25,10 +25,10 @@ namespace minim {
 
 
   void Fire::init(State& state) {
-    _v = std::vector<double>(state.comm.nproc);
+    _v = std::vector<double>(state.comm->nproc);
     if (dtMax != 0) return;
     _g = state.procGradient();
-    _gNorm = sqrt(state.comm.dotProduct(_g, _g));
+    _gNorm = sqrt(state.comm->dotProduct(_g, _g));
     if (_gNorm!=0) {
       dtMax = 0.1 / sqrt(_gNorm);
     } else {
@@ -42,13 +42,13 @@ namespace minim {
     if (iter == 0) {
       _dt = dtMax;
       _g = state.procGradient();
-      _gNorm = sqrt(state.comm.dotProduct(_g, _g));
+      _gNorm = sqrt(state.comm->dotProduct(_g, _g));
     }
-    double p = - state.comm.dotProduct(_v, _g);
+    double p = - state.comm->dotProduct(_v, _g);
 
     // Update velocity
     if (p > 0) {
-      double vNorm = sqrt(state.comm.dotProduct(_v, _v));
+      double vNorm = sqrt(state.comm->dotProduct(_v, _v));
       _v = (1-_a)*_v - (_a*vNorm/_gNorm + _dt)*_g;
       _nSteps++;
     } else {
@@ -71,7 +71,7 @@ namespace minim {
 
     // Perform linesearch (if set)
     if (linesearch == "backtracking") {
-      double gs = state.comm.dotProduct(_g, step);
+      double gs = state.comm->dotProduct(_g, step);
       backtrackingLinesearch(state, step, gs);
     } else {
       state.blockCoords(state.blockCoords() + step);
@@ -79,7 +79,7 @@ namespace minim {
 
     // Update gradient
     _g = state.procGradient();
-    _gNorm = sqrt(state.comm.dotProduct(_g, _g));
+    _gNorm = sqrt(state.comm->dotProduct(_g, _g));
   }
 
 

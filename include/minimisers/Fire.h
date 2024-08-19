@@ -8,9 +8,8 @@ namespace minim {
 
   class Fire : public NewMinimiser<Fire> {
     public:
-      Fire() : Fire({}) {};
+      Fire() = default;
       Fire(double dtMax);
-      ~Fire() {};
 
       double dtMax = 0;
 

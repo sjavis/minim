@@ -18,8 +18,7 @@ namespace minim {
       typedef void (*AdjustFunc)(int, State&);
       int iter;
 
-      Minimiser() {};
-      virtual ~Minimiser() {};
+      virtual ~Minimiser() = default;
       virtual std::unique_ptr<Minimiser> clone() const = 0;
 
       virtual Minimiser& setMaxIter(int maxIter);

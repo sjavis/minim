@@ -28,7 +28,6 @@ namespace minim {
       Anneal& setMaxRejections(int maxRejections);
 
       // Other functions
-      ~Anneal() {};
       void init(State& state);
       void iteration(State& state);
       bool checkConvergence(const State& state) override;

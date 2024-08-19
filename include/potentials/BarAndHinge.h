@@ -12,7 +12,6 @@ namespace minim {
   class BarAndHinge : public NewPotential<BarAndHinge> {
     public:
       BarAndHinge() { _parallelDef = true; };
-      ~BarAndHinge() {};
 
       void init(const vector<double>& coords) override;
 
