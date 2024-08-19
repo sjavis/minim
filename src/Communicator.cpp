@@ -1,14 +1,9 @@
 #include "Communicator.h"
 
-#ifdef PARALLEL
-#include <mpi.h>
-#endif
-
 #include <numeric>
 #include <stdexcept>
 #include "utils/vec.h"
 #include "utils/mpi.h"
-#include "utils/print.h"
 
 namespace minim {
   using std::vector;
@@ -24,6 +19,23 @@ namespace minim {
   }
 
 
+  //===== Access data =====//
+  double Communicator::get(const vector<double>& vector, int loc) const {
+    #ifdef PARALLEL
+    if (!usesThisProc) return 0;
+    if (commSize > 1) {
+      int root = getBlock(loc);
+      double value;
+      if (commRank == root) value = vector[getLocalIdx(loc)];
+      MPI_Bcast(&value, 1, MPI_DOUBLE, root, comm);
+      return value;
+    }
+    #endif
+    return vector[loc];
+  }
+
+
+  //===== Communicate =====//
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
   #ifdef PARALLEL
@@ -58,14 +70,13 @@ namespace minim {
     if (root == -1) {
       gathered = vector<double>(ndof);
       MPI_Allgatherv(&block[0], 1, blockType,
-                     &gathered[0], &nGather, &p->iblocks[0], &gatherType,
+                     &gathered[0], &nGather[0], &iGather[0], gatherType,
                      comm);
     } else {
       if (commRank==root) gathered = vector<double>(ndof);
-      MPI_gatherv(&block[0], 1, blockType,
-                  &gathered[0], &nGather, &p->iblocks[0], &gatherType, root,
+      MPI_Gatherv(&block[0], 1, blockType,
+                  &gathered[0], &nGather[0], &iGather[0], gatherType, root,
                   comm);
-      }
     }
     return gathered;
 
@@ -119,6 +130,7 @@ namespace minim {
   }
 
 
+  //===== MPI reduction functions =====//
   double Communicator::sum(double a) const {
     if (!usesThisProc) return 0;
     double result = a;
@@ -146,6 +158,9 @@ namespace minim {
   }
 
 
+  //===== Internal functions =====//
+
+
   Communicator::~Communicator() {
   #ifdef PARALLEL
     if (commSize <= 1) return;
@@ -160,7 +175,14 @@ namespace minim {
   }
 
 
-  void Communicator::defaultSetup(Potential& pot, size_t ndof, vector<int> ranks) {
+  void Communicator::defaultSetup(size_t ndof, vector<int> ranks) {
+    // Default values in case of a serial run
+    this->commSize = 1;
+    this->commRank = 0;
+    this->ndof = ndof;
+    this->nproc = ndof;
+    this->nblock = ndof;
+
     // Set the ranks
     if (ranks.empty()) {
       this->ranks = vector<int>(mpi.size);
@@ -169,16 +191,11 @@ namespace minim {
       this->ranks = ranks;
     }
     this->usesThisProc = vec::isIn(this->ranks, mpi.rank);
-    // Set the MPI communicator
-    setComm(ranks);
 
-    if (usesThisProc) {
-      // Default values in case of a serial run
-      this->ndof = ndof;
-      this->nproc = ndof;
-      this->nblock = ndof;
-    } else {
-      // Null values if not using this processor
+    // Null values if not using this processor
+    if (!usesThisProc) {
+      this->commRank = -1;
+      this->commSize = -1;
       this->nblock = -1;
       this->nproc = -1;
       this->iblock = -1;
@@ -204,9 +221,6 @@ namespace minim {
     if (comm != MPI_COMM_NULL) {
       MPI_Comm_rank(comm, &commRank);
       MPI_Comm_size(comm, &commSize);
-    } else { // This processor is not used
-      commRank = -1;
-      commSize = -1;
     }
     #endif
   }

@@ -1,11 +1,13 @@
 #include "test_main.cpp"
-#include "Potential.h"
+#include "communicators/CommUnstructured.h"
 
+#include "Potential.h"
 #include "State.h"
 #include "utils/vec.h"
 
 using namespace minim;
 
+// Define potential using energy elements to test CommUnstructured
 class ParallelPot: public NewPotential<ParallelPot> {
   public:
     ParallelPot() { _parallelDef = true; };
@@ -35,11 +37,11 @@ class ParallelPot: public NewPotential<ParallelPot> {
 };
 
 
-TEST(CommunicatorTest, TestConstraintDistribution) {
+TEST(CommUnstructured, TestConstraintDistribution) {
   vector<double> coords{0, 1, 2, 3, 4, 5};
   ParallelPot pot;
   pot.init(coords);
-  Communicator comm;
+  CommUnstructured comm;
   comm.setup(pot, 6, {0,1});
 
   EXPECT_EQ(pot.constraints.size(), 2);

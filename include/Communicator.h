@@ -1,11 +1,16 @@
 #ifndef COMMUNICATOR_H
 #define COMMUNICATOR_H
 
+#ifdef PARALLEL
+#include <mpi.h>
+#endif
+
 #include <vector>
 #include <memory>
 
 namespace minim {
   using std::vector;
+  class Potential;
 
   class Communicator {
     public:
@@ -20,6 +25,7 @@ namespace minim {
       int rank() const;
       int size() const;
 
+      // Assign data
       virtual vector<int> assignBlock(const vector<int>& in) const = 0;
       virtual vector<bool> assignBlock(const vector<bool>& in) const = 0;
       virtual vector<double> assignBlock(const vector<double>& in) const = 0;
@@ -28,8 +34,12 @@ namespace minim {
       virtual vector<bool> assignProc(const vector<bool>& in) const = 0;
       virtual vector<double> assignProc(const vector<double>& in) const = 0;
 
-      double get(const vector<double>& vector, int i) const;
+      // Access data
+      virtual int getBlock(int loc) const = 0;
+      virtual int getLocalIdx(int loc, int block=-1) const = 0;
+      double get(const vector<double>& vector, int loc) const;
 
+      // Communication
       void communicate(vector<double>& vector) const;
       vector<double> gather(const vector<double>& block, int root=-1) const;
       vector<double> scatter(const vector<double>& data, int root=-1) const;
@@ -38,21 +48,22 @@ namespace minim {
       void bcast(double& value, int root=0) const;
       void bcast(vector<double>& value, int root=0) const;
 
+      // MPI reduction functions
       double sum(double a) const;
       double sum(const vector<double>& a) const;
       double norm(const vector<double>& a) const;
       double dotProduct(const vector<double>& a, const vector<double>& b) const;
 
-      ~Communicator();
-      std::unique_ptr<Communicator> clone() const = 0;
+      // Internal functions
+      virtual ~Communicator();
+      virtual std::unique_ptr<Communicator> clone() const = 0;
       virtual void setup(Potential& pot, size_t ndof, vector<int> ranks) = 0;
 
     protected:
-      void defaultSetup(size_t ndof, vector<int> ranks);
-
-    private:
-      int commSize = 1;
-      int commRank = 0;
+      int commSize;
+      int commRank;
+      vector<int> nGather;
+      vector<int> iGather;
       vector<bool> send;  // States if data is to be sent to each proc
       vector<bool> recv;  // States if data is to be received from each proc
 
@@ -64,6 +75,7 @@ namespace minim {
       MPI_Datatype gatherType;       // MPI derived datatype to receive the blocks for gathering
       #endif
 
+      void defaultSetup(size_t ndof, vector<int> ranks);
       void setComm(vector<int> ranks);
       virtual void makeMPITypes() = 0;
   };
