@@ -24,7 +24,7 @@ LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
 all: deps $(TARGET)
 
-debug: CXXFLAGS += -g -O0
+debug: CXXFLAGS += -g -O0 -fsanitize=address
 debug: SUBTARGET = debug
 debug: deps $(TARGET)
 

@@ -298,6 +298,7 @@ namespace minim {
       double volDiff = volFluid[iFluid] - volume[iFluid];
       if (e) *e += volCoef * pow(volDiff, 2) / comm.size();
       if (!g) continue;
+      int nGrid = comm.nblock / nFluid;
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
         int iDof = iGrid*nFluid + iFluid;
         double interfaceWeight = std::max(0.0, 4*coords[iDof]*(1-coords[iDof])); // Only apply the force to the interface nodes
