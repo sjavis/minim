@@ -190,7 +190,9 @@ TEST(PhaseFieldTest, TestNFluid) {
 TEST(PhaseFieldTest, TestFixFluid) {
   PhaseField pot;
   pot.setNFluid(3).setGridSize({2,2,1});
+  pot.setDensityConstraint("none");
   pot.init(vector<double>(12));
+
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
   pot.setFixFluid(1);
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,true,false}));
