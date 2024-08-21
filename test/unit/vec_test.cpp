@@ -50,6 +50,14 @@ TEST(VecTest, TestDivide) {
 }
 
 
+TEST(VecTest, TestProduct) {
+  EXPECT_EQ(vec::product<double>({}), 0);
+  EXPECT_EQ(vec::product<int>({0, 4, 1}), 0);
+  EXPECT_EQ(vec::product<int>({-1, 4, 1}), -4);
+  EXPECT_FLOAT_EQ(vec::product<double>({0.5, -1.0}), -0.5);
+}
+
+
 TEST(VecTest, TestSquareRoot) {
   Vector v = {25, 1, 0.36};
   EXPECT_TRUE(ArraysNear(vec::sqrt(v), {5, 1, 0.6}, 1e-6));
@@ -70,6 +78,15 @@ TEST(VecTest, TestPow) {
 
 TEST(VecTest, TestAbs) {
   EXPECT_TRUE(ArraysNear(vec::abs(Vector{5, 0, -0.2}), {5, 0, 0.2}, 1e-6));
+}
+
+
+TEST(VecTest, TestElementWiseLogical) {
+  EXPECT_TRUE(ArraysMatch(vec::lessThan<double>({0.1, 3.0, -1.0}, {0.1, 4.0, -2.0}), {false, true, false}));
+  EXPECT_TRUE(ArraysMatch(vec::greaterThan<double>({0.1, 3.0, -1.0}, {0.1, 4.0, -2.0}), {false, false, true}));
+
+  EXPECT_TRUE(ArraysMatch(vec::lessThan<double>({0.1, 3.0, -1.0}, 0.0), {false, false, true}));
+  EXPECT_TRUE(ArraysMatch(vec::greaterThan<double>({0.1, 3.0, -1.0}, 0.0), {true, true, false}));
 }
 
 

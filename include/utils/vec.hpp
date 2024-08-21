@@ -173,6 +173,14 @@ namespace vec {
   }
 
 
+  // Product
+  template<typename T>
+  auto product(const vector<T>& a) {
+    if (a.empty()) return T(0);
+    return std::accumulate(a.begin(), a.end(), T(1), std::multiplies<T>());
+  }
+
+
   // Norm
   template<typename T>
   auto norm(const vector<T>& a) {
@@ -240,6 +248,36 @@ namespace vec {
   }
 
 
+  // Element-wise logical
+  template<typename T>
+  std::vector<bool> lessThan(const std::vector<T>& v, T s) {
+    std::vector<bool> result(v.size());
+    std::transform(v.begin(), v.end(), result.begin(), [s](T vi) { return vi < s; });
+    return result;
+  }
+
+  template<typename T>
+  std::vector<bool> lessThan(const std::vector<T>& v1, const std::vector<T>& v2) {
+    std::vector<bool> result(v1.size());
+    std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a < b; });
+    return result;
+  }
+
+  template<typename T>
+  std::vector<bool> greaterThan(const std::vector<T>& v, T s) {
+    std::vector<bool> result(v.size());
+    std::transform(v.begin(), v.end(), result.begin(), [s](T vi) { return vi > s; });
+    return result;
+  }
+
+  template<typename T>
+  std::vector<bool> greaterThan(const std::vector<T>& v1, const std::vector<T>& v2) {
+    std::vector<bool> result(v1.size());
+    std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a > b; });
+    return result;
+  }
+
+
   template<typename T>
   vector<T> slice(const vector<T>& in, const vector<int>& index) {
     vector<T> slice;
@@ -263,6 +301,7 @@ namespace vec {
     vector<T> out(index->size());
     for (size_t i=0; i<out.size(); i++) {
       out[i] = in[(*index)[i]];
+
     }
     return out;
   }

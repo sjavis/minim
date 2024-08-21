@@ -34,6 +34,7 @@ namespace vec {
   template<typename T, typename U> auto dotProduct(const vector<T>& a, const vector<U>& b);
   template<typename T, typename U> auto crossProduct(const vector<T>& a, const vector<U>& b);
   template<typename T> auto sum(const vector<T>& a);
+  template<typename T> auto product(const vector<T>& a);
   template<typename T> auto norm(const vector<T>& a);
   template<typename T> auto rms(const vector<T>& a);
 
@@ -46,6 +47,11 @@ namespace vec {
   template<typename T> bool all(const vector<T>& a);
 
   template<typename T> bool isIn(const vector<T>& vec, T value);
+
+  template<typename T> std::vector<bool> lessThan(const std::vector<T>& v, T s);
+  template<typename T> std::vector<bool> lessThan(const std::vector<T>& v1, const std::vector<T>& v2);
+  template<typename T> std::vector<bool> greaterThan(const std::vector<T>& v, T s);
+  template<typename T> std::vector<bool> greaterThan(const std::vector<T>& v1, const std::vector<T>& v2);
 
   template<typename T> vector<T> slice(const vector<T>& in, const vector<int>& index);
   template<typename T> vector<T> sort(const vector<T>& in, vector<int>* index=nullptr);
