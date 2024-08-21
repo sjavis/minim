@@ -34,6 +34,7 @@ namespace minim {
       void setup(Potential& pot, size_t ndof, vector<int> ranks) override;
 
     private:
+      int iblock;    // The starting index for this processor
       vector<int> nblocks; // Size of each block
       vector<int> iblocks; // Global index for the start of each block
       vector<int> nrecv;  // Number of halo coordinates to recieve from each proc

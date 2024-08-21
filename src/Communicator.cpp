@@ -26,7 +26,7 @@ namespace minim {
     if (commSize > 1) {
       int root = getBlock(loc);
       double value;
-      if (commRank == root) value = vector[getLocalIdx(loc)];
+      if (commRank == root) value = vector[getLocalIdx(loc, root)];
       MPI_Bcast(&value, 1, MPI_DOUBLE, root, comm);
       return value;
     }
@@ -198,7 +198,6 @@ namespace minim {
       this->commSize = -1;
       this->nblock = -1;
       this->nproc = -1;
-      this->iblock = -1;
     }
   }
 

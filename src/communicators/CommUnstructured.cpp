@@ -107,12 +107,12 @@ namespace minim {
 
   //===== Constructors, etc =====//
   CommUnstructured::CommUnstructured()
-    : nblocks({}), iblocks({}), nrecv({}), irecv({}), recv_lists({}), send_lists({})
+    : iblock(0), nblocks({}), iblocks({}), nrecv({}), irecv({}), recv_lists({}), send_lists({})
   {}
 
 
   CommUnstructured::CommUnstructured(const CommUnstructured& other)
-    : Communicator(other), nblocks(other.nblocks), iblocks(other.iblocks), nrecv(other.nrecv), irecv(other.irecv), recv_lists(other.recv_lists), send_lists(other.send_lists)
+    : Communicator(other), iblock(other.iblock), nblocks(other.nblocks), iblocks(other.iblocks), nrecv(other.nrecv), irecv(other.irecv), recv_lists(other.recv_lists), send_lists(other.send_lists)
   {
     if (usesThisProc) makeMPITypes();
   }
@@ -120,6 +120,7 @@ namespace minim {
 
   CommUnstructured& CommUnstructured::operator=(const CommUnstructured& other) {
     Communicator::operator=(other);
+    iblock = other.iblock;
     nblocks = other.nblocks;
     iblocks = other.iblocks;
     nrecv = other.nrecv;

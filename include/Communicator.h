@@ -17,7 +17,6 @@ namespace minim {
       size_t ndof;   //!< Total number of degrees of freedom
       size_t nproc;  //!< Total number of degrees of freedom on processor (including halo)
       size_t nblock; //!< Number of degrees of freedom assigned to processor (excluding halo)
-      int iblock;    //!< The starting index for this processor
 
       bool usesThisProc = true;
       vector<int> ranks = vector<int>();
@@ -26,17 +25,17 @@ namespace minim {
       int size() const;
 
       // Assign data
-      virtual vector<int> assignBlock(const vector<int>& in) const = 0;
-      virtual vector<bool> assignBlock(const vector<bool>& in) const = 0;
-      virtual vector<double> assignBlock(const vector<double>& in) const = 0;
+      virtual vector<int> assignBlock(const vector<int>& in) const = 0;       //!< Assign the local block using block data or global data
+      virtual vector<bool> assignBlock(const vector<bool>& in) const = 0;     //!< Assign the local block using block data or global data
+      virtual vector<double> assignBlock(const vector<double>& in) const = 0; //!< Assign the local block using block data or global data
 
-      virtual vector<int> assignProc(const vector<int>& in) const = 0;
-      virtual vector<bool> assignProc(const vector<bool>& in) const = 0;
-      virtual vector<double> assignProc(const vector<double>& in) const = 0;
+      virtual vector<int> assignProc(const vector<int>& in) const = 0;       //!< Assign the local processor (including halo) using global data
+      virtual vector<bool> assignProc(const vector<bool>& in) const = 0;     //!< Assign the local processor (including halo) using global data
+      virtual vector<double> assignProc(const vector<double>& in) const = 0; //!< Assign the local processor (including halo) using global data
 
       // Access data
-      virtual int getBlock(int loc) const = 0;
-      virtual int getLocalIdx(int loc, int block=-1) const = 0;
+      virtual int getBlock(int loc) const = 0;                  //!< Get the processor that owns a given global index
+      virtual int getLocalIdx(int loc, int block=-1) const = 0; //!< Get the local index from a global index, or -1 if not owned by this processor
       double get(const vector<double>& vector, int loc) const;
 
       // Communication
