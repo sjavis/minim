@@ -43,22 +43,6 @@ namespace minim {
       virtual void distributeParameters(const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
       bool distributed = false;
 
-      // Energy elements for parallelisation
-      struct Element {
-        int type;
-        vector<int> idof;
-        vector<double> parameters;
-      };
-      vector<Element> elements;
-      vector<Element> elements_halo;
-
-      Potential& setElements(vector<Element> elements);
-      Potential& setElements(vector2d<int> idofs);
-      Potential& setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters);
-
-      virtual void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
-
       // Constraints
       struct Constraint {
         using NormalFn = std::function<vector<double>(const vector<int>&, const vector<double>&)>;
@@ -86,7 +70,34 @@ namespace minim {
         return std::make_unique<Potential>(*this);
       }
 
+
+      // Members and functions specific to different types of potential
+      enum{
+        SERIAL = 0,
+        UNSTRUCTURED = 1,
+        GRID = 2,
+      };
+      const int potentialType = SERIAL;
       virtual std::unique_ptr<Communicator> newComm() const;
+
+      // UNSTRUCTURED: Energy elements for parallelisation
+      struct Element {
+        int type;
+        vector<int> idof;
+        vector<double> parameters;
+      };
+      vector<Element> elements;
+      vector<Element> elements_halo;
+
+      Potential& setElements(vector<Element> elements);
+      Potential& setElements(vector2d<int> idofs);
+      Potential& setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters);
+
+      virtual void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
+
+      // GRID
+      vector<int> gridSize;
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};

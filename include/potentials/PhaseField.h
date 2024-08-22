@@ -17,9 +17,8 @@ namespace minim {
       // System size
       int nFluid = 1;
       double resolution = 1;
-      std::array<int,3> gridSize;
       PhaseField& setNFluid(int nFluid);
-      PhaseField& setGridSize(std::array<int,3> gridSize);
+      PhaseField& setGridSize(vector<int> gridSize);
       PhaseField& setResolution(double resolution);
 
       // Fluid interfaces
@@ -65,7 +64,7 @@ namespace minim {
 
       vector<double> diffuseSolid(vector<bool> solid, int iFluid=0, bool twoStep=false);
       static vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0, bool twoStep=false);
-      static vector<double> diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
       // Overrides
       void init(const vector<double>& coords) override;
@@ -84,7 +83,7 @@ namespace minim {
       vector<int> fluidType;
 
     private:
-      std::array<int,3> getCoord(int i) const;
+      vector<int> getCoord(int i) const;
       int getType(int i) const;
       void setDefaults();
       void checkArraySizes();

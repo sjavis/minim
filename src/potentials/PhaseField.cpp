@@ -31,7 +31,7 @@ namespace minim {
   };
 
 
-  std::array<int,3> getCoord(int i, std::array<int,3> gridSize) {
+  vector<int> getCoord(int i, vector<int> gridSize) {
     int z = i % gridSize[2];
     int y = (i - z) / gridSize[2] % gridSize[1];
     int x = i / (gridSize[1] * gridSize[2]);
@@ -56,7 +56,7 @@ namespace minim {
 
       int operator[](int i) { return di[i]; };
 
-      Neighbours(std::array<int,3> gridSize, int i0) {
+      Neighbours(vector<int> gridSize, int i0) {
         auto x0 = getCoord(i0, gridSize);
         for (int i=0; i<26; i++) {
           int x = (x0[0] + dx[i][0] + gridSize[0]) % gridSize[0];
@@ -219,7 +219,7 @@ namespace minim {
       // Set external force elements
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (fMag[iFluid]>0 && !solid[iGrid]) {
-          std::array<int,3> coordI = getCoord(iGrid);
+          vector<int> coordI = getCoord(iGrid);
           vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
           double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
           vector<double> params{nodeVol[iGrid], fMag[iFluid], h};
@@ -724,7 +724,7 @@ namespace minim {
   }
 
 
-  PhaseField& PhaseField::setGridSize(std::array<int,3> gridSize) {
+  PhaseField& PhaseField::setGridSize(vector<int> gridSize) {
     this->gridSize = gridSize;
     this->nGrid = gridSize[0] * gridSize[1] * gridSize[2];
     return *this;
@@ -856,7 +856,7 @@ namespace minim {
   }
 
 
-  std::array<int,3> PhaseField::getCoord(int i) const {
+  vector<int> PhaseField::getCoord(int i) const {
     return minim::getCoord(i, gridSize);
   }
 
@@ -958,7 +958,7 @@ namespace minim {
     return diffuseSolid(solid, *this, iFluid, twoStep);
   }
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, std::array<int,3> gridSize, int nFluid, int iFluid, bool twoStep) {
+  vector<double> PhaseField::diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid, int iFluid, bool twoStep) {
     PhaseField potential;
     potential.setNFluid(nFluid);
     potential.setGridSize(gridSize);
