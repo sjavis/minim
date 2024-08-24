@@ -39,24 +39,16 @@ namespace minim {
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
   #ifdef PARALLEL
-    MPI_Request requests[2*commSize];
-    for (int i=0; i<commSize; i++) {
-      // Send
-      if (send[i]) {
-        int tag = commRank*commSize + i;
-        MPI_Isend(&vector[0], 1, sendtype[i], i, tag, comm, &requests[2*i]);
-      } else {
-        requests[2*i] = MPI_REQUEST_NULL;
-      }
-      // Receive
-      if (recv[i]) {
-        int tag = i*commSize + commRank;
-        MPI_Irecv(&vector[0], 1, recvtype[i], i, tag, comm, &requests[2*i+1]);
-      } else {
-        requests[2*i+1] = MPI_REQUEST_NULL;
-      }
+    int nRequest = sendTypes.size() + recvTypes.size();
+    MPI_Request requests[nRequest];
+    int iRequest = 0;
+    for (const auto& sendType : sendTypes) {
+      MPI_Isend(&vector[0], 1, sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
     }
-    MPI_Waitall(2*commSize, requests, MPI_STATUSES_IGNORE);
+    for (const auto& recvType : recvTypes) {
+      MPI_Irecv(&vector[0], 1, recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
+    }
+    MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
   #endif
   }
 
@@ -165,12 +157,14 @@ namespace minim {
   #ifdef PARALLEL
     if (commSize <= 1) return;
     // Free any committed MPI datatypes
-    for (int i=0; i<commSize; i++) {
-      if (send[i]) MPI_Type_free(&sendtype[i]);
-      if (recv[i]) MPI_Type_free(&recvtype[i]);
+    for (auto& sendType : sendTypes) {
+      if (sendType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&sendType.type);
     }
-    MPI_Type_free(&blockType);
-    MPI_Type_free(&gatherType);
+    for (auto& recvType : recvTypes) {
+      if (recvType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&recvType.type);
+    }
+    if (blockType!=MPI_DATATYPE_NULL) MPI_Type_free(&blockType);
+    if (gatherType!=MPI_DATATYPE_NULL) MPI_Type_free(&gatherType);
   #endif
   }
 

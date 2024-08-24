@@ -63,15 +63,18 @@ namespace minim {
       int commRank;
       vector<int> nGather;
       vector<int> iGather;
-      vector<bool> send;  // States if data is to be sent to each proc
-      vector<bool> recv;  // States if data is to be received from each proc
 
       #ifdef PARALLEL
+      struct CommunicateObj {
+        int rank;
+        int tag;
+        MPI_Datatype type;
+      };
       MPI_Comm comm;
-      vector<MPI_Datatype> sendtype; // MPI derived datatype to send to each proc
-      vector<MPI_Datatype> recvtype; // MPI derived datatype to recieve from each proc
-      MPI_Datatype blockType;        // MPI derived datatype to send the local block
-      MPI_Datatype gatherType;       // MPI derived datatype to receive the blocks for gathering
+      vector<CommunicateObj> sendTypes; // Objects containing MPI derived datatypes for each MPI send
+      vector<CommunicateObj> recvTypes; // Objects containing MPI derived datatypes for each MPI recv
+      MPI_Datatype blockType;           // MPI derived datatype to send the local block
+      MPI_Datatype gatherType;          // MPI derived datatype to receive the blocks for gathering
       #endif
 
       void defaultSetup(size_t ndof, vector<int> ranks);

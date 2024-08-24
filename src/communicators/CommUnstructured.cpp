@@ -338,16 +338,9 @@ namespace minim {
     if (commSize <= 1) return;
 
     // Send and receive types
-    send = vector<bool>(commSize);
-    recv = vector<bool>(commSize);
-    #ifdef PARALLEL
-    sendtype = vector<MPI_Datatype>(commSize);
-    recvtype = vector<MPI_Datatype>(commSize);
-    #endif
     // Send
     for (int i=0; i<commSize; i++) {
       if (send_lists[i].empty()) continue;
-      send[i] = true;
       vector<int> blocklens;
       vector<int> disps = {send_lists[i][0]};
       int previous = send_lists[i][0];
@@ -360,18 +353,21 @@ namespace minim {
       }
       blocklens.push_back(send_lists[i].back() + 1 - disps.back());
       #ifdef PARALLEL
-      //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &priv->sendtype[i]);
-      MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendtype[i]);
-      MPI_Type_commit(&sendtype[i]);
+      MPI_Datatype sendType;
+      //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &sendType);
+      MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendType);
+      MPI_Type_commit(&sendType);
+      sendTypes.push_back({i, 0, sendType});
       #endif
     }
     // Receive
     for (int i=0; i<commSize; i++) {
       if (nrecv[i] == 0) continue;
-      recv[i] = true;
       #ifdef PARALLEL
-      MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, &recvtype[i]);
-      MPI_Type_commit(&recvtype[i]);
+      MPI_Datatype recvType;
+      MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, &recvType);
+      MPI_Type_commit(&recvType);
+      recvTypes.push_back({i, 0, recvType});
       #endif
     }
 
