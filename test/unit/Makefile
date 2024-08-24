@@ -14,10 +14,13 @@ LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 
-.PHONY: all clean cleantests gtest $(RUN_TESTS) $(LIB)
+.PHONY: all debug clean cleantests gtest $(RUN_TESTS) $(LIB)
 
 all: $(TESTS) $(RUN_TESTS) cleantests
 	@[ -f failed ] && rm failed && exit 1 || exit 0
+
+debug: CXXFLAGS += -g -O0 -fsanitize=address
+debug: $(TESTS)
 
 clean:
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
