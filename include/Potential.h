@@ -28,20 +28,13 @@ namespace minim {
       Potential(EFunc energy, GFunc gradient);
       Potential(EGFunc energyGradient);
 
-      State newState(int ndof, const vector<int>& ranks={});
-      virtual State newState(const vector<double>& coords, const vector<int>& ranks={});
-
       virtual double energy(const vector<double>& coords) const;
       virtual vector<double> gradient(const vector<double>& coords) const;
       virtual void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
+      // Note: In any derived classes, either energyGradient or (energy and gradient) MUST be overridden
 
-      // Initialisation
-      bool serialDef() const;
-      bool parallelDef() const;
-
-      virtual void init(const vector<double>& coords) {};
-      virtual void distributeParameters(const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
-      bool distributed = false;
+      State newState(int ndof, const vector<int>& ranks={});
+      State newState(const vector<double>& coords, const vector<int>& ranks={});
 
       // Constraints
       struct Constraint {
@@ -64,6 +57,11 @@ namespace minim {
       bool isFixed(int index) const;
       vector<bool> isFixed(const vector<int>& indicies) const;
 
+      // Internal
+      virtual void init(const vector<double>& coords) {};
+      virtual void distributeParameters(const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
+      bool isSerial() const;
+
       // Copy / destruct
       virtual ~Potential() = default;
       virtual std::unique_ptr<Potential> clone() const {
@@ -77,10 +75,12 @@ namespace minim {
         UNSTRUCTURED = 1,
         GRID = 2,
       };
-      const int potentialType = SERIAL;
+      virtual int potentialType() const { return SERIAL; };
       virtual std::unique_ptr<Communicator> newComm() const;
 
       // UNSTRUCTURED: Energy elements for parallelisation
+      bool distributed = false;
+
       struct Element {
         int type;
         vector<int> idof;
@@ -88,12 +88,11 @@ namespace minim {
       };
       vector<Element> elements;
       vector<Element> elements_halo;
-
       Potential& setElements(vector<Element> elements);
       Potential& setElements(vector2d<int> idofs);
       Potential& setElements(vector2d<int> idofs, vector<int> types, vector2d<double> parameters);
 
-      virtual void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      virtual void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {};
       virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
 
       // GRID
@@ -101,10 +100,6 @@ namespace minim {
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};
-
-      bool _energyDef = false;
-      bool _energyGradientDef = false;
-      bool _parallelDef = false;
   };
 
 

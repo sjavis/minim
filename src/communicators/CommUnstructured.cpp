@@ -138,9 +138,8 @@ namespace minim {
 
   //===== Setup =====//
   void CommUnstructured::setup(Potential& pot, size_t ndof, vector<int> ranks) {
-    defaultSetup(ndof, ranks);
-    if (mpi.size==1 || ranks.size()==1 || !usesThisProc || !pot.parallelDef()) return; // If running serial
-    setComm(ranks);
+    defaultSetup(pot, ndof, ranks);
+    if (commSize <= 1) return;
 
     if (pot.distributed) {
       print("Warning: Attempting to parallelise a potential that has already been distributed.");

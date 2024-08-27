@@ -77,7 +77,7 @@ namespace minim {
       MPI_Datatype gatherType;          // MPI derived datatype to receive the blocks for gathering
       #endif
 
-      void defaultSetup(size_t ndof, vector<int> ranks);
+      void defaultSetup(const Potential& pot, size_t ndof, vector<int> ranks);
       void setComm(vector<int> ranks);
       virtual void makeMPITypes() = 0;
   };

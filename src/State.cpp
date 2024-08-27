@@ -11,7 +11,6 @@ namespace minim {
   State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
     : ndof(coords.size()), pot(pot.clone())
   {
-    if (this->pot->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
     // Initialise the potential
     this->pot->init(coords);
     this->convergence = this->pot->convergence;
@@ -44,12 +43,12 @@ namespace minim {
   }
 
 
-  void serialEnergyGradient(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g) {
+  inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g) {
     pot.energyGradient(coords, e, g);
     if (g) pot.applyConstraints(coords, *g);
   }
 
-  void parallelEnergyGradient(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
+  inline void elementEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
     if (e) *e = 0;
     if (g) *g = vector<double>(coords.size());
     // Compute the energy elements
@@ -125,53 +124,60 @@ namespace minim {
     if (!usesThisProc) return 0;
     double e;
 
-    if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, &e, nullptr, *comm);
-      return comm->sum(e);
-
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, &e, nullptr);
+    // Serial
+    if (pot->potentialType() == Potential::SERIAL) {
+      basicEG(*pot, coords, &e, nullptr);
       return e;
-
-    } else {
-      throw std::logic_error("Energy function not defined");
     }
+
+    // Parallel
+    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, blockCoords, &e, nullptr, *comm);
+    } else {
+      basicEG(*pot, coords, &e, nullptr);
+    }
+    return comm->sum(e);
   }
 
   vector<double> State::gradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
     vector<double> g;
 
-    if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, nullptr, &g, *comm);
-      return comm->gather(g);
-
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, nullptr, &g);
+    // Serial
+    if (pot->potentialType() == Potential::SERIAL) {
+      basicEG(*pot, coords, nullptr, &g);
       return g;
-
-    } else {
-      throw std::logic_error("Gradient function not defined");
     }
+
+    // Parallel
+    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, blockCoords, nullptr, &g, *comm);
+    } else {
+      basicEG(*pot, blockCoords, nullptr, &g);
+    }
+    return comm->gather(g);
   }
 
   void State::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
-    if (pot->parallelDef()) {
-      vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-      parallelEnergyGradient(*pot, blockCoords, e, g, *comm);
-      if (e != nullptr) *e = comm->sum(*e);
-      if (g != nullptr) *g = comm->gather(*g);
-
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, e, g);
-
-    } else {
-      throw std::logic_error("Energy and/or gradient function not defined");
+    // Serial
+    if (pot->potentialType() == Potential::SERIAL) {
+      basicEG(*pot, coords, e, g);
+      return;
     }
+
+    // Parallel
+    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, blockCoords, e, g, *comm);
+    } else {
+      basicEG(*pot, blockCoords, e, g);
+    }
+    if (e != nullptr) *e = comm->sum(*e);
+    if (g != nullptr) *g = comm->gather(*g);
   }
 
 
@@ -180,13 +186,13 @@ namespace minim {
     if (!usesThisProc) return 0;
 
     double e;
-    if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, &e, nullptr, *comm);
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, &e, nullptr);
-      if (comm->rank() != 0) e = 0;
+    if (pot->potentialType() == Potential::SERIAL) {
+      if (comm->rank() != 0) return 0;
+      basicEG(*pot, coords, &e, nullptr);
+    } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, coords, &e, nullptr, *comm);
     } else {
-      throw std::logic_error("Energy function not defined");
+      basicEG(*pot, coords, &e, nullptr);
     }
     return e;
   }
@@ -195,12 +201,10 @@ namespace minim {
     if (!usesThisProc) return vector<double>();
 
     vector<double> g;
-    if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, nullptr, &g, *comm);
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, nullptr, &g);
+    if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, coords, nullptr, &g, *comm);
     } else {
-      throw std::logic_error("Gradient function not defined");
+      basicEG(*pot, coords, nullptr, &g);
     }
     return g;
   }
@@ -208,15 +212,13 @@ namespace minim {
   void State::blockEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
-    if (pot->parallelDef()) {
-      parallelEnergyGradient(*pot, coords, e, g, *comm);
-
-    } else if (pot->serialDef()) {
-      serialEnergyGradient(*pot, coords, e, g);
+    if (pot->potentialType() == Potential::SERIAL) {
+      basicEG(*pot, coords, e, g);
       if (e && comm->rank() != 0) *e = 0;
-
+    } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
+      elementEG(*pot, coords, e, g, *comm);
     } else {
-      throw std::logic_error("Energy and/or gradient function not defined");
+      basicEG(*pot, coords, e, g);
     }
   }
 
@@ -230,14 +232,14 @@ namespace minim {
   vector<double> State::procGradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
     vector<double> g = blockGradient(coords);
-    if (pot->parallelDef()) comm->communicate(g);
+    comm->communicate(g);
     return g;
   }
 
   void State::procEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
     blockEnergyGradient(coords, e, g);
-    if (pot->parallelDef()) comm->communicate(*g);
+    comm->communicate(*g);
   }
 
 

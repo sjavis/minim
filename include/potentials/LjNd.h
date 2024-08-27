@@ -11,13 +11,15 @@ namespace minim {
 
   class LjNd : public NewPotential<LjNd> {
     public:
+      int potentialType() const override { return Potential::UNSTRUCTURED; };
+
       int nDim;
       int nParticle;
       double sigma = 1;
       double epsilon = 1;
 
-      LjNd(int nDim) : nDim(nDim) { _parallelDef = true; };
-      LjNd(int nDim, double sigma, double epsilon);
+      LjNd(int nDim) : nDim(nDim) {};
+      LjNd(int nDim, double sigma, double epsilon) : nDim(nDim), sigma(sigma), epsilon(epsilon) {};
 
       void init(const vector<double>& coords) override;
 

@@ -12,7 +12,7 @@ using namespace minim;
 // Define potential using energy elements to test CommUnstructured
 class UnstructuredPot: public NewPotential<UnstructuredPot> {
   public:
-    UnstructuredPot() { _parallelDef = true; };
+    int potentialType() const override { return Potential::UNSTRUCTURED; };
 
     void init(const vector<double>& coords) {
       elements = {};
@@ -55,6 +55,7 @@ TEST(CommUnstructured, TestConstraintDistribution) {
 // Define a potential to test CommGrid
 class GridPot: public NewPotential<GridPot> {
   public:
+    int potentialType() const override { return Potential::GRID; };
     GridPot(vector<int> gridSize) { this->gridSize = gridSize; }
 };
 

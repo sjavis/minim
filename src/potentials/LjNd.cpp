@@ -9,13 +9,6 @@ namespace minim {
   using std::vector;
 
 
-  LjNd::LjNd(int nDim, double sigma, double epsilon) : LjNd(nDim) {
-    this->nDim = nDim;
-    this->sigma = sigma;
-    this->epsilon = epsilon;
-  }
-
-
   void LjNd::init(const vector<double>& coords) {
     int nDof = coords.size();
     if (nDof % nDim != 0) throw std::invalid_argument("LjNd: Length of coords must be a multiple of the number of dimensions.");

@@ -12,8 +12,6 @@ typedef std::vector<double> Vector;
 
 class Toy2d : public NewPotential<Toy2d> {
   public:
-    Toy2d() { _energyDef = true; };
-
     double energy(const std::vector<double>& coords) const override {
       return coords[0]*coords[0] + coords[1]*coords[1];
     }

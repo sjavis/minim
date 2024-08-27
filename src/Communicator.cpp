@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <stdexcept>
+#include "Potential.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
 
@@ -169,7 +170,7 @@ namespace minim {
   }
 
 
-  void Communicator::defaultSetup(size_t ndof, vector<int> ranks) {
+  void Communicator::defaultSetup(const Potential& pot, size_t ndof, vector<int> ranks) {
     // Default values in case of a serial run
     this->commSize = 1;
     this->commRank = 0;
@@ -192,7 +193,11 @@ namespace minim {
       this->commSize = -1;
       this->nblock = -1;
       this->nproc = -1;
+      return;
     }
+
+    if (mpi.size==1 || ranks.size()==1 || pot.isSerial()) return;
+    setComm(ranks);
   }
 
 

@@ -265,9 +265,8 @@ template <typename T>
 
 
   void CommGrid::setup(Potential& pot, size_t ndof, vector<int> ranks) {
-    defaultSetup(ndof, ranks);
-    if (mpi.size==1 || ranks.size()==1 || !usesThisProc) return; // If running serial
-    setComm(ranks);
+    defaultSetup(pot, ndof, ranks);
+    if (commSize <= 1) return;
 
     // Set the globalSizes, comm array sizes, blockSizes, etc
     globalSizes = vector<int>(pot.gridSize.begin(), pot.gridSize.end());

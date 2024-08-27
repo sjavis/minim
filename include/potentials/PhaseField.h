@@ -12,7 +12,7 @@ namespace minim {
 
   class PhaseField : public NewPotential<PhaseField> {
     public:
-      PhaseField() { _parallelDef = true; };
+      int potentialType() const override { return Potential::GRID; };
 
       // System size
       int nFluid = 1;
