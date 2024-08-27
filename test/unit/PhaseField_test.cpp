@@ -1,5 +1,5 @@
 #include "test_main.cpp"
-#include "potentials/PhaseField.h"
+#include "potentials/PhaseFieldUnstructured.h"
 
 #include "State.h"
 #include "utils/vec.h"
@@ -7,8 +7,8 @@
 using namespace minim;
 
 
-TEST(PhaseFieldTest, gridSizeMpi) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, gridSizeMpi) {
+  PhaseFieldUnstructured pot;
   EXPECT_NO_THROW({
     pot.setGridSize({2,1,2});
     State s(pot, {0,0,0,0});
@@ -24,13 +24,13 @@ TEST(PhaseFieldTest, gridSizeMpi) {
 }
 
 
-TEST(PhaseFieldTest, TestBulkEnergy) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestBulkEnergy) {
+  PhaseFieldUnstructured pot;
 
   // Constant bulk fluid
   State s1(pot.setGridSize({1,1,1}), {1}, {0});
-  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 3);
-  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 3);
+  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappa[0], 3);
+  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappaP[0], 3);
   EXPECT_FLOAT_EQ(s1.allEnergy(), 0);
   EXPECT_TRUE(ArraysNear(s1.allGradient(), {0}));
   s1.coords({0.1});
@@ -65,8 +65,8 @@ TEST(PhaseFieldTest, TestBulkEnergy) {
 }
 
 
-TEST(PhaseFieldTest, TestExternalForce) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestExternalForce) {
+  PhaseFieldUnstructured pot;
 
   // Test force in x, y, z directions
   auto stateForceX = pot.setGridSize({2,2,2}).setForce({-2,0,0}).newState({1,1,1,1,1,1,1,1});
@@ -89,8 +89,8 @@ TEST(PhaseFieldTest, TestExternalForce) {
 }
 
 
-TEST(PhaseFieldTest, TestSurfaceEnergy) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestSurfaceEnergy) {
+  PhaseFieldUnstructured pot;
   pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
   auto state = pot.newState({0.0, 0.5});
   for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
@@ -101,8 +101,8 @@ TEST(PhaseFieldTest, TestSurfaceEnergy) {
 }
 
 
-TEST(PhaseFieldTest, TestPressureConstraint) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestPressureConstraint) {
+  PhaseFieldUnstructured pot;
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure({10});
   auto state = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(state.energy(), -30);
@@ -110,15 +110,15 @@ TEST(PhaseFieldTest, TestPressureConstraint) {
 }
 
 
-TEST(PhaseFieldTest, TestVolumeConstraint) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestVolumeConstraint) {
+  PhaseFieldUnstructured pot;
   pot.setGridSize({6,1,1});
   pot.setSolid({1,0,0,0,0,1});
 
   pot.setVolumeFixed(true, 1);
   State state1(pot, {1,1,1,1,1,1});
-  EXPECT_TRUE(static_cast<PhaseField&>(*state1.pot).volumeFixed);
-  EXPECT_TRUE(ArraysNear(static_cast<PhaseField&>(*state1.pot).volume, {3}, 1e-6));
+  EXPECT_TRUE(static_cast<PhaseFieldUnstructured&>(*state1.pot).volumeFixed);
+  EXPECT_TRUE(ArraysNear(static_cast<PhaseFieldUnstructured&>(*state1.pot).volume, {3}, 1e-6));
   EXPECT_FLOAT_EQ(state1.energy(), 0);
 
   pot.setVolume({1}, 100);
@@ -129,8 +129,8 @@ TEST(PhaseFieldTest, TestVolumeConstraint) {
 }
 
 
-TEST(PhaseFieldTest, TestResolution) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestResolution) {
+  PhaseFieldUnstructured pot;
   EXPECT_FLOAT_EQ(pot.resolution, 1);
 
   pot.setResolution(2);
@@ -138,8 +138,8 @@ TEST(PhaseFieldTest, TestResolution) {
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 1.5);
-  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 6);
+  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappa[0], 1.5);
+  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappaP[0], 6);
   double ebulk = 1.5/16 * 8;
   double egrad = 2 * (6.0/4) * 2;
   EXPECT_FLOAT_EQ(s1.allEnergy(), ebulk+egrad); // Bulk: 2, Gradient: 2
@@ -180,15 +180,15 @@ TEST(PhaseFieldTest, TestResolution) {
 }
 
 
-TEST(PhaseFieldTest, TestNFluid) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestNFluid) {
+  PhaseFieldUnstructured pot;
   EXPECT_FLOAT_EQ(pot.nFluid, 1);
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
 
-TEST(PhaseFieldTest, TestFixFluid) {
-  PhaseField pot;
+TEST(PhaseFieldUnstructuredTest, TestFixFluid) {
+  PhaseFieldUnstructured pot;
   pot.setNFluid(3).setGridSize({2,2,1});
   pot.setDensityConstraint("none");
   pot.init(vector<double>(12));
