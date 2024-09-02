@@ -70,20 +70,26 @@ namespace minim {
       void init(const vector<double>& coords) override;
       void distributeParameters(const Communicator& comm) override;
 
-      void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const override;
-      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
+      void energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const override;
 
 
       // Read only
-      int nGrid;
       double surfaceTensionMean;
       vector<double> kappa;
       vector<double> kappaP;
       vector<double> nodeVol;
+      vector<double> surfaceArea;
       vector<int> fluidType;
 
+      vector<double> ffInit;
+      vector<double> fMag;
+      vector2d<double> fNorm;
+
+      int nGrid;
+      vector<int> procSizes;
+      vector<int> procStart;
+
     private:
-      vector<int> getCoord(int i) const;
       int getType(int i) const;
       void setDefaults();
       void checkArraySizes();
@@ -92,14 +98,20 @@ namespace minim {
       enum{ MODEL_BASIC=0, MODEL_NCOMP=1 };
       int model = MODEL_BASIC;
 
-      void fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void fluidEnergyAll(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void pressureEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
-      void ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const;
+      void phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
+                         const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const;
+      void phasePairGradient(const vector<double>& coords, int iGrid, int iFluid1, int iFluid2, const vector<int>& xGrid,
+                             const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const;
+
+      void fluidEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
+      void fluidPairEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
+      void pressureEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
+      void densityConstraintEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
+      void surfaceEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
+      void forceEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
+      void ffConfinementEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
+      void volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
+      void applyConstraints(vector<double>* g) const;
   };
 
 }

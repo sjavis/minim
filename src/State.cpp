@@ -43,8 +43,8 @@ namespace minim {
   }
 
 
-  inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g) {
-    pot.energyGradient(coords, e, g);
+  inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
+    pot.energyGradient(coords, comm, e, g);
     if (g) pot.applyConstraints(coords, *g);
   }
 
@@ -126,7 +126,7 @@ namespace minim {
 
     // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, &e, nullptr);
+      basicEG(*pot, coords, &e, nullptr, *comm);
       return e;
     }
 
@@ -135,7 +135,7 @@ namespace minim {
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, &e, nullptr, *comm);
     } else {
-      basicEG(*pot, coords, &e, nullptr);
+      basicEG(*pot, coords, &e, nullptr, *comm);
     }
     return comm->sum(e);
   }
@@ -146,7 +146,7 @@ namespace minim {
 
     // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, nullptr, &g);
+      basicEG(*pot, coords, nullptr, &g, *comm);
       return g;
     }
 
@@ -155,7 +155,7 @@ namespace minim {
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, nullptr, &g, *comm);
     } else {
-      basicEG(*pot, blockCoords, nullptr, &g);
+      basicEG(*pot, blockCoords, nullptr, &g, *comm);
     }
     return comm->gather(g);
   }
@@ -165,7 +165,7 @@ namespace minim {
 
     // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, e, g);
+      basicEG(*pot, coords, e, g, *comm);
       return;
     }
 
@@ -174,7 +174,7 @@ namespace minim {
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, e, g, *comm);
     } else {
-      basicEG(*pot, blockCoords, e, g);
+      basicEG(*pot, blockCoords, e, g, *comm);
     }
     if (e != nullptr) *e = comm->sum(*e);
     if (g != nullptr) *g = comm->gather(*g);
@@ -188,11 +188,11 @@ namespace minim {
     double e;
     if (pot->potentialType() == Potential::SERIAL) {
       if (comm->rank() != 0) return 0;
-      basicEG(*pot, coords, &e, nullptr);
+      basicEG(*pot, coords, &e, nullptr, *comm);
     } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, coords, &e, nullptr, *comm);
     } else {
-      basicEG(*pot, coords, &e, nullptr);
+      basicEG(*pot, coords, &e, nullptr, *comm);
     }
     return e;
   }
@@ -204,7 +204,7 @@ namespace minim {
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, coords, nullptr, &g, *comm);
     } else {
-      basicEG(*pot, coords, nullptr, &g);
+      basicEG(*pot, coords, nullptr, &g, *comm);
     }
     return g;
   }
@@ -213,12 +213,12 @@ namespace minim {
     if (!usesThisProc) return;
 
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, e, g);
+      basicEG(*pot, coords, e, g, *comm);
       if (e && comm->rank() != 0) *e = 0;
     } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, coords, e, g, *comm);
     } else {
-      basicEG(*pot, coords, e, g);
+      basicEG(*pot, coords, e, g, *comm);
     }
   }
 

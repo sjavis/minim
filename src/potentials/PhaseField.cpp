@@ -5,6 +5,7 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
+#include "communicators/CommGrid.h"
 #include "minimisers/Lbfgs.h"
 
 
@@ -38,34 +39,24 @@ namespace minim {
     return {x, y, z};
   }
 
-  // Used to calculate the indicies of the neighbouring nodes
-  class Neighbours {
-    public:
-      std::array<int,26> di;
-      vector2d<int> dx = {{
-        // Adjacent faces
-        {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
-        // Adjacent edges
-        {-1, -1,  0}, {-1,  0, -1}, {-1,  0,  1}, {-1,  1,  0},
-        { 0, -1, -1}, { 0, -1,  1}, { 0,  1, -1}, { 0,  1,  1},
-        { 1, -1,  0}, { 1,  0, -1}, { 1,  0,  1}, { 1,  1,  0},
-        // Adjacent corners
-        {-1, -1, -1}, {-1, -1,  1}, {-1,  1, -1}, {-1,  1,  1},
-        { 1, -1, -1}, { 1, -1,  1}, { 1,  1, -1}, { 1,  1,  1}
-      }};
+  int getIdx(const vector<int>& coord, const vector<int>& gridSize) {
+    int x = (coord[0] + gridSize[0]) % gridSize[0];
+    int y = (coord[1] + gridSize[1]) % gridSize[1];
+    int z = (coord[2] + gridSize[2]) % gridSize[2];
+    return (x*gridSize[1] + y)*gridSize[2] + z;
+  }
 
-      int operator[](int i) { return di[i]; };
-
-      Neighbours(vector<int> gridSize, int i0) {
-        auto x0 = getCoord(i0, gridSize);
-        for (int i=0; i<26; i++) {
-          int x = (x0[0] + dx[i][0] + gridSize[0]) % gridSize[0];
-          int y = (x0[1] + dx[i][1] + gridSize[1]) % gridSize[1];
-          int z = (x0[2] + dx[i][2] + gridSize[2]) % gridSize[2];
-          di[i] = (x*gridSize[1] + y)*gridSize[2] + z;
-        }
-      }
-  };
+  vector2d<int> dx = {{
+    // Adjacent faces
+    {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
+    // Adjacent edges
+    {-1, -1,  0}, {-1,  0, -1}, {-1,  0,  1}, {-1,  1,  0},
+    { 0, -1, -1}, { 0, -1,  1}, { 0,  1, -1}, { 0,  1,  1},
+    { 1, -1,  0}, { 1,  0, -1}, { 1,  0,  1}, { 1,  1,  0},
+    // Adjacent corners
+    {-1, -1, -1}, {-1, -1,  1}, {-1,  1, -1}, {-1,  1,  1},
+    { 1, -1, -1}, { 1, -1,  1}, { 1,  1, -1}, { 1,  1,  1}
+  }};
 
 
   void PhaseField::assignFluidCoefficients() {
@@ -75,12 +66,12 @@ namespace minim {
     if ((int)interfaceSize.size() == 1) {
       interfaceSize = vector<double>(nParams, interfaceSize[0]);
     } else if ((int)interfaceSize.size() != nParams) {
-      throw std::invalid_argument("Invalid size of interfaceSize array.");
+      throw std::invalid_argument("PhaseField: Invalid size of interfaceSize array.");
     }
     if ((int)surfaceTension.size() == 1) {
       surfaceTension = vector<double>(nParams, surfaceTension[0]);
     } else if ((int)surfaceTension.size() != nParams) {
-      throw std::invalid_argument("Invalid size of surfaceTension array.");
+      throw std::invalid_argument("PhaseField: Invalid size of surfaceTension array.");
     }
     surfaceTensionMean = vec::sum(surfaceTension) / nParams; // Used to scale energies
 
@@ -109,7 +100,7 @@ namespace minim {
 
   void PhaseField::init(const vector<double>& coords) {
     if ((int)coords.size() != nGrid*nFluid) {
-      throw std::invalid_argument("Size of coordinates array does not match the grid size.");
+      throw std::invalid_argument("PhaseField: Size of coordinates array does not match the grid size.");
     }
 
     setDefaults();
@@ -119,8 +110,8 @@ namespace minim {
     if (densityConstraint == DENSITY_FIXED) fixFluid[nFluid-1] = true;
 
     // Forces
-    vector<double> fMag(nFluid);
-    vector2d<double> fNorm(nFluid);
+    fMag = vector<double>(nFluid);
+    fNorm = vector2d<double>(nFluid);
     if (!force.empty()) {
       for (int i=0; i<nFluid; i++) {
         fMag[i] = vec::norm(force[i]);
@@ -128,9 +119,35 @@ namespace minim {
       }
     }
 
+    // Set initial volumes for constant volume constraint
+    if (volume.empty() && volumeFixed) {
+      volume = vector<double>(nFluid, 0);
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          volume[iFluid] += coords[iFluid+nFluid*iGrid] * nodeVol[iGrid];
+        }
+      }
+    }
+
+    // Set initial values for confinement potential
+    if (vec::any(confinementStrength)) ffInit = coords;
+  }
+
+
+  void PhaseField::distributeParameters(const Communicator& comm) {
+    auto commGrid = static_cast<const CommGrid&>(comm);
+    procSizes = commGrid.procSizes;
+    procStart = commGrid.procStart;
+    nGrid = vec::product(procSizes);
+
+    // Distribute
+    solid = comm.assignProc(solid);
+    if (!contactAngle.empty()) contactAngle = comm.assignProc(contactAngle);
+    if (!ffInit.empty()) ffInit = comm.assignProc(ffInit);
+
     // Get fluid volume and solid surface area for each node
     nodeVol = vector<double>(nGrid, 0);
-    auto surfaceArea = vector<double>(nGrid, 0);
+    surfaceArea = vector<double>(nGrid, 0);
     for (int iGrid=0; iGrid<nGrid; iGrid++) {
       int type = getType(iGrid);
       if (type == 0) {
@@ -144,143 +161,281 @@ namespace minim {
       nodeVol[iGrid] = nodeVol[iGrid] * pow(resolution, 3);
       surfaceArea[iGrid] = surfaceArea[iGrid] * pow(resolution, 2);
     }
+  }
 
-    // Set initial volumes
-    if (volume.empty() && volumeFixed) {
-      volume = vector<double>(nFluid, 0);
-      for (int iGrid=0; iGrid<nGrid; iGrid++) {
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          volume[iFluid] += coords[iFluid+nFluid*iGrid] * nodeVol[iGrid];
+
+  inline void PhaseField::phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
+                                        const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
+    int i0 = iGrid * nFluid + iFluid;
+    double c1 = coords[i0];
+
+    double grad2 = 0;
+    for (int iDir=0; iDir<3; iDir++) {
+      if (procSizes[iDir] == 1) continue;
+
+      int imGrid = neighbours[iDir][0];
+      int ipGrid = neighbours[iDir][1];
+      int im = imGrid * nFluid + iFluid;
+      int ip = ipGrid * nFluid + iFluid;
+
+      if (!solid[imGrid] && !solid[ipGrid]) { // No solid
+        double gradm = c1 - coords[im];
+        double gradp = c1 - coords[ip];
+        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
+        if (g) {
+          (*g)[i0] += factor * (gradm + gradp);
+          (*g)[im] -= factor * gradm;
+          (*g)[ip] -= factor * gradp;
+        }
+
+      } else if (!solid[ipGrid]) { // Solid on negative side
+        double gradp = c1 - coords[ip];
+        if (e) grad2 += pow(gradp,2);
+        if (g) {
+          (*g)[i0] += factor * 2*gradp;
+          (*g)[ip] -= factor * 2*gradp;
+        }
+
+      } else if (!solid[imGrid]) { // Solid on positive side
+        double gradm = c1 - coords[im];
+        if (e) grad2 += pow(gradm,2);
+        if (g) {
+          (*g)[i0] += factor * 2*gradm;
+          (*g)[im] -= factor * 2*gradm;
         }
       }
     }
 
-    // Assign elements
-    elements = {};
-    for (int iGrid=0; iGrid<nGrid; iGrid++) {
-      if (solid[iGrid]) continue;
+    if (e) *e += factor * grad2;
+  }
 
-      // Set bulk fluid elements
-      Neighbours di(gridSize, iGrid);
-      vector<int> iNodes = {iGrid, di[0], di[1], di[2], di[3], di[4], di[5]};
-      for (auto &iNode: iNodes) {
-        if (solid[iNode]) iNode = iGrid;
-      }
-      if (model == MODEL_BASIC) {
-        if (densityConstraint == DENSITY_FIXED) {
-          elements.push_back({FLUID_ENERGY_ALL, iNodes*nFluid, {nodeVol[iGrid]}});
-        } else {
-          for (int iFluid=0; iFluid<nFluid; iFluid++) {
-            vector<int> idofs = iNodes*nFluid+iFluid;
-            elements.push_back({FLUID_ENERGY, idofs, {nodeVol[iGrid], (double)iFluid}});
-          }
+
+  inline void PhaseField::phasePairGradient(const vector<double>& coords, int iGrid, int iFluid1, int iFluid2, const vector<int>& xGrid,
+                                            const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
+    int i01 = iGrid * nFluid + iFluid1;
+    int i02 = iGrid * nFluid + iFluid2;
+    double c1 = coords[i01];
+    double c2 = coords[i02];
+
+    double grad2 = 0;
+    for (int iDir=0; iDir<3; iDir++) {
+      if (procSizes[iDir] == 1) continue;
+
+      int imGrid = neighbours[iDir][0];
+      int ipGrid = neighbours[iDir][1];
+      int im1 = imGrid * nFluid + iFluid1;
+      int ip1 = ipGrid * nFluid + iFluid1;
+      int im2 = imGrid * nFluid + iFluid2;
+      int ip2 = ipGrid * nFluid + iFluid2;
+
+      if (!solid[imGrid] && !solid[ipGrid]) { // No solid
+        double gradm1 = c1 - coords[im1];
+        double gradm2 = c2 - coords[im2];
+        double gradp1 = c1 - coords[ip1];
+        double gradp2 = c2 - coords[ip2];
+        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
+        if (g) {
+          (*g)[i01] += factor * (gradm2 + gradp2);
+          (*g)[i02] += factor * (gradm1 + gradp1);
+          (*g)[im1] -= factor * gradm2;
+          (*g)[im2] -= factor * gradm1;
+          (*g)[ip1] -= factor * gradp2;
+          (*g)[im2] -= factor * gradm1;
         }
-      } else if (model == MODEL_NCOMP) {
-        int iPair = 0;
-        for (int iFluid1=0; iFluid1<nFluid; iFluid1++) {
-          for (int iFluid2=iFluid1+1; iFluid2<nFluid; iFluid2++) {
-            vector<int> idofs;
-            idofs.reserve(14);
-            for (auto iNode: iNodes) {
-              idofs.push_back(iNode*nFluid+iFluid1);
-              idofs.push_back(iNode*nFluid+iFluid2);
-            }
-            elements.push_back({FLUID_PAIR_ENERGY, idofs, {nodeVol[iGrid], (double)iPair}});
-            iPair++;
-          }
+
+      } else if (!solid[ipGrid]) { // Solid on negative side
+        double gradp1 = c1 - coords[ip1];
+        double gradp2 = c2 - coords[ip2];
+        if (e) grad2 += gradp1 * gradp2;
+        if (g) {
+          (*g)[i01] += factor * 2*gradp2;
+          (*g)[i02] += factor * 2*gradp1;
+          (*g)[ip1] -= factor * 2*gradp2;
+          (*g)[ip2] -= factor * 2*gradp1;
         }
-      }
 
-      // Pressure elements
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (pressure[iFluid]==0) continue;
-        int iDof = iGrid*nFluid + iFluid;
-        elements.push_back({PRESSURE_ENERGY, {iDof}});
-      }
-
-      // Set soft density constraint elements
-      if (nFluid>1 && densityConstraint==DENSITY_SOFT) {
-        vector<int> idofs = vector<int>(nFluid);
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          idofs[iFluid] = iGrid * nFluid + iFluid;
+      } else if (!solid[imGrid]) { // Solid on positive side
+        double gradm1 = c1 - coords[im1];
+        double gradm2 = c2 - coords[im2];
+        if (e) grad2 += gradm1 * gradm2;
+        if (g) {
+          (*g)[i01] += factor * 2*gradm2;
+          (*g)[i02] += factor * 2*gradm1;
+          (*g)[im1] -= factor * 2*gradm2;
+          (*g)[im2] -= factor * 2*gradm1;
         }
-        elements.push_back({DENSITY_CONSTRAINT_ENERGY, idofs});
-      }
-
-      // Set surface fluid elements
-      if (surfaceArea[iGrid] > 0 && !contactAngle.empty() && contactAngle[iGrid]!=90) {
-        double wettingParam = 1/sqrt(2.0) * cos(contactAngle[iGrid] * 3.1415926536/180);
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          int idof = iGrid * nFluid + iFluid;
-          elements.push_back({SURFACE_ENERGY, {idof}, {surfaceArea[iGrid], wettingParam}});
-        }
-      }
-
-      // Set external force elements
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (fMag[iFluid]>0 && !solid[iGrid]) {
-          vector<int> coordI = getCoord(iGrid);
-          vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
-          double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
-          vector<double> params{nodeVol[iGrid], fMag[iFluid], h};
-          int idof = iGrid * nFluid + iFluid;
-          elements.push_back({FORCE_ENERGY, {idof}, params});
-        }
-      }
-
-      // Set confining potential elements for the frozen fluid method
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (confinementStrength[iFluid] == 0) continue;
-        int idof = iGrid * nFluid + iFluid;
-        elements.push_back({FF_CONFINEMENT_ENERGY, {idof}, {confinementStrength[iFluid], coords[idof]}});
       }
     }
 
-    // Set constraints
-    constraints = {};
-    // Hard density constraint
-    if (nFluid>1 && densityConstraint==DENSITY_HARD) {
-      vector<int> iVariableFluid;
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
-      }
-      vector2d<int> idofs(nGrid);
-      for (int iGrid=0; iGrid<nGrid; iGrid++) idofs[iGrid] = iGrid*nFluid + iVariableFluid;
-      setConstraints(idofs, vector<double>(iVariableFluid.size(), 1));
-    }
-    // Fixed fluid
+    if (e) *e += factor * grad2;
+  }
+
+
+  void PhaseField::fluidEnergy(const vector<double>& coords, int iGrid, const vector<int>& xGrid, double* e, vector<double>* g) const {
+    vector2d<int> neighbours(3);
+    neighbours[0] = {getIdx(xGrid+dx[0], procSizes), getIdx(xGrid+dx[5], procSizes)};
+    neighbours[1] = {getIdx(xGrid+dx[1], procSizes), getIdx(xGrid+dx[4], procSizes)};
+    neighbours[2] = {getIdx(xGrid+dx[2], procSizes), getIdx(xGrid+dx[3], procSizes)};
+
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (!fixFluid[iFluid]) continue;
-      vector<int> idofs = iFluid + nFluid*vec::iota(nGrid);
-      setConstraints(idofs);
+      int iDof = iGrid * nFluid + iFluid;
+      double c = coords[iDof];
+
+      // Bulk energy
+      if (nFluid == 1) {
+        double factor = kappa[0] / 16 * nodeVol[iGrid];
+        if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
+        if (g) (*g)[iDof] += factor * 4 * c * (c*c - 1);
+      } else {
+        double factor = 0.5 * kappa[iFluid] * nodeVol[iGrid];
+        if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
+        if (g) (*g)[iDof] += factor * 2 * c * (c-1) * (2*c-1);
+      }
+
+      // Gradient energy
+      double factor = (nFluid==1) ? 0.25*kappaP[0]*nodeVol[iGrid] : 0.5*kappaP[iFluid]*nodeVol[iGrid];
+      factor = factor / pow(resolution, 2);
+      phaseGradient(coords, iGrid, iFluid, xGrid, neighbours, factor, e, g);
     }
   }
 
 
-  void PhaseField::distributeParameters(const Communicator& comm) {
-    if (nGrid % comm.size() != 0) {
-      throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
-    }
-    // Store only the relevant node volumes and fluid numbers
-    // These are required by volume constraint so cannot be stored in element parameters
-    vector<double> nodeVolTmp(nGrid * nFluid);
-    vector<double> fluidTypeTmp(nGrid * nFluid);
-    for (int iNode=0; iNode<nGrid; iNode++) {
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        nodeVolTmp[nFluid*iNode+iFluid] = nodeVol[iNode];
-        fluidTypeTmp[nFluid*iNode+iFluid] = iFluid;
+  void PhaseField::fluidPairEnergy(const vector<double>& coords, int iGrid, const vector<int>& xGrid, double* e, vector<double>* g) const {
+    vector2d<int> neighbours(3);
+    neighbours[0] = {getIdx(xGrid+dx[0], procSizes), getIdx(xGrid+dx[5], procSizes)};
+    neighbours[1] = {getIdx(xGrid+dx[1], procSizes), getIdx(xGrid+dx[4], procSizes)};
+    neighbours[2] = {getIdx(xGrid+dx[2], procSizes), getIdx(xGrid+dx[3], procSizes)};
+
+    int iPair = 0;
+    for (int iFluid1=0; iFluid1<nFluid; iFluid1++) {
+      for (int iFluid2=iFluid1+1; iFluid2<nFluid; iFluid2++) {
+        int iDof1 = iGrid * nFluid + iFluid1;
+        int iDof2 = iGrid * nFluid + iFluid2;
+        double c1 = coords[iDof1];
+        double c2 = coords[iDof2];
+
+        // Bulk energy
+        double factor = 2 * kappa[iPair] * nodeVol[iGrid]; // kappa = beta
+        if (e) {
+          auto quartic = [](double c){ return pow(c,2)*pow(c-1,2); };
+          *e += factor * (quartic(c1) + quartic(c2) + quartic(c1+c2));
+        }
+        if (g) {
+          auto gQuartic = [](double c){ return 2*c*(c-1)*(2*c-1); };
+          double gQ12 = gQuartic(c1 + c2);
+          (*g)[iDof1] += factor * (gQuartic(c1) + gQ12);
+          (*g)[iDof2] += factor * (gQuartic(c2) + gQ12);
+        }
+
+        // Gradient energy
+        double res2 = pow(resolution, 2);
+        factor = -0.25 * kappaP[iPair] * nodeVol[iGrid] / res2; // kappaP = -4 lambda
+        phasePairGradient(coords, iGrid, iFluid1, iFluid2, xGrid, neighbours, factor, e, g);
+
+        iPair++;
       }
     }
-    nodeVol = comm.assignProc(nodeVolTmp);
-    fluidTypeTmp = comm.assignProc(fluidTypeTmp);
-    fluidType = vector<int>(fluidTypeTmp.begin(), fluidTypeTmp.end());
   }
 
 
-  void PhaseField::blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
-    // Constant volume constraint relies upon the whole system
-    if (!volumeFixed) return;
+  void PhaseField::pressureEnergy(const vector<double>& coords, int iGrid, double* e, vector<double>* g) const {
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (pressure[iFluid]==0) continue;
 
+      int iDof = iGrid * nFluid + iFluid;
+
+      if (nFluid == 1) {
+        double volume = 0.5*(coords[iDof]+1) * nodeVol[iDof];
+        if (e) *e -= pressure[iFluid] * volume;
+        if (g) (*g)[iDof] -= 0.5 * pressure[iFluid] * nodeVol[iDof];
+
+      } else {
+        double volume = coords[iDof] * nodeVol[iDof];
+        if (e) *e -= pressure[iFluid] * volume;
+        if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iDof];
+      }
+    }
+  }
+
+
+  void PhaseField::densityConstraintEnergy(const vector<double>& coords, int iGrid, double* e, vector<double>* g) const {
+    if (nFluid==1 || densityConstraint!=DENSITY_SOFT) return;
+
+    // Total density soft constraint
+    double coef = densityConst * surfaceTensionMean * pow(resolution, 2);
+    double rhoDiff = -1;
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      rhoDiff += coords[iGrid*nFluid+iFluid];
+    }
+
+    if (e) *e += coef * pow(rhoDiff, 2);
+
+    if (!g) return;
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      (*g)[iGrid*nFluid+iFluid] += 2 * coef * rhoDiff;
+    }
+  }
+
+
+  void PhaseField::surfaceEnergy(const vector<double>& coords, int iGrid, double* e, vector<double>* g) const {
+    if (surfaceArea[iGrid]==0 || contactAngle.empty() || contactAngle[iGrid]==90) return;
+    if (nFluid > 1) return; // Currently only implemented for binary fluids
+
+    double wettingParam = 1/sqrt(2.0) * cos(contactAngle[iGrid] * 3.1415926536/180);
+    double phi = coords[iGrid];
+    if (e) *e += wettingParam * (pow(phi,3)/3 - phi - 2.0/3) * surfaceArea[iGrid];
+    if (g) (*g)[iGrid] += wettingParam * (pow(phi,2) - 1) * surfaceArea[iGrid];
+  }
+
+
+  void PhaseField::forceEnergy(const vector<double>& coords, int iGrid, const vector<int>& xGrid, double* e, vector<double>* g) const {
+    if (solid[iGrid] || !vec::any(fMag)) return;
+
+    // Get the global Cartesian coordinates
+    vector<int> coordI = xGrid + procStart;
+    vector<double> coord{coordI[0]-(gridSize[0]-1)/2.0, coordI[1]-(gridSize[1]-1)/2.0, coordI[2]-(gridSize[2]-1)/2.0};
+
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (fMag[iFluid]==0) continue;
+
+      // Get liquid concentration
+      int iDof = iGrid * nFluid + iFluid;
+      double c = (nFluid==1) ? 0.5*(1+coords[iDof]) : coords[iDof];
+      if (c < 0.01) continue; // So gradient is zero in bulk gas phase
+
+      // Get the height
+      double h = - vec::dotProduct(coord, fNorm[iFluid]) * resolution;
+      double ePerConc = nodeVol[iGrid] * fMag[iFluid] * h;
+
+      // Energy and gradient
+      if (e) *e += c * ePerConc;
+      if (!g) return;
+      if (nFluid == 1) {
+        (*g)[iDof] += 0.5 * ePerConc;
+      } else {
+        (*g)[iDof] += ePerConc;
+      }
+    }
+  }
+
+
+  void PhaseField::ffConfinementEnergy(const vector<double>& coords, int iGrid, double* e, vector<double>* g) const {
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (confinementStrength[iFluid] == 0) continue;
+
+      int iDof = iGrid*nFluid+iFluid;
+      double coef = confinementStrength[iFluid] * surfaceTensionMean * pow(resolution, 2);
+      double c = coords[iDof];
+      double c0 = ffInit[iDof];
+      if ((c0-0.5)*(c-0.5) < 0) {
+        if (e) *e += coef * pow(c-0.5, 2);
+        if (g) (*g)[iDof] += coef * 2 * (c-0.5);
+      }
+    }
+  }
+
+
+  void PhaseField::volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Get the fluid volumes
     vector<double> volFluid(nFluid, 0);
     for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
@@ -308,419 +463,72 @@ namespace minim {
   }
 
 
-  void phaseGradient(const vector<double>& coords, const vector<int> idof, double factor, double* e, vector<double>* g) {
-    double c1 = coords[idof[0]];
-    double grad2 = 0;
-
-    // Single phase
-    if (idof.size() == 7) {
-
-      // X-gradient
-      if ((idof[1]!=idof[0]) && (idof[6]!=idof[0])) { // No solid in x direction
-        double gradm = c1 - coords[idof[1]];
-        double gradp = c1 - coords[idof[6]];
-        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm + gradp);
-          (*g)[idof[1]] -= factor * gradm;
-          (*g)[idof[6]] -= factor * gradp;
-        }
-      } else if (idof[6] != idof[0]) { // Solid on negative side in x direction
-        double gradp = c1 - coords[idof[6]];
-        if (e) grad2 += pow(gradp,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradp;
-          (*g)[idof[6]] -= factor * 2*gradp;
-        }
-      } else if (idof[1] != idof[0]) { // Solid on positive side in x direction
-        double gradm = c1 - coords[idof[1]];
-        if (e) grad2 += pow(gradm,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm;
-          (*g)[idof[1]] -= factor * 2*gradm;
-        }
-      }
-
-      // Y-gradient
-      if ((idof[2]!=idof[0]) && (idof[5]!=idof[0])) { // No solid in y direction
-        double gradm = c1 - coords[idof[2]];
-        double gradp = c1 - coords[idof[5]];
-        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm + gradp);
-          (*g)[idof[2]] -= factor * gradm;
-          (*g)[idof[5]] -= factor * gradp;
-        }
-      } else if (idof[5] != idof[0]) { // Solid on negative side in y direction
-        double gradp = c1 - coords[idof[5]];
-        if (e) grad2 += pow(gradp,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradp;
-          (*g)[idof[5]] -= factor * 2*gradp;
-        }
-      } else if (idof[2] != idof[0]) { // Solid on positive side in y direction
-        double gradm = c1 - coords[idof[2]];
-        if (e) grad2 += pow(gradm,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm;
-          (*g)[idof[2]] -= factor * 2*gradm;
-        }
-      }
-
-      // Z-gradient
-      if ((idof[3]!=idof[0]) && (idof[4]!=idof[0])) { // No solid in z direction
-        double gradm = c1 - coords[idof[3]];
-        double gradp = c1 - coords[idof[4]];
-        if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm + gradp);
-          (*g)[idof[3]] -= factor * gradm;
-          (*g)[idof[4]] -= factor * gradp;
-        }
-      } else if (idof[4] != idof[0]) { // Solid on negative side in z direction
-        double gradp = c1 - coords[idof[4]];
-        if (e) grad2 += pow(gradp,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradp;
-          (*g)[idof[4]] -= factor * 2*gradp;
-        }
-      } else if (idof[3] != idof[0]) { // Solid on positive side in z direction
-        double gradm = c1 - coords[idof[3]];
-        if (e) grad2 += pow(gradm,2);
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm;
-          (*g)[idof[3]] -= factor * 2*gradm;
-        }
-      }
-
-      if (e) *e += factor * grad2;
-
-    // Pair of phases
-    } else if (idof.size() == 14) {
-      double c2 = coords[idof[1]];
-
-      // X-gradient
-      if ((idof[2]!=idof[0]) && (idof[12]!=idof[0])) { // No solid in x direction
-        double gradm1 = c1 - coords[idof[2]];
-        double gradm2 = c2 - coords[idof[3]];
-        double gradp1 = c1 - coords[idof[12]];
-        double gradp2 = c2 - coords[idof[13]];
-        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm2 + gradp2);
-          (*g)[idof[1]] += factor * (gradm1 + gradp1);
-          (*g)[idof[2]] -= factor * gradm2;
-          (*g)[idof[3]] -= factor * gradm1;
-          (*g)[idof[12]] -= factor * gradp2;
-          (*g)[idof[13]] -= factor * gradp1;
-        }
-      } else if (idof[12] != idof[0]) { // Solid on negative side in x direction
-        double gradp1 = c1 - coords[idof[12]];
-        double gradp2 = c2 - coords[idof[13]];
-        if (e) grad2 += gradp1*gradp2;
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradp2;
-          (*g)[idof[1]] += factor * 2*gradp1;
-          (*g)[idof[12]] -= factor * 2*gradp2;
-          (*g)[idof[13]] -= factor * 2*gradp1;
-        }
-      } else if (idof[2] != idof[0]) { // Solid on positive side in x direction
-        double gradm1 = c1 - coords[idof[2]];
-        double gradm2 = c2 - coords[idof[3]];
-        if (e) grad2 += gradm1*gradm2;
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm2;
-          (*g)[idof[1]] += factor * 2*gradm1;
-          (*g)[idof[2]] -= factor * 2*gradm2;
-          (*g)[idof[3]] -= factor * 2*gradm1;
-        }
-      }
-
-      // Y-gradient
-      if ((idof[4]!=idof[0]) && (idof[10]!=idof[0])) { // No solid in y direction
-        double gradm1 = c1 - coords[idof[4]];
-        double gradm2 = c2 - coords[idof[5]];
-        double gradp1 = c1 - coords[idof[10]];
-        double gradp2 = c2 - coords[idof[11]];
-        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm2 + gradp2);
-          (*g)[idof[1]] += factor * (gradm1 + gradp1);
-          (*g)[idof[4]] -= factor * gradm2;
-          (*g)[idof[5]] -= factor * gradm1;
-          (*g)[idof[10]] -= factor * gradp2;
-          (*g)[idof[11]] -= factor * gradp1;
-        }
-      } else if (idof[10] != idof[0]) { // Solid on negative side in y direction
-        double gradp1 = c1 - coords[idof[10]];
-        double gradp2 = c2 - coords[idof[11]];
-        if (e) grad2 += gradp1*gradp2;
-        if (g) {
-          (*g)[idof[0]] += factor * gradp2;
-          (*g)[idof[1]] += factor * gradp1;
-          (*g)[idof[10]] -= factor * gradp2;
-          (*g)[idof[11]] -= factor * gradp1;
-        }
-      } else if (idof[4] != idof[0]) { // Solid on positive side in y direction
-        double gradm1 = c1 - coords[idof[4]];
-        double gradm2 = c2 - coords[idof[5]];
-        if (e) grad2 += gradm1*gradm2;
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm2;
-          (*g)[idof[1]] += factor * 2*gradm1;
-          (*g)[idof[4]] -= factor * 2*gradm2;
-          (*g)[idof[5]] -= factor * 2*gradm1;
-        }
-      }
-
-      // Z-gradient
-      if ((idof[6]!=idof[0]) && (idof[8]!=idof[0])) { // No solid in z direction
-        double gradm1 = c1 - coords[idof[6]];
-        double gradm2 = c2 - coords[idof[7]];
-        double gradp1 = c1 - coords[idof[8]];
-        double gradp2 = c2 - coords[idof[9]];
-        if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
-        if (g) {
-          (*g)[idof[0]] += factor * (gradm2 + gradp2);
-          (*g)[idof[1]] += factor * (gradm1 + gradp1);
-          (*g)[idof[6]] -= factor * gradm2;
-          (*g)[idof[7]] -= factor * gradm1;
-          (*g)[idof[8]] -= factor * gradp2;
-          (*g)[idof[9]] -= factor * gradp1;
-        }
-      } else if (idof[8] != idof[0]) { // Solid on negative side in z direction
-        double gradp1 = c1 - coords[idof[8]];
-        double gradp2 = c2 - coords[idof[9]];
-        if (e) grad2 += gradp1*gradp2;
-        if (g) {
-          (*g)[idof[0]] += factor * gradp2;
-          (*g)[idof[1]] += factor * gradp1;
-          (*g)[idof[8]] -= factor * gradp2;
-          (*g)[idof[9]] -= factor * gradp1;
-        }
-      } else if (idof[6] != idof[0]) { // Solid on positive side in z direction
-        double gradm1 = c1 - coords[idof[6]];
-        double gradm2 = c2 - coords[idof[7]];
-        if (e) grad2 += gradm1*gradm2;
-        if (g) {
-          (*g)[idof[0]] += factor * 2*gradm2;
-          (*g)[idof[1]] += factor * 2*gradm1;
-          (*g)[idof[6]] -= factor * 2*gradm2;
-          (*g)[idof[7]] -= factor * 2*gradm1;
-        }
-      }
-
-      if (e) *e += factor * grad2;
-    }
-  }
-
-
-  void PhaseField::fluidEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    double vol = el.parameters[0];
-    int iFluid = el.parameters[1];
-    double c = coords[el.idof[0]];
-
-    // Bulk energy
-    if (nFluid == 1) {
-      double factor = kappa[0] / 16 * vol;
-      if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
-      if (g) (*g)[el.idof[0]] += factor * 4 * c * (c*c - 1);
-    } else {
-      double factor = 0.5 * kappa[iFluid] * vol;
-      if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
-      if (g) (*g)[el.idof[0]] += factor * 2 * c * (c-1) * (2*c-1);
-    }
-
-    // Gradient energy
-    double factor = (nFluid==1) ? 0.25*kappaP[0]*vol : 0.5*kappaP[iFluid]*vol;
-    factor = factor / pow(resolution, 2);
-    phaseGradient(coords, el.idof, factor, e, g);
-  }
-
-
-  void PhaseField::fluidEnergyAll(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    // Compute the energy for all N-1 phases
-    double vol = el.parameters[0];
-
-    // Get energy and gradient of the Nth fluid
-    int nNodes = 7;
-    vector<double> cN(nNodes, 1);
-    vector<double> gN(nNodes);
-    for (int iFluid=0; iFluid<nFluid-1; iFluid++) {
-      for (int i=0; i<nNodes; i++) {
-        cN[i] -= coords[el.idof[i] + iFluid];
+  void PhaseField::applyConstraints(vector<double>* g) const {
+    // Fixed fluid
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (!fixFluid[iFluid]) continue;
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+        (*g)[iGrid*nFluid+iFluid] = 0;
       }
     }
-    double bfactorN = 0.5 * kappa[nFluid-1] * vol;
-    double gfactorN = 0.5 * kappaP[nFluid-1] * vol;
-    if (e) *e += bfactorN * pow(cN[0], 2) * pow(cN[0]-1, 2);
-    if (g) {
-      gN[0] += bfactorN * 2 * cN[0] * (cN[0]-1) * (2*cN[0]-1);
-      phaseGradient(cN, vec::iota(7), gfactorN, e, &gN);
-    } else {
-      phaseGradient(cN, vec::iota(7), gfactorN, e, nullptr);
-    }
 
-    // All other fluids
-    for (int iFluid=0; iFluid<nFluid-1; iFluid++) {
-      vector<int> idof = el.idof + iFluid;
+    // Hard density constraint
+    if (nFluid>1 && densityConstraint==DENSITY_HARD) {
+      // Get a list of the non-fixed fluids
+      vector<int> iVariableFluid;
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+      }
+      double normFactor = 1 / sqrt((double)iVariableFluid.size());
 
-      // Bulk energy
-      double c = coords[idof[0]];
-      double bfactor = 0.5 * kappa[iFluid] * vol;
-      if (e) *e += bfactor * pow(c, 2) * pow(c-1, 2);
-      if (g) (*g)[idof[0]] += bfactor * 2 * c * (c-1) * (2*c-1);
-
-      // Gradient energy
-      double gfactor = 0.5 * kappaP[iFluid] * vol;
-      gfactor = gfactor / pow(resolution, 2);
-      phaseGradient(coords, idof, gfactor, e, g);
-
-      // Contribution to Nth fluid
-      if (g) {
-        for (int i=0; i<nNodes; i++) {
-          (*g)[idof[i]] -= gN[i];
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+        // Dot product to get component of increasing density
+        double component = 0;
+        for (int iFluid: iVariableFluid) {
+          component += (*g)[iGrid*nFluid+iFluid];
+        }
+        component *= normFactor;
+        // Remove the component
+        for (int iFluid: iVariableFluid) {
+          (*g)[iGrid*nFluid+iFluid] -= component;
         }
       }
     }
   }
 
 
-  void PhaseField::fluidPairEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    double vol = el.parameters[0];
-    int iPair = el.parameters[1];
-    double c1 = coords[el.idof[0]];
-    double c2 = coords[el.idof[1]];
+  void PhaseField::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
+    if (g) *g = vector<double>(coords.size());
 
-    // Bulk energy
-    double factor = 2 * kappa[iPair] * vol; // kappa = beta
-    if (e) {
-      auto quartic = [](double c){ return pow(c,2)*pow(c-1,2); };
-      *e += factor * (quartic(c1) + quartic(c2) + quartic(c1+c2));
-    }
-    if (g) {
-      auto gQuartic = [](double c){ return 2*c*(c-1)*(2*c-1); };
-      (*g)[el.idof[0]] += factor * (gQuartic(c1) + gQuartic(c2) + gQuartic(c1+c2));
-    }
+    vector<int> commArray = dynamic_cast<const CommGrid&>(comm).commArray;
+    int xHalo = (commArray[0]==1) ? 0 : 1;
+    int yHalo = (commArray[1]==1) ? 0 : 1;
+    int zHalo = (commArray[2]==1) ? 0 : 1;
 
-    // Gradient energy
-    double res2 = pow(resolution, 2);
-    factor = -0.25 * kappaP[iPair] * vol / res2; // kappaP = -4 lambda
-    phaseGradient(coords, el.idof, factor, e, g);
-  }
+    for (int x=xHalo; x<procSizes[0]-xHalo; x++) {
+      for (int y=yHalo; y<procSizes[1]-yHalo; y++) {
+        for (int z=zHalo; z<procSizes[2]-zHalo; z++) {
+          vector<int> xGrid{x, y, z};
+          int iGrid = getIdx(xGrid, procSizes);
 
+          if (model == MODEL_BASIC) {
+            fluidEnergy(coords, iGrid, xGrid, e, g);
+          } else if (model == MODEL_NCOMP) {
+            fluidPairEnergy(coords, iGrid, xGrid, e, g);
+          }
 
-  void PhaseField::pressureEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    // Constant volume / pressure constraints rely upon the whole system
-    int iDof = el.idof[0];
-    int iFluid = fluidType[iDof];
-
-    if (nFluid == 1) {
-      double volume = 0.5*(coords[iDof]+1) * nodeVol[iDof];
-      if (e) *e -= pressure[iFluid] * volume;
-      if (g) (*g)[iDof] -= 0.5 * pressure[iFluid] * nodeVol[iDof];
-
-    } else {
-      double volume = coords[iDof] * nodeVol[iDof];
-      if (e) *e -= pressure[iFluid] * volume;
-      if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iDof];
-    }
-  }
-
-
-  void PhaseField::densityConstraintEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-     // Total density soft constraint
-     if (nFluid == 1) return;
-     double coef = densityConst * surfaceTensionMean * pow(resolution, 2);
-     double rhoDiff = coords[el.idof[0]] + coords[el.idof[1]] + coords[el.idof[2]] - 1;
-     if (e) *e += coef * pow(rhoDiff, 2);
-     if (g) {
-       (*g)[el.idof[0]] += 2 * coef * rhoDiff;
-       (*g)[el.idof[1]] += 2 * coef * rhoDiff;
-       (*g)[el.idof[2]] += 2 * coef * rhoDiff;
-     }
-  }
-
-
-  void PhaseField::surfaceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    // Solid surface energy
-    // parameter[0]: Surface area
-    // parameter[1]: Wetting parameter 1/sqrt(2) cos(theta)
-    if (nFluid == 1) {
-      double phi = coords[el.idof[0]];
-      if (e) *e += el.parameters[1] * (pow(phi,3)/3 - phi - 2.0/3) * el.parameters[0];
-      if (g) (*g)[el.idof[0]] += el.parameters[1] * (pow(phi,2) - 1) * el.parameters[0];
-    }
-  }
-
-
-  void PhaseField::forceEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    // External force
-    // Parameters:
-    //   0: Volume
-    //   1: Magnitude of force
-    //   2: Height
-    double c = (nFluid==1) ? 0.5*(1+coords[el.idof[0]]) : coords[el.idof[0]];
-    if (c < 0.01) return;
-    double vol = el.parameters[0];
-    double f = el.parameters[1];
-    double h = el.parameters[2];
-    if (e) *e += c * vol * f * h;
-    if (g) {
-      if (nFluid == 1) {
-        (*g)[el.idof[0]] += 0.5 * vol * f * h;
-      } else {
-        (*g)[el.idof[0]] += vol * f * h;
+          surfaceEnergy(coords, iGrid, e, g);
+          pressureEnergy(coords, iGrid, e, g);
+          densityConstraintEnergy(coords, iGrid, e, g);
+          forceEnergy(coords, iGrid, xGrid, e, g);
+          ffConfinementEnergy(coords, iGrid, e, g);
+        }
       }
     }
-  }
 
+    if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
 
-  void PhaseField::ffConfinementEnergy(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    // Confining potential for the frozen fluid method
-    // Parameters:
-    //   0: Confinement strength
-    //   1: Initial concentration
-    double c = coords[el.idof[0]];
-    double strength = el.parameters[0];
-    double c0 = el.parameters[1];
-    double coef = strength * surfaceTensionMean * pow(resolution, 2);
-    if ((c0-0.5)*(c-0.5) < 0) {
-      if (e) *e += coef * pow(c-0.5, 2);
-      if (g) (*g)[el.idof[0]] += coef * 2 * (c-0.5);
-    }
-  }
-
-
-  void PhaseField::elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const {
-    switch (el.type) {
-      case FLUID_ENERGY:
-        fluidEnergy(coords, el, e, g);
-        break;
-      case FLUID_ENERGY_ALL:
-        fluidEnergyAll(coords, el, e, g);
-        break;
-      case FLUID_PAIR_ENERGY:
-        fluidPairEnergy(coords, el, e, g);
-        break;
-      case PRESSURE_ENERGY:
-        pressureEnergy(coords, el, e, g);
-        break;
-      case DENSITY_CONSTRAINT_ENERGY:
-        densityConstraintEnergy(coords, el, e, g);
-        break;
-      case SURFACE_ENERGY:
-        surfaceEnergy(coords, el, e, g);
-        break;
-      case FORCE_ENERGY:
-        forceEnergy(coords, el, e, g);
-        break;
-      case FF_CONFINEMENT_ENERGY:
-        ffConfinementEnergy(coords, el, e, g);
-        break;
-      default:
-        throw std::invalid_argument("Unknown energy element type.");
-    }
+    if (g) applyConstraints(g);
   }
 
 
@@ -770,7 +578,7 @@ namespace minim {
     } else if (method == "fixed") {
       densityConstraint = DENSITY_FIXED;
     } else {
-      throw std::invalid_argument("Invalid density constraint. Allowed methods are: fixed, none, gradient / hard, or energy penalty / soft");
+      throw std::invalid_argument("PhaseField: Invalid density constraint. Allowed methods are: fixed, none, gradient / hard, or energy penalty / soft");
     }
     return *this;
   }
@@ -832,7 +640,7 @@ namespace minim {
   }
 
   PhaseField& PhaseField::setForce(vector<double> force, vector<int> iFluid) {
-    if ((int)force.size() != 3) throw std::invalid_argument("Invalid size of force array.");
+    if ((int)force.size() != 3) throw std::invalid_argument("PhaseField: Invalid size of force array.");
     if (nFluid==1 || iFluid.empty()) {
       this->force = vector2d<double>(nFluid, force);
     } else {
@@ -856,11 +664,6 @@ namespace minim {
   }
 
 
-  vector<int> PhaseField::getCoord(int i) const {
-    return minim::getCoord(i, gridSize);
-  }
-
-
   int PhaseField::getType(int i) const {
     // Types:
     // -1: Solid (▪▪)   0: Bulk fluid (  )
@@ -870,10 +673,12 @@ namespace minim {
     if (solid[i]) return -1;
 
     // Get which neighbouring nodes are solid
-    Neighbours di(gridSize, i);
     std::array<bool,26> neiSolid;
-    for (int iNei=0; iNei<26; iNei++) {
-      neiSolid[iNei] = solid[di[iNei]];
+    auto x0 = getCoord(i, procSizes);
+    for (int iDir=0; iDir<26; iDir++) {
+      auto xNei = x0 + dx[iDir];
+      int iNei = getIdx(xNei, procSizes);
+      neiSolid[iDir] = solid[iNei];
     }
     int nSolidF = neiSolid[0] + neiSolid[1] + neiSolid[2] + neiSolid[3] + neiSolid[4] + neiSolid[5];
     int nSolidE = neiSolid[6]  + neiSolid[7]  + neiSolid[8]  + neiSolid[9]  +
@@ -913,7 +718,7 @@ namespace minim {
     } else if (nSolidF == 3) {
       return 7;
     }
-    throw std::runtime_error("Undefined surface type");
+    throw std::runtime_error("PhaseField: Undefined surface type");
   }
 
 
@@ -928,28 +733,28 @@ namespace minim {
 
   void PhaseField::checkArraySizes() {
     if ((int)interfaceSize.size() != nFluid) {
-      throw std::invalid_argument("Invalid size interfaceSize array.");
+      throw std::invalid_argument("PhaseField: Invalid size interfaceSize array.");
     }
     if ((int)solid.size() != nGrid) {
-      throw std::invalid_argument("Invalid size of solid array.");
+      throw std::invalid_argument("PhaseField: Invalid size of solid array.");
     }
     if ((int)contactAngle.size() != nGrid*nFluid && !contactAngle.empty()) {
-      throw std::invalid_argument("Invalid size of contactAngle array.");
+      throw std::invalid_argument("PhaseField: Invalid size of contactAngle array.");
     }
     if ((int)force.size() != nFluid && !force.empty()) {
-      throw std::invalid_argument("Invalid size of force array.");
+      throw std::invalid_argument("PhaseField: Invalid size of force array.");
     }
     if ((int)volume.size() != nFluid && !volume.empty()) {
-      throw std::invalid_argument("Invalid size of volume array.");
+      throw std::invalid_argument("PhaseField: Invalid size of volume array.");
     }
     if ((int)pressure.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of pressure array.");
+      throw std::invalid_argument("PhaseField: Invalid size of pressure array.");
     }
     if ((int)fixFluid.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of fixed fluid array.");
+      throw std::invalid_argument("PhaseField: Invalid size of fixed fluid array.");
     }
     if ((int)confinementStrength.size() != nFluid) {
-      throw std::invalid_argument("Invalid size of confinement strength array.");
+      throw std::invalid_argument("PhaseField: Invalid size of confinement strength array.");
     }
   }
 

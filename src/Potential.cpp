@@ -2,6 +2,7 @@
 
 #include "State.h"
 #include "communicators/CommUnstructured.h"
+#include "communicators/CommGrid.h"
 #include "utils/vec.h"
 #include <stdexcept>
 
@@ -21,23 +22,17 @@ namespace minim {
 
   double Potential::energy(const vector<double>& coords) const {
     if (_energy) return _energy(coords);
-
-    double e;
-    energyGradient(coords, &e, nullptr);
-    return e;
+    throw std::runtime_error("Potential: No energy function defined. If using parallel you must call energyGradient instead.");
   }
 
 
   vector<double> Potential::gradient(const vector<double>& coords) const {
     if (_gradient) return _gradient(coords);
-
-    vector<double> g(coords.size());
-    energyGradient(coords, nullptr, &g);
-    return g;
+    throw std::runtime_error("Potential: No gradient function defined. If using parallel you must call energyGradient instead.");
   }
 
 
-  void Potential::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
+  void Potential::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     if (_energyGradient) return _energyGradient(coords, e, g);
 
     if (e != nullptr) *e = energy(coords);
@@ -157,7 +152,12 @@ namespace minim {
 
 
   std::unique_ptr<Communicator> Potential::newComm() const {
-    if (this->distributed) throw std::invalid_argument("You cannot create a State with a Potential that has already been distributed.");
+    if (potentialType() == UNSTRUCTURED) {
+      if (this->distributed) throw std::invalid_argument("Potential: You cannot create a State with a Potential that has already been distributed.");
+      return std::make_unique<CommUnstructured>();
+    } else if (potentialType() == GRID) {
+      return std::make_unique<CommGrid>();
+    }
     return std::make_unique<CommUnstructured>();
   }
 

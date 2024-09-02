@@ -30,7 +30,7 @@ namespace minim {
 
       virtual double energy(const vector<double>& coords) const;
       virtual vector<double> gradient(const vector<double>& coords) const;
-      virtual void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
+      virtual void energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
       // Note: In any derived classes, either energyGradient or (energy and gradient) MUST be overridden
 
       State newState(int ndof, const vector<int>& ranks={});
@@ -76,7 +76,7 @@ namespace minim {
         GRID = 2,
       };
       virtual int potentialType() const { return SERIAL; };
-      virtual std::unique_ptr<Communicator> newComm() const;
+      std::unique_ptr<Communicator> newComm() const;
 
       // UNSTRUCTURED: Energy elements for parallelisation
       bool distributed = false;
