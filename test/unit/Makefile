@@ -1,4 +1,4 @@
-TESTS = State_test Communicator_test Potential_test Lbfgs_test Fire_test PhaseField_test BarAndHinge_test vec_test
+TESTS = State_test Communicator_test Potential_test Lbfgs_test Fire_test PhaseField_test BarAndHinge_test vec_test utils_test
 RUN_TESTS = $(addprefix run_, $(TESTS))
 
 ROOT_DIR = ../..
