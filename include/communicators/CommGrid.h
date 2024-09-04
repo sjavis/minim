@@ -33,13 +33,13 @@ namespace minim {
 
       int nDim;
       int haloWidth = 1;
-      vector<int> commArray;   // The number of processors along each dimension
-      vector<int> commIndices; // The array indices of this MPI rank
-      vector<int> globalSizes; // The total global grid sizes along each dimension
-      vector<int> blockSizes;
-      vector<int> blockStart;//
-      vector<int> procSizes;
-      vector<int> procStart;
+      vector<int> commArray;   // The number of processors along each dimension (nDim)
+      vector<int> commIndices; // The array indices of this MPI rank (nDim)
+      vector<int> globalSizes; // The total global grid sizes along each dimension (nDim+1)
+      vector<int> blockSizes;  // The local grid sizes along each dimension (nDim+1)
+      vector<int> procSizes;   // The local grid sizes (including halo) along each dimension (nDim+1)
+      vector<int> procStart;   // The index on the global grid where this processor starts (nDim+1)
+      vector<int> haloWidths;  // The halo sizes along each dimension (nDim+1)
 
     private:
       vector<int> getCoords(int loc) const;

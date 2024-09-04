@@ -257,7 +257,7 @@ namespace minim {
   }
 
 
-  void PhaseFieldUnstructured::distributeParameters(const Communicator& comm) {
+  void PhaseFieldUnstructured::initLocal(const vector<double>& coords, const Communicator& comm) {
     if (nGrid % comm.size() != 0) {
       throw std::invalid_argument("The total grid size must be a multiple of the number of processors.");
     }

@@ -1,5 +1,5 @@
-#ifndef PFWETTING_H
-#define PFWETTING_H
+#ifndef PHASEFIELDUNSTRUCTURED_H
+#define PHASEFIELDUNSTRUCTURED_H
 
 #include <array>
 #include <vector>
@@ -68,7 +68,7 @@ namespace minim {
 
       // Overrides
       void init(const vector<double>& coords) override;
-      void distributeParameters(const Communicator& comm) override;
+      void initLocal(const vector<double>& coords, const Communicator& comm) override;
 
       void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const override;
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;

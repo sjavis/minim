@@ -5,6 +5,7 @@
 #include <functional>
 #include "State.h"
 #include "utils/vec.h"
+#include "utils/range.h"
 #include "communicators/CommGrid.h"
 #include "minimisers/Lbfgs.h"
 
@@ -118,37 +119,45 @@ namespace minim {
         fNorm[i] = force[i] / fMag[i];
       }
     }
+  }
 
-    // Set initial volumes for constant volume constraint
-    if (volume.empty() && volumeFixed) {
-      volume = vector<double>(nFluid, 0);
-      for (int iGrid=0; iGrid<nGrid; iGrid++) {
-        for (int iFluid=0; iFluid<nFluid; iFluid++) {
-          volume[iFluid] += coords[iFluid+nFluid*iGrid] * nodeVol[iGrid];
+
+  void PhaseField::initLocal(const vector<double>& coords, const Communicator& comm) {
+    // Update local grid size
+    auto commGrid = static_cast<const CommGrid&>(comm);
+    procSizes = vector<int>(3);
+    procStart = vector<int>(3);
+    haloWidths = vector<int>(3);
+    for (int iDim=0; iDim<3; iDim++) {
+      // Do not copy the last dimension (fluid no.), store only the grid size
+      procSizes[iDim] = commGrid.procSizes[iDim];
+      procStart[iDim] = commGrid.procStart[iDim];
+      haloWidths[iDim] = commGrid.haloWidths[iDim];
+    }
+    nGrid = vec::product(procSizes);
+    if (!comm.usesThisProc) return;
+
+    // Distribute global parameters
+    vector<double> coordsLocal = comm.assignProc(coords);
+    if (!contactAngle.empty()) contactAngle = comm.assignProc(contactAngle);
+    if ((int)solid.size() != nGrid) {
+      vector<bool> solidGlobal = solid;
+      solid = vector<bool>(nGrid);
+      int iLocal = 0;
+      for (int x=procStart[0]; x<procStart[0]+procSizes[0]; x++) {
+        for (int y=procStart[1]; y<procStart[1]+procSizes[1]; y++) {
+          for (int z=procStart[2]; z<procStart[2]+procSizes[2]; z++) {
+            int iGlobal = getIdx({x,y,z}, gridSize);
+            solid[iLocal++] = solidGlobal[iGlobal];
+          }
         }
       }
     }
 
-    // Set initial values for confinement potential
-    if (vec::any(confinementStrength)) ffInit = coords;
-  }
-
-
-  void PhaseField::distributeParameters(const Communicator& comm) {
-    auto commGrid = static_cast<const CommGrid&>(comm);
-    procSizes = commGrid.procSizes;
-    procStart = commGrid.procStart;
-    nGrid = vec::product(procSizes);
-
-    // Distribute
-    solid = comm.assignProc(solid);
-    if (!contactAngle.empty()) contactAngle = comm.assignProc(contactAngle);
-    if (!ffInit.empty()) ffInit = comm.assignProc(ffInit);
-
-    // Get fluid volume and solid surface area for each node
+    // Get fluid volume and solid surface area for each node (not in halo)
     nodeVol = vector<double>(nGrid, 0);
     surfaceArea = vector<double>(nGrid, 0);
-    for (int iGrid=0; iGrid<nGrid; iGrid++) {
+    for (int iGrid : RangeI(procSizes, haloWidths)) {
       int type = getType(iGrid);
       if (type == 0) {
         nodeVol[iGrid] = 1;
@@ -161,6 +170,22 @@ namespace minim {
       nodeVol[iGrid] = nodeVol[iGrid] * pow(resolution, 3);
       surfaceArea[iGrid] = surfaceArea[iGrid] * pow(resolution, 2);
     }
+
+    // Set initial volumes for constant volume constraint
+    if (volume.empty() && volumeFixed) {
+      volume = vector<double>(nFluid, 0);
+      for (int iGrid : RangeI(procSizes, haloWidths)) {
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          volume[iFluid] += coordsLocal[iFluid+nFluid*iGrid] * nodeVol[iGrid];
+        }
+      }
+      for (int iFluid=0; iFluid<nFluid; iFluid++) {
+        volume[iFluid] = comm.sum(volume[iFluid]);
+      }
+    }
+
+    // Set initial values for confinement potential
+    if (vec::any(confinementStrength)) ffInit = coordsLocal;
   }
 
 
@@ -438,11 +463,14 @@ namespace minim {
   void PhaseField::volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Get the fluid volumes
     vector<double> volFluid(nFluid, 0);
-    for (int iDof=0; iDof<(int)comm.nblock; iDof++) {
+    for (int iGrid : RangeI(procSizes, haloWidths)) {
       if (nFluid == 1) {
-        volFluid[0] += 0.5*(coords[iDof]+1) * nodeVol[iDof];
+        volFluid[0] += 0.5*(coords[iGrid]+1) * nodeVol[iGrid];
       } else {
-        volFluid[fluidType[iDof]] += coords[iDof] * nodeVol[iDof];
+        for (int iFluid=0; iFluid<nFluid; iFluid++) {
+          int iDof = iGrid*nFluid+iFluid;
+          volFluid[iFluid] += coords[iDof] * nodeVol[iGrid];
+        }
       }
     }
     for (double &vol : volFluid) vol = comm.sum(vol);
@@ -500,14 +528,9 @@ namespace minim {
   void PhaseField::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     if (g) *g = vector<double>(coords.size());
 
-    vector<int> commArray = dynamic_cast<const CommGrid&>(comm).commArray;
-    int xHalo = (commArray[0]==1) ? 0 : 1;
-    int yHalo = (commArray[1]==1) ? 0 : 1;
-    int zHalo = (commArray[2]==1) ? 0 : 1;
-
-    for (int x=xHalo; x<procSizes[0]-xHalo; x++) {
-      for (int y=yHalo; y<procSizes[1]-yHalo; y++) {
-        for (int z=zHalo; z<procSizes[2]-zHalo; z++) {
+    for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
+      for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
+        for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {
           vector<int> xGrid{x, y, z};
           int iGrid = getIdx(xGrid, procSizes);
 
@@ -540,6 +563,7 @@ namespace minim {
 
   PhaseField& PhaseField::setNFluid(int nFluid) {
     this->nFluid = nFluid;
+    this->dofPerNode = nFluid;
     return *this;
   }
 

@@ -75,6 +75,7 @@ namespace minim {
       vector<CommunicateObj> recvTypes; // Objects containing MPI derived datatypes for each MPI recv
       MPI_Datatype blockType;           // MPI derived datatype to send the local block
       MPI_Datatype gatherType;          // MPI derived datatype to receive the blocks for gathering
+      bool mpiTypesCommitted = false;
       #endif
 
       void defaultSetup(const Potential& pot, size_t ndof, vector<int> ranks);

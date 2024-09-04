@@ -59,7 +59,7 @@ namespace minim {
 
       // Internal
       virtual void init(const vector<double>& coords) {};
-      virtual void distributeParameters(const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
+      virtual void initLocal(const vector<double>& coords, const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
       bool isSerial() const;
 
       // Copy / destruct
@@ -97,6 +97,7 @@ namespace minim {
 
       // GRID
       vector<int> gridSize;
+      int dofPerNode = 1;
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};

@@ -1,14 +1,18 @@
 #include "test_main.cpp"
-#include "potentials/PhaseFieldUnstructured.h"
+#include "potentials/PhaseField.h"
 
 #include "State.h"
+#include "communicators/CommGrid.h"
 #include "utils/vec.h"
 
 using namespace minim;
 
+void tmp(const Communicator& comm) {
+    auto commGrid = static_cast<const CommGrid&>(comm);
+}
 
-TEST(PhaseFieldUnstructuredTest, gridSizeMpi) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, gridSizeMpi) {
+  PhaseField pot;
   EXPECT_NO_THROW({
     pot.setGridSize({2,1,2});
     State s(pot, {0,0,0,0});
@@ -24,13 +28,13 @@ TEST(PhaseFieldUnstructuredTest, gridSizeMpi) {
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestBulkEnergy) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestBulkEnergy) {
+  PhaseField pot;
 
   // Constant bulk fluid
   State s1(pot.setGridSize({1,1,1}), {1}, {0});
-  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappa[0], 3);
-  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappaP[0], 3);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 3);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 3);
   EXPECT_FLOAT_EQ(s1.allEnergy(), 0);
   EXPECT_TRUE(ArraysNear(s1.allGradient(), {0}));
   s1.coords({0.1});
@@ -65,8 +69,8 @@ TEST(PhaseFieldUnstructuredTest, TestBulkEnergy) {
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestExternalForce) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestExternalForce) {
+  PhaseField pot;
 
   // Test force in x, y, z directions
   auto stateForceX = pot.setGridSize({2,2,2}).setForce({-2,0,0}).newState({1,1,1,1,1,1,1,1});
@@ -80,29 +84,23 @@ TEST(PhaseFieldUnstructuredTest, TestExternalForce) {
   EXPECT_TRUE(ArraysNear(stateForceZ.gradient(), {-.5, .5,-.5, .5, -.5, .5,-.5, .5}, 1e-6));
 
   // Test force with non-constant phi
-  auto stateForce1 = pot.setGridSize({2,2,2}).setForce({-4,0,0}).newState({-1,-1,-1,-1, 1,1,1,1});
-  for (auto el=stateForce1.pot->elements.begin(); el!=stateForce1.pot->elements.end(); el++) {
-    if (el->type==0) stateForce1.pot->elements.erase(el); // Remove the bulk fluid energy elements
-  }
+  auto stateForce1 = pot.setGridSize({2,2,2}).setSurfaceTension(0).setForce({-4,0,0}).newState({-1,-1,-1,-1, 1,1,1,1});
   EXPECT_FLOAT_EQ(stateForce1.energy(), 8);
   EXPECT_TRUE(ArraysNear(stateForce1.gradient(), {0,0,0,0, 1,1,1,1}, 1e-6));
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestSurfaceEnergy) {
-  PhaseFieldUnstructured pot;
-  pot.setGridSize({2,1,1}).setContactAngle({90,60}).setSolid({1,0});
+TEST(PhaseFieldTest, TestSurfaceEnergy) {
+  PhaseField pot;
+  pot.setGridSize({2,1,1}).setSurfaceTension(0).setContactAngle({90,60}).setSolid({1,0});
   auto state = pot.newState({0.0, 0.5});
-  for (auto el=state.pot->elements.begin(); el!=state.pot->elements.end(); el++) {
-    if (el->type==0) state.pot->elements.erase(el); // Remove the bulk fluid energy elements
-  }
   EXPECT_FLOAT_EQ(state.energy(), 0.5/sqrt(2.0)*(-27.0/24));
   EXPECT_TRUE(ArraysNear(state.gradient(), {0, 0.5/sqrt(2.0)*(-0.75)}, 1e-6));
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestPressureConstraint) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestPressureConstraint) {
+  PhaseField pot;
   pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setPressure({10});
   auto state = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(state.energy(), -30);
@@ -110,15 +108,15 @@ TEST(PhaseFieldUnstructuredTest, TestPressureConstraint) {
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestVolumeConstraint) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestVolumeConstraint) {
+  PhaseField pot;
   pot.setGridSize({6,1,1});
   pot.setSolid({1,0,0,0,0,1});
 
   pot.setVolumeFixed(true, 1);
   State state1(pot, {1,1,1,1,1,1});
-  EXPECT_TRUE(static_cast<PhaseFieldUnstructured&>(*state1.pot).volumeFixed);
-  EXPECT_TRUE(ArraysNear(static_cast<PhaseFieldUnstructured&>(*state1.pot).volume, {3}, 1e-6));
+  EXPECT_TRUE(static_cast<PhaseField&>(*state1.pot).volumeFixed);
+  EXPECT_TRUE(ArraysNear(static_cast<PhaseField&>(*state1.pot).volume, {3}, 1e-6));
   EXPECT_FLOAT_EQ(state1.energy(), 0);
 
   pot.setVolume({1}, 100);
@@ -129,8 +127,8 @@ TEST(PhaseFieldUnstructuredTest, TestVolumeConstraint) {
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestResolution) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestResolution) {
+  PhaseField pot;
   EXPECT_FLOAT_EQ(pot.resolution, 1);
 
   pot.setResolution(2);
@@ -138,29 +136,23 @@ TEST(PhaseFieldUnstructuredTest, TestResolution) {
 
   // Bulk fluid
   State s1 = pot.setGridSize({5,1,1}).setSolid({1,0,0,0,1}).newState({0,-1,0,1,0}, {0});
-  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappa[0], 1.5);
-  ASSERT_FLOAT_EQ(static_cast<PhaseFieldUnstructured&>(*s1.pot).kappaP[0], 6);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappa[0], 1.5);
+  ASSERT_FLOAT_EQ(static_cast<PhaseField&>(*s1.pot).kappaP[0], 6);
   double ebulk = 1.5/16 * 8;
   double egrad = 2 * (6.0/4) * 2;
   EXPECT_FLOAT_EQ(s1.allEnergy(), ebulk+egrad); // Bulk: 2, Gradient: 2
   EXPECT_TRUE(ArraysNear(s1.allGradient(), {0,-6,0,6,0}));
 
   // External Force
-  pot.setGridSize({2,2,2}).setSolid({0,0,0,0,0,0,0,0}).setForce({-4,0,0});
+  pot.setGridSize({2,2,2}).setSurfaceTension(0).setSolid({0,0,0,0,0,0,0,0}).setForce({-4,0,0});
   auto s2 = pot.newState({-1,-1,-1,-1, 1,1,1,1});
-  for (auto el=s2.pot->elements.begin(); el!=s2.pot->elements.end(); el++) {
-    if (el->type==0) s2.pot->elements.erase(el); // Remove the bulk fluid energy elements
-  }
   EXPECT_FLOAT_EQ(s2.energy(), 128);
   EXPECT_TRUE(ArraysNear(s2.gradient(), {0,0,0,0, 16,16,16,16}, 1e-6));
   pot.setForce({0,0,0});
 
   // Surface energy
-  pot.setGridSize({2,1,1}).setSolid({1,0}).setContactAngle({90,60});
+  pot.setGridSize({2,1,1}).setSurfaceTension(0).setSolid({1,0}).setContactAngle({90,60});
   auto s3 = pot.newState({0, 0.5});
-  for (auto el=s3.pot->elements.begin(); el!=s3.pot->elements.end(); el++) {
-    if (el->type==0) s3.pot->elements.erase(el); // Remove the bulk fluid energy elements
-  }
   EXPECT_FLOAT_EQ(s3.energy(), 0.5/sqrt(2.0)*(-27.0/24)*4);
   EXPECT_TRUE(ArraysNear(s3.gradient(), {0, 0.5/sqrt(2.0)*(-0.75)*4}, 1e-6));
 
@@ -172,7 +164,7 @@ TEST(PhaseFieldUnstructuredTest, TestResolution) {
   pot.setPressure({0});
 
   // Volume
-  pot.setGridSize({6,1,1}).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
+  pot.setGridSize({6,1,1}).setSurfaceTension(1).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
   auto s5 = pot.newState({1,1,1,1,1,1});
   EXPECT_FLOAT_EQ(s5.energy(), 100.0/16 * pow(2*8, 2));
   // EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}));
@@ -180,19 +172,20 @@ TEST(PhaseFieldUnstructuredTest, TestResolution) {
 }
 
 
-TEST(PhaseFieldUnstructuredTest, TestNFluid) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestNFluid) {
+  PhaseField pot;
   EXPECT_FLOAT_EQ(pot.nFluid, 1);
   pot.setNFluid(3);
   EXPECT_FLOAT_EQ(pot.nFluid, 3);
 }
 
-TEST(PhaseFieldUnstructuredTest, TestFixFluid) {
-  PhaseFieldUnstructured pot;
+TEST(PhaseFieldTest, TestFixFluid) {
+  int nGrid = 4;
+  PhaseField pot;
   pot.setNFluid(3).setGridSize({2,2,1});
   pot.setDensityConstraint("none");
-  pot.init(vector<double>(12));
 
+  pot.init(vector<double>(3*nGrid));
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
   pot.setFixFluid(1);
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,true,false}));
@@ -200,9 +193,9 @@ TEST(PhaseFieldUnstructuredTest, TestFixFluid) {
   EXPECT_TRUE(ArraysMatch(pot.fixFluid, {false,false,false}));
 
   pot.setFixFluid(0);
-  pot.init({1,1,1, 1,1,1, 1,1,1, 1,1,1});
-  EXPECT_EQ(pot.constraints.size(), 4);
-  for (int i=0; i<4; i++) {
-    EXPECT_TRUE(ArraysMatch(pot.constraints[i].idof, {3*i}));
+  State s(pot, vector<double>(3*nGrid, 1));
+  auto g = s.gradient();
+  for (int iGrid=0; iGrid<nGrid; iGrid++) {
+    EXPECT_FLOAT_EQ(g[3*iGrid], 0);
   }
 }

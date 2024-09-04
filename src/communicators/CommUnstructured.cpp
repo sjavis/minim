@@ -62,7 +62,7 @@ namespace minim {
   template <typename T>
   vector<T> CommUnstructured::assignProcImpl(const vector<T>& in) const {
     if (!usesThisProc) return vector<T>();
-    if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
+    if (in.size() != ndof) throw std::invalid_argument("CommUnstructured: Input data has incorrect size. All degrees of freedom required.");
     if (commSize == 1) return in;
 
     vector<T> out(nproc);
@@ -88,7 +88,7 @@ namespace minim {
     for (int i=commSize-1; i>=0; i--) {
       if (loc >= iblocks[i]) return i;
     }
-    throw std::invalid_argument("Invalid location");
+    throw std::invalid_argument("CommUnstructured: Invalid location");
   }
 
 
@@ -381,6 +381,8 @@ namespace minim {
     MPI_Type_contiguous(1, MPI_DOUBLE, &gatherType);
     MPI_Type_commit(&gatherType);
     #endif
+
+    mpiTypesCommitted = true;
   }
 
 }

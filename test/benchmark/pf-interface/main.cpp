@@ -48,7 +48,6 @@ void run(double width) {
   pf.setSolid([](int x, int y, int z){ return (x==0 || x==nx-1);});
 
   State state(pf, initialiseFluid());
-  state.convergence = 1e-15*surfaceTension*resolution*resolution;
 
   Lbfgs min;
   min.setLinesearch("none");

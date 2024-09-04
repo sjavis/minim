@@ -4,6 +4,7 @@
 #include "utils/vec.h"
 #include "utils/mpi.h"
 
+
 namespace minim {
   using std::vector;
   template<typename T> using vector2d = vector<vector<T>>;
@@ -103,10 +104,9 @@ template <typename T>
     if (in.size() == ndof) return assignProcImpl<T>(in);
 
     vector<T> out(nproc);
-    vector<int> start = blockStart - procStart;
-    vector<int> indices(nDim);
+    vector<int> indices(nDim+1);
     int iIn = 0;
-    assignNDimSupergrid(0, indices, iIn, procSizes, blockSizes, start, in, out);
+    assignNDimSupergrid(0, indices, iIn, procSizes, blockSizes, haloWidths, in, out);
     return out;
   }
   template vector<int> CommGrid::assignBlockImpl(const vector<int>&) const;
@@ -129,11 +129,11 @@ template <typename T>
   template <typename T>
   vector<T> CommGrid::assignProcImpl(const vector<T>& in) const {
     if (!usesThisProc) return vector<T>();
-    if (in.size() != ndof) throw std::invalid_argument("Input data has incorrect size. All degrees of freedom required.");
+    if (in.size() != ndof) throw std::invalid_argument("CommGrid: Input data has incorrect size. All degrees of freedom required.");
     if (commSize == 1) return in;
 
     vector<T> out(nproc);
-    vector<int> indices(nDim);
+    vector<int> indices(nDim+1);
     int iOut = 0;
     assignNDimSubgrid(0, indices, iOut, globalSizes, procSizes, procStart, in, out);
     return out;
@@ -151,30 +151,32 @@ template <typename T>
   int CommGrid::getBlock(int loc) const {
     vector<int> coords = makeNdIndices(loc, globalSizes);
     vector<int> blockIndices = coords / blockSizes;
+    blockIndices.pop_back();
     return make1dIndex(blockIndices, commArray);
   }
 
 
   int CommGrid::getLocalIdx(int loc, int block) const {
-    vector<int> blockCoords(nDim);
+    vector<int> blockCoords(nDim+1);
     // Check if in this block, otherwise get local coordinates
     // if-else to optimise when block is provided
     if (block == -1) {
       vector<int> coords = makeNdIndices(loc, globalSizes);
       vector<int> blockIndices = coords / blockSizes;
-      block = make1dIndex(blockIndices, commArray);
+      vector<int> gridIndices(blockIndices.begin(), blockIndices.end()-1);
+      block = make1dIndex(gridIndices, commArray);
       if (commRank != block) return -1;
       blockCoords = coords - blockIndices * blockSizes;
 
     } else {
       if (commRank != block) return -1;
       vector<int> coords = makeNdIndices(loc, globalSizes);
-      for (int i=0; i<nDim; i++) {
+      for (int i=0; i<nDim+1; i++) {
         blockCoords[i] = coords[i] % blockSizes[i];
       }
     }
 
-    vector<int> procCoords = blockCoords + blockStart - procStart;
+    vector<int> procCoords = blockCoords + haloWidths;
     return make1dIndex(procCoords, procSizes);
   }
 
@@ -187,12 +189,13 @@ template <typename T>
     : Communicator(other),
     nDim(other.nDim),
     haloWidth(other.haloWidth),
+    commArray(other.commArray),
     commIndices(other.commIndices),
     globalSizes(other.globalSizes),
     blockSizes(other.blockSizes),
-    blockStart(other.blockStart),
     procSizes(other.procSizes),
-    procStart(other.procStart)
+    procStart(other.procStart),
+    haloWidths(other.haloWidths)
   {
     if (usesThisProc) makeMPITypes();
   }
@@ -202,12 +205,13 @@ template <typename T>
     Communicator::operator=(other);
     nDim = other.nDim;
     haloWidth = other.haloWidth;
+    commArray = other.commArray;
+    commIndices = other.commIndices;
     globalSizes = other.globalSizes;
     blockSizes = other.blockSizes;
-    blockStart = other.blockStart;
     procSizes = other.procSizes;
     procStart = other.procStart;
-    commIndices = other.commIndices;
+    haloWidths = other.haloWidths;
     if (usesThisProc) makeMPITypes();
     return *this;
   }
@@ -249,6 +253,7 @@ template <typename T>
       int closestDim = 0;
       double closestRatio = 0;
       for (int iDim=0; iDim<nDim; iDim++) {
+        if (commArray[iDim] >= idealSize[iDim]) continue;
         // Measure the closeness by the 'absolute' ratio (<=1)
         double ratio = (commArray[iDim] * factor) / idealSize[iDim];
         if (ratio > 1) ratio = 1 / ratio;
@@ -266,31 +271,50 @@ template <typename T>
 
   void CommGrid::setup(Potential& pot, size_t ndof, vector<int> ranks) {
     defaultSetup(pot, ndof, ranks);
-    if (commSize <= 1) return;
-
-    // Set the globalSizes, comm array sizes, blockSizes, etc
-    globalSizes = vector<int>(pot.gridSize.begin(), pot.gridSize.end());
-    nDim = globalSizes.size();
-    if (commArray.empty()) commArray = assignCommArray(commSize, globalSizes);
-    commIndices = makeNdIndices(commRank, commArray);
-
-    blockSizes = globalSizes / commArray;
-    blockStart = blockSizes * commIndices;
-    procSizes = blockSizes;
-    procStart = blockStart;
-    for (int i=0; i<nDim; i++) {
-      if (commArray[i] > 1) {
-        procSizes[i] += 2 * haloWidth;
-        procStart[i] -= haloWidth;
-      }
+    globalSizes = pot.gridSize;
+    nDim = pot.gridSize.size();
+    if (!usesThisProc) {
+      globalSizes = vector<int>(nDim+1, 0);
+      blockSizes = vector<int>(nDim+1, 0);
+      procSizes = vector<int>(nDim+1, 0);
+      procStart = vector<int>(nDim+1, 0);
+      haloWidths = vector<int>(nDim+1, 0);
+      commArray = vector<int>(nDim, 0);
+      return;
     }
 
-    // Assign the base class values
+    // Set the comm array dimensions
+    if (commArray.empty()) commArray = assignCommArray(commSize, globalSizes);
+    commIndices = makeNdIndices(commRank, commArray);
+    // Check the comm array dimensions are correct
+    for (int iDim=0; iDim<nDim; iDim++) {
+      if (globalSizes[iDim] % commArray[iDim] == 0) continue;
+      throw std::invalid_argument("CommGrid: The grid size must be a multiple of the number of processors in each direction.");
+    }
+
+    // Set the local processor sizes
+    haloWidths = vector<int>(nDim);
+    for (int i=0; i<nDim; i++) {
+      if (commArray[i] > 1) {
+        haloWidths[i] = haloWidth;
+      }
+    }
+    blockSizes = globalSizes / commArray;
+    procSizes = blockSizes + 2 * haloWidths;
+    procStart = blockSizes * commIndices - haloWidths;
+
+    // Append the DoF per grid node to the arrays
+    globalSizes.push_back(pot.dofPerNode);
+    blockSizes.push_back(pot.dofPerNode);
+    procSizes.push_back(pot.dofPerNode);
+    haloWidths.push_back(0);
+    procStart.push_back(0);
+
     nblock = vec::product(blockSizes);
     nproc = vec::product(procSizes);
 
     // Assign the send receive and gather MPI types
-    makeMPITypes();
+    if (commSize > 1) makeMPITypes();
   }
 
 
@@ -326,8 +350,8 @@ template <typename T>
   MPI_Datatype createSubarray(int type, vector<int> direction, vector<int> procSizes, vector<int> blockSizes, vector<int> commArray, int haloWidth) {
     MPI_Datatype subarray;
     int nDim = commArray.size();
-    int sizes[nDim];
-    int start[nDim];
+    int sizes[nDim+1];
+    int start[nDim+1];
     for (int iDim=0; iDim<nDim; iDim++) {
       if (direction[iDim] == -1) {
         sizes[iDim] = haloWidth;
@@ -346,7 +370,9 @@ template <typename T>
         }
       }
     }
-    MPI_Type_create_subarray(nDim, &procSizes[0], sizes, start, MPI_ORDER_C, MPI_DOUBLE, &subarray);
+    sizes[nDim] = blockSizes[nDim];
+    start[nDim] = 0;
+    MPI_Type_create_subarray(nDim+1, &procSizes[0], sizes, start, MPI_ORDER_C, MPI_DOUBLE, &subarray);
     return subarray;
   }
   #endif
@@ -378,22 +404,26 @@ template <typename T>
     iGather = vector<int>(commSize);
     for (int iComm=0; iComm<commSize; iComm++) {
       vector<int> commIndices = makeNdIndices(iComm, commArray);
-      vector<int> blockStart = blockSizes * commIndices;
-      iGather[iComm] = make1dIndex(blockStart, globalSizes);
+      vector<int> blockStartGlobal(nDim+1, 0);
+      for (int iDim=0; iDim<nDim; iDim++) {
+        blockStartGlobal[iDim] = blockSizes[iDim] * commIndices[iDim];
+      }
+      iGather[iComm] = make1dIndex(blockStartGlobal, globalSizes);
     }
     // Local block type for sending
-    vector<int> start = blockStart - procStart;
-    MPI_Type_create_subarray(nDim, &procSizes[0], &blockSizes[0], &start[0], MPI_ORDER_C, MPI_DOUBLE, &blockType);
+    MPI_Type_create_subarray(nDim+1, &procSizes[0], &blockSizes[0], &haloWidths[0], MPI_ORDER_C, MPI_DOUBLE, &blockType);
     MPI_Type_commit(&blockType);
     // Gather type for receiving
     // Make subarray datatype with 0 displacement (displacement is controlled by iGather in Gatherv)
-    start = vector<int>(nDim, 0);
+    vector<int> start(nDim+1, 0);
     MPI_Datatype gatherBlockType;
-    MPI_Type_create_subarray(nDim, &globalSizes[0], &blockSizes[0], &start[0], MPI_ORDER_C, MPI_DOUBLE, &gatherBlockType);
+    MPI_Type_create_subarray(nDim+1, &globalSizes[0], &blockSizes[0], &start[0], MPI_ORDER_C, MPI_DOUBLE, &gatherBlockType);
     // Change extent to one double so displacements are in correct units and so gather works properly with overlapping data (I think?)
     MPI_Type_create_resized(gatherBlockType, 0, 1*sizeof(double), &gatherType);
     MPI_Type_commit(&gatherType);
     #endif
+
+    mpiTypesCommitted = true;
   }
 
 }

@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "utils/mpi.h"
 
+
 namespace minim {
   using std::vector;
   class Potential;
@@ -11,14 +12,15 @@ namespace minim {
   State::State(const Potential& pot, const vector<double>& coords, const vector<int>& ranks)
     : ndof(coords.size()), pot(pot.clone())
   {
-    // Initialise the potential
+    // Initialise the potential (globally)
     this->pot->init(coords);
     this->convergence = this->pot->convergence;
-    // Set-up the communicator & distribute the potential
+    // Set-up the communicator
     this->comm = this->pot->newComm();
     this->comm->setup(*this->pot, ndof, ranks);
     this->usesThisProc = comm->usesThisProc;
-    this->pot->distributeParameters(*comm);
+    // Initialise the potential (locally)
+    this->pot->initLocal(coords, *comm);
     // Initialise the coords
     this->coords(coords);
   }

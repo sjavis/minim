@@ -155,18 +155,19 @@ namespace minim {
 
 
   Communicator::~Communicator() {
-  #ifdef PARALLEL
-    if (commSize <= 1) return;
+    #ifdef PARALLEL
     // Free any committed MPI datatypes
-    for (auto& sendType : sendTypes) {
-      if (sendType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&sendType.type);
+    if (mpiTypesCommitted) {
+      for (auto& sendType : sendTypes) {
+        if (sendType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&sendType.type);
+      }
+      for (auto& recvType : recvTypes) {
+        if (recvType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&recvType.type);
+      }
+      if (blockType!=MPI_DATATYPE_NULL) MPI_Type_free(&blockType);
+      if (gatherType!=MPI_DATATYPE_NULL) MPI_Type_free(&gatherType);
     }
-    for (auto& recvType : recvTypes) {
-      if (recvType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&recvType.type);
-    }
-    if (blockType!=MPI_DATATYPE_NULL) MPI_Type_free(&blockType);
-    if (gatherType!=MPI_DATATYPE_NULL) MPI_Type_free(&gatherType);
-  #endif
+    #endif
   }
 
 
