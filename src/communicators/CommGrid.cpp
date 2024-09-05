@@ -347,56 +347,54 @@ template <typename T>
 
   #ifdef PARALLEL
   // Create send and receive subarrays for each communication direction
-  MPI_Datatype createSubarray(int type, vector<int> direction, vector<int> procSizes, vector<int> blockSizes, vector<int> commArray, int haloWidth) {
-    MPI_Datatype subarray;
+  void createSubarray(MPI_Datatype* subarray, int type, vector<int> direction, vector<int> procSizes, vector<int> blockSizes, vector<int> commArray, vector<int> haloWidths) {
     int nDim = commArray.size();
     int sizes[nDim+1];
     int start[nDim+1];
     for (int iDim=0; iDim<nDim; iDim++) {
       if (direction[iDim] == -1) {
-        sizes[iDim] = haloWidth;
-        if (type == 0) start[iDim] = haloWidth; // send
+        sizes[iDim] = haloWidths[iDim];
+        if (type == 0) start[iDim] = haloWidths[iDim]; // send
         if (type == 1) start[iDim] = 0; // recv
       } else if (direction[iDim] == 1) {
-        sizes[iDim] = haloWidth;
-        if (type == 0) start[iDim] = procSizes[iDim] - 2*haloWidth; // send
-        if (type == 1) start[iDim] = procSizes[iDim] - haloWidth; // recv
+        sizes[iDim] = haloWidths[iDim];
+        if (type == 0) start[iDim] = procSizes[iDim] - 2*haloWidths[iDim]; // send
+        if (type == 1) start[iDim] = procSizes[iDim] - haloWidths[iDim]; // recv
       } else if (direction[iDim] == 0) {
         sizes[iDim] = blockSizes[iDim];
-        if (commArray[iDim] == 1) {
-          start[iDim] = 0;
-        } else {
-          start[iDim] = haloWidth;
-        }
+        start[iDim] = haloWidths[iDim];
       }
     }
+    // Use entire final dimension (no parallelisation on final dimension)
     sizes[nDim] = blockSizes[nDim];
     start[nDim] = 0;
-    MPI_Type_create_subarray(nDim+1, &procSizes[0], sizes, start, MPI_ORDER_C, MPI_DOUBLE, &subarray);
-    return subarray;
+    // Create the subarray
+    MPI_Type_create_subarray(nDim+1, &procSizes[0], sizes, start, MPI_ORDER_C, MPI_DOUBLE, subarray);
   }
   #endif
 
 
   // Make the MPI datatypes to send and receive from each proc
   void CommGrid::makeMPITypes() {
-    if (commSize <= 1) return;
+    if (commSize <= 1 || mpiTypesCommitted) return;
 
     #ifdef PARALLEL
     // Send and receive types
     auto directions = getNeighbourDirections(commArray);
     for (const auto& direction : directions) {
       // Create the MPI datatypes
-      MPI_Datatype sendSubarray = createSubarray(0, direction, procSizes, blockSizes, commArray, haloWidth);
-      MPI_Datatype recvSubarray = createSubarray(1, direction, procSizes, blockSizes, commArray, haloWidth);
-      MPI_Type_commit(&sendSubarray);
-      MPI_Type_commit(&recvSubarray);
+      MPI_Datatype* sendSubarray = new MPI_Datatype;
+      MPI_Datatype* recvSubarray = new MPI_Datatype;
+      createSubarray(sendSubarray, 0, direction, procSizes, blockSizes, commArray, haloWidths);
+      createSubarray(recvSubarray, 1, direction, procSizes, blockSizes, commArray, haloWidths);
+      MPI_Type_commit(sendSubarray);
+      MPI_Type_commit(recvSubarray);
       // Create the communication objects
       int iNeighbour = make1dIndex(commIndices + direction, commArray);
       int sendTag = make1dIndex(direction+1, vector<int>(nDim, 3));
       int recvTag = make1dIndex(-direction+1, vector<int>(nDim, 3));
-      sendTypes.push_back({iNeighbour, sendTag, sendSubarray});
-      recvTypes.push_back({iNeighbour, recvTag, recvSubarray});
+      sendTypes.push_back({iNeighbour, sendTag, std::shared_ptr<MPI_Datatype>(sendSubarray, mpiTypeDeleter)});
+      recvTypes.push_back({iNeighbour, recvTag, std::shared_ptr<MPI_Datatype>(recvSubarray, mpiTypeDeleter)});
     }
 
     // Types for gather
@@ -411,16 +409,20 @@ template <typename T>
       iGather[iComm] = make1dIndex(blockStartGlobal, globalSizes);
     }
     // Local block type for sending
-    MPI_Type_create_subarray(nDim+1, &procSizes[0], &blockSizes[0], &haloWidths[0], MPI_ORDER_C, MPI_DOUBLE, &blockType);
-    MPI_Type_commit(&blockType);
+    MPI_Datatype* newBlockType = new MPI_Datatype;
+    MPI_Type_create_subarray(nDim+1, &procSizes[0], &blockSizes[0], &haloWidths[0], MPI_ORDER_C, MPI_DOUBLE, newBlockType);
+    MPI_Type_commit(newBlockType);
+    blockType = std::shared_ptr<MPI_Datatype>(newBlockType, mpiTypeDeleter);
     // Gather type for receiving
     // Make subarray datatype with 0 displacement (displacement is controlled by iGather in Gatherv)
     vector<int> start(nDim+1, 0);
     MPI_Datatype gatherBlockType;
     MPI_Type_create_subarray(nDim+1, &globalSizes[0], &blockSizes[0], &start[0], MPI_ORDER_C, MPI_DOUBLE, &gatherBlockType);
     // Change extent to one double so displacements are in correct units and so gather works properly with overlapping data (I think?)
-    MPI_Type_create_resized(gatherBlockType, 0, 1*sizeof(double), &gatherType);
-    MPI_Type_commit(&gatherType);
+    MPI_Datatype* newGatherType = new MPI_Datatype;
+    MPI_Type_create_resized(gatherBlockType, 0, 1*sizeof(double), newGatherType);
+    MPI_Type_commit(newGatherType);
+    gatherType = std::shared_ptr<MPI_Datatype>(newGatherType, mpiTypeDeleter);
     #endif
 
     mpiTypesCommitted = true;

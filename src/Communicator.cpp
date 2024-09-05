@@ -39,18 +39,41 @@ namespace minim {
   //===== Communicate =====//
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
-  #ifdef PARALLEL
+    #ifdef PARALLEL
     int nRequest = sendTypes.size() + recvTypes.size();
     MPI_Request requests[nRequest];
     int iRequest = 0;
     for (const auto& sendType : sendTypes) {
-      MPI_Isend(&vector[0], 1, sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
+      MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
     }
     for (const auto& recvType : recvTypes) {
-      MPI_Irecv(&vector[0], 1, recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
+      MPI_Irecv(&vector[0], 1, *recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
     }
     MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
-  #endif
+    #endif
+  }
+
+  void Communicator::communicateAccumulate(vector<double>& vector) const {
+    if (!usesThisProc || commSize==1) return;
+    #ifdef PARALLEL
+    int nRequest = sendTypes.size() + recvTypes.size();
+    MPI_Request requests[nRequest];
+    int iRequest = 0;
+    for (const auto& sendType : sendTypes) {
+      MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
+    }
+    // Receive to empty buffers
+    // TODO: Remove the need for extra buffers. Use MPI_Accumulate?
+    std::vector<std::vector<double>> recvBuffers(recvTypes.size(), std::vector<double>(vector.size()));
+    for (size_t i=0; i<recvTypes.size(); i++) {
+      MPI_Irecv(&recvBuffers[i][0], 1, *recvTypes[i].type, recvTypes[i].rank, recvTypes[i].tag, comm, &requests[iRequest++]);
+    }
+    MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
+    // Add the received data to 'vector'
+    for (const auto& recvBuffer : recvBuffers) {
+      vector += recvBuffer;
+    }
+    #endif
   }
 
 
@@ -62,13 +85,13 @@ namespace minim {
     vector<double> gathered;
     if (root == -1) {
       gathered = vector<double>(ndof);
-      MPI_Allgatherv(&block[0], 1, blockType,
-                     &gathered[0], &nGather[0], &iGather[0], gatherType,
+      MPI_Allgatherv(&block[0], 1, *blockType,
+                     &gathered[0], &nGather[0], &iGather[0], *gatherType,
                      comm);
     } else {
       if (commRank==root) gathered = vector<double>(ndof);
-      MPI_Gatherv(&block[0], 1, blockType,
-                  &gathered[0], &nGather[0], &iGather[0], gatherType, root,
+      MPI_Gatherv(&block[0], 1, *blockType,
+                  &gathered[0], &nGather[0], &iGather[0], *gatherType, root,
                   comm);
     }
     return gathered;
@@ -153,22 +176,13 @@ namespace minim {
 
   //===== Internal functions =====//
 
-
-  Communicator::~Communicator() {
-    #ifdef PARALLEL
-    // Free any committed MPI datatypes
-    if (mpiTypesCommitted) {
-      for (auto& sendType : sendTypes) {
-        if (sendType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&sendType.type);
-      }
-      for (auto& recvType : recvTypes) {
-        if (recvType.type!=MPI_DATATYPE_NULL) MPI_Type_free(&recvType.type);
-      }
-      if (blockType!=MPI_DATATYPE_NULL) MPI_Type_free(&blockType);
-      if (gatherType!=MPI_DATATYPE_NULL) MPI_Type_free(&gatherType);
-    }
-    #endif
+  #ifdef PARALLEL
+  // Custom deleter to free MPI datatypes stored as shared_ptrs
+  void Communicator::mpiTypeDeleter(MPI_Datatype* type) {
+    if (*type!=MPI_DATATYPE_NULL) MPI_Type_free(type);
+    delete type;
   }
+  #endif
 
 
   void Communicator::defaultSetup(const Potential& pot, size_t ndof, vector<int> ranks) {

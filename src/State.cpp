@@ -47,7 +47,10 @@ namespace minim {
 
   inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
     pot.energyGradient(coords, comm, e, g);
-    if (g) pot.applyConstraints(coords, *g);
+    if (g) {
+      if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges
+      pot.applyConstraints(coords, *g);
+    }
   }
 
   inline void elementEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
@@ -57,16 +60,20 @@ namespace minim {
     for (auto el : pot.elements) {
       pot.elementEnergyGradient(coords, el, e, g);
     }
-    // Compute the gradient of the halo energy elements TODO: Remove this and use procEnergyGradient instead
-    if (g) {
-      for (auto el : pot.elements_halo) {
-        pot.elementEnergyGradient(coords, el, nullptr, g);
-      }
-    }
     // Compute any system-wide contributions
     pot.blockEnergyGradient(coords, comm, e, g);
+    if (!g) return;
+    // Get the correct gradient on the edges (not halo)
+    if (comm.size()>1) {
+      // A: By communication
+      comm.communicateAccumulate(*g);
+      // // B: By computing the gradient of the halo energy elements
+      // for (auto el : pot.elements_halo) {
+      //   pot.elementEnergyGradient(coords, el, nullptr, g);
+      // }
+    }
     // Constraints
-    if (g) pot.applyConstraints(coords, *g);
+    pot.applyConstraints(coords, *g);
   }
 
 

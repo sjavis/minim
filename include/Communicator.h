@@ -40,6 +40,7 @@ namespace minim {
 
       // Communication
       void communicate(vector<double>& vector) const;
+      void communicateAccumulate(vector<double>& vector) const;
       vector<double> gather(const vector<double>& block, int root=-1) const;
       vector<double> scatter(const vector<double>& data, int root=-1) const;
 
@@ -54,7 +55,7 @@ namespace minim {
       double dotProduct(const vector<double>& a, const vector<double>& b) const;
 
       // Internal functions
-      virtual ~Communicator();
+      virtual ~Communicator() = default;
       virtual std::unique_ptr<Communicator> clone() const = 0;
       virtual void setup(Potential& pot, size_t ndof, vector<int> ranks) = 0;
 
@@ -68,13 +69,14 @@ namespace minim {
       struct CommunicateObj {
         int rank;
         int tag;
-        MPI_Datatype type;
+        std::shared_ptr<MPI_Datatype> type;
       };
       MPI_Comm comm;
-      vector<CommunicateObj> sendTypes; // Objects containing MPI derived datatypes for each MPI send
-      vector<CommunicateObj> recvTypes; // Objects containing MPI derived datatypes for each MPI recv
-      MPI_Datatype blockType;           // MPI derived datatype to send the local block
-      MPI_Datatype gatherType;          // MPI derived datatype to receive the blocks for gathering
+      vector<CommunicateObj> sendTypes;         // Objects containing MPI derived datatypes for each MPI send
+      vector<CommunicateObj> recvTypes;         // Objects containing MPI derived datatypes for each MPI recv
+      std::shared_ptr<MPI_Datatype> blockType;  // MPI derived datatype to send the local block
+      std::shared_ptr<MPI_Datatype> gatherType; // MPI derived datatype to receive the blocks for gathering
+      static void mpiTypeDeleter(MPI_Datatype* type);
       bool mpiTypesCommitted = false;
       #endif
 

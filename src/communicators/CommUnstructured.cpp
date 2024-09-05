@@ -352,34 +352,38 @@ namespace minim {
       }
       blocklens.push_back(send_lists[i].back() + 1 - disps.back());
       #ifdef PARALLEL
-      MPI_Datatype sendType;
+      MPI_Datatype* newSendType = new MPI_Datatype;
       //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &sendType);
-      MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, &sendType);
-      MPI_Type_commit(&sendType);
-      sendTypes.push_back({i, 0, sendType});
+      MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, newSendType);
+      MPI_Type_commit(newSendType);
+      sendTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newSendType, mpiTypeDeleter)});
       #endif
     }
     // Receive
     for (int i=0; i<commSize; i++) {
       if (nrecv[i] == 0) continue;
       #ifdef PARALLEL
-      MPI_Datatype recvType;
-      MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, &recvType);
-      MPI_Type_commit(&recvType);
-      recvTypes.push_back({i, 0, recvType});
+      MPI_Datatype* newRecvType = new MPI_Datatype;
+      MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, newRecvType);
+      MPI_Type_commit(newRecvType);
+      recvTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newRecvType, mpiTypeDeleter)});
       #endif
     }
 
     // Types for gather
     #ifdef PARALLEL
     // Local block type for sending
-    MPI_Type_contiguous(nblocks[commRank], MPI_DOUBLE, &blockType);
-    MPI_Type_commit(&blockType);
+    MPI_Datatype* newBlockType = new MPI_Datatype;
+    MPI_Type_contiguous(nblocks[commRank], MPI_DOUBLE, newBlockType);
+    MPI_Type_commit(newBlockType);
+    blockType = std::shared_ptr<MPI_Datatype>(newBlockType, mpiTypeDeleter);
     // Gather type for receiving
     this->nGather = nblocks;
     this->iGather = iblocks;
-    MPI_Type_contiguous(1, MPI_DOUBLE, &gatherType);
-    MPI_Type_commit(&gatherType);
+    MPI_Datatype* newGatherType = new MPI_Datatype;
+    MPI_Type_contiguous(1, MPI_DOUBLE, newGatherType);
+    MPI_Type_commit(newGatherType);
+    gatherType = std::shared_ptr<MPI_Datatype>(newGatherType, mpiTypeDeleter);
     #endif
 
     mpiTypesCommitted = true;
