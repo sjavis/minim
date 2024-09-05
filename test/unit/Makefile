@@ -1,4 +1,4 @@
-TESTS = State_test Communicator_test Potential_test Lbfgs_test Fire_test PhaseField_test BarAndHinge_test vec_test utils_test
+TESTS = State_test Communicator_test Potential_test Lbfgs_test Fire_test PhaseField_test PhaseFieldUnstructured_test BarAndHinge_test vec_test utils_test
 RUN_TESTS = $(addprefix run_, $(TESTS))
 
 ROOT_DIR = ../..
@@ -20,6 +20,7 @@ all: $(TESTS) $(RUN_TESTS) cleantests
 	@[ -f failed ] && rm failed && exit 1 || exit 0
 
 debug: CXXFLAGS += -g -O0 -fsanitize=address
+debug: SUBTARGET = debug
 debug: $(TESTS)
 
 clean:
@@ -29,7 +30,7 @@ cleantests:
 	rm -f $(TESTS) *_test.o
 
 $(LIB): $(BUILD_DIR)/lib%.a:
-	$(MAKE) --no-print-directory -C $(ROOT_DIR) deps $(@:$(ROOT_DIR)/%=%)
+	$(MAKE) --no-print-directory -C $(ROOT_DIR) $(SUBTARGET)
 
 $(RUN_TESTS): run_%: %
 	@echo "Running $*"
