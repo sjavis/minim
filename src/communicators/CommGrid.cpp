@@ -1,5 +1,6 @@
 #include "communicators/CommGrid.h"
 
+#include <stdexcept>
 #include "Potential.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
