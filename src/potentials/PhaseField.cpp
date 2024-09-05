@@ -507,7 +507,7 @@ namespace minim {
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
       }
-      double normFactor = 1 / sqrt((double)iVariableFluid.size());
+      double normFactor = 1 / (double)iVariableFluid.size();
 
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
         // Dot product to get component of increasing density
