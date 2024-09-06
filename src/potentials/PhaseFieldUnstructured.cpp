@@ -31,7 +31,7 @@ namespace minim {
   };
 
 
-  vector<int> getCoord(int i, vector<int> gridSize) {
+  static vector<int> getCoord(int i, vector<int> gridSize) {
     int z = i % gridSize[2];
     int y = (i - z) / gridSize[2] % gridSize[1];
     int x = i / (gridSize[1] * gridSize[2]);

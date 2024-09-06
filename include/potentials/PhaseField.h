@@ -1,8 +1,8 @@
 #ifndef PHASEFIELD_H
 #define PHASEFIELD_H
 
-#include <array>
 #include <vector>
+#include <map>
 #include <functional>
 #include "Potential.h"
 
@@ -71,6 +71,8 @@ namespace minim {
       void initLocal(const vector<double>& coords, const Communicator& comm) override;
 
       void energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const override;
+
+      std::map<std::string,vector<double>> energyComponents(const vector<double>& coords, const Communicator& comm) const;
 
 
       // Read only

@@ -1,5 +1,6 @@
 #include "potentials/PhaseField.h"
 
+#include <array>
 #include <math.h>
 #include <stdexcept>
 #include <functional>
@@ -33,21 +34,21 @@ namespace minim {
   };
 
 
-  vector<int> getCoord(int i, vector<int> gridSize) {
+  static vector<int> getCoord(int i, vector<int> gridSize) {
     int z = i % gridSize[2];
     int y = (i - z) / gridSize[2] % gridSize[1];
     int x = i / (gridSize[1] * gridSize[2]);
     return {x, y, z};
   }
 
-  int getIdx(const vector<int>& coord, const vector<int>& gridSize) {
+  static int getIdx(const vector<int>& coord, const vector<int>& gridSize) {
     int x = (coord[0] + gridSize[0]) % gridSize[0];
     int y = (coord[1] + gridSize[1]) % gridSize[1];
     int z = (coord[2] + gridSize[2]) % gridSize[2];
     return (x*gridSize[1] + y)*gridSize[2] + z;
   }
 
-  vector2d<int> dx = {{
+  static vector2d<int> dx = {{
     // Adjacent faces
     {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
     // Adjacent edges
@@ -461,7 +462,7 @@ namespace minim {
 
 
   void PhaseField::volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
-    // Get the fluid volumes
+    // Get the (local) fluid volumes
     vector<double> volFluid(nFluid, 0);
     for (int iGrid : RangeI(procSizes, haloWidths)) {
       if (nFluid == 1) {
@@ -473,19 +474,18 @@ namespace minim {
         }
       }
     }
-    for (double &vol : volFluid) vol = comm.sum(vol);
 
     // Compute the energy and gradient
     double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      double volDiff = volFluid[iFluid] - volume[iFluid];
+      if (fixFluid[iFluid]) continue;
+      double volDiff = comm.sum(volFluid[iFluid]) - volume[iFluid];
       if (e) *e += volCoef * pow(volDiff, 2) / comm.size();
       if (!g) continue;
-      int nGrid = comm.nblock / nFluid;
-      for (int iGrid=0; iGrid<nGrid; iGrid++) {
+      for (int iGrid : RangeI(procSizes, haloWidths)) {
         int iDof = iGrid*nFluid + iFluid;
         double interfaceWeight = std::max(0.0, 4*coords[iDof]*(1-coords[iDof])); // Only apply the force to the interface nodes
-        (*g)[iDof] += volCoef * volDiff * nodeVol[iDof] * interfaceWeight;
+        (*g)[iDof] += volCoef * volDiff * nodeVol[iGrid] * interfaceWeight;
       }
     }
   }
@@ -552,6 +552,47 @@ namespace minim {
     if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
 
     if (g) applyConstraints(g);
+  }
+
+
+  std::map<std::string,vector<double>> PhaseField::energyComponents(const vector<double>& coords, const Communicator& comm) const {
+    vector<std::string> components = {"fluid", "surface", "pressure", "density constraint", "force", "confinement", "volume constraint"};
+    std::map<std::string,double> e;
+    std::map<std::string,vector<double>> g;
+    for(const auto &component : components) {
+      e[component] = 0;
+      g[component] = vector<double>(coords.size());
+    }
+
+
+    for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
+      for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
+        for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {
+          vector<int> xGrid{x, y, z};
+          int iGrid = getIdx(xGrid, procSizes);
+
+          if (model == MODEL_BASIC) {
+            fluidEnergy(coords, iGrid, xGrid, &e["fluid"], &g["fluid"]);
+          } else if (model == MODEL_NCOMP) {
+            fluidPairEnergy(coords, iGrid, xGrid, &e["fluid"], &g["fluid"]);
+          }
+
+          surfaceEnergy(coords, iGrid, &e["surface"], &g["surface"]);
+          pressureEnergy(coords, iGrid, &e["pressure"], &g["pressure"]);
+          densityConstraintEnergy(coords, iGrid, &e["density constraint"], &g["density constraint"]);
+          forceEnergy(coords, iGrid, xGrid, &e["force"], &g["force"]);
+          ffConfinementEnergy(coords, iGrid, &e["confinement"], &g["confinement"]);
+        }
+      }
+    }
+
+    if (volumeFixed) volumeConstraintEnergy(coords, comm, &e["volume constraint"], &g["volume constraint"]);
+
+    std::map<std::string,vector<double>> eg;
+    for(const auto &component : components) {
+      eg[component] = {comm.sum(e[component]), vec::norm(comm.gather(g[component]))};
+    }
+    return eg;
   }
 
 
