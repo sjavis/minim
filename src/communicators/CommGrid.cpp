@@ -394,8 +394,8 @@ template <typename T>
       int iNeighbour = make1dIndex(commIndices + direction, commArray);
       int sendTag = make1dIndex(direction+1, vector<int>(nDim, 3));
       int recvTag = make1dIndex(-direction+1, vector<int>(nDim, 3));
-      sendTypes.push_back({iNeighbour, sendTag, std::shared_ptr<MPI_Datatype>(sendSubarray, mpiTypeDeleter)});
-      recvTypes.push_back({iNeighbour, recvTag, std::shared_ptr<MPI_Datatype>(recvSubarray, mpiTypeDeleter)});
+      haloTypes.push_back({iNeighbour, sendTag, std::shared_ptr<MPI_Datatype>(sendSubarray, mpiTypeDeleter)});
+      edgeTypes.push_back({iNeighbour, recvTag, std::shared_ptr<MPI_Datatype>(recvSubarray, mpiTypeDeleter)});
     }
 
     // Types for gather

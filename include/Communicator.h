@@ -72,8 +72,8 @@ namespace minim {
         std::shared_ptr<MPI_Datatype> type;
       };
       MPI_Comm comm;
-      vector<CommunicateObj> sendTypes;         // Objects containing MPI derived datatypes for each MPI send
-      vector<CommunicateObj> recvTypes;         // Objects containing MPI derived datatypes for each MPI recv
+      vector<CommunicateObj> haloTypes;         // Objects containing halo region MPI derived datatypes for each MPI send
+      vector<CommunicateObj> edgeTypes;         // Objects containing edge region MPI derived datatypes for each MPI recv
       std::shared_ptr<MPI_Datatype> blockType;  // MPI derived datatype to send the local block
       std::shared_ptr<MPI_Datatype> gatherType; // MPI derived datatype to receive the blocks for gathering
       static void mpiTypeDeleter(MPI_Datatype* type);

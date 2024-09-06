@@ -120,6 +120,20 @@ TEST(CommGrid, TestCommunicate) {
 }
 
 
+TEST(CommGrid, TestCommunicateAccumulate) {
+  // Initialise communicator
+  CommGrid comm;
+  comm.commArray = {1, 2};
+  GridPot pot({2,6});
+  comm.setup(pot, 12, {});
+
+  vector<double> data = {0,1,2,3,4, 5,6,7,8,9};
+  vector<double> result = {0,5,2,3,4, 5,15,7,13,9};
+  comm.communicateAccumulate(data);
+  EXPECT_TRUE(ArraysMatch(data, result));
+}
+
+
 TEST(CommGrid, TestGather) {
   // Initialise communicator
   CommGrid comm;

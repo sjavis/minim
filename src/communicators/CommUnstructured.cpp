@@ -356,7 +356,7 @@ namespace minim {
       //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &sendType);
       MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, newSendType);
       MPI_Type_commit(newSendType);
-      sendTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newSendType, mpiTypeDeleter)});
+      haloTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newSendType, mpiTypeDeleter)});
       #endif
     }
     // Receive
@@ -366,7 +366,7 @@ namespace minim {
       MPI_Datatype* newRecvType = new MPI_Datatype;
       MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, newRecvType);
       MPI_Type_commit(newRecvType);
-      recvTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newRecvType, mpiTypeDeleter)});
+      edgeTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newRecvType, mpiTypeDeleter)});
       #endif
     }
 

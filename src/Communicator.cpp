@@ -40,13 +40,13 @@ namespace minim {
   void Communicator::communicate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
     #ifdef PARALLEL
-    int nRequest = sendTypes.size() + recvTypes.size();
+    int nRequest = haloTypes.size() + edgeTypes.size();
     MPI_Request requests[nRequest];
     int iRequest = 0;
-    for (const auto& sendType : sendTypes) {
+    for (const auto& sendType : haloTypes) {
       MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
     }
-    for (const auto& recvType : recvTypes) {
+    for (const auto& recvType : edgeTypes) {
       MPI_Irecv(&vector[0], 1, *recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
     }
     MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
@@ -56,17 +56,18 @@ namespace minim {
   void Communicator::communicateAccumulate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
     #ifdef PARALLEL
-    int nRequest = sendTypes.size() + recvTypes.size();
+    int nRequest = edgeTypes.size() + haloTypes.size();
     MPI_Request requests[nRequest];
     int iRequest = 0;
-    for (const auto& sendType : sendTypes) {
+    for (const auto& sendType : edgeTypes) {
       MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
     }
     // Receive to empty buffers
     // TODO: Remove the need for extra buffers. Use MPI_Accumulate?
-    std::vector<std::vector<double>> recvBuffers(recvTypes.size(), std::vector<double>(vector.size()));
-    for (size_t i=0; i<recvTypes.size(); i++) {
-      MPI_Irecv(&recvBuffers[i][0], 1, *recvTypes[i].type, recvTypes[i].rank, recvTypes[i].tag, comm, &requests[iRequest++]);
+    std::vector<std::vector<double>> recvBuffers(haloTypes.size(), std::vector<double>(vector.size()));
+    for (size_t i=0; i<haloTypes.size(); i++) {
+      const auto& recvType = haloTypes[i];
+      MPI_Irecv(&recvBuffers[i][0], 1, *recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
     }
     MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
     // Add the received data to 'vector'
