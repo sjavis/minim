@@ -79,12 +79,12 @@ int main(int argc, char** argv) {
     }
   };
 
-  auto pot = PhaseField();
+  PhaseField pot;
   pot.setNFluid(3);
   pot.setGridSize({nx, ny, 1});
   pot.setSolid(getSolid());
   pot.setDensityConstraint("hard");
-  pot.setVolumeFixed(true, 1e-4);
+  pot.setVolumeFixed(true);
   State state(pot, initCoords(nx*ny, c1, c2));
 
   auto min = Lbfgs();

@@ -108,23 +108,23 @@ TEST(PhaseFieldTest, TestPressureConstraint) {
 }
 
 
-TEST(PhaseFieldTest, TestVolumeConstraint) {
-  PhaseField pot;
-  pot.setGridSize({6,1,1});
-  pot.setSolid({1,0,0,0,0,1});
+// TEST(PhaseFieldTest, TestVolumeConstraint) {
+//   PhaseField pot;
+//   pot.setGridSize({6,1,1});
+//   pot.setSolid({1,0,0,0,0,1});
 
-  pot.setVolumeFixed(true, 1);
-  State state1(pot, {1,1,1,1,1,1});
-  EXPECT_TRUE(static_cast<PhaseField&>(*state1.pot).volumeFixed);
-  EXPECT_TRUE(ArraysNear(static_cast<PhaseField&>(*state1.pot).volume, {3}, 1e-6));
-  EXPECT_FLOAT_EQ(state1.energy(), 0);
+//   pot.setVolumeFixed(true, 1);
+//   State state1(pot, {1,1,1,1,1,1});
+//   EXPECT_TRUE(static_cast<PhaseField&>(*state1.pot).volumeFixed);
+//   EXPECT_TRUE(ArraysNear(static_cast<PhaseField&>(*state1.pot).volume, {3}, 1e-6));
+//   EXPECT_FLOAT_EQ(state1.energy(), 0);
 
-  pot.setVolume({1}, 100);
-  State state2(pot, {1,1,1,1,1,1});
-  EXPECT_FLOAT_EQ(state2.energy(), 100 * pow(2, 2));
-  // EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 100, 200, 200, 100, 0}));
-  EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 0, 0, 0, 0, 0})); // Zero gradient when not on interfaces
-}
+//   pot.setVolume({1}, 100);
+//   State state2(pot, {1,1,1,1,1,1});
+//   EXPECT_FLOAT_EQ(state2.energy(), 100 * pow(2, 2));
+//   // EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 100, 200, 200, 100, 0}));
+//   EXPECT_TRUE(ArraysNear(state2.gradient(), {0, 0, 0, 0, 0, 0})); // Zero gradient when not on interfaces
+// }
 
 
 TEST(PhaseFieldTest, TestResolution) {
@@ -163,12 +163,12 @@ TEST(PhaseFieldTest, TestResolution) {
   EXPECT_TRUE(ArraysNear(s4.gradient(), {0, -20, -40, -40, -20, 0}, 1e-6));
   pot.setPressure({0});
 
-  // Volume
-  pot.setGridSize({6,1,1}).setSurfaceTension(1).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
-  auto s5 = pot.newState({1,1,1,1,1,1});
-  EXPECT_FLOAT_EQ(s5.energy(), 100.0/16 * pow(2*8, 2));
-  // EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}));
-  EXPECT_TRUE(ArraysNear(s5.gradient(), {0,0,0,0,0,0})); // Zero gradient unless at interface
+  // // Volume
+  // pot.setGridSize({6,1,1}).setSurfaceTension(1).setSolid({1,0,0,0,0,1}).setContactAngle({90,90,90,90,90,90}).setVolume({8}, 100);
+  // auto s5 = pot.newState({1,1,1,1,1,1});
+  // EXPECT_FLOAT_EQ(s5.energy(), 100.0/16 * pow(2*8, 2));
+  // // EXPECT_TRUE(ArraysNear(s5.gradient(), {0, 64*100, 64*200, 64*200, 64*100, 0}));
+  // EXPECT_TRUE(ArraysNear(s5.gradient(), {0,0,0,0,0,0})); // Zero gradient unless at interface
 }
 
 

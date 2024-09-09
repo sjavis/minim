@@ -183,6 +183,11 @@ namespace minim {
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         volume[iFluid] = comm.sum(volume[iFluid]);
       }
+      totalVolume = 0;
+      for (int iGrid : RangeI(procSizes, haloWidths)) {
+        totalVolume += nodeVol[iGrid];
+      }
+      totalVolume = comm.sum(totalVolume);
     }
 
     // Set initial values for confinement potential
@@ -491,7 +496,7 @@ namespace minim {
   }
 
 
-  void PhaseField::applyConstraints(vector<double>* g) const {
+  void PhaseField::applyConstraints(const vector<double>& coords, const Communicator& comm, vector<double>* g) const {
     // Fixed fluid
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!fixFluid[iFluid]) continue;
@@ -500,25 +505,48 @@ namespace minim {
       }
     }
 
+    // Get a list of the non-fixed fluids
+    vector<int> iVariableFluid;
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
+    }
+
     // Hard density constraint
     if (nFluid>1 && densityConstraint==DENSITY_HARD) {
-      // Get a list of the non-fixed fluids
-      vector<int> iVariableFluid;
-      for (int iFluid=0; iFluid<nFluid; iFluid++) {
-        if (!fixFluid[iFluid]) iVariableFluid.push_back(iFluid);
-      }
-      double normFactor = 1 / (double)iVariableFluid.size();
+      double normFactor = 1.0 / iVariableFluid.size();
 
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
         // Dot product to get component of increasing density
         double component = 0;
-        for (int iFluid: iVariableFluid) {
+        for (int iFluid : iVariableFluid) {
           component += (*g)[iGrid*nFluid+iFluid];
         }
+        // Normalise to get correct corrections
         component *= normFactor;
         // Remove the component
-        for (int iFluid: iVariableFluid) {
+        for (int iFluid : iVariableFluid) {
           (*g)[iGrid*nFluid+iFluid] -= component;
+        }
+      }
+    }
+
+    // Fixed volume
+    if (volumeFixed) {
+      // Dot product for components of gradient in direction of increasing volumes
+      vector<double> component(nFluid, 0);
+      for (int iGrid : RangeI(procSizes, haloWidths)) {
+        for (int iFluid : iVariableFluid) {
+          component[iFluid] += (*g)[iGrid*nFluid+iFluid] * sqrt(nodeVol[iGrid]);
+        }
+      }
+      // Finish dot product + normalise to get correct corrections
+      for (int iFluid : iVariableFluid) {
+        component[iFluid] = comm.sum(component[iFluid]) / totalVolume;
+      }
+      // Remove the component
+      for (int iGrid : RangeI(procSizes, haloWidths)) {
+        for (int iFluid : iVariableFluid) {
+          (*g)[iGrid*nFluid+iFluid] -= component[iFluid] * sqrt(nodeVol[iGrid]);
         }
       }
     }
@@ -549,9 +577,9 @@ namespace minim {
       }
     }
 
-    if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
+    // if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
 
-    if (g) applyConstraints(g);
+    if (g) applyConstraints(coords, comm, g);
   }
 
 
@@ -586,7 +614,7 @@ namespace minim {
       }
     }
 
-    if (volumeFixed) volumeConstraintEnergy(coords, comm, &e["volume constraint"], &g["volume constraint"]);
+    // if (volumeFixed) volumeConstraintEnergy(coords, comm, &e["volume constraint"], &g["volume constraint"]);
 
     std::map<std::string,vector<double>> eg;
     for(const auto &component : components) {
