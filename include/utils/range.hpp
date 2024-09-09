@@ -28,7 +28,17 @@ namespace minim {
     template <typename TOut>
     Iterator<TOut>::Iterator(std::vector<int> xSize, std::vector<int> xStart, std::vector<int> xEnd, std::vector<int> xHalo)
       : xSize(xSize), xStart(xStart), xEnd(xEnd), xHalo(xHalo)
-    {}
+    {
+      nDim = xSize.size();
+      stepSize = vector<int>(nDim);
+      int step = 1;
+      int higherDims = 1;
+      for (int iDim=nDim-1; iDim>=0; --iDim) {
+        stepSize[iDim] = step;
+        step += 2 * xHalo[iDim] * higherDims;
+        higherDims *= xSize[iDim];
+      }
+    }
 
     template <typename TOut>
     Iterator<TOut> Iterator<TOut>::operator()(int i) {
@@ -49,20 +59,14 @@ namespace minim {
 
     // Increment x and i, skipping the halo nodes
     template <typename TOut>
-    Iterator<TOut> Iterator<TOut>::operator++() {
-      int nDim = x.size();
-      int step = 1;
-      int higherDims = 1;
+    Iterator<TOut>& Iterator<TOut>::operator++() {
       for (int iDim=nDim-1; iDim>=0; iDim--) {
-        if (x[iDim] < xEnd[iDim] - 1) {
-          x[iDim]++;
-          i += step;
+        x[iDim]++;
+        if (x[iDim] < xEnd[iDim]) {
+          i += stepSize[iDim];
           return *this;
-        } else {
-          x[iDim] = xStart[iDim];
-          step += 2 * xHalo[iDim] * higherDims;
-          higherDims *= xSize[iDim];
         }
+        x[iDim] = xStart[iDim];
       }
       i = -1; // To match end()
       return *this;

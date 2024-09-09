@@ -11,16 +11,17 @@ namespace minim {
       Iterator(std::vector<int> xSize, std::vector<int> xStart, std::vector<int> xEnd, std::vector<int> xHalo);
       Iterator<TOut> operator()(int i);
       TOut operator*() const;
-      Iterator<TOut> operator++();
+      Iterator<TOut>& operator++();
       bool operator!=(const Iterator& other) const { return i != other.i; };
 
       private:
-        int i, iEnd;
+        int i, iEnd, nDim;
         std::vector<int> x;
         std::vector<int> xSize;
         std::vector<int> xStart;
         std::vector<int> xEnd;
         std::vector<int> xHalo;
+        std::vector<int> stepSize;
     };
 
   }
