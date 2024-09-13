@@ -14,24 +14,32 @@ SRC_DIRS := $(shell find $(SRC_DIR) -type d)
 VPATH = $(SRC_DIRS)
 SRC = $(foreach sdir, $(SRC_DIRS), $(wildcard $(sdir)/*.cpp))
 OBJ = $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(notdir $(SRC)))
+DEPS= $(patsubst %.cpp,$(BUILD_DIR)/%.d,$(notdir $(SRC)))
 INC = $(addprefix -I, $(INC_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
-HLIB = $(patsubst %,$(INC_DIR)/%, $(HLIBS))
+HLIB= $(patsubst %,$(INC_DIR)/%, $(HLIBS))
 LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 
-.PHONY: all debug deps clean check $(LIBS)
+.PHONY: all libs clean check $(LIBS)
 
-all: deps $(TARGET)
+debug ?= 0
+MAKE_ARGS = "debug=$(debug)"
+ifeq ($(debug), 1)
+	CXXFLAGS += -g -fno-omit-frame-pointer
+else ifeq ($(debug), 2)
+	CXXFLAGS += -g -O0
+else ifeq ($(debug), 3)
+	CXXFLAGS += -g -O0 -fsanitize=address
+endif
 
-debug: CXXFLAGS += -g -O0 -fsanitize=address
-debug: SUBTARGET = debug
-debug: deps $(TARGET)
 
-deps: $(LIBS) $(HLIB)
+all: libs $(TARGET)
+
+libs: $(LIBS) $(HLIB)
 
 clean:
-	rm $(TARGET) $(OBJ) $(LIB)
+	$(RM) $(TARGET) $(OBJ) $(DEPS) $(LIB)
 
 $(TARGET): $(OBJ) $(LIB)
 	@echo "Making library: $@"
@@ -44,12 +52,13 @@ $(TARGET): $(OBJ) $(LIB)
 	@ar -M < tmp.mri
 	@rm tmp.mri
 
+-include $(DEPS)
 $(OBJ): $(BUILD_DIR)/%.o: %.cpp $(LIB)
-	$(CXX) $(CXXFLAGS) $(INC) -c $< $(LDFLAGS) $(LDLIBS) -o $@
+	$(CXX) $(CXXFLAGS) $(INC) -MMD -MP -c $< $(LDFLAGS) $(LDLIBS) -o $@
 
 $(LIBS): %:
 	@git submodule update --init $(LIB_DIR)/$*
-	$(MAKE) --no-print-directory -C $(LIB_DIR)/$* $(SUBTARGET)
+	$(MAKE) --no-print-directory -C $(LIB_DIR)/$* $(MAKE_ARGS)
 	@ln -sfn ../$(LIB_DIR)/$*/$(INC_DIR) $(INC_DIR)/$*
 	@if [ ! -f $(BUILD_DIR)/lib$*.a ] || [ $(LIB_DIR)/$*/$(BUILD_DIR)/lib$*.a -nt $(BUILD_DIR)/lib$*.a ]; then\
 	  cp $(LIB_DIR)/$*/$(BUILD_DIR)/lib$*.a $(BUILD_DIR)/lib$*.a;\
