@@ -334,7 +334,8 @@ namespace minim {
 
   // Make the MPI datatypes to send and receive from each proc
   void CommUnstructured::makeMPITypes() {
-    if (commSize <= 1) return;
+    #ifdef PARALLEL
+    if (commSize <= 1 || mpiTypesCommitted) return;
 
     // Send and receive types
     // Send
@@ -351,27 +352,22 @@ namespace minim {
         previous = current;
       }
       blocklens.push_back(send_lists[i].back() + 1 - disps.back());
-      #ifdef PARALLEL
       MPI_Datatype* newSendType = new MPI_Datatype;
       //MPI_Type_create_indexed_block(send_lists[i].size(), 1, &send_lists[i][0], MPI_DOUBLE, &sendType);
       MPI_Type_indexed(blocklens.size(), &blocklens[0], &disps[0], MPI_DOUBLE, newSendType);
       MPI_Type_commit(newSendType);
       haloTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newSendType, mpiTypeDeleter)});
-      #endif
     }
     // Receive
     for (int i=0; i<commSize; i++) {
       if (nrecv[i] == 0) continue;
-      #ifdef PARALLEL
       MPI_Datatype* newRecvType = new MPI_Datatype;
       MPI_Type_indexed(1, &nrecv[i], &irecv[i], MPI_DOUBLE, newRecvType);
       MPI_Type_commit(newRecvType);
       edgeTypes.push_back({i, 0, std::shared_ptr<MPI_Datatype>(newRecvType, mpiTypeDeleter)});
-      #endif
     }
 
     // Types for gather
-    #ifdef PARALLEL
     // Local block type for sending
     MPI_Datatype* newBlockType = new MPI_Datatype;
     MPI_Type_contiguous(nblocks[commRank], MPI_DOUBLE, newBlockType);
@@ -384,9 +380,9 @@ namespace minim {
     MPI_Type_contiguous(1, MPI_DOUBLE, newGatherType);
     MPI_Type_commit(newGatherType);
     gatherType = std::shared_ptr<MPI_Datatype>(newGatherType, mpiTypeDeleter);
-    #endif
 
     mpiTypesCommitted = true;
+    #endif
   }
 
 }

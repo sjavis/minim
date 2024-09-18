@@ -82,6 +82,7 @@ namespace minim {
       vector<double> nodeVol;
       vector<double> surfaceArea;
       vector<int> fluidType;
+      vector<vector2d<int>> neighbours;
 
       double totalVolume;
       vector<double> ffInit;

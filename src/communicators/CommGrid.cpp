@@ -377,9 +377,9 @@ template <typename T>
 
   // Make the MPI datatypes to send and receive from each proc
   void CommGrid::makeMPITypes() {
+    #ifdef PARALLEL
     if (commSize <= 1 || mpiTypesCommitted) return;
 
-    #ifdef PARALLEL
     // Send and receive types
     auto directions = getNeighbourDirections(commArray);
     for (const auto& direction : directions) {
@@ -424,9 +424,9 @@ template <typename T>
     MPI_Type_create_resized(gatherBlockType, 0, 1*sizeof(double), newGatherType);
     MPI_Type_commit(newGatherType);
     gatherType = std::shared_ptr<MPI_Datatype>(newGatherType, mpiTypeDeleter);
-    #endif
 
     mpiTypesCommitted = true;
+    #endif
   }
 
 }

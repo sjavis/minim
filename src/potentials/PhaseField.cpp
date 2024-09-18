@@ -48,6 +48,21 @@ namespace minim {
     return (x*gridSize[1] + y)*gridSize[2] + z;
   }
 
+  static vector2d<int> getNeighbours(const vector<int>& xGrid, const vector<int>& gridSizes) {
+    vector2d<int> neighbours(3);
+    vector<int> x = xGrid;
+    for (int iDim=0; iDim<3; ++iDim) {
+      neighbours[iDim] = vector<int>(2);
+      int x0 = x[iDim];
+      x[iDim] = x0 - 1;
+      neighbours[iDim][0] = getIdx(x, gridSizes);
+      x[iDim] = x0 + 1;
+      neighbours[iDim][1] = getIdx(x, gridSizes);
+      x[iDim] = x0;
+    }
+    return neighbours;
+  }
+
   static vector2d<int> dx = {{
     // Adjacent faces
     {-1,  0,  0}, { 0, -1,  0}, { 0,  0, -1}, { 0,  0,  1}, { 0,  1,  0}, { 1,  0,  0},
@@ -172,6 +187,12 @@ namespace minim {
       surfaceArea[iGrid] = surfaceArea[iGrid] * pow(resolution, 2);
     }
 
+    neighbours.resize(nGrid);
+    for (int iGrid : RangeI(procSizes, haloWidths)) {
+      vector<int> xGrid = getCoord(iGrid, procSizes);
+      neighbours[iGrid] = getNeighbours(xGrid, procSizes);
+    }
+
     // Set initial volumes for constant volume constraint
     if (volume.empty() && volumeFixed) {
       volume = vector<double>(nFluid, 0);
@@ -195,8 +216,8 @@ namespace minim {
   }
 
 
-  inline void PhaseField::phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
-                                        const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
+  void PhaseField::phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
+                                 const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
     int i0 = iGrid * nFluid + iFluid;
     double c1 = coords[i0];
 
@@ -301,13 +322,7 @@ namespace minim {
     if (e) *e += factor * grad2;
   }
 
-
   void PhaseField::fluidEnergy(const vector<double>& coords, int iGrid, const vector<int>& xGrid, double* e, vector<double>* g) const {
-    vector2d<int> neighbours(3);
-    neighbours[0] = {getIdx(xGrid+dx[0], procSizes), getIdx(xGrid+dx[5], procSizes)};
-    neighbours[1] = {getIdx(xGrid+dx[1], procSizes), getIdx(xGrid+dx[4], procSizes)};
-    neighbours[2] = {getIdx(xGrid+dx[2], procSizes), getIdx(xGrid+dx[3], procSizes)};
-
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       int iDof = iGrid * nFluid + iFluid;
       double c = coords[iDof];
@@ -326,17 +341,12 @@ namespace minim {
       // Gradient energy
       double factor = (nFluid==1) ? 0.25*kappaP[0]*nodeVol[iGrid] : 0.5*kappaP[iFluid]*nodeVol[iGrid];
       factor = factor / pow(resolution, 2);
-      phaseGradient(coords, iGrid, iFluid, xGrid, neighbours, factor, e, g);
+      phaseGradient(coords, iGrid, iFluid, xGrid, neighbours[iGrid], factor, e, g);
     }
   }
 
 
   void PhaseField::fluidPairEnergy(const vector<double>& coords, int iGrid, const vector<int>& xGrid, double* e, vector<double>* g) const {
-    vector2d<int> neighbours(3);
-    neighbours[0] = {getIdx(xGrid+dx[0], procSizes), getIdx(xGrid+dx[5], procSizes)};
-    neighbours[1] = {getIdx(xGrid+dx[1], procSizes), getIdx(xGrid+dx[4], procSizes)};
-    neighbours[2] = {getIdx(xGrid+dx[2], procSizes), getIdx(xGrid+dx[3], procSizes)};
-
     int iPair = 0;
     for (int iFluid1=0; iFluid1<nFluid; iFluid1++) {
       for (int iFluid2=iFluid1+1; iFluid2<nFluid; iFluid2++) {
@@ -361,7 +371,7 @@ namespace minim {
         // Gradient energy
         double res2 = pow(resolution, 2);
         factor = -0.25 * kappaP[iPair] * nodeVol[iGrid] / res2; // kappaP = -4 lambda
-        phasePairGradient(coords, iGrid, iFluid1, iFluid2, xGrid, neighbours, factor, e, g);
+        phasePairGradient(coords, iGrid, iFluid1, iFluid2, xGrid, neighbours[iGrid], factor, e, g);
 
         iPair++;
       }
