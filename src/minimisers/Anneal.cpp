@@ -73,7 +73,7 @@ namespace minim {
     }
 
     // Set final state
-    if ((checkConvergence(state)) || (iter == maxIter-1)) state.blockCoords(_currentState);
+    if ((checkConvergence(state)) || (iter == maxIter)) state.blockCoords(_currentState);
   }
 
 
