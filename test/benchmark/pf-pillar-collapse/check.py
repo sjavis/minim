@@ -6,7 +6,7 @@ plot = True if (len(sys.argv)==1) else bool(int(sys.argv[1]))
 
 surfacetension = 100
 resolution = 1e-3
-spacing = 80
+spacing = 40
 contactangles = np.array([30, 50, 70, 90, 110, 130, 150])
 
 
@@ -35,6 +35,7 @@ if (plot):
     axs[0].errorbar(contactangles, pressures, errors, fmt='ks', capsize=2, mec='r', mfc='r')
     axs[0].plot(cas_analytic, pressures_analytic, 'k-')
     axs[1].errorbar(contactangles, residuals, errors, fmt='ks', capsize=2, mec='r', mfc='r')
+    axs[1].axhline(0, c='k', ls=':', lw=1)
     axs[0].set_ylabel("Critical Pressure")
     axs[1].set_ylabel("Residuals")
     axs[1].set_xlabel("Contact Angle")

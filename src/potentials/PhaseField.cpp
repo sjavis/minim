@@ -381,19 +381,18 @@ namespace minim {
 
   void PhaseField::pressureEnergy(const vector<double>& coords, int iGrid, double* e, vector<double>* g) const {
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (pressure[iFluid]==0) continue;
-
-      int iDof = iGrid * nFluid + iFluid;
+      if (pressure[iFluid]==0 || fixFluid[iFluid]) continue;
 
       if (nFluid == 1) {
-        double volume = 0.5*(coords[iDof]+1) * nodeVol[iDof];
+        double volume = 0.5*(coords[iGrid]+1) * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
-        if (g) (*g)[iDof] -= 0.5 * pressure[iFluid] * nodeVol[iDof];
+        if (g) (*g)[iGrid] -= 0.5 * pressure[iFluid] * nodeVol[iGrid];
 
       } else {
-        double volume = coords[iDof] * nodeVol[iDof];
+        int iDof = iGrid * nFluid + iFluid;
+        double volume = coords[iDof] * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
-        if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iDof];
+        if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iGrid];
       }
     }
   }

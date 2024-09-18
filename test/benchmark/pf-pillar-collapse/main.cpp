@@ -14,8 +14,8 @@ int logIter = -100; // <=0 for no log
 bool saveCoords = false;
 
 // Geometry
-int nx = 160;
-int ny = 200;
+int nx = 80;
+int ny = 100;
 int nz = 1;
 double res = 1e-3;
 double yTop = 20;
@@ -26,7 +26,7 @@ double surfaceTension = 100;
 double maxPressure = 0.1*surfaceTension/res;
 
 // Run parameters
-vector<double> spacings = {80};
+vector<double> spacings = {40};
 vector<double> contactAngles = {30, 50, 70, 90, 110, 130, 150};
 std::string directory;
 
@@ -118,7 +118,6 @@ bool evolveFluid(PhaseField pot, double pressure, std::vector<double> init) {
   min.setMaxIter(5000);
 
   State state(pot, init);
-  // state.convergence = 1e-4*surfaceTension*res*res;
   auto minimum = min.minimise(state, logFn);
   if (saveCoords) output(minimum, directory+"/p-"+std::to_string(pressure)+".txt");
   return state.isFailed;

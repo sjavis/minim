@@ -1,4 +1,4 @@
-BENCHMARKS = pf-interface pf-volume
+BENCHMARKS = pf-interface pf-volume pf-pillar-collapse
 
 .PHONY: all clean $(BENCHMARKS)
 
