@@ -49,6 +49,7 @@ namespace minim {
       vector<double> contactAngle;
       PhaseField& setSolid(vector<bool> solid);
       PhaseField& setSolid(std::function<bool(int,int,int)> solidFn);
+      PhaseField& setContactAngle(double contactAngle);
       PhaseField& setContactAngle(vector<double> contactAngle);
       PhaseField& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
 

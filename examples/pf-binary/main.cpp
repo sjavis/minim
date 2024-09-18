@@ -6,14 +6,14 @@
 using namespace minim;
 using std::vector;
 
-int nx = 100;
-int ny = 100;
+int nx = 120;
+int ny = 60;
 
 
 vector<double> initCoords() {
   // Make a semi-circular droplet on the solid
   double dropRad = 30;
-  vector<double> coords(nx*ny);
+  vector<double> coords(nx*ny, -1);
   for (int x=0; x<nx; x++) {
   for (int y=0; y<ny; y++) {
     int i = ny*x+y;
@@ -48,7 +48,8 @@ int main(int argc, char** argv) {
   PhaseField pot;
   pot.setGridSize({nx, ny, 1});
   pot.setSolid([](int x, int y, int z){ return (y==0); });
-  pot.setVolumeFixed(true, 1e-4);
+  pot.setContactAngle(60);
+  pot.setVolumeFixed(true);
   State state(pot, initCoords());
 
   Lbfgs min;

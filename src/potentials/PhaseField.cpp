@@ -722,6 +722,11 @@ namespace minim {
     return *this;
   }
 
+  PhaseField& PhaseField::setContactAngle(double contactAngle) {
+    this->contactAngle = vector<double>(nGrid, contactAngle);
+    return *this;
+  }
+
   PhaseField& PhaseField::setContactAngle(vector<double> contactAngle) {
     this->contactAngle = contactAngle;
     return *this;
