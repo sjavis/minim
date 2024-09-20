@@ -8,48 +8,37 @@ using std::vector;
 
 int nx = 100;
 int ny = 100;
-double c1 = 0.33;
-double c2 = 0.33;
 
 
-vector<double> initCoords(int n, double c1, double c2) {
-  double randMax = 0.1;
-  vector<double> rand(n);
-  std::generate(rand.begin(), rand.end(), [](){ return (std::rand()%1000)/1000.0; });
-  auto c1v = c1 + randMax * rand;
-  std::generate(rand.begin(), rand.end(), [](){ return (std::rand()%1000)/1000.0; });
-  auto c2v = c2 + randMax * rand;
-  for (int x=0; x<100; x++) {
-  for (int y=0; y<100; y++) {
-    int i = 100*x+y;
-    if (y<=33) {
-      c1v[i] = 1;
-      c2v[i] = 0;
-    } else if (x>=50) {
-      c1v[i] = 0;
-      c2v[i] = 1;
+vector<double> initCoords() {
+  vector<double> data(3*nx*ny);
+  for (int x=0; x<nx; x++) {
+  for (int y=0; y<ny; y++) {
+    int i = ny*x+y;
+
+    if (y<=ny/3) {
+      data[3*i+0] = 1;
+      data[3*i+1] = 0;
+    } else if (x>=nx/2) {
+      data[3*i+0] = 0;
+      data[3*i+1] = 1;
     } else {
-      c1v[i] = 0;
-      c2v[i] = 0;
+      data[3*i+0] = 0;
+      data[3*i+1] = 0;
     }
+
+    data[3*i+2] = 1 - data[3*i] - data[3*i+1];
   }
-  }
-  auto c3v = 1 - c1v - c2v;
-  vector<double> data(3*n);
-  for (int i=0; i<n; i++) {
-    data[3*i] = c1v[i];
-    data[3*i+1] = c2v[i];
-    data[3*i+2] = c3v[i];
   }
   return data;
 }
 
 vector<bool> getSolid() {
-  vector<bool> solid(10000, false);
-  for (int x=0; x<100; x++) {
-  for (int y=0; y<100; y++) {
-    int i = 100*x+y;
-    if (x==0 || x==99 || y==0 || y==99) solid[i] = true;
+  vector<bool> solid(nx*ny, false);
+  for (int x=0; x<nx; x++) {
+  for (int y=0; y<ny; y++) {
+    int i = ny*x+y;
+    if (x==0 || x==nx-1 || y==0 || y==ny-1) solid[i] = true;
   }
   }
   return solid;
@@ -57,11 +46,8 @@ vector<bool> getSolid() {
 
 
 void output(vector<double> data) {
-  char *filename;
-  asprintf(&filename, "%.2f-%.2f.txt", c1, c2);
-
   if (mpi.rank == 0) {
-    std::ofstream f(filename);
+    std::ofstream f("output.txt");
     for (auto x: data) {
       f << x << std::endl;
     }
@@ -85,9 +71,9 @@ int main(int argc, char** argv) {
   pot.setSolid(getSolid());
   pot.setDensityConstraint("hard");
   pot.setVolumeFixed(true);
-  State state(pot, initCoords(nx*ny, c1, c2));
+  State state(pot, initCoords());
 
-  auto min = Lbfgs();
+  Lbfgs min;
   min.setMaxIter(5000);
   min.minimise(state, log);
 
