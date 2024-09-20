@@ -22,7 +22,7 @@ namespace minim {
     return assignBlockImpl(in);
   }
 
-  vector<bool> CommUnstructured::assignBlock(const vector<bool>& in) const {
+  vector<char> CommUnstructured::assignBlock(const vector<char>& in) const {
     return assignBlockImpl(in);
   }
 
@@ -43,7 +43,7 @@ namespace minim {
     return out;
   }
   template vector<int> CommUnstructured::assignBlockImpl(const vector<int>&) const;
-  template vector<bool> CommUnstructured::assignBlockImpl(const vector<bool>&) const;
+  template vector<char> CommUnstructured::assignBlockImpl(const vector<char>&) const;
   template vector<double> CommUnstructured::assignBlockImpl(const vector<double>&) const;
 
 
@@ -51,7 +51,7 @@ namespace minim {
     return assignProcImpl(in);
   }
 
-  vector<bool> CommUnstructured::assignProc(const vector<bool>& in) const {
+  vector<char> CommUnstructured::assignProc(const vector<char>& in) const {
     return assignProcImpl(in);
   }
 
@@ -79,7 +79,7 @@ namespace minim {
     return out;
   }
   template vector<int> CommUnstructured::assignProcImpl(const vector<int>&) const;
-  template vector<bool> CommUnstructured::assignProcImpl(const vector<bool>&) const;
+  template vector<char> CommUnstructured::assignProcImpl(const vector<char>&) const;
   template vector<double> CommUnstructured::assignProcImpl(const vector<double>&) const;
 
 
@@ -157,7 +157,7 @@ namespace minim {
     // Distribute the elements across the processors
     // For each element's dofs get the block that contains it and if it is this block
     vector2d<int> blocks;
-    vector2d<bool> in_block;
+    vector2d<char> in_block;
     getElementBlocks(pot, blocks, in_block);
     setCommLists(pot, blocks, in_block); // Assign send_lists and recv_lists
     setRecvSizes(); // Assign nrecv and irecv
@@ -183,17 +183,17 @@ namespace minim {
   }
 
 
-  void CommUnstructured::getElementBlocks(const Potential& pot, vector2d<int>& blocks, vector2d<bool>& in_block) {
+  void CommUnstructured::getElementBlocks(const Potential& pot, vector2d<int>& blocks, vector2d<char>& in_block) {
     int nElements = pot.elements.size();
     int nConstraints = pot.constraints.size();
     int nTot = nElements + nConstraints;
     blocks = vector2d<int>(nTot);
-    in_block = vector2d<bool>(nTot);
+    in_block = vector2d<char>(nTot);
     for (int ie=0; ie<nTot; ie++) {
       auto e_idof = (ie<nElements) ? pot.elements[ie].idof : pot.constraints[ie-nElements].idof;
       int e_ndof = e_idof.size();
       blocks[ie] = vector<int>(e_ndof);
-      in_block[ie] = vector<bool>(e_ndof);
+      in_block[ie] = vector<char>(e_ndof);
       for (int i=0; i<e_ndof; i++) {
         blocks[ie][i] = getBlock(e_idof[i]);
         in_block[ie][i] = (blocks[ie][i] == commRank);
@@ -203,7 +203,7 @@ namespace minim {
 
 
   // Populate lists of indicies being sent to and received from each proc
-  void CommUnstructured::setCommLists(const Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block) {
+  void CommUnstructured::setCommLists(const Potential& pot, const vector2d<int>& blocks, const vector2d<char>& in_block) {
     int nElements = pot.elements.size();
     int nConstraints = pot.constraints.size();
     int nTot = nElements + nConstraints;
@@ -273,7 +273,7 @@ namespace minim {
   }
 
 
-  void CommUnstructured::distributeElements(Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block) {
+  void CommUnstructured::distributeElements(Potential& pot, const vector2d<int>& blocks, const vector2d<char>& in_block) {
     vector<int> el_proc = assignElements(pot.elements.size(), blocks);
 
     int nElements = pot.elements.size();

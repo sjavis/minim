@@ -55,7 +55,7 @@ namespace minim {
       vector<double> correctConstraints(vector<double>& coords) const;
 
       bool isFixed(int index) const;
-      vector<bool> isFixed(const vector<int>& indicies) const;
+      vector<char> isFixed(const vector<int>& indicies) const;
 
       // Internal
       virtual void init(const vector<double>& coords) {};

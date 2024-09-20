@@ -156,8 +156,8 @@ namespace minim {
     vector<double> coordsLocal = comm.assignProc(coords);
     if (!contactAngle.empty()) contactAngle = comm.assignProc(contactAngle);
     if ((int)solid.size() != nGrid) {
-      vector<bool> solidGlobal = solid;
-      solid = vector<bool>(nGrid);
+      vector<char> solidGlobal = solid;
+      solid = vector<char>(nGrid);
       int iLocal = 0;
       for (int x=procStart[0]; x<procStart[0]+procSizes[0]; x++) {
         for (int y=procStart[1]; y<procStart[1]+procSizes[1]; y++) {
@@ -701,13 +701,13 @@ namespace minim {
     return *this;
   }
 
-  PhaseField& PhaseField::setSolid(vector<bool> solid) {
+  PhaseField& PhaseField::setSolid(vector<char> solid) {
     this->solid = solid;
     return *this;
   }
 
   PhaseField& PhaseField::setSolid(std::function<bool(int,int,int)> solidFn) {
-    solid = vector<bool>(nGrid);
+    solid = vector<char>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -758,7 +758,7 @@ namespace minim {
   }
 
   PhaseField& PhaseField::setFixFluid(int iFluid, bool fix) {
-    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
+    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<char>(nFluid, false);
     fixFluid[iFluid] = fix;
     return *this;
   }
@@ -829,9 +829,9 @@ namespace minim {
 
   void PhaseField::setDefaults() {
     if (interfaceSize.empty()) interfaceSize = vector<double>(nFluid, resolution);
-    if (solid.empty()) solid = vector<bool>(nGrid, false);
+    if (solid.empty()) solid = vector<char>(nGrid, false);
     if (pressure.empty()) pressure = vector<double>(nFluid, 0);
-    if (fixFluid.empty()) fixFluid = vector<bool>(nFluid, false);
+    if (fixFluid.empty()) fixFluid = vector<char>(nFluid, false);
     if (confinementStrength.empty()) confinementStrength = vector<double>(nFluid, 0);
   }
 
@@ -864,18 +864,18 @@ namespace minim {
   }
 
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, int iFluid, bool twoStep) {
+  vector<double> PhaseField::diffuseSolid(vector<char> solid, int iFluid, bool twoStep) {
     return diffuseSolid(solid, *this, iFluid, twoStep);
   }
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid, int iFluid, bool twoStep) {
+  vector<double> PhaseField::diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid, int iFluid, bool twoStep) {
     PhaseField potential;
     potential.setNFluid(nFluid);
     potential.setGridSize(gridSize);
     return diffuseSolid(solid, potential, iFluid, twoStep);
   }
 
-  vector<double> PhaseField::diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid, bool twoStep) {
+  vector<double> PhaseField::diffuseSolid(vector<char> solid, PhaseField potential, int iFluid, bool twoStep) {
     vector<double> confinement(potential.nFluid);
     confinement[iFluid] = 100;
     potential.setConfinement(confinement);

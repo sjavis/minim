@@ -45,9 +45,9 @@ namespace minim {
       PhaseField& setVolumeFixed(bool volumeFixed, double volConst=0.01);
 
       // Solid nodes
-      vector<bool> solid;
+      vector<char> solid;
       vector<double> contactAngle;
-      PhaseField& setSolid(vector<bool> solid);
+      PhaseField& setSolid(vector<char> solid);
       PhaseField& setSolid(std::function<bool(int,int,int)> solidFn);
       PhaseField& setContactAngle(double contactAngle);
       PhaseField& setContactAngle(vector<double> contactAngle);
@@ -58,14 +58,14 @@ namespace minim {
       PhaseField& setForce(vector<double> force, vector<int> iFluid={});
 
       // Diffuse solid method
-      vector<bool> fixFluid;
+      vector<char> fixFluid;
       vector<double> confinementStrength;
       PhaseField& setFixFluid(int iFluid, bool fix=true);
       PhaseField& setConfinement(vector<double> strength);
 
-      vector<double> diffuseSolid(vector<bool> solid, int iFluid=0, bool twoStep=false);
-      static vector<double> diffuseSolid(vector<bool> solid, PhaseField potential, int iFluid=0, bool twoStep=false);
-      static vector<double> diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
+      vector<double> diffuseSolid(vector<char> solid, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<char> solid, PhaseField potential, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
       // Overrides
       void init(const vector<double>& coords) override;

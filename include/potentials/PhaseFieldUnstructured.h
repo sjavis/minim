@@ -45,9 +45,9 @@ namespace minim {
       PhaseFieldUnstructured& setVolumeFixed(bool volumeFixed, double volConst=0.01);
 
       // Solid nodes
-      vector<bool> solid;
+      vector<char> solid;
       vector<double> contactAngle;
-      PhaseFieldUnstructured& setSolid(vector<bool> solid);
+      PhaseFieldUnstructured& setSolid(vector<char> solid);
       PhaseFieldUnstructured& setSolid(std::function<bool(int,int,int)> solidFn);
       PhaseFieldUnstructured& setContactAngle(vector<double> contactAngle);
       PhaseFieldUnstructured& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
@@ -57,14 +57,14 @@ namespace minim {
       PhaseFieldUnstructured& setForce(vector<double> force, vector<int> iFluid={});
 
       // Diffuse solid method
-      vector<bool> fixFluid;
+      vector<char> fixFluid;
       vector<double> confinementStrength;
       PhaseFieldUnstructured& setFixFluid(int iFluid, bool fix=true);
       PhaseFieldUnstructured& setConfinement(vector<double> strength);
 
-      vector<double> diffuseSolid(vector<bool> solid, int iFluid=0, bool twoStep=false);
-      static vector<double> diffuseSolid(vector<bool> solid, PhaseFieldUnstructured potential, int iFluid=0, bool twoStep=false);
-      static vector<double> diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
+      vector<double> diffuseSolid(vector<char> solid, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<char> solid, PhaseFieldUnstructured potential, int iFluid=0, bool twoStep=false);
+      static vector<double> diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
       // Overrides
       void init(const vector<double>& coords) override;

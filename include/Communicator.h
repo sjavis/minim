@@ -26,11 +26,11 @@ namespace minim {
 
       // Assign data
       virtual vector<int> assignBlock(const vector<int>& in) const = 0;       //!< Assign the local block using block data or global data
-      virtual vector<bool> assignBlock(const vector<bool>& in) const = 0;     //!< Assign the local block using block data or global data
+      virtual vector<char> assignBlock(const vector<char>& in) const = 0;     //!< Assign the local block using block data or global data
       virtual vector<double> assignBlock(const vector<double>& in) const = 0; //!< Assign the local block using block data or global data
 
       virtual vector<int> assignProc(const vector<int>& in) const = 0;       //!< Assign the local processor (including halo) using global data
-      virtual vector<bool> assignProc(const vector<bool>& in) const = 0;     //!< Assign the local processor (including halo) using global data
+      virtual vector<char> assignProc(const vector<char>& in) const = 0;     //!< Assign the local processor (including halo) using global data
       virtual vector<double> assignProc(const vector<double>& in) const = 0; //!< Assign the local processor (including halo) using global data
 
       // Access data

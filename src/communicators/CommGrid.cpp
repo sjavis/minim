@@ -89,7 +89,7 @@ template <typename T>
     return assignBlockImpl(in);
   }
 
-  vector<bool> CommGrid::assignBlock(const vector<bool>& in) const {
+  vector<char> CommGrid::assignBlock(const vector<char>& in) const {
     return assignBlockImpl(in);
   }
 
@@ -111,7 +111,7 @@ template <typename T>
     return out;
   }
   template vector<int> CommGrid::assignBlockImpl(const vector<int>&) const;
-  template vector<bool> CommGrid::assignBlockImpl(const vector<bool>&) const;
+  template vector<char> CommGrid::assignBlockImpl(const vector<char>&) const;
   template vector<double> CommGrid::assignBlockImpl(const vector<double>&) const;
 
 
@@ -119,7 +119,7 @@ template <typename T>
     return assignProcImpl(in);
   }
 
-  vector<bool> CommGrid::assignProc(const vector<bool>& in) const {
+  vector<char> CommGrid::assignProc(const vector<char>& in) const {
     return assignProcImpl(in);
   }
 
@@ -140,7 +140,7 @@ template <typename T>
     return out;
   }
   template vector<int> CommGrid::assignProcImpl(const vector<int>&) const;
-  template vector<bool> CommGrid::assignProcImpl(const vector<bool>&) const;
+  template vector<char> CommGrid::assignProcImpl(const vector<char>&) const;
   template vector<double> CommGrid::assignProcImpl(const vector<double>&) const;
 
 

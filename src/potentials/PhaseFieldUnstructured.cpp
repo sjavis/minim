@@ -793,13 +793,13 @@ namespace minim {
     return *this;
   }
 
-  PhaseFieldUnstructured& PhaseFieldUnstructured::setSolid(vector<bool> solid) {
+  PhaseFieldUnstructured& PhaseFieldUnstructured::setSolid(vector<char> solid) {
     this->solid = solid;
     return *this;
   }
 
   PhaseFieldUnstructured& PhaseFieldUnstructured::setSolid(std::function<bool(int,int,int)> solidFn) {
-    solid = vector<bool>(nGrid);
+    solid = vector<char>(nGrid);
     int itot = 0;
     for (int i=0; i<gridSize[0]; i++) {
       for (int j=0; j<gridSize[1]; j++) {
@@ -845,7 +845,7 @@ namespace minim {
   }
 
   PhaseFieldUnstructured& PhaseFieldUnstructured::setFixFluid(int iFluid, bool fix) {
-    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<bool>(nFluid, false);
+    if ((int)fixFluid.size()!=nFluid) fixFluid = vector<char>(nFluid, false);
     fixFluid[iFluid] = fix;
     return *this;
   }
@@ -919,9 +919,9 @@ namespace minim {
 
   void PhaseFieldUnstructured::setDefaults() {
     if (interfaceSize.empty()) interfaceSize = vector<double>(nFluid, resolution);
-    if (solid.empty()) solid = vector<bool>(nGrid, false);
+    if (solid.empty()) solid = vector<char>(nGrid, false);
     if (pressure.empty()) pressure = vector<double>(nFluid, 0);
-    if (fixFluid.empty()) fixFluid = vector<bool>(nFluid, false);
+    if (fixFluid.empty()) fixFluid = vector<char>(nFluid, false);
     if (confinementStrength.empty()) confinementStrength = vector<double>(nFluid, 0);
   }
 
@@ -954,18 +954,18 @@ namespace minim {
   }
 
 
-  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<bool> solid, int iFluid, bool twoStep) {
+  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<char> solid, int iFluid, bool twoStep) {
     return diffuseSolid(solid, *this, iFluid, twoStep);
   }
 
-  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<bool> solid, vector<int> gridSize, int nFluid, int iFluid, bool twoStep) {
+  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid, int iFluid, bool twoStep) {
     PhaseFieldUnstructured potential;
     potential.setNFluid(nFluid);
     potential.setGridSize(gridSize);
     return diffuseSolid(solid, potential, iFluid, twoStep);
   }
 
-  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<bool> solid, PhaseFieldUnstructured potential, int iFluid, bool twoStep) {
+  vector<double> PhaseFieldUnstructured::diffuseSolid(vector<char> solid, PhaseFieldUnstructured potential, int iFluid, bool twoStep) {
     vector<double> confinement(potential.nFluid);
     confinement[iFluid] = 100;
     potential.setConfinement(confinement);

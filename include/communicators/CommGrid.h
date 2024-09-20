@@ -12,11 +12,11 @@ namespace minim {
     public:
       // Assign data
       vector<int> assignBlock(const vector<int>& in) const override;
-      vector<bool> assignBlock(const vector<bool>& in) const override;
+      vector<char> assignBlock(const vector<char>& in) const override;
       vector<double> assignBlock(const vector<double>& in) const override;
 
       vector<int> assignProc(const vector<int>& in) const override;
-      vector<bool> assignProc(const vector<bool>& in) const override;
+      vector<char> assignProc(const vector<char>& in) const override;
       vector<double> assignProc(const vector<double>& in) const override;
 
       // Access data

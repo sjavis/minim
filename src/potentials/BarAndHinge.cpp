@@ -20,7 +20,7 @@ namespace minim {
     computeRigidities(coords, bondList, hingeList);
     computeLength0(coords, bondList);
     computeTheta0(coords, hingeList);
-    vector<bool> fixed = isFixed(vec::iota(coords.size()));
+    vector<char> fixed = isFixed(vec::iota(coords.size()));
 
     // Check element DOFs are valid TODO: fix this
     // int nNode = coords.size() / 3;
@@ -98,7 +98,7 @@ namespace minim {
     if (_triList.empty()) throw std::invalid_argument("BarAndHinge: The triangulation has not been set.");
     vector2d<int> hingeList;
     hingeList.reserve(3*_triList.size());
-    vector<bool> shared(6, false);
+    vector<char> shared(6, false);
     for (int it1=0; it1<(int)_triList.size(); it1++) {
       for (int it2=it1+1; it2<(int)_triList.size(); it2++) {
         int nShared = 0;
@@ -113,7 +113,7 @@ namespace minim {
         if (nShared == 0) {
           continue;
         } else if (nShared != 2) {
-          shared = vector<bool>(6, false);
+          shared = vector<char>(6, false);
           continue;
         }
         // Keep the cyclic order of the first triangle
@@ -129,7 +129,7 @@ namespace minim {
         for (int in2=0; in2<3; in2++) {
           if (!shared[3+in2]) nodes[3] = _triList[it2][in2];
         }
-        shared = vector<bool>(6, false);
+        shared = vector<char>(6, false);
         hingeList.push_back(nodes);
       }
     }

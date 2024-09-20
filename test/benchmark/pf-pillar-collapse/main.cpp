@@ -33,8 +33,8 @@ std::string directory;
 
 // Initialise
 
-vector<bool> initialiseSolid(double spacing) {
-  vector<bool> data(nx*ny*nz, false);
+vector<char> initialiseSolid(double spacing) {
+  vector<char> data(nx*ny*nz, false);
   for (int x=0; x<nx; x++) {
   for (int y=0; y<ny; y++) {
   for (int z=0; z<nz; z++) {

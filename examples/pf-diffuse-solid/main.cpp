@@ -26,8 +26,8 @@ double gammaDiff = surfaceTension * cos(contactAngle*PI/180);
 vector<double> surfaceTensions = {surfaceTension-gammaDiff/2, surfaceTension+gammaDiff/2, surfaceTension};
 
 
-vector<bool> initialiseSolid() {
-  vector<bool> solid(nx*ny*nz);
+vector<char> initialiseSolid() {
+  vector<char> solid(nx*ny*nz);
   for (int x=0; x<nx; x++) {
   for (int y=0; y<ny; y++) {
   for (int z=0; z<nz; z++) {

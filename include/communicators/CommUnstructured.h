@@ -14,11 +14,11 @@ namespace minim {
     public:
       // Assign data
       vector<int> assignBlock(const vector<int>& in) const override;
-      vector<bool> assignBlock(const vector<bool>& in) const override;
+      vector<char> assignBlock(const vector<char>& in) const override;
       vector<double> assignBlock(const vector<double>& in) const override;
 
       vector<int> assignProc(const vector<int>& in) const override;
-      vector<bool> assignProc(const vector<bool>& in) const override;
+      vector<char> assignProc(const vector<char>& in) const override;
       vector<double> assignProc(const vector<double>& in) const override;
 
       // Access data
@@ -42,11 +42,11 @@ namespace minim {
       vector2d<int> recv_lists; // List of indicies to recieve from each proc
       vector2d<int> send_lists; // List of block indicies to send to each other proc
 
-      void getElementBlocks(const Potential& pot, vector2d<int>& blocks, vector2d<bool>& in_block);
-      void setCommLists(const Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block);
+      void getElementBlocks(const Potential& pot, vector2d<int>& blocks, vector2d<char>& in_block);
+      void setCommLists(const Potential& pot, const vector2d<int>& blocks, const vector2d<char>& in_block);
       void setRecvSizes();
       vector<int> assignElements(int nElements, const vector2d<int>& blocks);
-      void distributeElements(Potential& pot, const vector2d<int>& blocks, const vector2d<bool>& in_block);
+      void distributeElements(Potential& pot, const vector2d<int>& blocks, const vector2d<char>& in_block);
       bool checkWellDistributed(int ndof);
 
       void makeMPITypes() override;

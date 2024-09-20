@@ -42,8 +42,8 @@ vector<double> initCoords() {
   return data;
 }
 
-vector<bool> getSolid() {
-  vector<bool> solid(nx*ny, false);
+vector<char> getSolid() {
+  vector<char> solid(nx*ny, false);
   for (int x=0; x<nx; x++) {
   for (int y=0; y<ny; y++) {
     int i = ny*x+y;

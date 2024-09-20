@@ -129,7 +129,7 @@ namespace minim {
     return false;
   }
 
-  vector<bool> Potential::isFixed(const vector<int>& indicies) const {
+  vector<char> Potential::isFixed(const vector<int>& indicies) const {
     // Get array of fixed indicies
     vector<int> iFixed;
     iFixed.reserve(constraints.size());
@@ -138,7 +138,7 @@ namespace minim {
       iFixed.push_back(constraint.idof[0]);
     }
     // Find if the chosen indicies are included
-    vector<bool> fixed(indicies.size(), false);
+    vector<char> fixed(indicies.size(), false);
     for (int i=0; i<(int)indicies.size(); i++) {
       if (vec::isIn(iFixed, indicies[i])) fixed[i] = true;
     }
