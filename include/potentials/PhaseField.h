@@ -83,7 +83,7 @@ namespace minim {
       vector<double> nodeVol;
       vector<double> surfaceArea;
       vector<int> fluidType;
-      vector<vector2d<int>> neighbours;
+      vector2d<int> neighbours;
 
       double totalVolume;
       vector<double> ffInit;
@@ -105,9 +105,9 @@ namespace minim {
       int model = MODEL_BASIC;
 
       void phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
-                         const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const;
+                         const vector<int>& neighbours, double factor, double* e, vector<double>* g) const;
       void phasePairGradient(const vector<double>& coords, int iGrid, int iFluid1, int iFluid2, const vector<int>& xGrid,
-                             const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const;
+                             const vector<int>& neighbours, double factor, double* e, vector<double>* g) const;
 
       void fluidEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
       void fluidPairEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;

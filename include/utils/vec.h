@@ -8,27 +8,27 @@ using std::vector;
 template<typename T, typename U> auto operator+(T a, const vector<U>& b);
 template<typename T, typename U> auto operator+(const vector<T>& a, U b);
 template<typename T, typename U> auto operator+(const vector<T>& a, const vector<U>& b);
-template<typename T, typename U> auto operator+=(vector<T>& a, U b);
-template<typename T, typename U> auto operator+=(vector<T>& a, const vector<U>& b);
+template<typename T, typename U> auto& operator+=(vector<T>& a, U b);
+template<typename T, typename U> auto& operator+=(vector<T>& a, const vector<U>& b);
 
 template<typename T> auto operator-(const vector<T>& a);
 template<typename T, typename U> auto operator-(T a, const vector<U>& b);
 template<typename T, typename U> auto operator-(const vector<T>& a, U b);
 template<typename T, typename U> auto operator-(const vector<T>& a, const vector<U>& b);
-template<typename T, typename U> auto operator-=(vector<T>& a, U b);
-template<typename T, typename U> auto operator-=(vector<T>& a, const vector<U>& b);
+template<typename T, typename U> auto& operator-=(vector<T>& a, U b);
+template<typename T, typename U> auto& operator-=(vector<T>& a, const vector<U>& b);
 
 template<typename T, typename U> auto operator*(T a, const vector<U>& b);
 template<typename T, typename U> auto operator*(const vector<T>& a, U b);
 template<typename T, typename U> auto operator*(const vector<T>& a, const vector<U>& b);
-template<typename T, typename U> auto operator*=(vector<T>& a, U b);
-template<typename T, typename U> auto operator*=(vector<T>& a, const vector<U>& b);
+template<typename T, typename U> auto& operator*=(vector<T>& a, U b);
+template<typename T, typename U> auto& operator*=(vector<T>& a, const vector<U>& b);
 
 template<typename T, typename U> auto operator/(T a, const vector<U>& b);
 template<typename T, typename U> auto operator/(const vector<T>& a, U b);
 template<typename T, typename U> auto operator/(const vector<T>& a, const vector<U>& b);
-template<typename T, typename U> auto operator/=(vector<T>& a, U b);
-template<typename T, typename U> auto operator/=(vector<T>& a, const vector<U>& b);
+template<typename T, typename U> auto& operator/=(vector<T>& a, U b);
+template<typename T, typename U> auto& operator/=(vector<T>& a, const vector<U>& b);
 
 namespace vec {
   template<typename T, typename U> auto dotProduct(const vector<T>& a, const vector<U>& b);

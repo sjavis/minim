@@ -61,13 +61,11 @@ namespace minim {
     vector<double> gNew = state.procGradient();
 
     // Store the changes required for LBFGS
-    auto s = step;
-    auto y = gNew - _g;
-    double sy = state.comm->dotProduct(s, y);
+    double sy = state.comm->dotProduct(step, gNew-_g);
     if (sy != 0) {
       int i_cycle = _i % _m;
-      _s[i_cycle] = s;
-      _y[i_cycle] = y;
+      _s[i_cycle] = step;
+      _y[i_cycle] = gNew - _g;
       _rho[i_cycle] = 1 / sy;
     } else {
       _i --;
@@ -78,21 +76,19 @@ namespace minim {
 
 
   vector<double> Lbfgs::getDirection(const Communicator& comm) {
-    vector<double> step;
-
-    // Compute the step on the main processor
-    double alpha[_m] = {0};
+    vector<double> alpha(_m);
     int m_tmp = std::min(_m, _i);
     int i_cycle = _i % _m;
 
-    if (m_tmp == 0) {
-      step = - _g;
+    vector<double> step = -_g;
+
+    if (_i == 0) {
+      // First iteration: Directly set the step size
       double gnorm = vec::norm(_g);
       if (gnorm > 0) step *= _init_step / gnorm;
       return step;
     }
 
-    step = -_g;
     int ndof = step.size();
     for (int i1=0; i1<m_tmp; i1++) {
       int i = (i_cycle - 1 - i1 + _m) % _m;
@@ -104,7 +100,7 @@ namespace minim {
 
     int i = (i_cycle - 1 + _m) % _m;
     double gamma = 1 / (_rho[i] * comm.dotProduct(_y[i], _y[i]));
-    step = gamma * step;
+    step *= gamma;
 
     for (int i1=0; i1<m_tmp; i1++) {
       int i = (i_cycle - m_tmp + i1 + _m) % _m;

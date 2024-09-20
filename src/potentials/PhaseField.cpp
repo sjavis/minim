@@ -48,16 +48,15 @@ namespace minim {
     return (x*gridSize[1] + y)*gridSize[2] + z;
   }
 
-  static vector2d<int> getNeighbours(const vector<int>& xGrid, const vector<int>& gridSizes) {
-    vector2d<int> neighbours(3);
-    vector<int> x = xGrid;
+  static vector<int> getNeighbours(int i, const vector<int>& gridSizes) {
+    vector<int> neighbours(6);
+    vector<int> x = getCoord(i, gridSizes);
     for (int iDim=0; iDim<3; ++iDim) {
-      neighbours[iDim] = vector<int>(2);
       int x0 = x[iDim];
       x[iDim] = x0 - 1;
-      neighbours[iDim][0] = getIdx(x, gridSizes);
+      neighbours[2*iDim+0] = getIdx(x, gridSizes);
       x[iDim] = x0 + 1;
-      neighbours[iDim][1] = getIdx(x, gridSizes);
+      neighbours[2*iDim+1] = getIdx(x, gridSizes);
       x[iDim] = x0;
     }
     return neighbours;
@@ -189,8 +188,7 @@ namespace minim {
 
     neighbours.resize(nGrid);
     for (int iGrid : RangeI(procSizes, haloWidths)) {
-      vector<int> xGrid = getCoord(iGrid, procSizes);
-      neighbours[iGrid] = getNeighbours(xGrid, procSizes);
+      neighbours[iGrid] = getNeighbours(iGrid, procSizes);
     }
 
     // Set initial volumes for constant volume constraint
@@ -217,7 +215,7 @@ namespace minim {
 
 
   void PhaseField::phaseGradient(const vector<double>& coords, int iGrid, int iFluid, const vector<int>& xGrid,
-                                 const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
+                                 const vector<int>& neighbours, double factor, double* e, vector<double>* g) const {
     int i0 = iGrid * nFluid + iFluid;
     double c1 = coords[i0];
 
@@ -225,8 +223,8 @@ namespace minim {
     for (int iDir=0; iDir<3; iDir++) {
       if (procSizes[iDir] == 1) continue;
 
-      int imGrid = neighbours[iDir][0];
-      int ipGrid = neighbours[iDir][1];
+      int imGrid = neighbours[2*iDir+0];
+      int ipGrid = neighbours[2*iDir+1];
       int im = imGrid * nFluid + iFluid;
       int ip = ipGrid * nFluid + iFluid;
 
@@ -263,7 +261,7 @@ namespace minim {
 
 
   inline void PhaseField::phasePairGradient(const vector<double>& coords, int iGrid, int iFluid1, int iFluid2, const vector<int>& xGrid,
-                                            const vector2d<int>& neighbours, double factor, double* e, vector<double>* g) const {
+                                            const vector<int>& neighbours, double factor, double* e, vector<double>* g) const {
     int i01 = iGrid * nFluid + iFluid1;
     int i02 = iGrid * nFluid + iFluid2;
     double c1 = coords[i01];
@@ -273,8 +271,8 @@ namespace minim {
     for (int iDir=0; iDir<3; iDir++) {
       if (procSizes[iDir] == 1) continue;
 
-      int imGrid = neighbours[iDir][0];
-      int ipGrid = neighbours[iDir][1];
+      int imGrid = neighbours[2*iDir+0];
+      int ipGrid = neighbours[2*iDir+1];
       int im1 = imGrid * nFluid + iFluid1;
       int ip1 = ipGrid * nFluid + iFluid1;
       int im2 = imGrid * nFluid + iFluid2;

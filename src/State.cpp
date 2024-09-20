@@ -140,11 +140,11 @@ namespace minim {
     }
 
     // Parallel
-    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, &e, nullptr, *comm);
     } else {
-      basicEG(*pot, coords, &e, nullptr, *comm);
+      basicEG(*pot, blockCoords, &e, nullptr, *comm);
     }
     return comm->sum(e);
   }
@@ -160,7 +160,7 @@ namespace minim {
     }
 
     // Parallel
-    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, nullptr, &g, *comm);
     } else {
@@ -179,7 +179,7 @@ namespace minim {
     }
 
     // Parallel
-    vector<double> blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
     if (pot->potentialType() == Potential::UNSTRUCTURED) {
       elementEG(*pot, blockCoords, e, g, *comm);
     } else {
@@ -286,7 +286,7 @@ namespace minim {
   }
 
 
-  vector<double> State::blockCoords() const {
+  const vector<double>& State::blockCoords() const {
     return _coords;
   }
 

@@ -30,12 +30,12 @@ auto operator+(const vector<T>& a, const vector<U>& b) {
 }
 
 template<typename T, typename U>
-auto operator+=(vector<T>& a, U b) {
+auto& operator+=(vector<T>& a, U b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x+b; });
   return a;
 }
 template<typename T, typename U>
-auto operator+=(vector<T>& a, const vector<U>& b) {
+auto& operator+=(vector<T>& a, const vector<U>& b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
   return a;
 }
@@ -69,12 +69,12 @@ auto operator-(const vector<T>& a, const vector<U>& b) {
 }
 
 template<typename T, typename U>
-auto operator-=(vector<T>& a, U b) {
+auto& operator-=(vector<T>& a, U b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x-b; });
   return a;
 }
 template<typename T, typename U>
-auto operator-=(vector<T>& a, const vector<U>& b) {
+auto& operator-=(vector<T>& a, const vector<U>& b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
   return a;
 }
@@ -101,12 +101,12 @@ auto operator*(const vector<T>& a, const vector<U>& b) {
 }
 
 template<typename T, typename U>
-auto operator*=(vector<T>& a, U b) {
+auto& operator*=(vector<T>& a, U b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x*b; });
   return a;
 }
 template<typename T, typename U>
-auto operator*=(vector<T>& a, const vector<U>& b) {
+auto& operator*=(vector<T>& a, const vector<U>& b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
   return a;
 }
@@ -133,12 +133,12 @@ auto operator/(const vector<T>& a, const vector<U>& b) {
 }
 
 template<typename T, typename U>
-auto operator/=(vector<T>& a, U b) {
+auto& operator/=(vector<T>& a, U b) {
   std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
   return a;
 }
 template<typename T, typename U>
-auto operator/=(vector<T>& a, const vector<U>& b) {
+auto& operator/=(vector<T>& a, const vector<U>& b) {
   std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
   return a;
 }

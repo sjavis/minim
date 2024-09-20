@@ -40,7 +40,7 @@ namespace minim {
       void coords(const vector<double>& in);
 
       // Parallel functions
-      vector<double> blockCoords() const;
+      const vector<double>& blockCoords() const;
       void blockCoords(const vector<double>& in);
 
       double blockEnergy() const;

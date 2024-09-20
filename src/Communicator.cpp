@@ -107,16 +107,15 @@ namespace minim {
     if (!usesThisProc) return vector<double>();
   #ifdef PARALLEL
     if (commSize > 1) {
-      // Get copy of data on processor (potentially inefficient)
-      vector<double> data_copy;
       if (root == -1) {
-        data_copy = data;
         // Note: Halo data may not be correct if 'data' is different on each processor
+        return assignProc(data);
       } else {
-        data_copy = (commRank==root) ? data : vector<double>(ndof);
+        // Get copy of data on processor (potentially inefficient)
+        vector<double> data_copy = (commRank==root) ? data : vector<double>(ndof);
         bcast(data_copy, root);
+        return assignProc(data_copy);
       }
-      return assignProc(data_copy);
     }
   #endif
     return data;
