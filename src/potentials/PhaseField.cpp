@@ -584,7 +584,7 @@ namespace minim {
       }
     }
 
-    // if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
+    if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
 
     if (g) applyConstraints(coords, comm, g);
   }
@@ -621,7 +621,7 @@ namespace minim {
       }
     }
 
-    // if (volumeFixed) volumeConstraintEnergy(coords, comm, &e["volume constraint"], &g["volume constraint"]);
+    if (volumeFixed) volumeConstraintEnergy(coords, comm, &e["volume constraint"], &g["volume constraint"]);
 
     std::map<std::string,vector<double>> eg;
     for(const auto &component : components) {

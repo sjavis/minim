@@ -98,7 +98,7 @@ namespace minim {
   }
 
 
-  vector<double> Potential::applyConstraints(const vector<double>& coords, vector<double>& grad) const {
+  const vector<double>& Potential::applyConstraints(const vector<double>& coords, vector<double>& grad) const {
     for (const auto& constraint: constraints) {
       if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
       else {
@@ -113,7 +113,7 @@ namespace minim {
     return grad;
   }
 
-  vector<double> Potential::correctConstraints(vector<double>& coords) const {
+  const vector<double>& Potential::correctConstraints(vector<double>& coords) const {
     for (const auto& constraint: constraints) {
       if (constraint.correction) constraint.correction(constraint.idof, coords);
     }
