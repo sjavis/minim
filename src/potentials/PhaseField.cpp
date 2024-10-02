@@ -885,7 +885,7 @@ namespace minim {
     vector<double> init(potential.nFluid * nGrid);
     for (int iGrid=0; iGrid<nGrid; iGrid++) {
       int i = iGrid * potential.nFluid + iFluid;
-      init[i] = solid[iGrid];
+      init[i] = (int)solid[iGrid];
     }
     State state(potential, init);
     state.convergence = 1e-8 * potential.surfaceTension[iFluid] * pow(potential.resolution, 2);
