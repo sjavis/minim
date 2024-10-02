@@ -29,6 +29,7 @@ namespace minim {
       PhaseField& setInterfaceSize(vector<double> interfaceSize);
       PhaseField& setSurfaceTension(double surfaceTension);
       PhaseField& setSurfaceTension(vector<double> surfaceTension);
+      PhaseField& setSurfaceTension(std::function<vector<double>(int,int,int)> surfaceTensionFn);
 
       // Density constraint
       int densityConstraint = 0; // Default: Hard constraint

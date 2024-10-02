@@ -691,6 +691,24 @@ namespace minim {
     return *this;
   }
 
+  PhaseField& PhaseField::setSurfaceTension(std::function<vector<double>(int,int,int)> surfaceTensionFn) {
+    int nParam = surfaceTensionFn(0, 0, 0).size();
+    surfaceTension = vector<double>(nGrid*nParam);
+    int itot = 0;
+    for (int i=0; i<gridSize[0]; i++) {
+      for (int j=0; j<gridSize[1]; j++) {
+        for (int k=0; k<gridSize[2]; k++) {
+          vector<double> st = surfaceTensionFn(i, j, k);
+          for (int iParam=0; iParam<nParam; iParam++) {
+            surfaceTension[itot] = st[iParam];
+            itot ++;
+          }
+        }
+      }
+    }
+    return *this;
+  }
+
   PhaseField& PhaseField::setDensityConstraint(std::string method) {
     if (vec::isIn({"gradient","hard"}, method)) {
       densityConstraint = DENSITY_HARD;
