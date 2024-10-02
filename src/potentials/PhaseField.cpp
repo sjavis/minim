@@ -76,39 +76,59 @@ namespace minim {
 
 
   void PhaseField::assignFluidCoefficients() {
-    int nParams = (model==MODEL_BASIC) ? nFluid : 0.5*nFluid*(nFluid-1);
+    int nKGrid = ((int)surfaceTension.size()==nGrid*nParams) ? nGrid : 1; // Number of surface tensions (1 or nGrid)
 
-    // Ensure surface tension and interface widths are the correct size
-    if ((int)interfaceSize.size() == 1) {
-      interfaceSize = vector<double>(nParams, interfaceSize[0]);
-    } else if ((int)interfaceSize.size() != nParams) {
-      throw std::invalid_argument("PhaseField: Invalid size of interfaceSize array.");
-    }
-    if ((int)surfaceTension.size() == 1) {
-      surfaceTension = vector<double>(nParams, surfaceTension[0]);
-    } else if ((int)surfaceTension.size() != nParams) {
+    // Ensure surface tensions are the correct size
+    vector<double> stTmp = surfaceTension;
+    if ((int)stTmp.size() == 1) {
+      stTmp = vector<double>(nKGrid*nParams, stTmp[0]);
+    } else if ((int)stTmp.size() != nKGrid*nParams) {
       throw std::invalid_argument("PhaseField: Invalid size of surfaceTension array.");
     }
-    surfaceTensionMean = vec::sum(surfaceTension) / nParams; // Used to scale energies
+    surfaceTensionMean = vec::sum(stTmp) / stTmp.size(); // Used to scale energies
+
+    // Ensure interface widths are the correct size
+    vector<double> iwTmp = interfaceSize;
+    if ((int)iwTmp.size() == 1) {
+      iwTmp = vector<double>(nParams, iwTmp[0]);
+    } else if ((int)iwTmp.size() != nParams) {
+      throw std::invalid_argument("PhaseField: Invalid size of interfaceSize array.");
+    }
+    if (nKGrid > 1) {
+      // If spatial-varying surface tensions, expand vector
+      iwTmp.resize(nKGrid*nParams);
+      for (int i=1; i<nKGrid; i++) {
+        for (int j=0; j<nParams; j++) {
+          iwTmp[i*nParams+j] = iwTmp[j];
+        }
+      }
+    }
 
     // Set the parameters
     if (nFluid<=2 || model==MODEL_NCOMP) {
-      kappa = 3 * surfaceTension / interfaceSize;
-      kappaP = 3 * surfaceTension * interfaceSize;
-    } else { // Compute kappa from the subset of surface tensions
-      kappa = vector<double>(nFluid);
-      kappaP = vector<double>(nFluid);
-      auto kappaSums = 6 * surfaceTension / interfaceSize;
-      auto kappaPSums = 6 * surfaceTension * interfaceSize;
-      kappa[0] = 0.5 * ( kappaSums[0] + kappaSums[1] - kappaSums[nFluid-1]);
-      kappa[1] = 0.5 * ( kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]);
-      kappa[2] = 0.5 * (-kappaSums[0] + kappaSums[1] + kappaSums[nFluid-1]);
-      kappaP[0] = 0.5 * ( kappaPSums[0] + kappaPSums[1] - kappaPSums[nFluid-1]);
-      kappaP[1] = 0.5 * ( kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]);
-      kappaP[2] = 0.5 * (-kappaPSums[0] + kappaPSums[1] + kappaPSums[nFluid-1]);
-      for (int i=3; i<nFluid; i++) {
-        kappa[i] = 0.5 * (-kappaSums[0] - kappaSums[1] + kappaSums[nFluid-1]) + kappaSums[i-1];
-        kappaP[i] = 0.5 * (-kappaPSums[0] - kappaPSums[1] + kappaPSums[nFluid-1]) + kappaPSums[i-1];
+      // Binary and N-comp
+      kappa = 3 * stTmp / iwTmp;
+      kappaP = 3 * stTmp * iwTmp;
+
+    } else {
+      // Ternary
+      // If N>3: Compute kappa from the subset of surface tensions
+      auto kappaSums = 6 * stTmp / iwTmp;
+      auto kappaPSums = 6 * stTmp * iwTmp;
+      kappa = vector<double>(nKGrid*nParams);
+      kappaP = vector<double>(nKGrid*nParams);
+      for (int iGrid=0; iGrid<nKGrid; iGrid++) {
+        int i0 = iGrid * nParams;
+        kappa[i0+0] = 0.5 * ( kappaSums[i0+0] + kappaSums[i0+1] - kappaSums[i0+nFluid-1]);
+        kappa[i0+1] = 0.5 * ( kappaSums[i0+0] - kappaSums[i0+1] + kappaSums[i0+nFluid-1]);
+        kappa[i0+2] = 0.5 * (-kappaSums[i0+0] + kappaSums[i0+1] + kappaSums[i0+nFluid-1]);
+        kappaP[i0+0] = 0.5 * ( kappaPSums[i0+0] + kappaPSums[i0+1] - kappaPSums[i0+nFluid-1]);
+        kappaP[i0+1] = 0.5 * ( kappaPSums[i0+0] - kappaPSums[i0+1] + kappaPSums[i0+nFluid-1]);
+        kappaP[i0+2] = 0.5 * (-kappaPSums[i0+0] + kappaPSums[i0+1] + kappaPSums[i0+nFluid-1]);
+        for (int iFluid=3; iFluid<nFluid; iFluid++) {
+          kappa[i0+iFluid] = kappaSums[i0+iFluid-1] - kappa[i0+0];
+          kappaP[i0+iFluid] = kappaPSums[i0+iFluid-1] - kappaP[i0+0];
+        }
       }
     }
   }
@@ -118,6 +138,7 @@ namespace minim {
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("PhaseField: Size of coordinates array does not match the grid size.");
     }
+    nParams = (model==MODEL_BASIC) ? nFluid : 0.5*nFluid*(nFluid-1); // Number of fluids / fluid pairs
 
     setDefaults();
     checkArraySizes();
@@ -324,20 +345,21 @@ namespace minim {
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       int iDof = iGrid * nFluid + iFluid;
       double c = coords[iDof];
+      int iK = ((int)kappa.size()==nFluid) ? iFluid : iGrid*nFluid+iFluid;
 
       // Bulk energy
       if (nFluid == 1) {
-        double factor = kappa[0] / 16 * nodeVol[iGrid];
+        double factor = kappa[iK] / 16 * nodeVol[iGrid];
         if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
         if (g) (*g)[iDof] += factor * 4 * c * (c*c - 1);
       } else {
-        double factor = 0.5 * kappa[iFluid] * nodeVol[iGrid];
+        double factor = 0.5 * kappa[iK] * nodeVol[iGrid];
         if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
         if (g) (*g)[iDof] += factor * 2 * c * (c-1) * (2*c-1);
       }
 
       // Gradient energy
-      double factor = (nFluid==1) ? 0.25*kappaP[0]*nodeVol[iGrid] : 0.5*kappaP[iFluid]*nodeVol[iGrid];
+      double factor = (nFluid==1) ? 0.25*kappaP[iK]*nodeVol[iGrid] : 0.5*kappaP[iK]*nodeVol[iGrid];
       factor = factor / pow(resolution, 2);
       phaseGradient(coords, iGrid, iFluid, xGrid, neighbours[iGrid], factor, e, g);
     }
@@ -352,9 +374,10 @@ namespace minim {
         int iDof2 = iGrid * nFluid + iFluid2;
         double c1 = coords[iDof1];
         double c2 = coords[iDof2];
+        int iK = ((int)kappa.size()==nParams) ? iPair : iGrid*nParams+iPair;
 
         // Bulk energy
-        double factor = 2 * kappa[iPair] * nodeVol[iGrid]; // kappa = beta
+        double factor = 2 * kappa[iK] * nodeVol[iGrid]; // kappa = beta
         if (e) {
           auto quartic = [](double c){ return pow(c,2)*pow(c-1,2); };
           *e += factor * (quartic(c1) + quartic(c2) + quartic(c1+c2));
@@ -368,7 +391,7 @@ namespace minim {
 
         // Gradient energy
         double res2 = pow(resolution, 2);
-        factor = -0.25 * kappaP[iPair] * nodeVol[iGrid] / res2; // kappaP = -4 lambda
+        factor = -0.25 * kappaP[iK] * nodeVol[iGrid] / res2; // kappaP = -4 lambda
         phasePairGradient(coords, iGrid, iFluid1, iFluid2, xGrid, neighbours[iGrid], factor, e, g);
 
         iPair++;

@@ -77,6 +77,7 @@ namespace minim {
 
 
       // Read only
+      int nParams;
       double surfaceTensionMean;
       vector<double> kappa;
       vector<double> kappaP;
