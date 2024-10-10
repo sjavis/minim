@@ -100,12 +100,6 @@ void energyComponents(State& state) {
 int main(int argc, char** argv) {
   mpi.init(&argc, &argv);
 
-  auto log = [](int iter, State& state) {
-    if (iter%100 == 0) {
-      print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
-    }
-  };
-
   PhaseField pf;
   pf.setNFluid(3);
   pf.setGridSize({nx, ny, nz});
@@ -123,7 +117,7 @@ int main(int argc, char** argv) {
   Lbfgs min;
   min.setLinesearch("none");
   min.setMaxIter(10000);
-  auto minimum = min.minimise(state, log);
+  auto minimum = min.minimise(state, "eg-100");
   output(minimum, "minimum.txt");
 
   return 0;

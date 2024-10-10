@@ -70,12 +70,6 @@ int main(int argc, char** argv) {
 
   auto time0 = std::chrono::high_resolution_clock::now();
 
-  auto log = [](int iter, State& state) {
-    if (iter%100 == 0) {
-      print("ITER:", iter, "ENERGY:", state.energy(), "GRAD:", vec::norm(state.gradient()));
-    }
-  };
-
   PhaseField pot;
   pot.setNFluid(3);
   pot.setGridSize({nx, ny, 1});
@@ -86,7 +80,7 @@ int main(int argc, char** argv) {
 
   Lbfgs min;
   min.setMaxIter(5000);
-  min.minimise(state, log);
+  min.minimise(state, "eg-100");
 
   output(state.coords());
 

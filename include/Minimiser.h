@@ -24,7 +24,9 @@ namespace minim {
       virtual Minimiser& setMaxIter(int maxIter);
       Minimiser& setLinesearch(std::string method);
 
-      std::vector<double> minimise(State& state, std::function<void(int,State&)> adjustState=nullptr);
+      std::vector<double> minimise(State& state, std::function<void(int,State&)> adjustState=nullptr); //!< Minimise a state with an optional function to be run each iteration.
+      std::vector<double> minimise(State& state, std::string logType); //!< Minimise with a predefined log function. Format: [fields]-[iter]
+
       virtual void init(State& state) {};
       virtual void iteration(State& state) = 0;
       virtual bool checkConvergence(const State& state) { return false; };
