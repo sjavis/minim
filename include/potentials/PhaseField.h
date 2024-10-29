@@ -118,8 +118,8 @@ namespace minim {
       void surfaceEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
       void forceEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
       void ffConfinementEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
-      void volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
-      void applyConstraints(const vector<double>& coords, const Communicator& comm, vector<double>* g) const;
+      vector<bool> volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
+      void applyConstraints(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
   };
 
 }

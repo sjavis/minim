@@ -496,7 +496,7 @@ namespace minim {
   }
 
 
-  void PhaseField::volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
+  vector<bool> PhaseField::volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Get the (local) fluid volumes
     vector<double> volFluid(nFluid, 0);
     for (int iGrid : RangeI(procSizes, haloWidths)) {
@@ -510,23 +510,33 @@ namespace minim {
       }
     }
 
+    // Get the difference in volumes
+    vector<double> volDiff(nFluid, 0);
+    vector<bool> volCorrect(nFluid, true);
+    for (int iFluid=0; iFluid<nFluid; iFluid++) {
+      if (fixFluid[iFluid] || volume[iFluid]<0) continue;
+      volDiff[iFluid] = comm.sum(volFluid[iFluid]) - volume[iFluid];
+      if (abs(volDiff[iFluid]) > volume[iFluid]) volCorrect[iFluid] = false;
+    }
+
     // Compute the energy and gradient
     double volCoef = volConst * surfaceTensionMean / pow(resolution, 4);
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
-      if (fixFluid[iFluid]) continue;
-      double volDiff = comm.sum(volFluid[iFluid]) - volume[iFluid];
-      if (e) *e += volCoef * pow(volDiff, 2) / comm.size();
+      if (volDiff[iFluid] == 0) continue;
+      if (e) *e += volCoef * pow(volDiff[iFluid], 2) / comm.size();
       if (!g) continue;
       for (int iGrid : RangeI(procSizes, haloWidths)) {
         int iDof = iGrid*nFluid + iFluid;
         double interfaceWeight = std::max(0.0, 4*coords[iDof]*(1-coords[iDof])); // Only apply the force to the interface nodes
-        (*g)[iDof] += volCoef * volDiff * nodeVol[iGrid] * interfaceWeight;
+        (*g)[iDof] += volCoef * volDiff[iFluid] * nodeVol[iGrid] * interfaceWeight;
       }
     }
+
+    return volCorrect;
   }
 
 
-  void PhaseField::applyConstraints(const vector<double>& coords, const Communicator& comm, vector<double>* g) const {
+  void PhaseField::applyConstraints(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     // Fixed fluid
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!fixFluid[iFluid]) continue;
@@ -562,20 +572,26 @@ namespace minim {
 
     // Fixed volume
     if (volumeFixed) {
+      // Apply an energy correction if the volumes are incorrect
+      vector<bool> volCorrect = volumeConstraintEnergy(coords, comm, e, g);
+
       // Dot product for components of gradient in direction of increasing volumes
       vector<double> component(nFluid, 0);
       for (int iGrid : RangeI(procSizes, haloWidths)) {
         for (int iFluid : iVariableFluid) {
+          if (!volCorrect[iFluid]) continue;
           component[iFluid] += (*g)[iGrid*nFluid+iFluid] * sqrt(nodeVol[iGrid]);
         }
       }
       // Finish dot product + normalise to get correct corrections
       for (int iFluid : iVariableFluid) {
+        if (!volCorrect[iFluid]) continue;
         component[iFluid] = comm.sum(component[iFluid]) / totalVolume;
       }
       // Remove the component
       for (int iGrid : RangeI(procSizes, haloWidths)) {
         for (int iFluid : iVariableFluid) {
+          if (!volCorrect[iFluid]) continue;
           (*g)[iGrid*nFluid+iFluid] -= component[iFluid] * sqrt(nodeVol[iGrid]);
         }
       }
@@ -607,9 +623,7 @@ namespace minim {
       }
     }
 
-    if (volumeFixed) volumeConstraintEnergy(coords, comm, e, g);
-
-    if (g) applyConstraints(coords, comm, g);
+    if (g) applyConstraints(coords, comm, e, g);
   }
 
 
