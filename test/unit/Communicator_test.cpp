@@ -60,6 +60,38 @@ class GridPot: public NewPotential<GridPot> {
 };
 
 
+TEST(CommGrid, TestCommArray) {
+  GridPot pot({2,6});
+
+  // Default commArray
+  CommGrid comm1;
+  comm1.setup(pot, 12, {});
+  EXPECT_TRUE(ArraysMatch(comm1.commArray, {2, 1}));
+
+  // commArray defined in the Communicator
+  CommGrid comm2;
+  comm2.commArray = {1, 2};
+  comm2.setup(pot, 12, {});
+  EXPECT_TRUE(ArraysMatch(comm2.commArray, {1, 2}));
+
+  // commArray defined in the Potential
+  pot.setCommArray({1, 2});
+  CommGrid comm3;
+  comm3.setup(pot, 12, {});
+  EXPECT_TRUE(ArraysMatch(comm3.commArray, {1, 2}));
+
+  // Invalid commArray
+  EXPECT_ANY_THROW({
+    pot.setCommArray({1, 3});
+    CommGrid().setup(pot, 12, {});
+  });
+  EXPECT_ANY_THROW({
+    pot.setCommArray({2});
+    CommGrid().setup(pot, 12, {});
+  });
+}
+
+
 TEST(CommGrid, TestAssign) {
   // Initialise communicator
   CommGrid comm;

@@ -285,13 +285,21 @@ template <typename T>
     }
 
     // Set the comm array dimensions
-    if (commArray.empty()) commArray = assignCommArray(commSize, globalSizes);
-    commIndices = makeNdIndices(commRank, commArray);
+    if (commArray.empty()) commArray = pot.commArray; // If set in potential
+    if (commArray.empty()) commArray = assignCommArray(commSize, globalSizes); // If none set
     // Check the comm array dimensions are correct
+    if ((int)commArray.size() != nDim) {
+      throw std::invalid_argument("CommGrid: commArray has a size different to the grid dimensions.");
+    }
+    if (vec::product(commArray) != commSize) {
+      throw std::invalid_argument("CommGrid: The number of processors given by commArray does not match commSize.");
+    }
     for (int iDim=0; iDim<nDim; iDim++) {
       if (globalSizes[iDim] % commArray[iDim] == 0) continue;
       throw std::invalid_argument("CommGrid: The grid size must be a multiple of the number of processors in each direction.");
     }
+    // Set the communicator indices of the local processor
+    commIndices = makeNdIndices(commRank, commArray);
 
     // Set the local processor sizes
     haloWidths = vector<int>(nDim);

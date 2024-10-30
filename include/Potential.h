@@ -96,8 +96,10 @@ namespace minim {
       virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
 
       // GRID
-      vector<int> gridSize;
       int dofPerNode = 1;
+      vector<int> gridSize;
+      vector<int> commArray;
+      Potential& setCommArray(vector<int> commArray);
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};

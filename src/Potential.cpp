@@ -4,6 +4,7 @@
 #include "communicators/CommUnstructured.h"
 #include "communicators/CommGrid.h"
 #include "utils/vec.h"
+#include "utils/print.h"
 #include <stdexcept>
 
 namespace minim {
@@ -159,6 +160,13 @@ namespace minim {
       return std::make_unique<CommGrid>();
     }
     return std::make_unique<CommUnstructured>();
+  }
+
+
+  Potential& Potential::setCommArray(vector<int> commArray) {
+    if (potentialType() != GRID) print("Warning: Attempting to set communicator array for a non-grid Potential type.");
+    this->commArray = commArray;
+    return *this;
   }
 
 
