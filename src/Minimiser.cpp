@@ -49,7 +49,7 @@ namespace minim {
         int iterDigits = std::to_string(maxIter).length();
         // Define the log function
         logFn = [logIter, logFields, iterDigits](int i, State& s){
-          if (i%logIter!=0 || mpi.rank!=0) return;
+          if (i%logIter!=0) return;
           bool logE = (logFields.find('e') < logFields.length());
           bool logG = (logFields.find('g') < logFields.length());
           double e;
