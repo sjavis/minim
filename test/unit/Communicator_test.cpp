@@ -66,19 +66,19 @@ TEST(CommGrid, TestCommArray) {
   // Default commArray
   CommGrid comm1;
   comm1.setup(pot, 12, {});
-  EXPECT_TRUE(ArraysMatch(comm1.commArray, {2, 1}));
+  EXPECT_TRUE(ArraysMatch(comm1.commArray, {1, 2}));
 
   // commArray defined in the Communicator
   CommGrid comm2;
-  comm2.commArray = {1, 2};
+  comm2.commArray = {2, 1};
   comm2.setup(pot, 12, {});
-  EXPECT_TRUE(ArraysMatch(comm2.commArray, {1, 2}));
+  EXPECT_TRUE(ArraysMatch(comm2.commArray, {2, 1}));
 
   // commArray defined in the Potential
-  pot.setCommArray({1, 2});
+  pot.setCommArray({2, 1});
   CommGrid comm3;
   comm3.setup(pot, 12, {});
-  EXPECT_TRUE(ArraysMatch(comm3.commArray, {1, 2}));
+  EXPECT_TRUE(ArraysMatch(comm3.commArray, {2, 1}));
 
   // Invalid commArray
   EXPECT_ANY_THROW({

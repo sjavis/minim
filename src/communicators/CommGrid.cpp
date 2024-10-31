@@ -249,21 +249,22 @@ template <typename T>
     vector<double> idealSize = globalSizes / pow(nGridBlock, 1/nDim);
     // Compute the prime factors of the number of processors
     vector<int> factors = primeFactorisation(commSize);
-    // Use a greedy allocation to choose the dimension that is brought closest to the ideal value
+    // Use a greedy allocation to choose the dimension that is furthest from the ideal value for each factor
     for (int factor : factors) {
-      int closestDim = 0;
-      double closestRatio = 0;
+      int furthestDim = 0;
+      double furthestRatio = 0;
       for (int iDim=0; iDim<nDim; iDim++) {
-        if (commArray[iDim] >= idealSize[iDim]) continue;
-        // Measure the closeness by the 'absolute' ratio (<=1)
-        double ratio = (commArray[iDim] * factor) / idealSize[iDim];
-        if (ratio > 1) ratio = 1 / ratio;
-        if (ratio > closestRatio) {
-          closestRatio = ratio;
-          closestDim = iDim;
+        // Check if factor can be applied to this dimension
+        int newSize = commArray[iDim] * factor;
+        if (globalSizes[iDim] % newSize != 0) continue;
+        // Check if this dimension is the furthest from the ideal value
+        double ratio = idealSize[iDim] / commArray[iDim];
+        if (ratio > furthestRatio) {
+          furthestRatio = ratio;
+          furthestDim = iDim;
         }
       }
-      commArray[closestDim] *= factor;
+      commArray[furthestDim] *= factor;
     }
     // Could look into MPI_Dims_create?
     return commArray;
