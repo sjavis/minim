@@ -56,24 +56,20 @@ namespace minim {
   void Communicator::communicateAccumulate(vector<double>& vector) const {
     if (!usesThisProc || commSize==1) return;
     #ifdef PARALLEL
-    int nRequest = edgeTypes.size() + haloTypes.size();
-    MPI_Request requests[nRequest];
-    int iRequest = 0;
-    for (const auto& sendType : edgeTypes) {
-      MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
+    MPI_Win win;
+    MPI_Win_create(vector.data(), vector.size()*sizeof(double), sizeof(double), MPI_INFO_NULL, comm, &win);
+
+    // MPI_Win_fence(MPI_MODE_NOPRECEDE, win);
+    for (int iDir=0; iDir<(int)edgeTypes.size(); iDir++) {
+      const CommunicateObj& sendType = edgeTypes[iDir];
+      const CommunicateObj& recvType = haloTypes[iDir];
+      MPI_Win_lock(MPI_LOCK_EXCLUSIVE, sendType.rank, 0, win);
+      MPI_Accumulate(vector.data(), 1, *sendType.type, sendType.rank, 0, 1, *recvType.type, MPI_SUM, win);
+      MPI_Win_unlock(sendType.rank, win);
     }
-    // Receive to empty buffers
-    // TODO: Remove the need for extra buffers. Use MPI_Accumulate?
-    std::vector<std::vector<double>> recvBuffers(haloTypes.size(), std::vector<double>(vector.size()));
-    for (size_t i=0; i<haloTypes.size(); i++) {
-      const auto& recvType = haloTypes[i];
-      MPI_Irecv(&recvBuffers[i][0], 1, *recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
-    }
-    MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
-    // Add the received data to 'vector'
-    for (const auto& recvBuffer : recvBuffers) {
-      vector += recvBuffer;
-    }
+    // MPI_Win_fence(MPI_MODE_NOSUCCEED, win);
+    MPI_Barrier(comm);
+    MPI_Win_free(&win);
     #endif
   }
 
