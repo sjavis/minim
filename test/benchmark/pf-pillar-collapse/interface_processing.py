@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import os
+import glob
 
 nx = 120
-ny = 100
-nz = 120
+ny = 120
+nz = 1
 
 def data_extract(filename):
     #loading the in the data obtained from the simulation
@@ -100,7 +102,7 @@ def liquid_visualisation(solid,liquid,gas):
     ax.set_ylabel('z')
     ax.set_zlabel('y')
     
-def side_profile(explicit_structure,cut, dimensions = 3):
+def side_profile(explicit_structure,cut, dimensions = 3, figuresave = False, figfilename = ''):
     #a snapshot of the y-z plane for a specific x
     
     cut = int(np.floor(cut))
@@ -112,11 +114,10 @@ def side_profile(explicit_structure,cut, dimensions = 3):
         region_of_interest = explicit_structure[cut,:,:]
         ax.contour(region_of_interest)
     else:
-        region_of_interest = explicit_structure[cut,:]
-        plt.plot(region_of_interest)
-    
-
-
+        region_of_interest = explicit_structure[:,:,0]
+        ax.contour(region_of_interest)
+        #if figuresave == True:
+            #plt.savefig(figfilename[:-4]+'/.png', dpi = 500)
     
 
 def sl_interface(explicit_structure):
@@ -148,7 +149,7 @@ def critP(spacing):
 
 #%%   
 
-solid, liquid, gas = data_extract("outputs/res-0.001/st-100/s-50/ca-110/p-507.812500.txt")
+solid, liquid, gas = data_extract("outputs/res-0.001/st-100/s-35/ca-105/p-0.000000.txt")
 
 explicit_structure = region_definition(solid, liquid, gas)
 if nz > 1:
@@ -157,7 +158,7 @@ if nz > 1:
     side_profile(explicit_structure,50)
 else:
     min_contact = sl_interface(explicit_structure)
-    side_profile(explicit_structure,50, dimensions = 2)
+    side_profile(explicit_structure,0, dimensions = 2)
     
 #%%
 
@@ -253,3 +254,25 @@ plt.plot(ca_sim,critP_ca_sim,marker = 'o',linestyle = '')
 plt.legend()
 plt.xlabel('Contact Angle (°)')
 plt.ylabel('Critical Pressure (Pa)')
+
+#%%
+specific_path = "outputs/res-0.001/st-100/s-10/ca-105/"
+
+for name in glob.glob(specific_path+"p-*[0-9].*"):
+    print(name)
+    solid, liquid, gas = data_extract(name)
+
+    explicit_structure = region_definition(solid, liquid, gas)
+    if nz > 1:
+        #solid_visualisation(solid, liquid, gas) 
+        #liquid_visualisation(solid,liquid,gas) 
+        side_profile(explicit_structure,50)
+    else:
+        #min_contact = sl_interface(explicit_structure)
+        side_profile(explicit_structure,0, dimensions = 2, figuresave = True, figfilename = name)
+    
+    
+    
+    
+    
+    

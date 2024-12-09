@@ -11,14 +11,14 @@ double PI = acos(-1);
 
 
 int logIter = -100; // <=0 for no log
-bool saveCoords = false;
+bool saveCoords = true;
 
 // Geometry
 int nx = 120;
-int ny = 100;
+int ny = 60;
 int nz = 120;
-double res = 1e-3;
-double yTop = 30;
+double res = 1;
+double yTop = 10;
 double yBottom = 9.5;
 
 // Reentrant Geometry
@@ -26,22 +26,19 @@ int reentrant_height = 30;
 double cone_angle = 80 * PI/180; 
 
 // Pillar Geometry
-int pillar_radius = 50;
+//int pillar_radius = 20;
 int pillar_height = 21;
 int pillar_spacing = 30;
 int hole_radius = 30;
-int total_pillars = 6;
+int total_pillars = 3;
 int pillar_gaps[4][2] = {
-  {1,1},
-  {3,3},
-  {5,2},
-  {3,5}
+  {2,2},
 };
 int total_gaps = sizeof pillar_gaps / sizeof pillar_gaps[0];
 
 // Torus Geometry
-double torus_r = 2;
-int torus_R = pillar_radius;
+double torus_r = 15;
+int torus_R = 15;
 int total_curves = floor((2*yTop-yTop/2)/(2*torus_r));
 
 // Liquid parameters
@@ -49,10 +46,10 @@ double surfaceTension = 100;
 double maxPressure = 0.1*surfaceTension/res;
 
 // Run parameters
-vector<double> spacings = {2}; 
-vector<double> contactAngles = {110};
+vector<double> spacings = {14}; 
+vector<double> contactAngles = {105};
 std::string directory;
-bool fixed_pressure = true;
+bool fixed_pressure = false;
 vector<double> defined_pressure = {0};
 
 
@@ -66,15 +63,23 @@ vector<char> initialiseSolid(double spacing) {
   for (int z=0; z<nz; z++) {
     int i = x*ny*nz + y*nz + z;
 
-    double pillarWidth = nx - spacing;
+    // double pillarWidth = nx - spacing;
+    double pillarWidth = nx - 66.66;
+
+    // double pillar_radius = spacing;
 
     // bool isBase = (y < yBottom);
 
-    bool isBase = (y < ny-1-2*yTop && y > ny-1-2*yTop-yBottom);
+    // bool isBase = (y < ny-1-yTop && y > ny-1-yTop-yBottom);
 
     //bool isBase = ((y < ny-1-yTop) && (y > ny-1-yTop-2*yBottom) && !(sqrt(pow(x,2)+pow(z,2)) <= hole_radius) && !(sqrt(pow(x,2)+pow(nz-z,2)) <= hole_radius) && !(sqrt(pow(nx-x,2)+pow(nz/2-z,2)) <= hole_radius));
 
     // bool isPillar = (y < ny-1-yTop) && ((x <= pillarWidth/2) || (x > nx-1-pillarWidth/2)); //simple pillar
+
+    // if (pow(sqrt(pow(x-nx/2,2)+pow(z-nz/2,2)) - torus_R,2) + pow(y-(ny-1-yTop-5-pillar_radius*5),2) <= pow(torus_r,2)){
+
+    //   isPillar = false;
+    // }     // Single Torus
 
     //bool isPillar = (y < ny-1-yTop && y > ny-1-yTop-20) && ((x <= pillarWidth/2) || (x > nx-1-pillarWidth/2)) && ((z <= pillarWidth/2) || (z > nz-1-pillarWidth/2)); //posts
 
@@ -83,45 +88,28 @@ vector<char> initialiseSolid(double spacing) {
 
     //bool isPillar = (y < ny-1-yTop) && ((x <= pillarWidth/2 && z <= nz) || (x > nx-1-pillarWidth/2 && z <= nz) || (z <= pillarWidth/2 && x <= nx) || (z > nz-1-pillarWidth/2 && x <= nx));
 
-    //bool isPillar = ((y < ny-1-yTop) && (y > ny-1-yTop-2*yBottom)) && ((x <= pillarWidth/2 && z <= nz) || (x > nx-1-pillarWidth/2 && z <= nz) || (z > nz-1-pillarWidth/2 && x <= nx) || (z <= pillarWidth/2 && x <= nx)); //half hole
+    // bool isPillar = ((y < ny-1-yTop) && (y > ny-1-yTop-2*yBottom)) && ((x <= pillarWidth/2 && z <= nz) || (x > nx-1-pillarWidth/2 && z <= nz) || (z > nz-1-pillarWidth/2 && x <= nx) || (z <= pillarWidth/2 && x <= nx)); //half hole
 
+
+    bool isPillar = ((y < ny-1-4) && (y > ny-1-4-15)) && (x <= pillarWidth/2 || z <= pillarWidth/2); //quarter hole
 
     //Torus shape
 
-    bool isPillar = (y <= ny-1-yTop/2 && y > ny-1-2*yTop) && ((sqrt(pow(x,2) + pow(z,2)) <= pillar_radius) || (sqrt(pow(x-nx,2) + pow(z-nz,2)) <= pillar_radius));
-
+    // bool isPillar = (y <= ny-1-yTop/2 && y > ny-1-2*yTop) && ((sqrt(pow(x,2) + pow(z,2)) <= pillar_radius) || (sqrt(pow(x-nx,2) + pow(z-nz,2)) <= pillar_radius));
 
     // if (pow(sqrt(pow(x,2)+pow(z,2)) - torus_R,2) + pow(y-(ny-1-yTop-torus_r),2) <= pow(torus_r,2) || pow(sqrt(pow(x-nx,2)+pow(z-nz,2)) - torus_R,2) + pow(y-(ny-1-yTop-torus_r),2) <= pow(torus_r,2)){
 
     //   isPillar = false;
-    // }
+    // }     // Single Torus
 
-    for (int curve_count = 0; curve_count < total_curves; curve_count++){
-    if (pow(sqrt(pow(x,2)+pow(z,2)) - torus_R,2) + pow(y-(ny-1-yTop/2-curve_count*2*torus_r),2) <= pow(torus_r,2) || pow(sqrt(pow(x-nx,2)+pow(z-nz,2)) - torus_R,2) + pow(y-(ny-1-yTop/2-curve_count*2*torus_r),2) <= pow(torus_r,2)){
-
-      isPillar = false;
-    }
-    }
-
-    // for (int curves = 0; curves < total_curves; curves++){
-
-    // if (pow(sqrt(pow(x,2)+pow(z,2)) - torus_R,2) + pow(y-(ny-1-yTop-torus_r*curves),2) <= pow(torus_r,2) || pow(sqrt(pow(x-nx,2)+pow(z-nz,2)) - torus_R,2) + pow(y-(ny-1-yTop-torus_r*curves),2) <= pow(torus_r,2)){
+    // for (int curve_count = 0; curve_count < total_curves; curve_count++){
+    // if (pow(sqrt(pow(x,2)+pow(z,2)) - torus_R,2) + pow(y-(ny-1-yTop/2-curve_count*2*torus_r),2) <= pow(torus_r,2) || pow(sqrt(pow(x-nx,2)+pow(z-nz,2)) - torus_R,2) + pow(y-(ny-1-yTop/2-curve_count*2*torus_r),2) <= pow(torus_r,2)){
 
     //   isPillar = false;
-
     // }
-    // }
+    // } //Toruses
 
-    // bool isPillar = (y <= ny-1-yTop && y >ny-1-yTop-50) && ((sqrt(pow(x,2) + pow(z,2)) <= pillar_radius) || (sqrt(pow(x-nx,2) + pow(z-nz,2)) <= pillar_radius));
-
-    // if (pow(sqrt(pow(x,2)+pow(z,2)) - torus_R,2) + pow(y-ny-1-yTop-25,2) <= pow(torus_r,2)){
-
-    //   isPillar = false;
-
-    // }
-
-
-    //Circular pillar array for n number of pillars per axis
+    // Circular pillar array for n number of pillars per axis
     // bool isPillar = false;
     // for (int pillar_x = 0; pillar_x <= total_pillars; pillar_x++){
     // for (int pillar_z = 0; pillar_z <= total_pillars; pillar_z++){
@@ -162,7 +150,7 @@ vector<char> initialiseSolid(double spacing) {
 
 
 
-    if (isPillar || isBase) {
+    if (isPillar) {
      data[i] = true;
     }
 
@@ -211,9 +199,9 @@ void output(vector<double> data, std::string filename) {
 
 bool checkFailed(const vector<double>& coords) {
   // Check for liquid near bottom
-  int y = ny-1-2*yTop+4;
-  int x = nx/2;
-  int z = nx/2;
+  int y = 3;
+  int x = 3;
+  int z = 3;
   // int k = x*ny + y;
   int k = x*ny*nz +y*nz + z;
   return (coords[3*k+1]>0.5);
