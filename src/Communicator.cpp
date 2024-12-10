@@ -222,8 +222,10 @@ namespace minim {
       MPI_Group world_group, group;
       MPI_Comm_group(MPI_COMM_WORLD, &world_group);
       MPI_Group_incl(world_group, ranks.size(), &ranks[0], &group);
-      int tag = rand()%1000000;
-      MPI_Bcast(&tag, 1, MPI_INT, 0, MPI_COMM_WORLD);
+      int tag = 0;
+      for (int rank: ranks) {
+        tag = mpi.size * tag + rank;
+      }
       MPI_Comm_create_group(MPI_COMM_WORLD, group, tag, &comm);
     }
     // Get the rank number and size of the communicator

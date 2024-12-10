@@ -400,11 +400,11 @@ template <typename T>
       MPI_Type_commit(sendSubarray);
       MPI_Type_commit(recvSubarray);
       // Create the communication objects
-      int iNeighbour = make1dIndex(commIndices + direction, commArray);
-      int sendTag = make1dIndex(1+direction, vector<int>(nDim, 3));
-      int recvTag = make1dIndex(1-direction, vector<int>(nDim, 3));
-      haloTypes.push_back({iNeighbour, sendTag, std::shared_ptr<MPI_Datatype>(sendSubarray, mpiTypeDeleter)});
-      edgeTypes.push_back({iNeighbour, recvTag, std::shared_ptr<MPI_Datatype>(recvSubarray, mpiTypeDeleter)});
+      int iNeighbourSend = make1dIndex(commIndices + direction, commArray);
+      int iNeighbourRecv = make1dIndex(commIndices - direction, commArray);
+      int directionTag = make1dIndex(direction+1, vector<int>(nDim, 3));
+      haloTypes.push_back({iNeighbourSend, directionTag, std::shared_ptr<MPI_Datatype>(sendSubarray, mpiTypeDeleter)});
+      edgeTypes.push_back({iNeighbourRecv, directionTag, std::shared_ptr<MPI_Datatype>(recvSubarray, mpiTypeDeleter)});
     }
 
     // Types for gather
