@@ -602,10 +602,10 @@ namespace minim {
   void PhaseField::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     if (g) *g = vector<double>(coords.size());
 
-    for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
-      for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
-        for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {
-          vector<int> xGrid{x, y, z};
+    vector<int> xGrid(3);
+    for (xGrid[0]=haloWidths[0]; xGrid[0]<procSizes[0]-haloWidths[0]; xGrid[0]++) {
+      for (xGrid[1]=haloWidths[1]; xGrid[1]<procSizes[1]-haloWidths[1]; xGrid[1]++) {
+        for (xGrid[2]=haloWidths[2]; xGrid[2]<procSizes[2]-haloWidths[2]; xGrid[2]++) {
           int iGrid = getIdx(xGrid, procSizes);
 
           if (model == MODEL_BASIC) {

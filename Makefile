@@ -28,8 +28,10 @@ MAKE_ARGS = "debug=$(debug)"
 ifeq ($(debug), 1)
 	CXXFLAGS += -g -fno-omit-frame-pointer
 else ifeq ($(debug), 2)
-	CXXFLAGS += -g -O0
+	CXXFLAGS += -g -O2
 else ifeq ($(debug), 3)
+	CXXFLAGS += -g -O0
+else ifeq ($(debug), 4)
 	CXXFLAGS += -g -O0 -fsanitize=address
 endif
 
