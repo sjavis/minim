@@ -14,7 +14,7 @@ double PI = acos(-1);
 
 int nx = 120;
 int ny = 100;
-int nz = 1;
+int nz = 120;
 
 // Solid parameters
 double solidHeight = 9.5;
@@ -128,11 +128,11 @@ int main(int argc, char** argv) {
   State state(pf, initialiseFluid(solid));
   print(static_cast<CommGrid&>(*state.comm).commArray);
 
-  // Lbfgs min;
-  // min.setLinesearch("none");
-  // min.setMaxIter(1000);
-  // auto minimum = min.minimise(state, "eg-100");
-  // // output(minimum, "minimum.txt");
+  Lbfgs min;
+  min.setLinesearch("none");
+  min.setMaxIter(1000);
+  auto minimum = min.minimise(state, "eg-100");
+  // output(minimum, "minimum.txt");
 
   auto time1 = std::chrono::high_resolution_clock::now();
   unsigned int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count();

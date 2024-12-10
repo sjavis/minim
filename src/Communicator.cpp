@@ -53,22 +53,25 @@ namespace minim {
     #endif
   }
 
-  void Communicator::communicateAccumulate(vector<double>& vector) const {
+  void Communicator::communicateAccumulate(vector<double>& data) const {
+    // Adds the halo values onto the corresponding block locations.
+    // This is used to accumulate contributions to the gradient from neighbouring processors.
     if (!usesThisProc || commSize==1) return;
     #ifdef PARALLEL
     MPI_Win win;
-    MPI_Win_create(vector.data(), vector.size()*sizeof(double), sizeof(double), MPI_INFO_NULL, comm, &win);
+    MPI_Win_create(data.data(), data.size()*sizeof(double), sizeof(double), MPI_INFO_NULL, comm, &win);
 
-    // MPI_Win_fence(MPI_MODE_NOPRECEDE, win);
+    // Warning: MPI_Accumulate has a memory leak if using OpenMPI-4.1.4 or earlier.
+    // This occurs when there are multiple procs adding to the same location, e.g. using CommGrid split in two dimensions.
     for (int iDir=0; iDir<(int)edgeTypes.size(); iDir++) {
       const CommunicateObj& sendType = edgeTypes[iDir];
       const CommunicateObj& recvType = haloTypes[iDir];
+      // Lock and unlock the window to ensure proper behaviour if multiple procs add to the same location
       MPI_Win_lock(MPI_LOCK_EXCLUSIVE, sendType.rank, 0, win);
-      MPI_Accumulate(vector.data(), 1, *sendType.type, sendType.rank, 0, 1, *recvType.type, MPI_SUM, win);
+      MPI_Accumulate(data.data(), 1, *sendType.type, sendType.rank, 0, 1, *recvType.type, MPI_SUM, win);
       MPI_Win_unlock(sendType.rank, win);
     }
-    // MPI_Win_fence(MPI_MODE_NOSUCCEED, win);
-    MPI_Barrier(comm);
+
     MPI_Win_free(&win);
     #endif
   }
