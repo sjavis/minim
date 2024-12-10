@@ -14,6 +14,12 @@ LDLIBS = $(addprefix -l, $(LIBS))
 LDFLAGS = $(addprefix -L, $(BUILD_DIR))
 LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 
+# Read the number of processors from the top of the file. Defaults to 1
+define GETPROCS
+$(eval NPROCS=$(shell head -n 1 $(1) | sed -n 's/.*NPROCS \([0-9]\+\).*/\1/p'))
+$(if $(NPROCS), , $(eval NPROCS=1))
+endef
+
 .PHONY: all debug clean cleantests gtest $(RUN_TESTS) $(LIB)
 
 all: $(TESTS) $(RUN_TESTS) cleantests
@@ -33,8 +39,9 @@ $(LIB): $(BUILD_DIR)/lib%.a:
 	$(MAKE) --no-print-directory -C $(ROOT_DIR) $(SUBTARGET)
 
 $(RUN_TESTS): run_%: %
-	@echo "Running $*"
-	@mpirun -np 2 ./$* || touch failed
+	$(call GETPROCS, $*.cpp)
+	@echo "Running $* on $(NPROCS) process(es)"
+	@mpirun -np $(NPROCS) ./$* || touch failed
 
 # Googletest rules and parameters, see:
 # https://github.com/google/googletest/blob/release-1.8.1/googletest/make/Makefile
