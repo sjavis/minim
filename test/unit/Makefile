@@ -17,7 +17,7 @@ LIB = $(patsubst %,$(BUILD_DIR)/lib%.a, $(LIBS))
 # Read the number of processors from the top of the file. Defaults to 1
 define GETPROCS
 $(eval NPROCS=$(shell head -n 1 $(1) | sed -n 's/.*NPROCS \([0-9]\+\).*/\1/p'))
-$(if $(NPROCS), , $(eval NPROCS=1))
+$(if $(NPROCS), , $(eval NPROCS=2))
 endef
 
 .PHONY: all debug clean cleantests gtest $(RUN_TESTS) $(LIB)
