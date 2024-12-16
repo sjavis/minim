@@ -68,6 +68,7 @@ namespace minim {
 
     // Get step
     auto step = _dt * _v;
+    state.applyConstraints(step);
 
     // Perform linesearch (if set)
     if (linesearch == "backtracking") {

@@ -27,6 +27,7 @@ namespace minim {
   void GradDescent::iteration(State& state) {
     // Get step
     _g = state.procGradient();
+    state.applyConstraints(_g);
     auto step = -_alpha * _g;
 
     // Perform linesearch

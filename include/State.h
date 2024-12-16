@@ -66,6 +66,10 @@ namespace minim {
 
       void communicate();
 
+      // Constraints
+      void applyConstraints(vector<double>& data) const;
+
+      // Failure early completion checks
       bool isFailed = false;
       void failed();
 
