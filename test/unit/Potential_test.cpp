@@ -43,10 +43,15 @@ TEST(PotentialTest, TestConstraints) {
   pot.applyConstraints(coords, *comm, g);
   EXPECT_TRUE(ArraysMatch(g, {2,0}));
 
-  // State apply constraints
+  // State gradient calls
   State s(pot, coords);
+  g = s.gradient();
+  EXPECT_TRUE(ArraysMatch(g, {2,0}));
+  s.energyGradient(nullptr, &g);
+  EXPECT_TRUE(ArraysMatch(g, {2,0}));
   g = s.blockGradient();
-  s.applyConstraints(g);
+  EXPECT_TRUE(ArraysMatch(g, {2,0}));
+  s.blockEnergyGradient(nullptr, &g);
   EXPECT_TRUE(ArraysMatch(g, {2,0}));
 
   // Check if fixed

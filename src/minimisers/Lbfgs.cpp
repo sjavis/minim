@@ -43,7 +43,6 @@ namespace minim {
 
     // Find minimisation direction
     vector<double> step = getDirection(*state.comm);
-    // Apply constraints to the step
     state.applyConstraints(step);
     // Ensure it is going downhill
     double gs = state.comm->dotProduct(_g, step);

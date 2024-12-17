@@ -49,7 +49,7 @@ namespace minim {
     pot.energyGradient(coords, comm, e, g);
     if (g) {
       if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges
-      // pot.applyConstraints(coords, comm, *g);
+      pot.applyConstraints(coords, comm, *g);
     }
   }
 
@@ -73,7 +73,7 @@ namespace minim {
       // }
     }
     // Constraints
-    // pot.applyConstraints(coords, comm, *g);
+    pot.applyConstraints(coords, comm, *g);
   }
 
 
