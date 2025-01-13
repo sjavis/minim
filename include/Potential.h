@@ -51,8 +51,9 @@ namespace minim {
       Potential& setConstraints(vector2d<int> idofs, vector<double> normal);
       Potential& setConstraints(vector2d<int> idofs, Constraint::NormalFn normal, Constraint::CorrectionFn correction=nullptr);
 
-      const vector<double>& applyConstraints(const vector<double>& coords, vector<double>& grad) const;
-      const vector<double>& correctConstraints(vector<double>& coords) const;
+      void applyConstraints(const vector<double>& coords, const Communicator& comm, vector<double>& step) const;
+      void correctConstraints(vector<double>& coords) const;
+      virtual void specialisedConstraints(const vector<double>& coords, const Communicator& comm, vector<double>& data) const {};
 
       bool isFixed(int index) const;
       vector<char> isFixed(const vector<int>& indicies) const;

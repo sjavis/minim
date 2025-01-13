@@ -12,6 +12,7 @@ TEST(PotentialTest, TestConstraints) {
   auto gfunc = [](const vector<double>& x){ return 2*x; };
   Potential pot(efunc, gfunc);
   vector<double> coords{1, 2};
+  std::unique_ptr<Communicator> comm = pot.newComm();
 
   // Single degrees of freedom
   pot.setConstraints({1});
@@ -19,7 +20,8 @@ TEST(PotentialTest, TestConstraints) {
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].idof, {1}));
   auto g = pot.gradient(coords);
   EXPECT_TRUE(ArraysMatch(g, {2,4}));
-  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(coords, g), {2,0}));
+  pot.applyConstraints(coords, *comm, g);
+  EXPECT_TRUE(ArraysMatch(g, {2,0}));
 
   // Vector constraint
   pot.constraints = {};
@@ -28,7 +30,8 @@ TEST(PotentialTest, TestConstraints) {
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].normal(coords), {1,-1}));
   g = pot.gradient(coords);
   EXPECT_TRUE(ArraysMatch(g, {2,4}));
-  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(coords, g), {3,3}));
+  pot.applyConstraints(coords, *comm, g);
+  EXPECT_TRUE(ArraysMatch(g, {3,3}));
 
   // Function constraint
   pot.constraints = {};
@@ -37,7 +40,8 @@ TEST(PotentialTest, TestConstraints) {
   EXPECT_TRUE(ArraysMatch(pot.constraints[0].normal(coords), {0,1}));
   g = pot.gradient(coords);
   EXPECT_TRUE(ArraysMatch(g, {2,4}));
-  EXPECT_TRUE(ArraysMatch(pot.applyConstraints(coords, g), {2,0}));
+  pot.applyConstraints(coords, *comm, g);
+  EXPECT_TRUE(ArraysMatch(g, {2,0}));
 
   // State gradient calls
   State s(pot, coords);
