@@ -43,6 +43,7 @@ namespace minim {
 
     // Find minimisation direction
     vector<double> step = getDirection(*state.comm);
+    state.applyConstraints(step);
     // Ensure it is going downhill
     double gs = state.comm->dotProduct(_g, step);
     if (gs > 0) {
@@ -108,6 +109,7 @@ namespace minim {
       step += (alpha[i]-beta) * _s[i];
     }
 
+    // Cap the max step size (if using)
     if (_maxStep != 0) {
       double stepSize = comm.norm(step);
       if (stepSize > _maxStep) step *= _maxStep / stepSize;

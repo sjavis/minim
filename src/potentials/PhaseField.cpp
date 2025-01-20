@@ -223,11 +223,11 @@ namespace minim {
       for (int iFluid=0; iFluid<nFluid; iFluid++) {
         volume[iFluid] = comm.sum(volume[iFluid]);
       }
-      totalVolume = 0;
+      totalVolume2 = 0;
       for (int iGrid : RangeI(procSizes, haloWidths)) {
-        totalVolume += nodeVol[iGrid];
+        totalVolume2 += nodeVol[iGrid] * nodeVol[iGrid];
       }
-      totalVolume = comm.sum(totalVolume);
+      totalVolume2 = comm.sum(totalVolume2);
     }
 
     // Set initial values for confinement potential
@@ -536,12 +536,12 @@ namespace minim {
   }
 
 
-  void PhaseField::applyConstraints(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
+  void PhaseField::specialisedConstraints(const vector<double>& coords, const Communicator& comm, vector<double>& data) const {
     // Fixed fluid
     for (int iFluid=0; iFluid<nFluid; iFluid++) {
       if (!fixFluid[iFluid]) continue;
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
-        (*g)[iGrid*nFluid+iFluid] = 0;
+        data[iGrid*nFluid+iFluid] = 0;
       }
     }
 
@@ -559,40 +559,59 @@ namespace minim {
         // Dot product to get component of increasing density
         double component = 0;
         for (int iFluid : iVariableFluid) {
-          component += (*g)[iGrid*nFluid+iFluid];
+          component += data[iGrid*nFluid+iFluid];
         }
         // Normalise to get correct corrections
         component *= normFactor;
         // Remove the component
         for (int iFluid : iVariableFluid) {
-          (*g)[iGrid*nFluid+iFluid] -= component;
+          data[iGrid*nFluid+iFluid] -= component;
         }
       }
     }
 
     // Fixed volume
+    // Remove the component in the direction of increasing volume for each fluid
     if (volumeFixed) {
       // Apply an energy correction if the volumes are incorrect
-      vector<bool> volCorrect = volumeConstraintEnergy(coords, comm, e, g);
+      // vector<bool> volCorrect = volumeConstraintEnergy(coords, comm, e, data);
+      vector<bool> volCorrect(nFluid, true);
+      int nVariable = iVariableFluid.size();
 
-      // Dot product for components of gradient in direction of increasing volumes
+      // Calculate local part of g.v where v=nodeVol for each fluid
       vector<double> component(nFluid, 0);
       for (int iGrid : RangeI(procSizes, haloWidths)) {
         for (int iFluid : iVariableFluid) {
           if (!volCorrect[iFluid]) continue;
-          component[iFluid] += (*g)[iGrid*nFluid+iFluid] * sqrt(nodeVol[iGrid]);
+          component[iFluid] += data[iGrid*nFluid+iFluid] * nodeVol[iGrid];
+          if (densityConstraint == DENSITY_HARD) {
+            // Make v orthogonal to the density constraints, ie. v -> v - Σ(v.d_i)d_i
+            // where for 3 variable fluids d_0 would be (1 1 1 0 0 0 ...) / √3
+            // and v is (1 0 0 1 0 0 ...) for iFluid=0
+            for (int iFluid2 : iVariableFluid) {
+              component[iFluid] -= data[iGrid*nFluid+iFluid2] * nodeVol[iGrid] / nVariable;
+            }
+          }
         }
       }
-      // Finish dot product + normalise to get correct corrections
+
+      // Finish the dot product and get (g.v) / |v|^2
       for (int iFluid : iVariableFluid) {
         if (!volCorrect[iFluid]) continue;
-        component[iFluid] = comm.sum(component[iFluid]) / totalVolume;
+        component[iFluid] = comm.sum(component[iFluid]) / totalVolume2;
       }
-      // Remove the component
+
+      // Remove the component, ie. g - (g.v) v / |v|^2
       for (int iGrid : RangeI(procSizes, haloWidths)) {
         for (int iFluid : iVariableFluid) {
           if (!volCorrect[iFluid]) continue;
-          (*g)[iGrid*nFluid+iFluid] -= component[iFluid] * sqrt(nodeVol[iGrid]);
+          data[iGrid*nFluid+iFluid] -= component[iFluid] * nodeVol[iGrid];
+          if (densityConstraint == DENSITY_HARD) {
+            // Account for the -Σ(v.d_i)d_i correction to v
+            for (int iFluid2 : iVariableFluid) {
+              data[iGrid*nFluid+iFluid2] += component[iFluid] * nodeVol[iGrid] / nVariable;
+            }
+          }
         }
       }
     }
@@ -622,8 +641,6 @@ namespace minim {
         }
       }
     }
-
-    if (g) applyConstraints(coords, comm, e, g);
   }
 
 

@@ -87,7 +87,7 @@ namespace minim {
       vector<int> fluidType;
       vector2d<int> neighbours;
 
-      double totalVolume;
+      double totalVolume2;
       vector<double> ffInit;
       vector<double> fMag;
       vector2d<double> fNorm;
@@ -119,7 +119,7 @@ namespace minim {
       void forceEnergy(const vector<double>& coords, int iNode, const vector<int>& xGrid, double* e, vector<double>* g) const;
       void ffConfinementEnergy(const vector<double>& coords, int iNode, double* e, vector<double>* g) const;
       vector<bool> volumeConstraintEnergy(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
-      void applyConstraints(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const;
+      void specialisedConstraints(const vector<double>& coords, const Communicator& comm, vector<double>& data) const override;
   };
 
 }
