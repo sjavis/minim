@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import to_rgb
 
-nx = 160
-ny = 200
+nx = 80
+ny = 100
 
 
 def map_colors(data, colors):
@@ -28,4 +28,4 @@ def plot(filename):
     plt.show()
 
 
-plot("outputs/res-0.001/st-100/s-80/ca-30/p-0.000000.txt")
+plot("outputs/res-0.001/st-100/s-40/ca-70/p-0.000000.txt")
