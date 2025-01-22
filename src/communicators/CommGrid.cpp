@@ -4,6 +4,7 @@
 #include "Potential.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
+#include "utils/range.h"
 
 
 namespace minim {
@@ -179,6 +180,17 @@ template <typename T>
 
     vector<int> procCoords = blockCoords + haloWidths;
     return make1dIndex(procCoords, procSizes);
+  }
+
+
+  //===== MPI reduction functions =====//
+  double CommGrid::dotProduct(const vector<double>& a, const vector<double>& b) const {
+    if (!usesThisProc) return 0;
+    double value = 0;
+    for (int i: RangeI(procSizes, haloWidths)) {
+      value += a[i] * b[i];
+    }
+    return sum(value);
   }
 
 

@@ -197,19 +197,17 @@ TEST(CommGrid, TestCommunicateAccumulate) {
   // Initialise communicator
   CommGrid comm;
   comm.commArray = {2, 2};
-  GridPot pot({6,6});
-  comm.setup(pot, 36, {});
+  GridPot pot({4,6});
+  comm.setup(pot, 24, {});
 
-  vector<double> data = {1,  1,  1,  1, 1,
-                         1, 10, 20, 30, 1,
-                         1, 40, 50, 60, 1,
-                         1, 70, 80, 90, 1,
-                         1,  1,  1,  1, 1};
-  vector<double> result = {1,  1,  1,  1, 1,
-                           1, 13, 21, 33, 1,
-                           1, 41, 50, 61, 1,
-                           1, 73, 81, 93, 1,
-                           1,  1,  1,  1, 1};
+  vector<double> data = {3,  1,  1,  1, 3,
+                         2, 10, 20, 30, 2,
+                         2, 40, 50, 60, 2,
+                         3,  1,  1,  1, 3};
+  vector<double> result = {3,  1,  1,  1, 3,
+                           2, 16, 21, 36, 2,
+                           2, 46, 51, 66, 2,
+                           3,  1,  1,  1, 3};
   comm.communicateAccumulate(data);
   EXPECT_TRUE(ArraysMatch(data, result));
 }
@@ -225,4 +223,22 @@ TEST(CommGrid, TestGather) {
 
   auto data = 10*(comm.rank()+1) + vector<double>{0,1,2,0, 0,3,4,0};
   EXPECT_TRUE(ArraysMatch(comm.gather(data), {11,12,21,22, 13,14,23,24}));
+}
+
+
+TEST(CommGrid, TestDotProduct) {
+  CommGrid comm;
+  comm.commArray = {2, 2};
+  GridPot pot({4,6});
+  comm.setup(pot, 24, {});
+
+  vector<double> a = {1,  1,  1,  1, 1,
+                      1, 10, 10, 10, 1,
+                      1, 20, 20, 20, 1,
+                      1,  1,  1,  1, 1};
+  vector<double> b = {1,  1,  1,  1, 1,
+                      1, 20, 20, 20, 1,
+                      1, 10, 10, 10, 1,
+                      1,  1,  1,  1, 1};
+  EXPECT_EQ(comm.dotProduct(a, b), 4*1200);
 }

@@ -85,7 +85,7 @@ namespace minim {
 
     if (_i == 0) {
       // First iteration: Directly set the step size
-      double gnorm = vec::norm(_g);
+      double gnorm = comm.norm(_g);
       if (gnorm > 0) step *= _init_step / gnorm;
       return step;
     }
