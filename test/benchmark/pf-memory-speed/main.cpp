@@ -86,9 +86,21 @@ int main(int argc, char** argv) {
 
   auto time1 = std::chrono::high_resolution_clock::now();
   unsigned int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count();
-  print("TIME:", elapsed);
-  printAll("MEMORY (KB):", heapUsage());
-  print("N:", state.comm->nproc);
+  int memory = mpi.sum(heapUsage()) / mpi.size;
+  print("TIME (s):", elapsed);
+  print("MEMORY (kB):", memory);
+
+  // Write the results to a file
+  std::string filename = "scaling.txt";
+  bool fileExists = std::ifstream(filename).good();
+  std::ofstream f(filename, std::ios::app);
+  if (mpi.rank == 0) {
+    if (!fileExists) {
+      f << "N TIME(S) MEM(kB)" << std::endl;
+    }
+    f << mpi.size << " " << elapsed << " " << memory << std::endl;
+  }
+  f.close();
 
   return 0;
 }
