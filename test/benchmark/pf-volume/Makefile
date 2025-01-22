@@ -7,10 +7,10 @@ CXX = mpic++
 CXXFLAGS = -DPARALLEL -Wall
 
 all: run.exe
-	mpirun -np 1 run.exe 1 > /dev/null || exit 1
+	mpirun -np 2 run.exe 1 > /dev/null || exit 1
 
 report: run.exe
-	mpirun -np 1 run.exe
+	mpirun -np 2 run.exe
 
 run.exe:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe

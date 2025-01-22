@@ -48,12 +48,12 @@ namespace minim {
     }
 
     template <>
-    int Iterator<int>::operator*() const {
+    inline int Iterator<int>::operator*() const {
       return i;
     }
 
     template <>
-    std::vector<int> Iterator<std::vector<int>>::operator*() const {
+    inline std::vector<int> Iterator<std::vector<int>>::operator*() const {
       return x;
     }
 
@@ -75,7 +75,7 @@ namespace minim {
   }
 
 
-  RangeX::RangeX(std::vector<int> xSize)
+  inline RangeX::RangeX(std::vector<int> xSize)
     : iStart(0), iter(xSize, std::vector<int>(xSize.size()), xSize, std::vector<int>(xSize.size()))
   {
     // Ensure Iterator does not run if any size is 0
@@ -87,11 +87,11 @@ namespace minim {
     }
   }
 
-  RangeX::RangeX(std::vector<int> xSize, int halo)
+  inline RangeX::RangeX(std::vector<int> xSize, int halo)
    : RangeX(xSize, std::vector<int>(xSize.size(), halo))
   {}
 
-  RangeX::RangeX(std::vector<int> xSize, std::vector<int> xHalo)
+  inline RangeX::RangeX(std::vector<int> xSize, std::vector<int> xHalo)
    : iter({}, {}, {}, {})
   {
     int nDim = xSize.size();
@@ -111,7 +111,7 @@ namespace minim {
   }
 
 
-  RangeI::RangeI(std::vector<int> xSize)
+  inline RangeI::RangeI(std::vector<int> xSize)
     : iStart(0), iter(xSize, std::vector<int>(xSize.size()), xSize, std::vector<int>(xSize.size()))
   {
     // Ensure Iterator does not run if any size is 0
@@ -123,11 +123,11 @@ namespace minim {
     }
   }
 
-  RangeI::RangeI(std::vector<int> xSize, int halo)
+  inline RangeI::RangeI(std::vector<int> xSize, int halo)
    : RangeI(xSize, std::vector<int>(xSize.size(), halo))
   {}
 
-  RangeI::RangeI(std::vector<int> xSize, std::vector<int> xHalo)
+  inline RangeI::RangeI(std::vector<int> xSize, std::vector<int> xHalo)
    : iter({}, {}, {}, {})
   {
     int nDim = xSize.size();
