@@ -1,3 +1,4 @@
+// NPROCS 4
 #include "test_main.cpp"
 #include "communicators/CommUnstructured.h"
 #include "communicators/CommGrid.h"
@@ -40,6 +41,7 @@ class UnstructuredPot: public NewPotential<UnstructuredPot> {
 
 
 TEST(CommUnstructured, TestConstraintDistribution) {
+  if (mpi.rank >= 2) return;
   vector<double> coords{0, 1, 2, 3, 4, 5};
   UnstructuredPot pot;
   pot.init(coords);
@@ -61,43 +63,45 @@ class GridPot: public NewPotential<GridPot> {
 
 
 TEST(CommGrid, TestCommArray) {
+  if (mpi.rank >= 2) return;
   GridPot pot({2,6});
 
   // Default commArray
   CommGrid comm1;
-  comm1.setup(pot, 12, {});
+  comm1.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm1.commArray, {1, 2}));
 
   // commArray defined in the Communicator
   CommGrid comm2;
   comm2.commArray = {2, 1};
-  comm2.setup(pot, 12, {});
+  comm2.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm2.commArray, {2, 1}));
 
   // commArray defined in the Potential
   pot.setCommArray({2, 1});
   CommGrid comm3;
-  comm3.setup(pot, 12, {});
+  comm3.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm3.commArray, {2, 1}));
 
   // Invalid commArray
   EXPECT_ANY_THROW({
     pot.setCommArray({1, 3});
-    CommGrid().setup(pot, 12, {});
+    CommGrid().setup(pot, 12, {0,1});
   });
   EXPECT_ANY_THROW({
     pot.setCommArray({2});
-    CommGrid().setup(pot, 12, {});
+    CommGrid().setup(pot, 12, {0,1});
   });
 }
 
 
 TEST(CommGrid, TestAssign) {
+  if (mpi.rank >= 2) return;
   // Initialise communicator
   CommGrid comm;
   comm.commArray = {1, 2};
   GridPot pot({2,6});
-  comm.setup(pot, 12, {});
+  comm.setup(pot, 12, {0,1});
 
   // Test assignment of global data
   vector<double> globalData{10,11,12,13,14,15, 20,21,22,23,24,25};
@@ -118,11 +122,12 @@ TEST(CommGrid, TestAssign) {
 
 
 TEST(CommGrid, TestGet) {
+  if (mpi.rank >= 2) return;
   // Initialise communicator
   CommGrid comm;
   comm.commArray = {1, 2};
   GridPot pot({2,6});
-  comm.setup(pot, 12, {});
+  comm.setup(pot, 12, {0,1});
 
   // Test getLocalIdx first
   EXPECT_EQ(comm.getLocalIdx(6, 0), (comm.rank()==0) ? 6 : -1);
@@ -141,12 +146,48 @@ TEST(CommGrid, TestGet) {
 TEST(CommGrid, TestCommunicate) {
   // Initialise communicator
   CommGrid comm;
-  comm.commArray = {1, 2};
-  GridPot pot({2,6});
+  comm.commArray = {2, 2};
+  GridPot pot({4,4});
   comm.setup(pot, 12, {});
 
-  auto data = (comm.rank()==0) ? vector<double>{0,11,12,13,0, 0,14,15,16,0} : vector<double>{0,21,22,23,0, 0,24,25,26,0};
-  auto result = (comm.rank()==0) ? vector<double>{23,11,12,13,21, 26,14,15,16,24} : vector<double>{13,21,22,23,11, 16,24,25,26,14};
+  vector<double> data, result;
+  if (comm.rank() == 0) {
+    data   = { 0,  0,  0,  0,
+               0, 11, 12,  0,
+               0, 13, 14,  0,
+               0,  0,  0,  0};
+    result = {44, 33, 34, 43,
+              22, 11, 12, 21,
+              24, 13, 14, 23,
+              42, 31, 32, 41};
+  } else if (comm.rank() == 1) {
+    data   = { 0,  0,  0,  0,
+               0, 21, 22,  0,
+               0, 23, 24,  0,
+               0,  0,  0,  0};
+    result = {34, 43, 44, 33,
+              12, 21, 22, 11,
+              14, 23, 24, 13,
+              32, 41, 42, 31};
+  } else if (comm.rank() == 2) {
+    data   = { 0,  0,  0,  0,
+               0, 31, 32,  0,
+               0, 33, 34,  0,
+               0,  0,  0,  0};
+    result = {24, 13, 14, 23,
+              42, 31, 32, 41,
+              44, 33, 34, 43,
+              22, 11, 12, 21};
+  } else if (comm.rank() == 3) {
+    data   = { 0,  0,  0,  0,
+               0, 41, 42,  0,
+               0, 43, 44,  0,
+               0,  0,  0,  0};
+    result = {14, 23, 24, 13,
+              32, 41, 42, 31,
+              34, 43, 44, 33,
+              12, 21, 22, 11};
+  }
   comm.communicate(data);
   EXPECT_TRUE(ArraysMatch(data, result));
 }
@@ -155,24 +196,49 @@ TEST(CommGrid, TestCommunicate) {
 TEST(CommGrid, TestCommunicateAccumulate) {
   // Initialise communicator
   CommGrid comm;
-  comm.commArray = {1, 2};
-  GridPot pot({2,6});
-  comm.setup(pot, 12, {});
+  comm.commArray = {2, 2};
+  GridPot pot({4,6});
+  comm.setup(pot, 24, {});
 
-  vector<double> data = {0,1,2,3,4, 5,6,7,8,9};
-  vector<double> result = {0,5,2,3,4, 5,15,7,13,9};
+  vector<double> data = {3,  1,  1,  1, 3,
+                         2, 10, 20, 30, 2,
+                         2, 40, 50, 60, 2,
+                         3,  1,  1,  1, 3};
+  vector<double> result = {3,  1,  1,  1, 3,
+                           2, 16, 21, 36, 2,
+                           2, 46, 51, 66, 2,
+                           3,  1,  1,  1, 3};
   comm.communicateAccumulate(data);
   EXPECT_TRUE(ArraysMatch(data, result));
 }
 
 
 TEST(CommGrid, TestGather) {
+  if (mpi.rank >= 2) return;
   // Initialise communicator
   CommGrid comm;
   comm.commArray = {1, 2};
   GridPot pot({2,4});
-  comm.setup(pot, 8, {});
+  comm.setup(pot, 8, {0,1});
 
   auto data = 10*(comm.rank()+1) + vector<double>{0,1,2,0, 0,3,4,0};
   EXPECT_TRUE(ArraysMatch(comm.gather(data), {11,12,21,22, 13,14,23,24}));
+}
+
+
+TEST(CommGrid, TestDotProduct) {
+  CommGrid comm;
+  comm.commArray = {2, 2};
+  GridPot pot({4,6});
+  comm.setup(pot, 24, {});
+
+  vector<double> a = {1,  1,  1,  1, 1,
+                      1, 10, 10, 10, 1,
+                      1, 20, 20, 20, 1,
+                      1,  1,  1,  1, 1};
+  vector<double> b = {1,  1,  1,  1, 1,
+                      1, 20, 20, 20, 1,
+                      1, 10, 10, 10, 1,
+                      1,  1,  1,  1, 1};
+  EXPECT_EQ(comm.dotProduct(a, b), 4*1200);
 }

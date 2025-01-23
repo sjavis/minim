@@ -53,27 +53,26 @@ namespace minim {
     #endif
   }
 
-  void Communicator::communicateAccumulate(vector<double>& vector) const {
+  void Communicator::communicateAccumulate(vector<double>& data) const {
+    // Adds the halo values onto the corresponding block locations.
+    // This is used to accumulate contributions to the gradient from neighbouring processors.
     if (!usesThisProc || commSize==1) return;
     #ifdef PARALLEL
-    int nRequest = edgeTypes.size() + haloTypes.size();
-    MPI_Request requests[nRequest];
-    int iRequest = 0;
-    for (const auto& sendType : edgeTypes) {
-      MPI_Isend(&vector[0], 1, *sendType.type, sendType.rank, sendType.tag, comm, &requests[iRequest++]);
+    MPI_Win win;
+    MPI_Win_create(data.data(), data.size()*sizeof(double), sizeof(double), MPI_INFO_NULL, comm, &win);
+
+    // Warning: MPI_Accumulate has a memory leak if using OpenMPI-4.1.4 or earlier.
+    // This occurs when there are multiple procs adding to the same location, e.g. using CommGrid split in two dimensions.
+    for (int iDir=0; iDir<(int)edgeTypes.size(); iDir++) {
+      const CommunicateObj& sendType = edgeTypes[iDir];
+      const CommunicateObj& recvType = haloTypes[iDir];
+      // Lock and unlock the window to ensure proper behaviour if multiple procs add to the same location
+      MPI_Win_lock(MPI_LOCK_EXCLUSIVE, sendType.rank, 0, win);
+      MPI_Accumulate(data.data(), 1, *sendType.type, sendType.rank, 0, 1, *recvType.type, MPI_SUM, win);
+      MPI_Win_unlock(sendType.rank, win);
     }
-    // Receive to empty buffers
-    // TODO: Remove the need for extra buffers. Use MPI_Accumulate?
-    std::vector<std::vector<double>> recvBuffers(haloTypes.size(), std::vector<double>(vector.size()));
-    for (size_t i=0; i<haloTypes.size(); i++) {
-      const auto& recvType = haloTypes[i];
-      MPI_Irecv(&recvBuffers[i][0], 1, *recvType.type, recvType.rank, recvType.tag, comm, &requests[iRequest++]);
-    }
-    MPI_Waitall(nRequest, requests, MPI_STATUSES_IGNORE);
-    // Add the received data to 'vector'
-    for (const auto& recvBuffer : recvBuffers) {
-      vector += recvBuffer;
-    }
+
+    MPI_Win_free(&win);
     #endif
   }
 
@@ -170,7 +169,7 @@ namespace minim {
 
   double Communicator::dotProduct(const vector<double>& a, const vector<double>& b) const {
     if (!usesThisProc) return 0;
-    return sum(std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0));
+    return sum(std::inner_product(a.begin(), a.end(), b.begin(), 0.0));
   }
 
 
@@ -226,8 +225,10 @@ namespace minim {
       MPI_Group world_group, group;
       MPI_Comm_group(MPI_COMM_WORLD, &world_group);
       MPI_Group_incl(world_group, ranks.size(), &ranks[0], &group);
-      int tag = rand()%1000000;
-      MPI_Bcast(&tag, 1, MPI_INT, 0, MPI_COMM_WORLD);
+      int tag = 0;
+      for (int rank: ranks) {
+        tag = mpi.size * tag + rank;
+      }
       MPI_Comm_create_group(MPI_COMM_WORLD, group, tag, &comm);
     }
     // Get the rank number and size of the communicator
