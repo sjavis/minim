@@ -98,6 +98,7 @@ namespace minim {
 
       // GRID
       int dofPerNode = 1;
+      int haloWidth = 1;
       vector<int> gridSize;
       vector<int> commArray;
       Potential& setCommArray(vector<int> commArray);

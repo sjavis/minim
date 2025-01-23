@@ -156,7 +156,7 @@ namespace minim {
       if (this->distributed) throw std::invalid_argument("Potential: You cannot create a State with a Potential that has already been distributed.");
       return std::make_unique<CommUnstructured>();
     } else if (potentialType() == GRID) {
-      return std::make_unique<CommGrid>();
+      return std::make_unique<CommGrid>(haloWidth);
     }
     return std::make_unique<CommUnstructured>();
   }
