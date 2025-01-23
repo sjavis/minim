@@ -25,6 +25,9 @@ namespace minim {
       int getBlock(int loc) const override;
       int getLocalIdx(int loc, int block=-1) const override;
 
+      // MPI reduction functions
+      double dotProduct(const vector<double>& a, const vector<double>& b) const override;
+
       // Internal functions
       CommUnstructured();
       CommUnstructured(const CommUnstructured& other);

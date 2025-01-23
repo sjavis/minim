@@ -99,26 +99,25 @@ namespace minim {
   }
 
 
-  const vector<double>& Potential::applyConstraints(const vector<double>& coords, vector<double>& grad) const {
+  void Potential::applyConstraints(const vector<double>& coords, const Communicator& comm, vector<double>& step) const {
     for (const auto& constraint: constraints) {
-      if (constraint.idof.size() == 1) grad[constraint.idof[0]] = 0;
+      if (constraint.idof.size() == 1) step[constraint.idof[0]] = 0;
       else {
-        // Remove the component of grad in the direction of the normal
+        // Remove the component of step in the direction of the normal
         auto normal = constraint.normal(coords);
-        auto gradSlice = vec::slice(grad, constraint.idof);
+        auto gradSlice = vec::slice(step, constraint.idof);
         double normalSq = vec::dotProduct(normal, normal);
         double gradNormal = vec::dotProduct(gradSlice, normal);
-        for (size_t i=0; i<normal.size(); i++) grad[constraint.idof[i]] -= gradNormal * normal[i] / normalSq;
+        for (size_t i=0; i<normal.size(); i++) step[constraint.idof[i]] -= gradNormal * normal[i] / normalSq;
       }
     }
-    return grad;
+    specialisedConstraints(coords, comm, step);
   }
 
-  const vector<double>& Potential::correctConstraints(vector<double>& coords) const {
+  void Potential::correctConstraints(vector<double>& coords) const {
     for (const auto& constraint: constraints) {
       if (constraint.correction) constraint.correction(constraint.idof, coords);
     }
-    return coords;
   }
 
 

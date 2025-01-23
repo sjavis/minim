@@ -52,7 +52,7 @@ namespace minim {
       double sum(double a) const;
       double sum(const vector<double>& a) const;
       double norm(const vector<double>& a) const;
-      double dotProduct(const vector<double>& a, const vector<double>& b) const;
+      virtual double dotProduct(const vector<double>& a, const vector<double>& b) const;
 
       // Internal functions
       virtual ~Communicator() = default;

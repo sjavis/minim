@@ -15,7 +15,15 @@ else ifeq ($(debug), 3)
 	CXXFLAGS += -g -O0 -fsanitize=address
 endif
 
-all:
+all: run.exe
+	mpirun -np 1 run.exe
+	mpirun -np 2 run.exe
+	mpirun -np 4 run.exe
+	mpirun -np 5 run.exe
+	mpirun -np 8 run.exe
+	python3 check.py
+
+run.exe:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe
 
 clean:

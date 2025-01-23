@@ -102,6 +102,13 @@ namespace minim {
   }
 
 
+  //===== MPI reduction functions =====//
+  double CommUnstructured::dotProduct(const vector<double>& a, const vector<double>& b) const {
+    if (!usesThisProc) return 0;
+    return sum(std::inner_product(a.begin(), a.begin()+nblock, b.begin(), 0.0));
+  }
+
+
   //===== Internal functions =====//
 
 

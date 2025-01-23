@@ -49,7 +49,7 @@ namespace minim {
     pot.energyGradient(coords, comm, e, g);
     if (g) {
       if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges
-      pot.applyConstraints(coords, *g);
+      pot.applyConstraints(coords, comm, *g);
     }
   }
 
@@ -73,7 +73,7 @@ namespace minim {
       // }
     }
     // Constraints
-    pot.applyConstraints(coords, *g);
+    pot.applyConstraints(coords, comm, *g);
   }
 
 
@@ -313,6 +313,11 @@ namespace minim {
 
   void State::communicate() {
     comm->communicate(_coords);
+  }
+
+
+  void State::applyConstraints(vector<double>& data) const {
+    pot->applyConstraints(_coords, *comm, data);
   }
 
 
