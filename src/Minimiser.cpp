@@ -30,6 +30,7 @@ namespace minim {
     init(state);
     for (iter=0; iter<=maxIter; iter++) {
       if (adjustState) adjustState(iter, state);
+      if (state.isFailed) break;
       iteration(state);
       if (checkConvergence(state)) break;
     }
