@@ -1,12 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import os
-import glob
 
-nx = 120
-ny = 120
-nz = 1
+nx = 100
+ny = 100
+nz = 100
 
 def data_extract(filename):
     #loading the in the data obtained from the simulation
@@ -111,7 +108,7 @@ def side_profile(explicit_structure,cut, dimensions = 3, figuresave = False, fig
     
     
     if dimensions == 3:
-        region_of_interest = explicit_structure[cut,:,:]
+        region_of_interest = explicit_structure[:,:,cut]
         ax.contour(region_of_interest)
     else:
         region_of_interest = explicit_structure[:,:,0]
@@ -146,19 +143,57 @@ def critP(spacing):
     critical_pressure = -2*100*np.cos(112*np.pi/180)/spacing
     return critical_pressure
 
+def max_volume(contact_angle,a):
+    
+    contact_angle = contact_angle/180*np.pi
+    volume = np.pi/3*(a/np.sin(contact_angle))**3*(2+np.cos(contact_angle))*(1-np.cos(contact_angle))**2*1e9
+    
+    return volume
+
+def apparent_ca(contact_angle, solid_frac):
+    contact_angle = contact_angle/180*np.pi
+    apparent_theta = np.arccos(-1+solid_frac*(np.cos(contact_angle)+1))
+    apparent_theta = apparent_theta*180/np.pi
+    
+    return apparent_theta
+
 
 #%%   
 
-solid, liquid, gas = data_extract("outputs/res-0.001/st-100/s-35/ca-105/p-0.000000.txt")
+solid, liquid, gas = data_extract("res-1/st-100/s-14/ca-105/p-0.000000.txt")
 
 explicit_structure = region_definition(solid, liquid, gas)
 if nz > 1:
     #solid_visualisation(solid, liquid, gas) 
     #liquid_visualisation(solid,liquid,gas) 
-    side_profile(explicit_structure,50)
+    side_profile(explicit_structure,21)
 else:
     min_contact = sl_interface(explicit_structure)
     side_profile(explicit_structure,0, dimensions = 2)
+
+
+#%%    
+solid_1d = np.ravel(solid)
+
+filename_s = 'solid_output.txt'
+
+outfile = open(filename_s,'w')
+
+for number in range(len(solid_1d)):
+    outfile.write(str(solid_1d[number])+',')
+    
+outfile.close()
+
+liquid_1d = np.ravel(liquid)
+
+filename_l = 'liquid_output.txt'
+
+outfile = open(filename_l,'w')
+
+for number in range(len(liquid_1d)):
+    outfile.write(str(liquid_1d[number])+',')
+    
+outfile.close()
     
 #%%
 
@@ -193,86 +228,204 @@ plt.show()
 
 
 #%%
-all_critP = np.array([critP150,critP130,critP120,critP90,critP60,critP30,critP20])
-phis = solid_frac(nx, spacings)
+theta = np.array([15,30,45,60,90,95,100,105,110,115,120,130,140])
 
-x,y = np.meshgrid([phis],[20,30,60,90,120,130,150])
+d = np.array([60,80,100])
 
-all_critP = all_critP[:-1, :-1]
+critP_1 = np.array([0.65,1.92,3.08,4.03,5.22,5.34,5.44,5.52,5.60,5.65,5.69,5.79,5.85])
 
-fig, ax = plt.subplots()
-c = ax.pcolormesh(x,y,all_critP, cmap = 'viridis')
-ax.axis([x.min(),x.max(),y.min(),y.max()])
-fig.colorbar(c, ax=ax)
+critP_2 = np.array([0.56,1.53,2.39,3.12,3.99,4.07,4.15,4.21,4.25,4.29,4.31,4.37,4.42])
 
-#%%
+critP_3 = np.array([0.46,1.28,1.96,2.53,3.23,3.31,3.35,3.39,3.43,3.45,3.47,3.51,3.54])
 
-solid_1d = np.ravel(solid)
+critP_4 = np.array([0.361,0.95,1.46,1.85,2.35,2.39,2.43,2.45,2.47,2.49,2.49,2.51,2.53])
 
-filename_s = "solid_output.txt"
+test = [critP_1, critP_2, critP_3]
 
-outfile = open(filename_s,'w')
+critP_all = np.zeros([len(d),len(theta)])
 
-for number in range(len(solid_1d)):
-    outfile.write(str(solid_1d[number])+ ",")
+for i in range(len(d)):
+    critP_all[i,:] = test[i]
 
-outfile.close()
+x_adjusted = np.zeros_like(critP_all)
 
-liquid_1d = np.ravel(liquid)
+for i in range(len(theta)):
+    x_adjusted[:,i] = 4*100*np.sin(theta[i]*np.pi/180)/d
+    
 
-filename_l = "liquid_output.txt"
-
-outfile = open(filename_l,'w')
-
-for number in range(len(liquid_1d)):
-    outfile.write(str(liquid_1d[number])+ ",")
-
-outfile.close()
 
 #%%
-spacing_theory = np.linspace(10,60,100)
-spacing_sim = np.linspace(10,60,11)
-critP_theory = -2*100*np.cos(112*np.pi/180)/(spacing_theory*0.001)
-critP_sim = [8330,5283,3896,3096,2568,2178,1904,1689,1514,1377,1260]
-
-ca_theory = np.linspace(60,120,100)
-ca_sim = [60,85,100,110,120]
-critP_ca_theory = -2*100*np.cos(ca_theory*np.pi/180)/(50*0.001)
-critP_ca_sim = [-2021,-342,713,1377,2021]
-
-#%%
-plt.figure()
-plt.plot(spacing_theory,critP_theory, label = 'Theory')
-plt.plot(spacing_sim,critP_sim,marker = 'o',linestyle = '')
-plt.legend()
-plt.xlabel('Spacing (mm)')
-plt.ylabel('Critical Pressure (Pa)')
 
 plt.figure()
-plt.plot(ca_theory,critP_ca_theory, label = 'Theory')
-plt.plot(ca_sim,critP_ca_sim,marker = 'o',linestyle = '')
-plt.legend()
+plt.plot(theta,critP_1*6/14, marker = 'o',label = 'P_1')
+plt.plot(theta,critP_2*8/14, marker = 'o', label = 'P_2')
+plt.plot(theta,critP_3*10/14, marker = 'o', label = 'P_3')
+plt.plot(theta,critP_4, marker = 'o', label = 'P_4')
 plt.xlabel('Contact Angle (°)')
-plt.ylabel('Critical Pressure (Pa)')
+plt.ylabel('Critical Pressure (Scaled to a = 140)')
+plt.legend()
+
+critP_ratio1 = 1 - critP_1*0.75/critP_2
+
+critP_ratio2 = 1 - critP_1*0.6/critP_3
+
+critP_ratio3 = 1 - critP_2*0.8/critP_3
+
+critP_ratio4 = 1 - critP_3/critP_4*100/140
+
+
+plt.figure()
+plt.plot(theta,critP_ratio1, marker = 'o', label = 'a_1 v a_2')
+plt.plot(theta,critP_ratio2, marker = 'o', label = 'a_1 v a_3')
+plt.plot(theta,critP_ratio3, marker = 'o', label = 'a_2 v a_3')
+plt.plot(theta,critP_ratio4, marker = 'o', label = 'a_3 v a_4')
+plt.xlabel('Contact Angle (°)')
+plt.ylabel('1 - Ratio of Pc x Ratio of a')
+plt.legend()
 
 #%%
-specific_path = "outputs/res-0.001/st-100/s-10/ca-105/"
+theta_sin = np.sin(theta*np.pi/180)
 
-for name in glob.glob(specific_path+"p-*[0-9].*"):
-    print(name)
-    solid, liquid, gas = data_extract(name)
+plt.figure()
+plt.plot(theta_sin,critP_1*0.6, marker = 'o')
+plt.plot(theta_sin,critP_2*0.8, marker = 'o')    
+plt.plot(theta_sin,critP_3, marker = 'o')  
 
-    explicit_structure = region_definition(solid, liquid, gas)
-    if nz > 1:
-        #solid_visualisation(solid, liquid, gas) 
-        #liquid_visualisation(solid,liquid,gas) 
-        side_profile(explicit_structure,50)
-    else:
-        #min_contact = sl_interface(explicit_structure)
-        side_profile(explicit_structure,0, dimensions = 2, figuresave = True, figfilename = name)
+#%%
+solid_frac_inf = [15,30,50,70]
+critp_mine = [185,78.1,41.2,21.3]  
+critp_inf = [114,67.5,38,30]
+
+solid_frac_theory = np.linspace(15,70,200)
+
+critp_hybrid = (1+1/np.sqrt(2))*2*78.2e-3/((solid_frac_theory-2.8)*1e-6)*np.cos((90-42)*np.pi/180)/100
+critp_diagonal = 4/np.sqrt(2)*78.2e-3/((solid_frac_theory-2.8)*1e-6)*np.cos((90-42)*np.pi/180)/100
+critp_side = 4*78.2e-3/((solid_frac_theory-2.8)*1e-6)*np.cos((90-42)*np.pi/180)/100
+
+plt.figure()
+plt.plot(solid_frac_inf,critp_mine, marker = 'o', label = 'My Simulations')
+plt.plot(solid_frac_inf,critp_inf, marker = 'o', label = 'Measurements')
+
+plt.plot(solid_frac_theory,critp_hybrid, label = 'Hybrid')
+plt.plot(solid_frac_theory,critp_diagonal, label = 'Diagonal')
+plt.plot(solid_frac_theory,critp_side, label = 'Side')
+
+plt.xlabel('δ (μm)')
+plt.ylabel('ΔP (mbar)')
+plt.title('θ = 30°')
+plt.legend()
+
+#%%
+square_theta = np.array([10,15,20,30,40,45,50,60,70,80,90,95,100,105,110,115,120,130,140,150,160])
+square_theta_complete = np.linspace(10,160,1000)
     
-    
-    
-    
-    
-    
+square_alpha = np.array([0.382958237,0.488178913,0.569995668,0.665,0.707854341,0.72266313,0.726459157,0.747668599,
+     0.767272174, 0.796094464, 0.8225,0.839695294,0.863620333,0.887749325,0.919981684, 0.961593856,
+     1.006321519,1.146800304,1.377593449,1.785,2.609495427])  
+
+critP_4_2 = np.array([0.19,0.361,0.557,0.95,1.3,1.46,1.59,1.85,2.06,2.24,2.35,2.39,
+                      2.43,2.45,2.47,2.49,2.49,2.51,2.53,2.55,2.55]) 
+
+alpha_hybrid = np.zeros_like(square_theta_complete)
+alpha_hybrid[:] = 2*(1+1/np.sqrt(2))/4
+
+alpha_diagonal = np.zeros_like(square_theta_complete)
+alpha_diagonal[:] = 4/np.sqrt(2)/4
+
+alpha_side = np.zeros_like(square_theta_complete)
+alpha_side[:] = 1 
+
+plt.figure()
+plt.plot(square_theta,square_alpha, marker = 'o', label = 'a = 140')
+plt.plot(square_theta_complete, alpha_hybrid, label = 'hybrid')
+plt.plot(square_theta_complete, alpha_diagonal, label = 'diagonal')
+plt.plot(square_theta_complete, alpha_side, label = 'side')    
+
+plt.xlabel('Contact Angle (°)')
+plt.ylabel('Alpha')
+plt.legend()
+
+plt.figure()
+plt.plot(square_theta,critP_4_2, marker = 'o')
+plt.xlabel('Contact Angle (°)')
+plt.ylabel('ΔP (A.U.)')
+
+#%%
+x = np.array([60,80,100,140,200])
+y = np.array([0.98553691,0.995351864,1.001702717,1.006321519,1.009237138])
+
+plt.figure()
+plt.plot(x,y, marker = 'o')
+
+plt.xlabel('δ - d')
+plt.ylabel('Alpha')
+
+
+#%%
+x_real = np.array([12.2,27.2,47.2,67.2])
+y_infineon = np.array([114,67,38,30])
+
+
+x_real_detailed = np.linspace(12.2,70,100)
+y_sim = 1.14258 * (72.8e-3/100)/(x_real_detailed*1e-6/240)/100
+y_sim2 = 0.76*4*72.8e-3*np.sin(60*np.pi/180)/(x_real_detailed*1e-6)/100
+
+y_theoretical_side = 4*72.8e-3/(x_real_detailed*1e-6)*np.sin(60*np.pi/180)/100
+y_theoretical_diagonal = 0.71*4*72.8e-3/(x_real_detailed*1e-6)*np.sin(60*np.pi/180)/100
+y_theoretical_hybrid = 0.85*4*72.8e-3/(x_real_detailed*1e-6)*np.sin(60*np.pi/180)/100
+
+y_error = [9,6,2,1.5]
+y_error = [y_error, y_error]
+
+
+plt.figure()
+plt.errorbar(x_real,y_infineon, marker = 'o', label = 'infineon values', yerr = y_error, linewidth = 2)
+plt.plot(x_real_detailed,y_sim2, marker = ',', label = 'simulation results', linewidth = 2)
+plt.plot(x_real_detailed, y_theoretical_hybrid,label = 'hybrid', linewidth = 0.5)
+plt.plot(x_real_detailed, y_theoretical_diagonal,label = 'diagonal', linewidth = 0.5)
+plt.plot(x_real_detailed, y_theoretical_side,label = 'side', linewidth = 0.5)
+
+plt.xlabel('Hole Size (μm)')
+plt.ylabel('Critical Pressure (mbar)')
+plt.title('θ = 60°')
+plt.legend()
+
+
+#%%
+theta_predict = np.array([30,45,60,90,110,120,130])
+alpha_predict = np.array([0.71,0.8,0.8,0.87,0.95,1.01,1.16])
+alpha_predict_90 = np.array([0.71,0.8,0.8,0.87,0.89,0.88,0.89])
+
+
+plt.figure()
+plt.plot(theta_predict,alpha_predict,marker='o', label = 'θ > 90°')
+plt.plot(theta_predict,alpha_predict_90,marker = 'o', label = 'θ = 90°')
+
+plt.plot(np.linspace(30,130,100),0.85*np.ones(100), label = 'hybrid')
+plt.plot(np.linspace(30,130,100),0.71*np.ones(100), label = 'diagonal')
+plt.plot(np.linspace(30,130,100),np.ones(100), label = 'side')
+
+plt.xlabel('Contact Angle (°)')
+plt.ylabel('Predicted Alpha')
+
+plt.legend()
+
+#%%
+
+intrinsic_ca = np.array([10,15,20,30,40,45,50,60,75,90,100,110,120,130,140,150])
+
+critp_15 = np.array([17.48,31.47,47.78,80.42,110.72,124.71,136.36,157.34,182.98,199.30,203.96,208.62,208.62,210.95,213.28,213.28])
+critp_30 = np.array([7.84,14.11,21.43,36.07,49.66,55.93,61.16,70.57,82.07,89.39,91.48,93.57,93.57,94.62,95.66,95.66])
+critp_50 = np.array([4.52,8.13,12.35,20.79,28.62,32.23,35.25,40.67,47.30,51.51,52.72,53.92,53.92,54.53,55.13,55.13])
+critp_70 = np.array([3.17,5.71,8.68,14.60,20.10,22.64,24.76,28.56,33.22,36.18,37.03,37.87,37.87,38.30,38.72,38.72])
+
+plt.figure()
+plt.plot(intrinsic_ca,critp_15,marker = 'o', label = 'Hole size = 12.2 μm')
+plt.plot(intrinsic_ca,critp_30,marker = 'o', label = 'Hole size = 27.2 μm')
+plt.plot(intrinsic_ca,critp_50,marker = 'o', label = 'Hole size = 47.2 μm')
+plt.plot(intrinsic_ca,critp_70,marker = 'o', label = 'Hole size = 67.2 μm')
+
+plt.xlabel('Intrinsic contact angle (°)')
+plt.ylabel('Water critical pressure (mbar)')
+
+plt.legend()

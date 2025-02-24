@@ -14,9 +14,9 @@ int logIter = -100; // <=0 for no log
 bool saveCoords = true;
 
 // Geometry
-int nx = 120;
-int ny = 60;
-int nz = 120;
+int nx = 100;
+int ny = 100;
+int nz = 100;
 double res = 1;
 double yTop = 10;
 double yBottom = 9.5;
@@ -41,6 +41,9 @@ double torus_r = 15;
 int torus_R = 15;
 int total_curves = floor((2*yTop-yTop/2)/(2*torus_r));
 
+// Clover Geometry
+int clover_radius = 60;
+
 // Liquid parameters
 double surfaceTension = 100;
 double maxPressure = 0.1*surfaceTension/res;
@@ -49,7 +52,7 @@ double maxPressure = 0.1*surfaceTension/res;
 vector<double> spacings = {14}; 
 vector<double> contactAngles = {105};
 std::string directory;
-bool fixed_pressure = false;
+bool fixed_pressure = true;
 vector<double> defined_pressure = {0};
 
 
@@ -64,7 +67,7 @@ vector<char> initialiseSolid(double spacing) {
     int i = x*ny*nz + y*nz + z;
 
     // double pillarWidth = nx - spacing;
-    double pillarWidth = nx - 66.66;
+    double pillarWidth = spacing;
 
     // double pillar_radius = spacing;
 
@@ -91,7 +94,23 @@ vector<char> initialiseSolid(double spacing) {
     // bool isPillar = ((y < ny-1-yTop) && (y > ny-1-yTop-2*yBottom)) && ((x <= pillarWidth/2 && z <= nz) || (x > nx-1-pillarWidth/2 && z <= nz) || (z > nz-1-pillarWidth/2 && x <= nx) || (z <= pillarWidth/2 && x <= nx)); //half hole
 
 
-    bool isPillar = ((y < ny-1-4) && (y > ny-1-4-15)) && (x <= pillarWidth/2 || z <= pillarWidth/2); //quarter hole
+    // bool isPillar = (y < ny-1-yTop && y > ny-1-yTop-20);
+
+    // if (pow(nx/3-x,2) + pow(nz/3-z,2) <= pow(clover_radius,2) || pow(2*nx/3-x,2) + pow(nz/3-z,2) <= pow(clover_radius,2) || pow(nx/3-x,2) + pow(2*nz/3-z,2) <= pow(clover_radius,2) || pow(2*nx/3-x,2) + pow(2*nz/3-z,2) <= pow(clover_radius,2)){
+
+    //   isPillar = false;
+    // }
+
+    bool isPillar = (y < ny-1-yTop && y > ny-1-yTop-20);
+
+    if (pow(33.7-x,2) + pow(38.2-z,2) <= pow(27.5,2) || pow(32.3-x,2) + pow(68-z,2) <= pow(25.3,2) || pow(63.9-x,2) + pow(66.2-z,2) <= pow(27.5,2) || pow(66.2-x,2) + pow(34.7-z,2) <= pow(25.4,2)){
+
+      isPillar = false;
+    }
+
+
+
+    // bool isPillar = ((y < ny-1-yTop) && (y > ny-1-yTop-20)) && (x <= pillarWidth/2 || z <= pillarWidth/2); //quarter hole
 
     //Torus shape
 
@@ -267,7 +286,7 @@ void run(double spacing, double contactAngle) {
   pot.setGridSize({nx, ny, nz});
   pot.setResolution(res);
   pot.setSurfaceTension(surfaceTensions);
-  pot.setSolid([](int x, int y, int z) { return (y==0 || y==ny-1 || x==0 || x==nx-1 || z==0 || z==nz-1); });
+  pot.setSolid([](int x, int y, int z) { return (y==0 || y==ny-1 || x==0 || x==nx || z==0 || z==nz); });
   // pot.setSolid([](int x, int y, int z) { return (y==0 || y==ny-1); });
 
   // Initialise
