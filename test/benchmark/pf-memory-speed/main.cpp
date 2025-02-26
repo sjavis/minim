@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
   output(state.coords());
 
   auto time1 = std::chrono::high_resolution_clock::now();
-  unsigned int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count();
+  float elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count() * 1e-3;
   int memory = mpi.sum(heapUsage()) / mpi.size;
   print("TIME (s):", elapsed);
   print("MEMORY (kB):", memory);
