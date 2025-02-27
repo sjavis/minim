@@ -67,30 +67,30 @@ TEST(CommGrid, TestCommArray) {
   GridPot pot({2,6});
 
   // Default commArray
-  CommGrid comm1;
+  CommGrid comm1(1);
   comm1.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm1.commArray, {1, 2}));
 
   // commArray defined in the Communicator
-  CommGrid comm2;
+  CommGrid comm2(1);
   comm2.commArray = {2, 1};
   comm2.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm2.commArray, {2, 1}));
 
   // commArray defined in the Potential
   pot.setCommArray({2, 1});
-  CommGrid comm3;
+  CommGrid comm3(1);
   comm3.setup(pot, 12, {0,1});
   EXPECT_TRUE(ArraysMatch(comm3.commArray, {2, 1}));
 
   // Invalid commArray
   EXPECT_ANY_THROW({
     pot.setCommArray({1, 3});
-    CommGrid().setup(pot, 12, {0,1});
+    CommGrid(1).setup(pot, 12, {0,1});
   });
   EXPECT_ANY_THROW({
     pot.setCommArray({2});
-    CommGrid().setup(pot, 12, {0,1});
+    CommGrid(1).setup(pot, 12, {0,1});
   });
 }
 
@@ -98,7 +98,7 @@ TEST(CommGrid, TestCommArray) {
 TEST(CommGrid, TestAssign) {
   if (mpi.rank >= 2) return;
   // Initialise communicator
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {1, 2};
   GridPot pot({2,6});
   comm.setup(pot, 12, {0,1});
@@ -124,7 +124,7 @@ TEST(CommGrid, TestAssign) {
 TEST(CommGrid, TestGet) {
   if (mpi.rank >= 2) return;
   // Initialise communicator
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {1, 2};
   GridPot pot({2,6});
   comm.setup(pot, 12, {0,1});
@@ -145,7 +145,7 @@ TEST(CommGrid, TestGet) {
 
 TEST(CommGrid, TestCommunicate) {
   // Initialise communicator
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {2, 2};
   GridPot pot({4,4});
   comm.setup(pot, 12, {});
@@ -194,12 +194,11 @@ TEST(CommGrid, TestCommunicate) {
 
 
 TEST(CommGrid, TestCommunicateAccumulate) {
-  // Initialise communicator
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {2, 2};
+
   GridPot pot({4,6});
   comm.setup(pot, 24, {});
-
   vector<double> data = {3,  1,  1,  1, 3,
                          2, 10, 20, 30, 2,
                          2, 40, 50, 60, 2,
@@ -210,13 +209,30 @@ TEST(CommGrid, TestCommunicateAccumulate) {
                            3,  1,  1,  1, 3};
   comm.communicateAccumulate(data);
   EXPECT_TRUE(ArraysMatch(data, result));
+
+  comm.haloWidth = 2;
+  pot = GridPot({6,6});
+  comm.setup(pot, 36, {});
+  data = {1, 1,  1,  1,  1, 1, 1,
+          1, 1,  1,  1,  1, 1, 1,
+          1, 1, 10, 20, 30, 1, 1,
+          1, 1, 40, 50, 60, 1, 1,
+          1, 1, 40, 50, 60, 1, 1,
+          1, 1,  1,  1,  1, 1, 1,
+          1, 1,  1,  1,  1, 1, 1};
+  result = {1, 1,  1,  1,  1, 1, 1,
+            1, 1,  1,  1,  1, 1, 1,
+            1, 1, 13, 25, 33, 1, 1,
+            1, 1, 45, 58, 65, 1, 1,
+            1, 1, 43, 55, 63, 1, 1,
+            1, 1,  1,  1,  1, 1, 1,
+            1, 1,  1,  1,  1, 1, 1};
 }
 
 
 TEST(CommGrid, TestGather) {
   if (mpi.rank >= 2) return;
-  // Initialise communicator
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {1, 2};
   GridPot pot({2,4});
   comm.setup(pot, 8, {0,1});
@@ -227,7 +243,7 @@ TEST(CommGrid, TestGather) {
 
 
 TEST(CommGrid, TestDotProduct) {
-  CommGrid comm;
+  CommGrid comm(1);
   comm.commArray = {2, 2};
   GridPot pot({4,6});
   comm.setup(pot, 24, {});

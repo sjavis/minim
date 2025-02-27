@@ -27,7 +27,7 @@ namespace minim {
       double dotProduct(const vector<double>& a, const vector<double>& b) const override;
 
       // Internal functions
-      CommGrid() = default;
+      CommGrid(int haloWidth);
       CommGrid(const CommGrid& other);
       CommGrid& operator=(const CommGrid& other);
 
@@ -35,7 +35,7 @@ namespace minim {
       void setup(Potential& pot, size_t ndof, vector<int> ranks) override;
 
       int nDim;
-      int haloWidth = 1;
+      int haloWidth;
       vector<int> commArray;   // The number of processors along each dimension (nDim)
       vector<int> commIndices; // The array indices of this MPI rank (nDim)
       vector<int> globalSizes; // The total global grid sizes along each dimension (nDim+1)

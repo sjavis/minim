@@ -46,6 +46,8 @@ namespace minim {
 
 
   inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
+    if (e) *e = 0;
+    if (g) *g = vector<double>(coords.size());
     pot.energyGradient(coords, comm, e, g);
     if (g) {
       if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges

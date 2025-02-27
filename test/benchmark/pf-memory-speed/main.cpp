@@ -12,10 +12,10 @@ using std::vector;
 int nx = 200;
 int ny = 200;
 
-int heapUsage() {
+float getMemoryUsage() {
   struct rusage usage;
   getrusage(RUSAGE_SELF, &usage);
-  return usage.ru_maxrss;
+  return mpi.sum(usage.ru_maxrss / 1024.0) / mpi.size;
 }
 
 
@@ -85,10 +85,10 @@ int main(int argc, char** argv) {
   output(state.coords());
 
   auto time1 = std::chrono::high_resolution_clock::now();
-  unsigned int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count();
-  int memory = mpi.sum(heapUsage()) / mpi.size;
-  print("TIME (s):", elapsed);
-  print("MEMORY (kB):", memory);
+  float timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count() * 1e-3;
+  float memory = getMemoryUsage();
+  print("TIME (s):", timeElapsed);
+  print("MEMORY (MB):", memory);
 
   // Write the results to a file
   std::string filename = "scaling.txt";
@@ -96,9 +96,9 @@ int main(int argc, char** argv) {
   std::ofstream f(filename, std::ios::app);
   if (mpi.rank == 0) {
     if (!fileExists) {
-      f << "N TIME(S) MEM(kB)" << std::endl;
+      f << "N TIME(S) MEM(MB)" << std::endl;
     }
-    f << mpi.size << " " << elapsed << " " << memory << std::endl;
+    f << mpi.size << " " << timeElapsed << " " << memory << std::endl;
   }
   f.close();
 

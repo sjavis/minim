@@ -198,6 +198,11 @@ template <typename T>
 
 
   //===== Constructors, etc =====//
+  CommGrid::CommGrid(int haloWidth)
+    : haloWidth(haloWidth)
+  {}
+
+
   CommGrid::CommGrid(const CommGrid& other)
     : Communicator(other),
     nDim(other.nDim),
