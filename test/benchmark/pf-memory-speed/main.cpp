@@ -4,7 +4,6 @@
 #include <fstream>
 
 #include <sys/resource.h>
-#include <malloc.h>
 #include <chrono>
 
 using namespace minim;
@@ -13,16 +12,10 @@ using std::vector;
 int nx = 200;
 int ny = 200;
 
-vector<float> getMemoryUsage() {
-  vector<float> memory(4); // MaxRSS, allocated heap, free heap, total heap
+float getMemoryUsage() {
   struct rusage usage;
   getrusage(RUSAGE_SELF, &usage);
-  memory[0] = mpi.sum(usage.ru_maxrss / 1024.0) / mpi.size;
-  struct mallinfo info = mallinfo();
-  memory[1] = mpi.sum(info.uordblks / pow(1024.0, 2)) / mpi.size;
-  memory[2] = mpi.sum(info.fordblks / pow(1024.0, 2)) / mpi.size;
-  memory[3] = mpi.sum(info.arena / pow(1024.0, 2)) / mpi.size;
-  return memory;
+  return mpi.sum(usage.ru_maxrss / 1024.0) / mpi.size;
 }
 
 
@@ -93,12 +86,9 @@ int main(int argc, char** argv) {
 
   auto time1 = std::chrono::high_resolution_clock::now();
   float timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time1 - time0).count() * 1e-3;
-  auto memory = getMemoryUsage();
+  float memory = getMemoryUsage();
   print("TIME (s):", timeElapsed);
-  print("MEMORY: maximum RSS (MB):", memory[0]);
-  print("Allocated heap size (MB):", memory[1]);
-  print("Free heap size      (MB):", memory[2]);
-  print("Total heap size     (MB):", memory[3]);
+  print("MEMORY (MB):", memory);
 
   // Write the results to a file
   std::string filename = "scaling.txt";
@@ -108,7 +98,7 @@ int main(int argc, char** argv) {
     if (!fileExists) {
       f << "N TIME(S) MEM(MB)" << std::endl;
     }
-    f << mpi.size << " " << timeElapsed << " " << memory[0] << std::endl;
+    f << mpi.size << " " << timeElapsed << " " << memory << std::endl;
   }
   f.close();
 
