@@ -4,7 +4,7 @@ BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim
 
 CXX = mpic++
-CXXFLAGS = -DPARALLEL -Wall
+CXXFLAGS = -Wall -fopenmp -DPARALLEL
 
 debug ?= 0
 ifeq ($(debug), 1)

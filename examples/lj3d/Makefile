@@ -4,7 +4,7 @@ BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim
 
 CXX = mpic++
-CXXFLAGS = -DPARALLEL -Wall
+CXXFLAGS = -Wall -fopenmp -DPARALLEL
 
 all:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) lj3d.cpp $(LIBS) -o run.exe

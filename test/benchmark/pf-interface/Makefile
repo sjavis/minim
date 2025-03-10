@@ -4,7 +4,7 @@ BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim
 
 CXX = mpic++
-CXXFLAGS = -DPARALLEL -Wall
+CXXFLAGS = -Wall -fopenmp -DPARALLEL
 
 all: run.exe
 	mpirun -np 2 run.exe "1" > /dev/null
