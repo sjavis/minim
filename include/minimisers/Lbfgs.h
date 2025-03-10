@@ -24,6 +24,7 @@ namespace minim {
       Lbfgs& setM(int m);
       Lbfgs& setMaxIter(int maxIter);
       Lbfgs& setMaxStep(double maxStep);
+      Lbfgs& setInitStep(double initStep);
 
       void init(State& state);
       void iteration(State& state);
@@ -33,8 +34,8 @@ namespace minim {
     private:
       int _m = 5;
       int _i;
-      double _init_step = 1e-3;
       double _maxStep = 0;
+      double _initStep = 1;
       vector<double> _g;
       vector<double> _rho;
       vector2d<double> _s;

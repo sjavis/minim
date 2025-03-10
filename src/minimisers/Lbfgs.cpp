@@ -25,6 +25,11 @@ namespace minim {
     return *this;
   }
 
+  Lbfgs& Lbfgs::setInitStep(double initStep) {
+    _initStep = initStep;
+    return *this;
+  }
+
 
   void Lbfgs::init(State& state) {
     _s = vector2d<double>(_m);
@@ -86,7 +91,7 @@ namespace minim {
     if (_i == 0) {
       // First iteration: Directly set the step size
       double gnorm = comm.norm(_g);
-      if (gnorm > 0) step *= _init_step / gnorm;
+      if (gnorm > 0) step *= _initStep / gnorm;
       return step;
     }
 
