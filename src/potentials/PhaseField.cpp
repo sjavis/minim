@@ -661,33 +661,45 @@ namespace minim {
 
   void PhaseField::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     if (g) *g = vector<double>(coords.size());
-    double eLocal = 0;
 
-    vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
-    #pragma omp parallel for collapse(3) firstprivate(xGrid) reduction(+:eLocal)
-    for (int x0=haloWidths[0]; x0<procSizes[0]-haloWidths[0]; x0++) {
-      for (int x1=haloWidths[1]; x1<procSizes[1]-haloWidths[1]; x1++) {
-        for (int x2=haloWidths[2]; x2<procSizes[2]-haloWidths[2]; x2++) {
-          xGrid[0] = x0;
-          xGrid[1] = x1;
-          xGrid[2] = x2;
-          int iGrid = getIdx(xGrid, procSizes);
+    #pragma omp parallel
+    {
+      // Create a thread-local variable for accumulating the energy
+      // This is not done for the gradient to avoid large memory usage
+      double eLocal = 0;
+      double *pE = (e) ? &eLocal : nullptr; // For passing nullptr if not calculating energy
 
-          if (model == MODEL_BASIC) {
-            fluidEnergy(coords, iGrid, xGrid, &eLocal, g);
-          } else if (model == MODEL_NCOMP) {
-            fluidPairEnergy(coords, iGrid, xGrid, &eLocal, g);
+      vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
+      #pragma omp for collapse(3)
+      for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
+        for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
+          for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {
+            xGrid[0] = x;
+            xGrid[1] = y;
+            xGrid[2] = z;
+            int iGrid = getIdx(xGrid, procSizes);
+
+            if (model == MODEL_BASIC) {
+              fluidEnergy(coords, iGrid, xGrid, pE, g);
+            } else if (model == MODEL_NCOMP) {
+              fluidPairEnergy(coords, iGrid, xGrid, pE, g);
+            }
+
+            surfaceEnergy(coords, iGrid, pE, g);
+            pressureEnergy(coords, iGrid, pE, g);
+            densityConstraintEnergy(coords, iGrid, pE, g);
+            forceEnergy(coords, iGrid, xGrid, pE, g);
+            ffConfinementEnergy(coords, iGrid, pE, g);
           }
-
-          surfaceEnergy(coords, iGrid, &eLocal, g);
-          pressureEnergy(coords, iGrid, &eLocal, g);
-          densityConstraintEnergy(coords, iGrid, &eLocal, g);
-          forceEnergy(coords, iGrid, xGrid, &eLocal, g);
-          ffConfinementEnergy(coords, iGrid, &eLocal, g);
         }
       }
+
+      if (e) {
+        // Accumulate energy contributions across threads
+        #pragma omp atomic
+        *e += eLocal;
+      }
     }
-    if (e) *e = eLocal;
   }
 
 
@@ -701,10 +713,10 @@ namespace minim {
     }
 
 
-    for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
-      for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
-        for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {
-          vector<int> xGrid{x, y, z};
+    vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
+    for (xGrid[0]=haloWidths[0]; xGrid[0]<procSizes[0]-haloWidths[0]; xGrid[0]++) {
+      for (xGrid[1]=haloWidths[1]; xGrid[1]<procSizes[1]-haloWidths[1]; xGrid[1]++) {
+        for (xGrid[2]=haloWidths[2]; xGrid[2]<procSizes[2]-haloWidths[2]; xGrid[2]++) {
           int iGrid = getIdx(xGrid, procSizes);
 
           if (model == MODEL_BASIC) {
