@@ -254,8 +254,11 @@ namespace minim {
         double gradp = c1 - coords[ip];
         if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
         if (g) {
+          #pragma omp atomic
           (*g)[i0] += factor * (gradm + gradp);
+          #pragma omp atomic
           (*g)[im] -= factor * gradm;
+          #pragma omp atomic
           (*g)[ip] -= factor * gradp;
         }
 
@@ -263,7 +266,9 @@ namespace minim {
         double gradp = c1 - coords[ip];
         if (e) grad2 += pow(gradp,2);
         if (g) {
+          #pragma omp atomic
           (*g)[i0] += factor * 2*gradp;
+          #pragma omp atomic
           (*g)[ip] -= factor * 2*gradp;
         }
 
@@ -271,7 +276,9 @@ namespace minim {
         double gradm = c1 - coords[im];
         if (e) grad2 += pow(gradm,2);
         if (g) {
+          #pragma omp atomic
           (*g)[i0] += factor * 2*gradm;
+          #pragma omp atomic
           (*g)[im] -= factor * 2*gradm;
         }
       }
@@ -306,11 +313,17 @@ namespace minim {
         double gradp2 = c2 - coords[ip2];
         if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
         if (g) {
+          #pragma omp atomic
           (*g)[i01] += factor * (gradm2 + gradp2);
+          #pragma omp atomic
           (*g)[i02] += factor * (gradm1 + gradp1);
+          #pragma omp atomic
           (*g)[im1] -= factor * gradm2;
+          #pragma omp atomic
           (*g)[im2] -= factor * gradm1;
+          #pragma omp atomic
           (*g)[ip1] -= factor * gradp2;
+          #pragma omp atomic
           (*g)[im2] -= factor * gradm1;
         }
 
@@ -319,9 +332,13 @@ namespace minim {
         double gradp2 = c2 - coords[ip2];
         if (e) grad2 += gradp1 * gradp2;
         if (g) {
+          #pragma omp atomic
           (*g)[i01] += factor * 2*gradp2;
+          #pragma omp atomic
           (*g)[i02] += factor * 2*gradp1;
+          #pragma omp atomic
           (*g)[ip1] -= factor * 2*gradp2;
+          #pragma omp atomic
           (*g)[ip2] -= factor * 2*gradp1;
         }
 
@@ -330,9 +347,13 @@ namespace minim {
         double gradm2 = c2 - coords[im2];
         if (e) grad2 += gradm1 * gradm2;
         if (g) {
+          #pragma omp atomic
           (*g)[i01] += factor * 2*gradm2;
+          #pragma omp atomic
           (*g)[i02] += factor * 2*gradm1;
+          #pragma omp atomic
           (*g)[im1] -= factor * 2*gradm2;
+          #pragma omp atomic
           (*g)[im2] -= factor * 2*gradm1;
         }
       }
@@ -351,11 +372,17 @@ namespace minim {
       if (nFluid == 1) {
         double factor = kappa[iK] / 16 * nodeVol[iGrid];
         if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
-        if (g) (*g)[iDof] += factor * 4 * c * (c*c - 1);
+        if (g) {
+          #pragma omp atomic
+          (*g)[iDof] += factor * 4 * c * (c*c - 1);
+        }
       } else {
         double factor = 0.5 * kappa[iK] * nodeVol[iGrid];
         if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
-        if (g) (*g)[iDof] += factor * 2 * c * (c-1) * (2*c-1);
+        if (g) {
+          #pragma omp atomic
+          (*g)[iDof] += factor * 2 * c * (c-1) * (2*c-1);
+        }
       }
 
       // Gradient energy
@@ -385,7 +412,9 @@ namespace minim {
         if (g) {
           auto gQuartic = [](double c){ return 2*c*(c-1)*(2*c-1); };
           double gQ12 = gQuartic(c1 + c2);
+          #pragma omp atomic
           (*g)[iDof1] += factor * (gQuartic(c1) + gQ12);
+          #pragma omp atomic
           (*g)[iDof2] += factor * (gQuartic(c2) + gQ12);
         }
 
@@ -407,13 +436,19 @@ namespace minim {
       if (nFluid == 1) {
         double volume = 0.5*(coords[iGrid]+1) * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
-        if (g) (*g)[iGrid] -= 0.5 * pressure[iFluid] * nodeVol[iGrid];
+        if (g) {
+          #pragma omp atomic
+          (*g)[iGrid] -= 0.5 * pressure[iFluid] * nodeVol[iGrid];
+        }
 
       } else {
         int iDof = iGrid * nFluid + iFluid;
         double volume = coords[iDof] * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
-        if (g) (*g)[iDof] -= pressure[iFluid] * nodeVol[iGrid];
+        if (g) {
+          #pragma omp atomic
+          (*g)[iDof] -= pressure[iFluid] * nodeVol[iGrid];
+        }
       }
     }
   }
@@ -445,7 +480,10 @@ namespace minim {
     double wettingParam = 1/sqrt(2.0) * cos(contactAngle[iGrid] * 3.1415926536/180);
     double phi = coords[iGrid];
     if (e) *e += wettingParam * (pow(phi,3)/3 - phi - 2.0/3) * surfaceArea[iGrid];
-    if (g) (*g)[iGrid] += wettingParam * (pow(phi,2) - 1) * surfaceArea[iGrid];
+    if (g) {
+      #pragma omp atomic
+      (*g)[iGrid] += wettingParam * (pow(phi,2) - 1) * surfaceArea[iGrid];
+    }
   }
 
 
@@ -490,7 +528,10 @@ namespace minim {
       double c0 = ffInit[iDof];
       if ((c0-0.5)*(c-0.5) < 0) {
         if (e) *e += coef * pow(c-0.5, 2);
-        if (g) (*g)[iDof] += coef * 2 * (c-0.5);
+        if (g) {
+          #pragma omp atomic
+          (*g)[iDof] += coef * 2 * (c-0.5);
+        }
       }
     }
   }
@@ -620,27 +661,33 @@ namespace minim {
 
   void PhaseField::energyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {
     if (g) *g = vector<double>(coords.size());
+    double eLocal = 0;
 
-    vector<int> xGrid(3);
-    for (xGrid[0]=haloWidths[0]; xGrid[0]<procSizes[0]-haloWidths[0]; xGrid[0]++) {
-      for (xGrid[1]=haloWidths[1]; xGrid[1]<procSizes[1]-haloWidths[1]; xGrid[1]++) {
-        for (xGrid[2]=haloWidths[2]; xGrid[2]<procSizes[2]-haloWidths[2]; xGrid[2]++) {
+    vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
+    #pragma omp parallel for collapse(3) firstprivate(xGrid) reduction(+:eLocal)
+    for (int x0=haloWidths[0]; x0<procSizes[0]-haloWidths[0]; x0++) {
+      for (int x1=haloWidths[1]; x1<procSizes[1]-haloWidths[1]; x1++) {
+        for (int x2=haloWidths[2]; x2<procSizes[2]-haloWidths[2]; x2++) {
+          xGrid[0] = x0;
+          xGrid[1] = x1;
+          xGrid[2] = x2;
           int iGrid = getIdx(xGrid, procSizes);
 
           if (model == MODEL_BASIC) {
-            fluidEnergy(coords, iGrid, xGrid, e, g);
+            fluidEnergy(coords, iGrid, xGrid, &eLocal, g);
           } else if (model == MODEL_NCOMP) {
-            fluidPairEnergy(coords, iGrid, xGrid, e, g);
+            fluidPairEnergy(coords, iGrid, xGrid, &eLocal, g);
           }
 
-          surfaceEnergy(coords, iGrid, e, g);
-          pressureEnergy(coords, iGrid, e, g);
-          densityConstraintEnergy(coords, iGrid, e, g);
-          forceEnergy(coords, iGrid, xGrid, e, g);
-          ffConfinementEnergy(coords, iGrid, e, g);
+          surfaceEnergy(coords, iGrid, &eLocal, g);
+          pressureEnergy(coords, iGrid, &eLocal, g);
+          densityConstraintEnergy(coords, iGrid, &eLocal, g);
+          forceEnergy(coords, iGrid, xGrid, &eLocal, g);
+          ffConfinementEnergy(coords, iGrid, &eLocal, g);
         }
       }
     }
+    if (e) *e = eLocal;
   }
 
 
