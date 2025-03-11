@@ -7,7 +7,7 @@ LIBS =
 HLIBS =
 
 CXX      = mpicxx#            C++ compiler
-CXXFLAGS = -O3 -Wall -std=c++14 -fopenmp -DPARALLEL#  Flags for the C++ compiler
+CXXFLAGS = -O3 -Wall -std=c++14 -fopenmp -march=native -DPARALLEL#  Flags for the C++ compiler
 
 TARGET := $(BUILD_DIR)/$(TARGET)
 SRC_DIRS := $(shell find $(SRC_DIR) -type d)

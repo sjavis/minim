@@ -670,7 +670,7 @@ namespace minim {
       double *pE = (e) ? &eLocal : nullptr; // For passing nullptr if not calculating energy
 
       vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
-      #pragma omp for collapse(3)
+      #pragma omp for collapse(3) schedule(guided)
       for (int x=haloWidths[0]; x<procSizes[0]-haloWidths[0]; x++) {
         for (int y=haloWidths[1]; y<procSizes[1]-haloWidths[1]; y++) {
           for (int z=haloWidths[2]; z<procSizes[2]-haloWidths[2]; z++) {

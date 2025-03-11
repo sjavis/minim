@@ -7,7 +7,7 @@ BUILD_DIR = $(ROOT_DIR)/bin
 LIBS = minim
 
 CXX = mpicxx
-CXXFLAGS = -Wall -fopenmp -DPARALLEL
+CXXFLAGS = -Wall -fopenmp -march=native -DPARALLEL
 
 INC = $(addprefix -I, $(INC_DIR))
 LDLIBS = $(addprefix -l, $(LIBS))

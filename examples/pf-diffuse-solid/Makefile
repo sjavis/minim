@@ -4,7 +4,7 @@ BIN = -L$(ROOT_DIR)/bin
 LIBS = -lminim
 
 CXX = mpic++
-CXXFLAGS = -Wall -fopenmp -DPARALLEL
+CXXFLAGS = -Wall -fopenmp -march=native -DPARALLEL
 
 all:
 	$(CXX) $(CXXFLAGS) $(INC) $(BIN) main.cpp $(LIBS) -o run.exe

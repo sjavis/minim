@@ -149,7 +149,12 @@ namespace vec {
   // Dot Product
   template<typename T, typename U>
   auto dotProduct(const vector<T>& a, const vector<U>& b) {
-    return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
+    std::common_type_t<T,U> result = 0;
+    #pragma omp parallel for simd reduction(+:result)
+    for (size_t i=0; i<a.size(); i++) {
+      result += a[i] * b[i];
+    }
+    return result;
   }
 
 
@@ -184,7 +189,12 @@ namespace vec {
   // Norm
   template<typename T>
   auto norm(const vector<T>& a) {
-    return std::sqrt(std::inner_product(a.begin(), a.end(), a.begin(), 0.0));
+    double result = 0;
+    #pragma omp parallel for simd reduction(+:result)
+    for (size_t i=0; i<a.size(); i++) {
+      result += a[i] * a[i];
+    }
+    return std::sqrt(result);
   }
 
 
