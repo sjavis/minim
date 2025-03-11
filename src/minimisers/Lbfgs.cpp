@@ -97,8 +97,10 @@ namespace minim {
 
     int ndof = step.size();
     for (int i1=0; i1<m_tmp; i1++) {
-      int i = (i_cycle - 1 - i1 + _m) % _m;
+      int i = i_cycle - 1 - i1; // Go backwards from newest
+      i = (i + _m) % _m; // Wrap around
       alpha[i] = _rho[i] * comm.dotProduct(step, _s[i]);
+      #pragma omp parallel for simd
       for (int j=0; j<ndof; j++) {
         step[j] -= alpha[i] * _y[i][j];
       }
@@ -109,7 +111,8 @@ namespace minim {
     step *= gamma;
 
     for (int i1=0; i1<m_tmp; i1++) {
-      int i = (i_cycle - m_tmp + i1 + _m) % _m;
+      int i = i_cycle - m_tmp + i1; // Go forwards from oldest
+      i = (i + _m) % _m; // Wrap around
       double beta = _rho[i] * comm.dotProduct(step, _y[i]);
       step += (alpha[i]-beta) * _s[i];
     }
