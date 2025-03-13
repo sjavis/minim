@@ -146,6 +146,40 @@ namespace minim {
   }
 
 
+  void Potential::energyGradientWrapper(const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
+    if (e) *e = 0;
+    if (g) *g = vector<double>(coords.size());
+
+    if (potentialType() == UNSTRUCTURED) {
+      // Compute the energy elements
+      for (auto el : elements) {
+        elementEnergyGradient(coords, el, e, g);
+      }
+      // Compute any system-wide contributions
+      blockEnergyGradient(coords, comm, e, g);
+      if (!g) return;
+      // Get the correct gradient on the edges (not halo)
+      if (comm.size()>1) {
+        // A: By communication
+        comm.communicateAccumulate(*g);
+        // // B: By computing the gradient of the halo energy elements
+        // for (auto el : elements_halo) {
+        //   elementEnergyGradient(coords, el, nullptr, g);
+        // }
+      }
+      // Constraints
+      applyConstraints(coords, comm, *g);
+
+    } else {
+      energyGradient(coords, comm, e, g);
+      if (g) {
+        if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges
+        applyConstraints(coords, comm, *g);
+      }
+    }
+  }
+
+
   bool Potential::isSerial() const {
     return potentialType() == SERIAL;
   }

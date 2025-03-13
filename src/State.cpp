@@ -45,40 +45,6 @@ namespace minim {
   }
 
 
-  inline void basicEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
-    if (e) *e = 0;
-    if (g) *g = vector<double>(coords.size());
-    pot.energyGradient(coords, comm, e, g);
-    if (g) {
-      if (comm.size() > 1) comm.communicateAccumulate(*g); // Get correct gradient on the edges
-      pot.applyConstraints(coords, comm, *g);
-    }
-  }
-
-  inline void elementEG(const Potential& pot, const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm) {
-    if (e) *e = 0;
-    if (g) *g = vector<double>(coords.size());
-    // Compute the energy elements
-    for (auto el : pot.elements) {
-      pot.elementEnergyGradient(coords, el, e, g);
-    }
-    // Compute any system-wide contributions
-    pot.blockEnergyGradient(coords, comm, e, g);
-    if (!g) return;
-    // Get the correct gradient on the edges (not halo)
-    if (comm.size()>1) {
-      // A: By communication
-      comm.communicateAccumulate(*g);
-      // // B: By computing the gradient of the halo energy elements
-      // for (auto el : pot.elements_halo) {
-      //   pot.elementEnergyGradient(coords, el, nullptr, g);
-      // }
-    }
-    // Constraints
-    pot.applyConstraints(coords, comm, *g);
-  }
-
-
   // Energy and gradient functions using the state coordinates
   // Total energy / gradient
   double State::energy() const {
@@ -135,60 +101,47 @@ namespace minim {
     if (!usesThisProc) return 0;
     double e;
 
-    // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, &e, nullptr, *comm);
+      // Serial
+      pot->energyGradientWrapper(coords, &e, nullptr, *comm);
       return e;
-    }
-
-    // Parallel
-    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-    if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, blockCoords, &e, nullptr, *comm);
     } else {
-      basicEG(*pot, blockCoords, &e, nullptr, *comm);
+      // Parallel
+      const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+      pot->energyGradientWrapper(blockCoords, &e, nullptr, *comm);
+      return comm->sum(e);
     }
-    return comm->sum(e);
   }
 
   vector<double> State::gradient(const vector<double>& coords) const {
     if (!usesThisProc) return vector<double>();
     vector<double> g;
 
-    // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, nullptr, &g, *comm);
+      // Serial
+      pot->energyGradientWrapper(coords, nullptr, &g, *comm);
       return g;
-    }
-
-    // Parallel
-    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-    if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, blockCoords, nullptr, &g, *comm);
     } else {
-      basicEG(*pot, blockCoords, nullptr, &g, *comm);
+      // Parallel
+      const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+      pot->energyGradientWrapper(blockCoords, nullptr, &g, *comm);
+      return comm->gather(g);
     }
-    return comm->gather(g);
   }
 
   void State::energyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
-    // Serial
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, e, g, *comm);
-      return;
-    }
-
-    // Parallel
-    const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
-    if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, blockCoords, e, g, *comm);
+      // Serial
+      pot->energyGradientWrapper(coords, e, g, *comm);
     } else {
-      basicEG(*pot, blockCoords, e, g, *comm);
+      // Parallel
+      const vector<double>& blockCoords = (coords.size() == ndof) ? comm->scatter(coords) : coords;
+      pot->energyGradientWrapper(blockCoords, e, g, *comm);
+      if (e != nullptr) *e = comm->sum(*e);
+      if (g != nullptr) *g = comm->gather(*g);
     }
-    if (e != nullptr) *e = comm->sum(*e);
-    if (g != nullptr) *g = comm->gather(*g);
   }
 
 
@@ -197,14 +150,8 @@ namespace minim {
     if (!usesThisProc) return 0;
 
     double e;
-    if (pot->potentialType() == Potential::SERIAL) {
-      if (comm->rank() != 0) return 0;
-      basicEG(*pot, coords, &e, nullptr, *comm);
-    } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, coords, &e, nullptr, *comm);
-    } else {
-      basicEG(*pot, coords, &e, nullptr, *comm);
-    }
+    if (pot->potentialType() == Potential::SERIAL && comm->rank() != 0) return 0;
+    pot->energyGradientWrapper(coords, &e, nullptr, *comm);
     return e;
   }
 
@@ -212,24 +159,16 @@ namespace minim {
     if (!usesThisProc) return vector<double>();
 
     vector<double> g;
-    if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, coords, nullptr, &g, *comm);
-    } else {
-      basicEG(*pot, coords, nullptr, &g, *comm);
-    }
+    pot->energyGradientWrapper(coords, nullptr, &g, *comm);
     return g;
   }
 
   void State::blockEnergyGradient(const vector<double>& coords, double* e, vector<double>* g) const {
     if (!usesThisProc) return;
 
+    pot->energyGradientWrapper(coords, e, g, *comm);
     if (pot->potentialType() == Potential::SERIAL) {
-      basicEG(*pot, coords, e, g, *comm);
       if (e && comm->rank() != 0) *e = 0;
-    } else if (pot->potentialType() == Potential::UNSTRUCTURED) {
-      elementEG(*pot, coords, e, g, *comm);
-    } else {
-      basicEG(*pot, coords, e, g, *comm);
     }
   }
 

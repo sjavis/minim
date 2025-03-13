@@ -61,6 +61,7 @@ namespace minim {
       // Internal
       virtual void init(const vector<double>& coords) {};
       virtual void initLocal(const vector<double>& coords, const Communicator& comm) {}; // Take care using this, if the potential is cloned any distributed parameters will be copied as they are
+      void energyGradientWrapper(const vector<double>& coords, double* e, vector<double>* g, const Communicator& comm);
       bool isSerial() const;
 
       // Copy / destruct
