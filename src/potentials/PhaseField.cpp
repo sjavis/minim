@@ -254,11 +254,8 @@ namespace minim {
         double gradp = c1 - coords[ip];
         if (e) grad2 += 0.5 * (pow(gradm,2) + pow(gradp,2));
         if (g) {
-          #pragma omp atomic
           (*g)[i0] += factor * (gradm + gradp);
-          #pragma omp atomic
           (*g)[im] -= factor * gradm;
-          #pragma omp atomic
           (*g)[ip] -= factor * gradp;
         }
 
@@ -266,9 +263,7 @@ namespace minim {
         double gradp = c1 - coords[ip];
         if (e) grad2 += pow(gradp,2);
         if (g) {
-          #pragma omp atomic
           (*g)[i0] += factor * 2*gradp;
-          #pragma omp atomic
           (*g)[ip] -= factor * 2*gradp;
         }
 
@@ -276,9 +271,7 @@ namespace minim {
         double gradm = c1 - coords[im];
         if (e) grad2 += pow(gradm,2);
         if (g) {
-          #pragma omp atomic
           (*g)[i0] += factor * 2*gradm;
-          #pragma omp atomic
           (*g)[im] -= factor * 2*gradm;
         }
       }
@@ -313,17 +306,11 @@ namespace minim {
         double gradp2 = c2 - coords[ip2];
         if (e) grad2 += 0.5 * (gradm1*gradm2 + gradp1*gradp2);
         if (g) {
-          #pragma omp atomic
           (*g)[i01] += factor * (gradm2 + gradp2);
-          #pragma omp atomic
           (*g)[i02] += factor * (gradm1 + gradp1);
-          #pragma omp atomic
           (*g)[im1] -= factor * gradm2;
-          #pragma omp atomic
           (*g)[im2] -= factor * gradm1;
-          #pragma omp atomic
           (*g)[ip1] -= factor * gradp2;
-          #pragma omp atomic
           (*g)[im2] -= factor * gradm1;
         }
 
@@ -332,13 +319,9 @@ namespace minim {
         double gradp2 = c2 - coords[ip2];
         if (e) grad2 += gradp1 * gradp2;
         if (g) {
-          #pragma omp atomic
           (*g)[i01] += factor * 2*gradp2;
-          #pragma omp atomic
           (*g)[i02] += factor * 2*gradp1;
-          #pragma omp atomic
           (*g)[ip1] -= factor * 2*gradp2;
-          #pragma omp atomic
           (*g)[ip2] -= factor * 2*gradp1;
         }
 
@@ -347,13 +330,9 @@ namespace minim {
         double gradm2 = c2 - coords[im2];
         if (e) grad2 += gradm1 * gradm2;
         if (g) {
-          #pragma omp atomic
           (*g)[i01] += factor * 2*gradm2;
-          #pragma omp atomic
           (*g)[i02] += factor * 2*gradm1;
-          #pragma omp atomic
           (*g)[im1] -= factor * 2*gradm2;
-          #pragma omp atomic
           (*g)[im2] -= factor * 2*gradm1;
         }
       }
@@ -373,14 +352,12 @@ namespace minim {
         double factor = kappa[iK] / 16 * nodeVol[iGrid];
         if (e) *e += factor * pow(c+1, 2) * pow(c-1, 2);
         if (g) {
-          #pragma omp atomic
           (*g)[iDof] += factor * 4 * c * (c*c - 1);
         }
       } else {
         double factor = 0.5 * kappa[iK] * nodeVol[iGrid];
         if (e) *e += factor * pow(c, 2) * pow(c-1, 2);
         if (g) {
-          #pragma omp atomic
           (*g)[iDof] += factor * 2 * c * (c-1) * (2*c-1);
         }
       }
@@ -412,9 +389,7 @@ namespace minim {
         if (g) {
           auto gQuartic = [](double c){ return 2*c*(c-1)*(2*c-1); };
           double gQ12 = gQuartic(c1 + c2);
-          #pragma omp atomic
           (*g)[iDof1] += factor * (gQuartic(c1) + gQ12);
-          #pragma omp atomic
           (*g)[iDof2] += factor * (gQuartic(c2) + gQ12);
         }
 
@@ -437,7 +412,6 @@ namespace minim {
         double volume = 0.5*(coords[iGrid]+1) * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
         if (g) {
-          #pragma omp atomic
           (*g)[iGrid] -= 0.5 * pressure[iFluid] * nodeVol[iGrid];
         }
 
@@ -446,7 +420,6 @@ namespace minim {
         double volume = coords[iDof] * nodeVol[iGrid];
         if (e) *e -= pressure[iFluid] * volume;
         if (g) {
-          #pragma omp atomic
           (*g)[iDof] -= pressure[iFluid] * nodeVol[iGrid];
         }
       }
@@ -481,7 +454,6 @@ namespace minim {
     double phi = coords[iGrid];
     if (e) *e += wettingParam * (pow(phi,3)/3 - phi - 2.0/3) * surfaceArea[iGrid];
     if (g) {
-      #pragma omp atomic
       (*g)[iGrid] += wettingParam * (pow(phi,2) - 1) * surfaceArea[iGrid];
     }
   }
@@ -529,7 +501,6 @@ namespace minim {
       if ((c0-0.5)*(c-0.5) < 0) {
         if (e) *e += coef * pow(c-0.5, 2);
         if (g) {
-          #pragma omp atomic
           (*g)[iDof] += coef * 2 * (c-0.5);
         }
       }
@@ -664,10 +635,13 @@ namespace minim {
 
     #pragma omp parallel
     {
-      // Create a thread-local variable for accumulating the energy
-      // This is not done for the gradient to avoid large memory usage
+      // Create thread-local variables for accumulating the energy and gradient
+      // TODO: Change gLocal to a sparse vector to bring down memory
       double eLocal = 0;
-      double *pE = (e) ? &eLocal : nullptr; // For passing nullptr if not calculating energy
+      vector<double> gLocal((g) ? g->size() : 0);
+      // For passing nullptr if not calculating energy
+      double *pE = (e) ? &eLocal : nullptr;
+      vector<double> *pG = (g) ? &gLocal : nullptr;
 
       vector<int> xGrid(3); // Instantiate the vector first to avoid overhead on each loop
       #pragma omp for collapse(3) schedule(guided)
@@ -680,24 +654,30 @@ namespace minim {
             int iGrid = getIdx(xGrid, procSizes);
 
             if (model == MODEL_BASIC) {
-              fluidEnergy(coords, iGrid, xGrid, pE, g);
+              fluidEnergy(coords, iGrid, xGrid, pE, pG);
             } else if (model == MODEL_NCOMP) {
-              fluidPairEnergy(coords, iGrid, xGrid, pE, g);
+              fluidPairEnergy(coords, iGrid, xGrid, pE, pG);
             }
 
-            surfaceEnergy(coords, iGrid, pE, g);
-            pressureEnergy(coords, iGrid, pE, g);
-            densityConstraintEnergy(coords, iGrid, pE, g);
-            forceEnergy(coords, iGrid, xGrid, pE, g);
-            ffConfinementEnergy(coords, iGrid, pE, g);
+            surfaceEnergy(coords, iGrid, pE, pG);
+            pressureEnergy(coords, iGrid, pE, pG);
+            densityConstraintEnergy(coords, iGrid, pE, pG);
+            forceEnergy(coords, iGrid, xGrid, pE, pG);
+            ffConfinementEnergy(coords, iGrid, pE, pG);
           }
         }
       }
 
+      // Accumulate energy and gradient contributions across threads
       if (e) {
-        // Accumulate energy contributions across threads
         #pragma omp atomic
         *e += eLocal;
+      }
+      if (g) {
+        #pragma omp critical
+        {
+          *g += gLocal;
+        }
       }
     }
   }
