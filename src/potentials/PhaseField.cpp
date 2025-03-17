@@ -134,6 +134,11 @@ namespace minim {
   }
 
 
+  std::unique_ptr<Communicator> PhaseField::newComm() const {
+      return std::make_unique<CommGrid3>(haloWidth);
+  }
+
+
   void PhaseField::init(const vector<double>& coords) {
     if ((int)coords.size() != nGrid*nFluid) {
       throw std::invalid_argument("PhaseField: Size of coordinates array does not match the grid size.");

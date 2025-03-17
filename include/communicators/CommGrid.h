@@ -52,6 +52,21 @@ namespace minim {
       template<typename T> vector<T> assignProcImpl(const vector<T>& in) const;
   };
 
+
+  // Dimension-specific optimisations
+  class CommGrid2 : public CommGrid {
+    public:
+      CommGrid2(int haloWidth);
+      std::unique_ptr<Communicator> clone() const override;
+      double dotProduct(const vector<double>& a, const vector<double>& b) const override;
+  };
+
+  class CommGrid3 : public CommGrid {
+    public:
+      CommGrid3(int haloWidth);
+      std::unique_ptr<Communicator> clone() const override;
+      double dotProduct(const vector<double>& a, const vector<double>& b) const override;
+  };
 }
 
 #endif

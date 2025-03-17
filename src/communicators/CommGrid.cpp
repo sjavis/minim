@@ -4,7 +4,6 @@
 #include "Potential.h"
 #include "utils/vec.h"
 #include "utils/mpi.h"
-#include "utils/range.h"
 
 
 namespace minim {
@@ -187,8 +186,22 @@ template <typename T>
   double CommGrid::dotProduct(const vector<double>& a, const vector<double>& b) const {
     if (!usesThisProc) return 0;
     double value = 0;
-    for (int i: RangeI(procSizes, haloWidths)) {
-      value += a[i] * b[i];
+    vector<int> bulkSizes = procSizes - 2 * haloWidths;
+    int bulkSize = vec::product(bulkSizes);
+    # pragma omp parallel for simd schedule(static) reduction(+:value)
+    for (int iBulk=0; iBulk<bulkSize; iBulk++) {
+      // Convert flat index to multi-dimensional indices
+      int iTotal = 0;
+      int iTmp = iBulk;
+      int stride = 1;
+      for (int d = nDim; d >= 0; d--) {
+        int coord = haloWidths[d] + (iTmp % bulkSizes[d]);
+        iTotal += coord * stride;
+        stride *= procSizes[d];
+        iTmp /= bulkSizes[d];
+      }
+      // Accumulate the total
+      value += a[iTotal] * b[iTotal];
     }
     return sum(value);
   }
@@ -454,5 +467,58 @@ template <typename T>
     mpiTypesCommitted = true;
     #endif
   }
+
+
+
+  //===== Dimension-specific optimisations =====//
+  CommGrid2::CommGrid2(int haloWidth) : CommGrid(haloWidth) {
+    nDim = 2;
+  }
+
+  std::unique_ptr<Communicator> CommGrid2::clone() const {
+    return std::make_unique<CommGrid2>(static_cast<const CommGrid2&>(*this));
+  }
+
+  double CommGrid2::dotProduct(const vector<double>& a, const vector<double>& b) const {
+    if (!usesThisProc) return 0;
+    double value = 0;
+    # pragma omp parallel for simd collapse(3) schedule(static) reduction(+:value)
+    for (int i0=haloWidths[0]; i0<procSizes[0]-haloWidths[0]; i0++) {
+      for (int i1=haloWidths[1]; i1<procSizes[1]-haloWidths[1]; i1++) {
+        for (int i2=haloWidths[2]; i2<procSizes[2]-haloWidths[2]; i2++) {
+          int i = (i0 * procSizes[1] + i1) * procSizes[2] + i2;
+          value += a[i] * b[i];
+        }
+      }
+    }
+    return sum(value);
+  }
+
+
+  CommGrid3::CommGrid3(int haloWidth) : CommGrid(haloWidth) {
+    nDim = 3;
+  }
+
+  std::unique_ptr<Communicator> CommGrid3::clone() const {
+    return std::make_unique<CommGrid3>(static_cast<const CommGrid3&>(*this));
+  }
+
+  double CommGrid3::dotProduct(const vector<double>& a, const vector<double>& b) const {
+    if (!usesThisProc) return 0;
+    double value = 0;
+    # pragma omp parallel for simd collapse(4) schedule(static) reduction(+:value)
+    for (int i0=haloWidths[0]; i0<procSizes[0]-haloWidths[0]; i0++) {
+      for (int i1=haloWidths[1]; i1<procSizes[1]-haloWidths[1]; i1++) {
+        for (int i2=haloWidths[2]; i2<procSizes[2]-haloWidths[2]; i2++) {
+          for (int i3=haloWidths[3]; i3<procSizes[3]-haloWidths[3]; i3++) {
+            int i = ((i0 * procSizes[1] + i1) * procSizes[2] + i2) * procSizes[3] + i3;
+            value += a[i] * b[i];
+          }
+        }
+      }
+    }
+    return sum(value);
+  }
+
 
 }

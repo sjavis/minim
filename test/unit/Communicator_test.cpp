@@ -243,10 +243,11 @@ TEST(CommGrid, TestGather) {
 
 
 TEST(CommGrid, TestDotProduct) {
+  // Test dotProduct ignores the halo regions
   CommGrid comm(1);
   comm.commArray = {2, 2};
   GridPot pot({4,6});
-  comm.setup(pot, 24, {});
+  comm.setup(pot, vec::product(pot.gridSize), {});
 
   vector<double> a = {1,  1,  1,  1, 1,
                       1, 10, 10, 10, 1,
@@ -257,4 +258,42 @@ TEST(CommGrid, TestDotProduct) {
                       1, 10, 10, 10, 1,
                       1,  1,  1,  1, 1};
   EXPECT_EQ(comm.dotProduct(a, b), 4*1200);
+}
+
+
+TEST(CommGrid, TestDotProduct2) {
+  // Test dotProduct ignores the halo regions for the CommGrid2 specialisation
+  CommGrid2 comm(1);
+  comm.commArray = {2, 2};
+  GridPot pot({4,6});
+  comm.setup(pot, vec::product(pot.gridSize), {});
+
+  vector<double> a = {1,  1,  1,  1, 1,
+                      1, 10, 10, 10, 1,
+                      1, 20, 20, 20, 1,
+                      1,  1,  1,  1, 1};
+  vector<double> b = {1,  1,  1,  1, 1,
+                      1, 20, 20, 20, 1,
+                      1, 10, 10, 10, 1,
+                      1,  1,  1,  1, 1};
+  EXPECT_EQ(comm.dotProduct(a, b), 4*1200);
+}
+
+
+TEST(CommGrid, TestDotProduct3) {
+  // Test dotProduct ignores the halo regions for the CommGrid3 specialisation
+  CommGrid3 comm(1);
+  comm.commArray = {2, 1, 2};
+  GridPot pot({4,2,4});
+  comm.setup(pot, vec::product(pot.gridSize), {});
+
+  vector<double> a = {1,  1,  1, 1,   1,  1,  1, 1,
+                      1, 10, 10, 1,   1, 20, 20, 1,
+                      1, 20, 20, 1,   1, 10, 10, 1,
+                      1,  1,  1, 1,   1,  1,  1, 1};
+  vector<double> b = {1,  1,  1, 1,   1,  1,  1, 1,
+                      1, 20, 20, 1,   1, 10, 10, 1,
+                      1, 10, 10, 1,   1, 20, 20, 1,
+                      1,  1,  1, 1,   1,  1,  1, 1};
+  EXPECT_EQ(comm.dotProduct(a, b), 4*1600);
 }

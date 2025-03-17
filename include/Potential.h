@@ -78,7 +78,7 @@ namespace minim {
         GRID = 2,
       };
       virtual int potentialType() const { return SERIAL; };
-      std::unique_ptr<Communicator> newComm() const;
+      virtual std::unique_ptr<Communicator> newComm() const;
 
       // UNSTRUCTURED: Energy elements for parallelisation
       bool distributed = false;

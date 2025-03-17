@@ -12,8 +12,6 @@ namespace minim {
 
   class PhaseField : public NewPotential<PhaseField> {
     public:
-      int potentialType() const override { return Potential::GRID; };
-
       // System size
       int nFluid = 1;
       double resolution = 1;
@@ -69,6 +67,9 @@ namespace minim {
       static vector<double> diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
       // Overrides
+      int potentialType() const override { return Potential::GRID; };
+      std::unique_ptr<Communicator> newComm() const override;
+
       void init(const vector<double>& coords) override;
       void initLocal(const vector<double>& coords, const Communicator& comm) override;
 
