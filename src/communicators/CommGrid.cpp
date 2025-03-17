@@ -482,7 +482,7 @@ template <typename T>
   double CommGrid2::dotProduct(const vector<double>& a, const vector<double>& b) const {
     if (!usesThisProc) return 0;
     double value = 0;
-    # pragma omp parallel for simd collapse(3) schedule(static) reduction(+:value)
+    # pragma omp parallel for simd collapse(2) schedule(static) reduction(+:value)
     for (int i0=haloWidths[0]; i0<procSizes[0]-haloWidths[0]; i0++) {
       for (int i1=haloWidths[1]; i1<procSizes[1]-haloWidths[1]; i1++) {
         for (int i2=haloWidths[2]; i2<procSizes[2]-haloWidths[2]; i2++) {
@@ -506,7 +506,7 @@ template <typename T>
   double CommGrid3::dotProduct(const vector<double>& a, const vector<double>& b) const {
     if (!usesThisProc) return 0;
     double value = 0;
-    # pragma omp parallel for simd collapse(4) schedule(static) reduction(+:value)
+    # pragma omp parallel for simd collapse(3) schedule(static) reduction(+:value)
     for (int i0=haloWidths[0]; i0<procSizes[0]-haloWidths[0]; i0++) {
       for (int i1=haloWidths[1]; i1<procSizes[1]-haloWidths[1]; i1++) {
         for (int i2=haloWidths[2]; i2<procSizes[2]-haloWidths[2]; i2++) {

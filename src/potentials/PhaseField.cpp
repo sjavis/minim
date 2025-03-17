@@ -572,6 +572,7 @@ namespace minim {
     if (nFluid>1 && densityConstraint==DENSITY_HARD) {
       double normFactor = 1.0 / iVariableFluid.size();
 
+      #pragma omp parallel for simd schedule(static)
       for (int iGrid=0; iGrid<nGrid; iGrid++) {
         // Dot product to get component of increasing density
         double component = 0;
@@ -619,14 +620,16 @@ namespace minim {
       }
 
       // Remove the component, ie. g - (g.v) v / |v|^2
-      for (int iGrid : RangeI(procSizes, haloWidths)) {
+      #pragma omp parallel for schedule(static)
+      for (int iGrid=0; iGrid<nGrid; iGrid++) {
         for (int iFluid : iVariableFluid) {
           if (!volCorrect[iFluid]) continue;
           data[iGrid*nFluid+iFluid] -= component[iFluid] * nodeVol[iGrid];
           if (densityConstraint == DENSITY_HARD) {
             // Account for the -Σ(v.d_i)d_i correction to v
+            double correction = component[iFluid] * nodeVol[iGrid] / nVariable;
             for (int iFluid2 : iVariableFluid) {
-              data[iGrid*nFluid+iFluid2] += component[iFluid] * nodeVol[iGrid] / nVariable;
+              data[iGrid*nFluid+iFluid2] += correction;
             }
           }
         }
