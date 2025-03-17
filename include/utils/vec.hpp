@@ -7,36 +7,37 @@
 #include <numeric>
 #include <algorithm>
 #include <functional>
+#include <execution>
 
 
 // Sum
 template<typename T, typename U>
 auto operator+(T a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(b.size());
-  std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a+x; });
+  std::transform(std::execution::par_unseq, b.begin(), b.end(), c.begin(), [a](auto x){ return a+x; });
   return c;
 }
 template<typename T, typename U>
 auto operator+(const vector<T>& a, U b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x+b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), c.begin(), [b](auto x){ return x+b; });
   return c;
 }
 template<typename T, typename U>
 auto operator+(const vector<T>& a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::plus<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), std::plus<T>());
   return c;
 }
 
 template<typename T, typename U>
 auto& operator+=(vector<T>& a, U b) {
-  std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x+b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), a.begin(), [b](auto x){ return x+b; });
   return a;
 }
 template<typename T, typename U>
 auto& operator+=(vector<T>& a, const vector<U>& b) {
-  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
   return a;
 }
 
@@ -45,37 +46,37 @@ auto& operator+=(vector<T>& a, const vector<U>& b) {
 template<typename T>
 auto operator-(const vector<T>& a) {
   vector<T> c(a.size());
-  std::transform(a.begin(), a.end(), c.begin(), [](auto x){ return -x; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), c.begin(), [](auto x){ return -x; });
   return c;
 }
 
 template<typename T, typename U>
 auto operator-(T a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(b.size());
-  std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a-x; });
+  std::transform(std::execution::par_unseq, b.begin(), b.end(), c.begin(), [a](auto x){ return a-x; });
   return c;
 }
 template<typename T, typename U>
 auto operator-(const vector<T>& a, U b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x-b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), c.begin(), [b](auto x){ return x-b; });
   return c;
 }
 template<typename T, typename U>
 auto operator-(const vector<T>& a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::minus<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), std::minus<T>());
   return c;
 }
 
 template<typename T, typename U>
 auto& operator-=(vector<T>& a, U b) {
-  std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x-b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), a.begin(), [b](auto x){ return x-b; });
   return a;
 }
 template<typename T, typename U>
 auto& operator-=(vector<T>& a, const vector<U>& b) {
-  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
   return a;
 }
 
@@ -84,30 +85,30 @@ auto& operator-=(vector<T>& a, const vector<U>& b) {
 template<typename T, typename U>
 auto operator*(T a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(b.size());
-  std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a*x; });
+  std::transform(std::execution::par_unseq, b.begin(), b.end(), c.begin(), [a](auto x){ return a*x; });
   return c;
 }
 template<typename T, typename U>
 auto operator*(const vector<T>& a, U b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x*b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), c.begin(), [b](auto x){ return x*b; });
   return c;
 }
 template<typename T, typename U>
 auto operator*(const vector<T>& a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::multiplies<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), std::multiplies<T>());
   return c;
 }
 
 template<typename T, typename U>
 auto& operator*=(vector<T>& a, U b) {
-  std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x*b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), a.begin(), [b](auto x){ return x*b; });
   return a;
 }
 template<typename T, typename U>
 auto& operator*=(vector<T>& a, const vector<U>& b) {
-  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
   return a;
 }
 
@@ -116,30 +117,30 @@ auto& operator*=(vector<T>& a, const vector<U>& b) {
 template<typename T, typename U>
 auto operator/(T a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(b.size());
-  std::transform(b.begin(), b.end(), c.begin(), [a](auto x){ return a/x; });
+  std::transform(std::execution::par_unseq, b.begin(), b.end(), c.begin(), [a](auto x){ return a/x; });
   return c;
 }
 template<typename T, typename U>
 auto operator/(const vector<T>& a, U b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), c.begin(), [b](auto x){ return x/b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), c.begin(), [b](auto x){ return x/b; });
   return c;
 }
 template<typename T, typename U>
 auto operator/(const vector<T>& a, const vector<U>& b) {
   vector<std::common_type_t<T,U>> c(a.size());
-  std::transform(a.begin(), a.end(), b.begin(), c.begin(), std::divides<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), c.begin(), std::divides<T>());
   return c;
 }
 
 template<typename T, typename U>
 auto& operator/=(vector<T>& a, U b) {
-  std::transform(a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), a.begin(), [b](auto x){ return x/b; });
   return a;
 }
 template<typename T, typename U>
 auto& operator/=(vector<T>& a, const vector<U>& b) {
-  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
   return a;
 }
 
@@ -209,7 +210,7 @@ namespace vec {
   template<typename T>
   vector<T> abs(const vector<T>& a) {
     vector<T> b(a.size());
-    std::transform(a.begin(), a.end(), b.begin(), [](T x){ return (x<0) ? -x : x; });
+    std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), [](T x){ return (x<0) ? -x : x; });
     return b;
   }
 
@@ -217,7 +218,7 @@ namespace vec {
   template<typename T>
   vector<T> sqrt(const vector<T>& a) {
     vector<T> b(a.size());
-    std::transform(a.begin(), a.end(), b.begin(), [](T x){ return std::sqrt(x); });
+    std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), [](T x){ return std::sqrt(x); });
     return b;
   }
 
@@ -225,14 +226,14 @@ namespace vec {
   template<typename T, typename U>
   vector<T> pow(const vector<T>& a, U n) {
     vector<T> b(a.size());
-    std::transform(a.begin(), a.end(), b.begin(), [n](T x){ return std::pow(x, n); });
+    std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), [n](T x){ return std::pow(x, n); });
     return b;
   }
 
   template<typename T, typename U>
   vector<T> pow(T a, const vector<U>& n) {
     vector<T> b(n.size());
-    std::transform(n.begin(), n.end(), b.begin(), [a](U ni){ return std::pow(a, ni); });
+    std::transform(std::execution::par_unseq, n.begin(), n.end(), b.begin(), [a](U ni){ return std::pow(a, ni); });
     return b;
   }
 
@@ -262,28 +263,28 @@ namespace vec {
   template<typename T>
   std::vector<char> lessThan(const std::vector<T>& v, T s) {
     std::vector<char> result(v.size());
-    std::transform(v.begin(), v.end(), result.begin(), [s](T vi) { return vi < s; });
+    std::transform(std::execution::par_unseq, v.begin(), v.end(), result.begin(), [s](T vi) { return vi < s; });
     return result;
   }
 
   template<typename T>
   std::vector<char> lessThan(const std::vector<T>& v1, const std::vector<T>& v2) {
     std::vector<char> result(v1.size());
-    std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a < b; });
+    std::transform(std::execution::par_unseq, v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a < b; });
     return result;
   }
 
   template<typename T>
   std::vector<char> greaterThan(const std::vector<T>& v, T s) {
     std::vector<char> result(v.size());
-    std::transform(v.begin(), v.end(), result.begin(), [s](T vi) { return vi > s; });
+    std::transform(std::execution::par_unseq, v.begin(), v.end(), result.begin(), [s](T vi) { return vi > s; });
     return result;
   }
 
   template<typename T>
   std::vector<char> greaterThan(const std::vector<T>& v1, const std::vector<T>& v2) {
     std::vector<char> result(v1.size());
-    std::transform(v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a > b; });
+    std::transform(std::execution::par_unseq, v1.begin(), v1.end(), v2.begin(), result.begin(), [](T a, T b) { return a > b; });
     return result;
   }
 
