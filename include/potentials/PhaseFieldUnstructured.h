@@ -15,7 +15,9 @@ namespace minim {
     public:
       int potentialType() const override { return Potential::UNSTRUCTURED; };
 
-      // System size
+      /// @name System size
+      /// @{
+
       /// The number of fluid components.
       int nFluid = 1;
       /// The grid resolution.
@@ -27,8 +29,12 @@ namespace minim {
       /// Set the grid resolution.
       PhaseFieldUnstructured& setResolution(double resolution);
 
-      // Fluid interfaces
-      // Order: 1-2, 1-3, ..., 1-N, 2-3 (continue to (N-1)-N for N-comp)
+      /// @}
+
+      /// @name Fluid interfaces
+      /// Order: 1-2, 1-3, ..., 1-N, 2-3 (continue to (N-1)-N for N-comp).
+      /// @{
+
       /// The diffuse interface size of each fluid pair.
       vector<double> interfaceSize;
       /// The surface tension of each fluid pair.
@@ -42,7 +48,11 @@ namespace minim {
       /// Set the surface tension of each fluid pair.
       PhaseFieldUnstructured& setSurfaceTension(vector<double> surfaceTension);
 
-      // Density constraint
+      /// @}
+
+      /// @name Density constraint
+      /// @{
+
       /// The density constraint method: 0 for hard constraint (default).
       int densityConstraint = 0;
       /// The strength of the soft density constraint.
@@ -50,7 +60,11 @@ namespace minim {
       /// Set the density constraint method ("hard" or "soft").
       PhaseFieldUnstructured& setDensityConstraint(std::string method);
 
-      // Total volume / pressure constraints
+      /// @}
+
+      /// @name Volume and pressure constraints
+      /// @{
+
       /// Whether the total fluid volume is fixed.
       bool volumeFixed = false;
       /// The strength of the volume constraint.
@@ -66,7 +80,11 @@ namespace minim {
       /// Set whether the total fluid volume is fixed.
       PhaseFieldUnstructured& setVolumeFixed(bool volumeFixed, double volConst=0.01);
 
-      // Solid nodes
+      /// @}
+
+      /// @name Solid nodes
+      /// @{
+
       /// Which grid nodes are solid.
       vector<char> solid;
       /// The wall contact angle of each fluid pair.
@@ -80,13 +98,21 @@ namespace minim {
       /// Set the wall contact angle via a function of the grid indices and fluid pair.
       PhaseFieldUnstructured& setContactAngle(std::function<double(int,int,int)> contactAngleFn);
 
-      // External force
+      /// @}
+
+      /// @name External force
+      /// @{
+
       /// An external force applied to the fluids.
       vector<vector<double>> force;
       /// Set an external force on the given fluid (default: all).
       PhaseFieldUnstructured& setForce(vector<double> force, vector<int> iFluid={});
 
-      // Diffuse solid method
+      /// @}
+
+      /// @name Diffuse solid method
+      /// @{
+
       vector<char> fixFluid;
       vector<double> confinementStrength;
       /// Set whether the given fluid is fixed in place.
@@ -101,7 +127,11 @@ namespace minim {
       /// Compute a diffuse representation of the solid using the given grid.
       static vector<double> diffuseSolid(vector<char> solid, vector<int> gridSize, int nFluid=2, int iFluid=0, bool twoStep=false);
 
-      // Overrides
+      /// @}
+
+      /// @name Overrides
+      /// @{
+
       void init(const vector<double>& coords) override;
       void initLocal(const vector<double>& coords, const Communicator& comm) override;
 
@@ -109,13 +139,19 @@ namespace minim {
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
 
-      // Read only
+      /// @}
+
+      /// @name Read only
+      /// @{
+
       int nGrid;
       double surfaceTensionMean;
       vector<double> kappa;
       vector<double> kappaP;
       vector<double> nodeVol;
       vector<int> fluidType;
+
+    /// @}
 
     private:
       vector<int> getCoord(int i) const;
