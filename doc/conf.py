@@ -33,7 +33,7 @@ author = 'Sam Avis'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['breathe']
+extensions = ['breathe', 'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -67,4 +67,4 @@ html_theme_options = {'logo_only': True}
 
 breathe_projects = {'minim': '_build/xml/'}
 breathe_default_project = 'minim'
-breathe_default_members = ('members', 'undoc-members')
+breathe_default_members = ('members',)
