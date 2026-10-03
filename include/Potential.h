@@ -63,7 +63,8 @@ namespace minim {
       ///   (default: all ranks).
       State newState(const vector<double>& coords, const vector<int>& ranks={});
 
-      // Constraints
+      /// @name Constraints
+      /// @{
 
       /// A constraint on a set of degrees of freedom.
       ///
@@ -101,6 +102,8 @@ namespace minim {
       /// Whether each of the given degrees of freedom is fixed.
       vector<char> isFixed(const vector<int>& indicies) const;
 
+      /// @}
+
       // Internal
 
       /// Initialise the potential with the coordinates of a new state.
@@ -132,7 +135,8 @@ namespace minim {
       virtual int potentialType() const { return SERIAL; };
       virtual std::unique_ptr<Communicator> newComm() const;
 
-      // UNSTRUCTURED: Energy elements for parallelisation
+      /// @name Energy elements
+      /// @{
 
       /// Whether the potential's elements are distributed over processors.
       bool distributed = false;
@@ -161,7 +165,10 @@ namespace minim {
       /// Compute the energy and gradient of the local block.
       virtual void blockEnergyGradient(const vector<double>& coords, const Communicator& comm, double* e, vector<double>* g) const {};
 
-      // GRID
+      /// @}
+
+      /// @name Grid parameters
+      /// @{
 
       /// Number of degrees of freedom per grid node.
       int dofPerNode = 1;
@@ -173,6 +180,8 @@ namespace minim {
       vector<int> commArray;
       /// Set the number of processors along each grid dimension.
       Potential& setCommArray(vector<int> commArray);
+
+    /// @}
 
     protected:
       Potential() : _energy(nullptr), _gradient(nullptr), _energyGradient(nullptr) {};

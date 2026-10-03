@@ -35,7 +35,9 @@ namespace minim {
       /// The number of processors in the communicator.
       int size() const;
 
-      // Assign data
+      /// @name Assign data
+      /// @{
+
       /// Assign the local block from block or global data.
       virtual vector<int> assignBlock(const vector<int>& in) const = 0;
       /// Assign the local block from block or global data.
@@ -50,7 +52,11 @@ namespace minim {
       /// Assign the local processor (including halo) from global data.
       virtual vector<double> assignProc(const vector<double>& in) const = 0;
 
-      // Access data
+      /// @}
+
+      /// @name Access data
+      /// @{
+
       /// Get the processor that owns a given global index.
       virtual int getBlock(int loc) const = 0;
       /// Get the local index of a global index, or -1 if not owned by this processor.
@@ -58,7 +64,11 @@ namespace minim {
       /// Get the value at a global index from local (processor) data.
       double get(const vector<double>& vector, int loc) const;
 
-      // Communication
+      /// @}
+
+      /// @name Communication
+      /// @{
+
       /// Communicate the halo regions of the local data.
       void communicate(vector<double>& vector) const;
       /// Communicate the halo regions, accumulating into the existing values.
@@ -75,7 +85,11 @@ namespace minim {
       /// Broadcast a vector of doubles from the given root processor.
       void bcast(vector<double>& value, int root=0) const;
 
-      // MPI reduction functions
+      /// @}
+
+      /// @name MPI reduction functions
+      /// @{
+
       /// Sum a value over all processors.
       double sum(double a) const;
       /// Sum a vector over all processors.
@@ -84,6 +98,8 @@ namespace minim {
       double norm(const vector<double>& a) const;
       /// Compute the dot product of two vectors over all processors.
       virtual double dotProduct(const vector<double>& a, const vector<double>& b) const;
+
+      /// @}
 
       // Internal functions
       virtual ~Communicator() = default;

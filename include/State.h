@@ -43,7 +43,8 @@ namespace minim {
       /// Copy assignment operator.
       State& operator=(const State& state);
 
-      // Energy / Gradient
+      /// @name Energy and gradient
+      /// @{
 
       /// Compute the energy of the current state.
       double energy() const;
@@ -71,7 +72,10 @@ namespace minim {
       /// @param g Output: the gradient of the total energy.
       void energyGradient(const vector<double>& coords, double* e, vector<double>* g) const;
 
-      // Coordinates
+      /// @}
+
+      /// @name Coordinates
+      /// @{
 
       /// Get a single coordinate by index.
       ///
@@ -85,7 +89,10 @@ namespace minim {
       /// @param in The new coordinates.
       void coords(const vector<double>& in);
 
-      // Parallel functions
+      /// @}
+
+      /// @name Parallel functions
+      /// @{
 
       /// Get the coordinates held by this processor's block.
       const vector<double>& blockCoords() const;
@@ -167,12 +174,17 @@ namespace minim {
       /// Communicate the coordinates between processors.
       void communicate();
 
-      // Constraints
+      /// @}
+
+      /// @name Constraints
+      /// @{
 
       /// Apply any constraints from the potential to the given data.
       ///
       /// @param data The data to apply the constraints to.
       void applyConstraints(vector<double>& data) const;
+
+      /// @}
 
       // Failure early completion checks
       /// Whether the minimisation has failed and should be terminated early.

@@ -2,7 +2,6 @@
 #define LJND_H
 
 #include <vector>
-#include <memory>
 #include "Potential.h"
 
 namespace minim {
@@ -22,30 +21,45 @@ namespace minim {
   /// coordinates, and all pairs are used as energy elements.
   class LjNd : public NewPotential<LjNd> {
     public:
-      int potentialType() const override { return Potential::UNSTRUCTURED; };
+      /// @name System size
+      /// @{
 
       /// The number of spatial dimensions.
       int nDim;
       /// The number of particles.
       int nParticle;
-      /// The Lennard-Jones length parameter.
-      double sigma = 1;
-      /// The Lennard-Jones energy parameter.
-      double epsilon = 1;
 
       /// Construct a potential for the given number of dimensions.
       LjNd(int nDim) : nDim(nDim) {};
       /// Construct a potential with the given dimension and parameters.
       LjNd(int nDim, double sigma, double epsilon) : nDim(nDim), sigma(sigma), epsilon(epsilon) {};
 
-      void init(const vector<double>& coords) override;
+      /// @}
 
-      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
+      /// @name Parameters
+      /// @{
 
+      /// The Lennard-Jones length parameter.
+      double sigma = 1;
+      /// The Lennard-Jones energy parameter.
+      double epsilon = 1;
       /// Set the Lennard-Jones length parameter.
       LjNd& setSigma(double sigma);
       /// Set the Lennard-Jones energy parameter.
       LjNd& setEpsilon(double epsilon);
+
+      /// @}
+
+      /// @name Overrides
+      /// @{
+
+      int potentialType() const override { return Potential::UNSTRUCTURED; };
+
+      void init(const vector<double>& coords) override;
+
+      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
+
+      /// @}
   };
 
 

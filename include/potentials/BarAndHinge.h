@@ -22,11 +22,8 @@ namespace minim {
   /// initial coordinates unless set.
   class BarAndHinge : public NewPotential<BarAndHinge> {
     public:
-      int potentialType() const override { return Potential::UNSTRUCTURED; };
-
-      void init(const vector<double>& coords) override;
-
-      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
+      /// @name Structure
+      /// @{
 
       /// Set the triangulation used to generate the bar and hinge lists.
       BarAndHinge& setTriangulation(const vector2d<int>& triList);
@@ -35,6 +32,15 @@ namespace minim {
       /// Set the hinges of the model, overriding the generated list.
       BarAndHinge& setHingeList(const vector2d<int>& hingeList);
 
+      /// @}
+
+      /// @name Elastic properties
+      /// @{
+
+      /// The elastic modulus.
+      double modulus = 1;
+      /// The Poisson ratio of the material.
+      double poissonRatio = 0.3;
       /// Set the elastic modulus.
       BarAndHinge& setModulus(double modulus);
       /// Set the sheet thickness.
@@ -54,22 +60,11 @@ namespace minim {
       /// Set the rest angle of each hinge.
       BarAndHinge& setTheta0(const vector<double>& theta0);
 
-      /// Enable or disable the substrate (wall) interaction.
-      BarAndHinge& setWall(bool wallOn=true);
-      /// Enable or disable adhesion to the substrate.
-      BarAndHinge& setWallAdhesion(bool wallAdhesion=true);
-      /// Set the substrate interaction parameters.
-      BarAndHinge& setWallParams(double epsilon, double sigma);
+      /// @}
 
-      /// Set an external force on the nodes.
-      BarAndHinge& setForce(const vector<double>& force);
-      /// Set an external force on the nodes per bar.
-      BarAndHinge& setForce(const vector2d<double>& force);
+      /// @name Substrate interaction
+      /// @{
 
-      /// The elastic modulus.
-      double modulus = 1;
-      /// The Poisson ratio of the material.
-      double poissonRatio = 0.3;
       /// Whether the substrate (wall) interaction is enabled.
       bool wallOn = false;
       /// Whether adhesion to the substrate is enabled.
@@ -78,6 +73,35 @@ namespace minim {
       double lj_epsilon = 1e-12;
       /// The length parameter of the substrate interaction.
       double lj_sigma = 1e-5;
+      /// Enable or disable the substrate (wall) interaction.
+      BarAndHinge& setWall(bool wallOn=true);
+      /// Enable or disable adhesion to the substrate.
+      BarAndHinge& setWallAdhesion(bool wallAdhesion=true);
+      /// Set the substrate interaction parameters.
+      BarAndHinge& setWallParams(double epsilon, double sigma);
+
+      /// @}
+
+      /// @name External force
+      /// @{
+
+      /// Set an external force on the nodes.
+      BarAndHinge& setForce(const vector<double>& force);
+      /// Set an external force on the nodes per bar.
+      BarAndHinge& setForce(const vector2d<double>& force);
+
+      /// @}
+
+      /// @name Overrides
+      /// @{
+
+      int potentialType() const override { return Potential::UNSTRUCTURED; };
+
+      void init(const vector<double>& coords) override;
+
+      void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
+
+      /// @}
 
     private:
       vector2d<int> _bondList;
