@@ -8,6 +8,7 @@
 namespace minim {
   using std::vector;
 
+  /// A communicator that distributes grid data over MPI processes.
   class CommGrid : public Communicator {
     public:
       // Assign data
@@ -53,7 +54,7 @@ namespace minim {
   };
 
 
-  // Dimension-specific optimisations
+  /// A CommGrid with dimension-specific optimisations for 2D grids.
   class CommGrid2 : public CommGrid {
     public:
       CommGrid2(int haloWidth);
@@ -61,6 +62,7 @@ namespace minim {
       double dotProduct(const vector<double>& a, const vector<double>& b) const override;
   };
 
+  /// A CommGrid with dimension-specific optimisations for 3D grids.
   class CommGrid3 : public CommGrid {
     public:
       CommGrid3(int haloWidth);

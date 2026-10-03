@@ -6,10 +6,16 @@
 
 namespace minim {
 
-  // Gradient desecent minimisation
+  /// Gradient descent minimisation.
+  ///
+  /// Takes steps in the direction of the negative gradient, scaled by the
+  /// step size alpha. Converged when the RMS gradient falls below the
+  /// state's convergence criterion.
   class GradDescent : public NewMinimiser<GradDescent> {
     public:
+      /// Set the step size alpha.
       GradDescent& setAlpha(double alpha);
+      /// Set the maximum number of iterations.
       GradDescent& setMaxIter(int maxIter);
 
       void init(State& state);
