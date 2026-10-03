@@ -6,7 +6,10 @@
 Minim
 =====
 
-Minim is a C++ library for minimisation problems. It contains a variety of algorithms such as gradient descent and LBFGS.
+Minim is a C++ library for energy minimisation problems.
+It contains a variety of algorithms, such as gradient descent, L-BFGS, FIRE
+and simulated annealing, and a selection of system potentials.
+These can utilise MPI parallelisation using built-in frameworks.
 
 .. toctree::
    :maxdepth: 2
@@ -14,3 +17,6 @@ Minim is a C++ library for minimisation problems. It contains a variety of algor
 
    quickstart
    algorithms/index
+   potentials/index
+   core_api
+

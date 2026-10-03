@@ -1,6 +1,6 @@
-.. _algorithms:
+.. _potentials:
 
-Algorithms
+Potentials
 ==========
 
 .. toctree::
