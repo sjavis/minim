@@ -10,6 +10,7 @@ namespace minim {
   template<typename T> using vector2d = vector<vector<T>>;
   class Potential;
 
+  /// A communicator that distributes unstructured data over MPI processes.
   class CommUnstructured : public Communicator {
     public:
       // Assign data

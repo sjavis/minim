@@ -9,6 +9,17 @@ namespace minim {
   class Communicator;
 
 
+  /// The bar-and-hinge model for thin sheet buckling.
+  ///
+  /// Represents an elastic sheet as a triangulated surface: bars (edges)
+  /// stretch with energy \f$ k (l - l_0)^2 / 2 \f$, and hinges (pairs of
+  /// adjacent triangles) bend with energy
+  /// \f$ k (\theta - \theta_0)^2 / 2 \f$. Optionally includes substrate
+  /// and external force interactions.
+  ///
+  /// The bar and hinge lists are generated from a triangulation, or can
+  /// be given explicitly. Rest lengths and angles are taken from the
+  /// initial coordinates unless set.
   class BarAndHinge : public NewPotential<BarAndHinge> {
     public:
       int potentialType() const override { return Potential::UNSTRUCTURED; };
@@ -17,32 +28,55 @@ namespace minim {
 
       void elementEnergyGradient(const vector<double>& coords, const Element& el, double* e, vector<double>* g) const override;
 
+      /// Set the triangulation used to generate the bar and hinge lists.
       BarAndHinge& setTriangulation(const vector2d<int>& triList);
+      /// Set the bars (edges) of the model, overriding the generated list.
       BarAndHinge& setBondList(const vector2d<int>& bondList);
+      /// Set the hinges of the model, overriding the generated list.
       BarAndHinge& setHingeList(const vector2d<int>& hingeList);
 
+      /// Set the elastic modulus.
       BarAndHinge& setModulus(double modulus);
+      /// Set the sheet thickness.
       BarAndHinge& setThickness(double thickness);
+      /// Set the sheet thickness per bar.
       BarAndHinge& setThickness(const vector<double>& thickness);
+      /// Set the stretching and bending rigidities.
       BarAndHinge& setRigidity(double kBond, double kHinge);
+      /// Set the stretching and bending rigidities per bar and hinge.
       BarAndHinge& setRigidity(const vector<double>& kBond, const vector<double>& kHinge);
+      /// Set the rest length of the bars.
       BarAndHinge& setLength0(double length0);
+      /// Set the rest length of each bar.
       BarAndHinge& setLength0(const vector<double>& length0);
+      /// Set the rest angle of the hinges.
       BarAndHinge& setTheta0(double theta0);
+      /// Set the rest angle of each hinge.
       BarAndHinge& setTheta0(const vector<double>& theta0);
 
+      /// Enable or disable the substrate (wall) interaction.
       BarAndHinge& setWall(bool wallOn=true);
+      /// Enable or disable adhesion to the substrate.
       BarAndHinge& setWallAdhesion(bool wallAdhesion=true);
+      /// Set the substrate interaction parameters.
       BarAndHinge& setWallParams(double epsilon, double sigma);
 
+      /// Set an external force on the nodes.
       BarAndHinge& setForce(const vector<double>& force);
+      /// Set an external force on the nodes per bar.
       BarAndHinge& setForce(const vector2d<double>& force);
 
+      /// The elastic modulus.
       double modulus = 1;
+      /// The Poisson ratio of the material.
       double poissonRatio = 0.3;
+      /// Whether the substrate (wall) interaction is enabled.
       bool wallOn = false;
+      /// Whether adhesion to the substrate is enabled.
       bool wallAdhesion = false;
+      /// The energy parameter of the substrate interaction.
       double lj_epsilon = 1e-12;
+      /// The length parameter of the substrate interaction.
       double lj_sigma = 1e-5;
 
     private:
