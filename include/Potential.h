@@ -127,7 +127,7 @@ namespace minim {
       // Members and functions specific to different types of potential
 
       /// The type of parallelisation used by the potential.
-      enum{
+      enum ParallelType {
         SERIAL = 0,
         UNSTRUCTURED = 1,
         GRID = 2,
