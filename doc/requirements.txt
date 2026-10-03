@@ -1,0 +1,6 @@
+# Python requirements for building the Minim documentation
+# (Doxygen itself is installed separately, e.g. `apt install doxygen`)
+sphinx
+breathe
+sphinx-rtd-theme
+sphinx-sitemap
