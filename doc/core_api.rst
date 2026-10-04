@@ -8,5 +8,3 @@ Core API
 .. doxygenclass:: minim::Minimiser
 
 .. doxygenclass:: minim::Potential
-
-.. doxygenclass:: minim::Communicator
