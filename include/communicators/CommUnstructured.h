@@ -10,26 +10,42 @@ namespace minim {
   template<typename T> using vector2d = vector<vector<T>>;
   class Potential;
 
-  /// A communicator that distributes unstructured data over MPI processes.
+  /// A communicator that distributes unstructured data over MPI
+  /// processes.
+  ///
+  /// Used by element-based potentials. The degrees of freedom are split
+  /// into equal-sized blocks in the order they are given, and the
+  /// potential's energy elements are each assigned to the processor
+  /// that holds the most of their degrees of freedom. Any remaining
+  /// degrees of freedom of an element lie in the halo.
   class CommUnstructured : public Communicator {
     public:
-      // Assign data
+      /// Assign the local block from global or block data.
       vector<int> assignBlock(const vector<int>& in) const override;
+      /// Assign the local block from global or block data.
       vector<char> assignBlock(const vector<char>& in) const override;
+      /// Assign the local block from global or block data.
       vector<double> assignBlock(const vector<double>& in) const override;
 
+      /// Assign the local processor data (block plus halo) from global data.
       vector<int> assignProc(const vector<int>& in) const override;
+      /// Assign the local processor data (block plus halo) from global data.
       vector<char> assignProc(const vector<char>& in) const override;
+      /// Assign the local processor data (block plus halo) from global data.
       vector<double> assignProc(const vector<double>& in) const override;
 
-      // Access data
+      /// Get the block (processor) that owns a given global index.
       int getBlock(int loc) const override;
+      /// Get the local index of a given global index, or -1 if not held
+      /// by this processor.
       int getLocalIdx(int loc, int block=-1) const override;
 
-      // MPI reduction functions
+      /// Compute the dot product of two vectors over all processors,
+      /// using only the block entries.
       double dotProduct(const vector<double>& a, const vector<double>& b) const override;
 
       // Internal functions
+      /// Construct an unstructured communicator.
       CommUnstructured();
       CommUnstructured(const CommUnstructured& other);
       CommUnstructured& operator=(const CommUnstructured& other);

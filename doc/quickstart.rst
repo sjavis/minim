@@ -93,15 +93,10 @@ For example, ``min.minimise(state, "eg-100")`` prints the energy and
 gradient norm every 100 iterations.
 
 
-MPI parallelisation
--------------------
+Parallelisation
+---------------
 
-Minim can distribute a state over multiple MPI processes.
-Parallelisation is enabled by default (the library is built with
-``-DPARALLEL``), so simply run with ``mpirun``::
-
-    mpirun -np 4 ./run.exe
-
-The distribution is handled automatically by the potential's communicator.
-For grid potentials, the number of processors along each dimension can be
-controlled with ``pot.setCommArray({2, 2, 1})``.
+Minim can distribute a state over multiple MPI processes and share the
+work of each processor over multiple OpenMP threads.
+See :doc:`parallelisation` for how to run in parallel, including under
+Slurm, and how the parallelisation is implemented.

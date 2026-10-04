@@ -21,7 +21,18 @@ namespace minim {
   /// Initialise MPI with command line arguments.
   void mpiInit(int* argc, char*** argv);
 
-  /// A helper for MPI operations without a communicator.
+  /// A helper for MPI operations over all processors, without a
+  /// communicator.
+  ///
+  /// Programs should not create their own instances of this class;
+  /// use the global ::minim::mpi object, which is created automatically
+  /// when the library is included. It is initialised by calling
+  /// mpi.init() (or mpiInit()) at the start of the program, after which
+  /// the size and rank members give the number of processors and the
+  /// rank of the current processor.
+  ///
+  /// For operations specific to a state, use its Communicator instead,
+  /// which is restricted to the processors used by that state.
   class Mpi {
     public:
       /// The number of processors.
@@ -31,6 +42,10 @@ namespace minim {
 
       Mpi();
       ~Mpi();
+
+      /// @name Initialisation
+      /// @{
+
       /// Initialise MPI, if not already initialised.
       void init();
       /// Initialise MPI with command line arguments.
@@ -42,12 +57,24 @@ namespace minim {
       void getSizeRank(MPI_Comm comm);
 #endif
 
+      /// @}
+
+      /// @name MPI reduction functions
+      /// Perform operations on local values before reducing the result
+      /// over all processors. Every processor receives the result.
+      /// @{
+
       /// Sum a value over all processors.
       double sum(double a) const;
-      /// Sum a vector over all processors.
+      /// Sum the elements of a vector over all processors.
       double sum(const vector<double>& a) const;
       /// Compute the dot product of two vectors over all processors.
       double dotProduct(const vector<double>& a, const vector<double>& b) const;
+
+      /// @}
+
+      /// @name Communication
+      /// @{
 
       /// Broadcast an integer from the given root processor.
       void bcast(int& value, int root=0) const;
@@ -59,11 +86,16 @@ namespace minim {
       /// Wait for all processors to reach this point.
       void barrier() const;
 
+      /// @}
+
     private:
       bool _init = false;
   };
 
   /// The global MPI helper instance.
+  ///
+  /// This is the only instance of Mpi that should be used; it is shared
+  /// by the whole library.
   extern Mpi mpi;
 }
 

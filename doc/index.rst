@@ -16,7 +16,9 @@ These can utilise MPI parallelisation using built-in frameworks.
    :caption: Contents:
 
    quickstart
+   parallelisation
    algorithms/index
    potentials/index
    core_api
-
+   communication_api
+   utils_api
