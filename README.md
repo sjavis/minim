@@ -5,6 +5,8 @@ A C++ software library containing energy minimisation subroutines to find equili
 These can utilise MPI parallelisation using built-in frameworks.
 This library can be used in conjuction with [ELLib](https://github.com/sjavis/ellib) to perform more complex energy landscape methods.
 
+See the [online documentation](https://sjavis.github.io/minim/) for how to use the library.
+
 ## Installation and use
 Download the repository and call `make` in the root directory to compile the library.
 
