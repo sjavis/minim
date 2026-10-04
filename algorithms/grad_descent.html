@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gradient Descent &mdash; Minim  documentation</title>
+  <title>GradDescent &mdash; Minim  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -14,13 +14,13 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=888ff710"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="L-BFGS" href="lbfgs.html" />
-    <link rel="prev" title="Algorithms" href="index.html" /> 
+    <link rel="next" title="Lbfgs" href="lbfgs.html" />
+    <link rel="prev" title="Fire" href="fire.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,11 +46,25 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parallelisation.html">Parallelisation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Gradient Descent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lbfgs.html">L-BFGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anneal.html">Anneal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fire.html">Fire</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GradDescent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim11GradDescent8setAlphaEd"><code class="docutils literal notranslate"><span class="pre">setAlpha()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim11GradDescent10setMaxIterEi"><code class="docutils literal notranslate"><span class="pre">setMaxIter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim11GradDescent4initER5State"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim11GradDescent9iterationER5State"><code class="docutils literal notranslate"><span class="pre">iteration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim11GradDescent16checkConvergenceERK5State"><code class="docutils literal notranslate"><span class="pre">checkConvergence()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="lbfgs.html">Lbfgs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_api.html">Utils API</a></li>
 </ul>
 
         </div>
@@ -68,7 +82,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Algorithms</a></li>
-      <li class="breadcrumb-item active">Gradient Descent</li>
+      <li class="breadcrumb-item active">GradDescent</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/algorithms/grad_descent.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,20 +92,56 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="gradient-descent">
-<span id="graddescent"></span><h1>Gradient Descent<a class="headerlink" href="#gradient-descent" title="Link to this heading"></a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>doxygenclass: Cannot find class “GradDescent” in doxygen xml output for project “minim” from directory: _build/xml/</p>
+  <section id="_CPPv4N5minim11GradDescentE">
+<span id="_CPPv3N5minim11GradDescentE"></span><span id="_CPPv2N5minim11GradDescentE"></span><span id="minim::GradDescent"></span><span id="graddescent"></span><h1>GradDescent<a class="headerlink" href="#_CPPv4N5minim11GradDescentE" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1GradDescent"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GradDescent</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="../utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NewMinimiser</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim11GradDescentE" title="minim::GradDescent"><span class="n"><span class="pre">GradDescent</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /></dt>
+<dd><p>Gradient descent minimisation. </p>
+<p>Takes steps in the direction of the negative gradient, scaled by the step size alpha. Converged when the RMS gradient falls below the state’s convergence criterion. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11GradDescent8setAlphaEd">
+<span id="_CPPv3N5minim11GradDescent8setAlphaEd"></span><span id="_CPPv2N5minim11GradDescent8setAlphaEd"></span><span id="minim::GradDescent::setAlpha__double"></span><span class="target" id="classminim_1_1GradDescent_1ab9bff8982263d6bbcefc24e1cb58787d"></span><a class="reference internal" href="#_CPPv4N5minim11GradDescentE" title="minim::GradDescent"><span class="n"><span class="pre">GradDescent</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setAlpha</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">alpha</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11GradDescent8setAlphaEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the step size alpha. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11GradDescent10setMaxIterEi">
+<span id="_CPPv3N5minim11GradDescent10setMaxIterEi"></span><span id="_CPPv2N5minim11GradDescent10setMaxIterEi"></span><span id="minim::GradDescent::setMaxIter__i"></span><span class="target" id="classminim_1_1GradDescent_1a6f9a07be3d7a070dae55ee860e95147e"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim11GradDescentE" title="minim::GradDescent"><span class="n"><span class="pre">GradDescent</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11GradDescent10setMaxIterEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum number of iterations. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11GradDescent4initER5State">
+<span id="_CPPv3N5minim11GradDescent4initER5State"></span><span id="_CPPv2N5minim11GradDescent4initER5State"></span><span id="minim::GradDescent::init__StateR"></span><span class="target" id="classminim_1_1GradDescent_1accd3e4bd47f4b841acef7cd435e5b1eb"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11GradDescent4initER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the minimiser before the first iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11GradDescent9iterationER5State">
+<span id="_CPPv3N5minim11GradDescent9iterationER5State"></span><span id="_CPPv2N5minim11GradDescent9iterationER5State"></span><span id="minim::GradDescent::iteration__StateR"></span><span class="target" id="classminim_1_1GradDescent_1a06a89783b6d58aa74f227dc41092793b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11GradDescent9iterationER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Perform a single minimisation iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11GradDescent16checkConvergenceERK5State">
+<span id="_CPPv3N5minim11GradDescent16checkConvergenceERK5State"></span><span id="_CPPv2N5minim11GradDescent16checkConvergenceERK5State"></span><span id="minim::GradDescent::checkConvergence__StateCR"></span><span class="target" id="classminim_1_1GradDescent_1a500847582eb11075ea8eef05084450e8"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim11GradDescent16checkConvergenceERK5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Check whether the minimisation is converged. </p>
+</dd></dl>
+
 </div>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="lbfgs.html" class="btn btn-neutral float-right" title="L-BFGS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="fire.html" class="btn btn-neutral float-left" title="Fire" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lbfgs.html" class="btn btn-neutral float-right" title="Lbfgs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,511 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhaseField &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PhaseFieldUnstructured" href="phase_field_unstructured.html" />
+    <link rel="prev" title="Lennard-Jones" href="ljnd.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Potentials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bar_and_hinge.html">BarAndHinge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ljnd.html">Lennard-Jones</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PhaseField</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-system-size">System size</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField6nFluidE"><code class="docutils literal notranslate"><span class="pre">nFluid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField10resolutionE"><code class="docutils literal notranslate"><span class="pre">resolution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField9setNFluidEi"><code class="docutils literal notranslate"><span class="pre">setNFluid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField11setGridSizeE6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setGridSize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField13setResolutionEd"><code class="docutils literal notranslate"><span class="pre">setResolution()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-fluid-interfaces">Fluid interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField13interfaceSizeE"><code class="docutils literal notranslate"><span class="pre">interfaceSize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField14surfaceTensionE"><code class="docutils literal notranslate"><span class="pre">surfaceTension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField16setInterfaceSizeEd"><code class="docutils literal notranslate"><span class="pre">setInterfaceSize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField16setInterfaceSizeE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setInterfaceSize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionEd"><code class="docutils literal notranslate"><span class="pre">setSurfaceTension()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setSurfaceTension()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE"><code class="docutils literal notranslate"><span class="pre">setSurfaceTension()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-density-constraint">Density constraint</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField17densityConstraintE"><code class="docutils literal notranslate"><span class="pre">densityConstraint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField12densityConstE"><code class="docutils literal notranslate"><span class="pre">densityConst</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField20setDensityConstraintENSt6stringE"><code class="docutils literal notranslate"><span class="pre">setDensityConstraint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-volume-and-pressure-constraints">Volume and pressure constraints</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField11volumeFixedE"><code class="docutils literal notranslate"><span class="pre">volumeFixed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField8volConstE"><code class="docutils literal notranslate"><span class="pre">volConst</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField8pressureE"><code class="docutils literal notranslate"><span class="pre">pressure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField6volumeE"><code class="docutils literal notranslate"><span class="pre">volume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField11setPressureE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setPressure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField9setVolumeE6vectorIdEd"><code class="docutils literal notranslate"><span class="pre">setVolume()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField14setVolumeFixedEbd"><code class="docutils literal notranslate"><span class="pre">setVolumeFixed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-solid-nodes">Solid nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField5solidE"><code class="docutils literal notranslate"><span class="pre">solid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField12contactAngleE"><code class="docutils literal notranslate"><span class="pre">contactAngle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField8setSolidE6vectorIcE"><code class="docutils literal notranslate"><span class="pre">setSolid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE"><code class="docutils literal notranslate"><span class="pre">setSolid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField15setContactAngleEd"><code class="docutils literal notranslate"><span class="pre">setContactAngle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField15setContactAngleE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setContactAngle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE"><code class="docutils literal notranslate"><span class="pre">setContactAngle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-external-force">External force</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField5forceE"><code class="docutils literal notranslate"><span class="pre">force</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField8setForceE6vectorIdE6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setForce()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-diffuse-solid-method">Diffuse solid method</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField11setFixFluidEib"><code class="docutils literal notranslate"><span class="pre">setFixFluid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField14setConfinementE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setConfinement()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcEib"><code class="docutils literal notranslate"><span class="pre">diffuseSolid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib"><code class="docutils literal notranslate"><span class="pre">diffuseSolid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib"><code class="docutils literal notranslate"><span class="pre">diffuseSolid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-phasefield-overrides">Overrides</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField4initERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator"><code class="docutils literal notranslate"><span class="pre">initLocal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator"><code class="docutils literal notranslate"><span class="pre">energyComponents()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="phase_field_unstructured.html">PhaseFieldUnstructured</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Potentials</a></li>
+      <li class="breadcrumb-item active">PhaseField</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/potentials/phase_field.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="_CPPv4N5minim10PhaseFieldE">
+<span id="_CPPv3N5minim10PhaseFieldE"></span><span id="_CPPv2N5minim10PhaseFieldE"></span><span id="minim::PhaseField"></span><span id="phasefield"></span><h1>PhaseField<a class="headerlink" href="#_CPPv4N5minim10PhaseFieldE" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1PhaseField"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PhaseField</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="../utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NewPotential</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /></dt>
+<dd><p>Multi-component phase field potential on a structured grid. </p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+</dd></dl>
+
+<section id="minim-phasefield-system-size">
+<h2>System size<a class="headerlink" href="#minim-phasefield-system-size" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField6nFluidE">
+<span id="_CPPv3N5minim10PhaseField6nFluidE"></span><span id="_CPPv2N5minim10PhaseField6nFluidE"></span><span id="minim::PhaseField::nFluid__i"></span><span class="target" id="classminim_1_1PhaseField_1ab0858e25dada0bb15264bc252b1c64bd"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nFluid</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField6nFluidE" title="Link to this definition"></a><br /></dt>
+<dd><p>The number of fluid components. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField10resolutionE">
+<span id="_CPPv3N5minim10PhaseField10resolutionE"></span><span id="_CPPv2N5minim10PhaseField10resolutionE"></span><span id="minim::PhaseField::resolution__double"></span><span class="target" id="classminim_1_1PhaseField_1a8011665c4947383848d3cdd9e44747d9"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">resolution</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField10resolutionE" title="Link to this definition"></a><br /></dt>
+<dd><p>The grid resolution. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField9setNFluidEi">
+<span id="_CPPv3N5minim10PhaseField9setNFluidEi"></span><span id="_CPPv2N5minim10PhaseField9setNFluidEi"></span><span id="minim::PhaseField::setNFluid__i"></span><span class="target" id="classminim_1_1PhaseField_1aff0c8a45f362f61bb7a8e7e37cf5045a"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setNFluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nFluid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField9setNFluidEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the number of fluid components. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField11setGridSizeE6vectorIiE">
+<span id="_CPPv3N5minim10PhaseField11setGridSizeE6vectorIiE"></span><span id="_CPPv2N5minim10PhaseField11setGridSizeE6vectorIiE"></span><span id="minim::PhaseField::setGridSize__vector:i:"></span><span class="target" id="classminim_1_1PhaseField_1afa16deb87911f76ba236f1aa25bb6da2"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setGridSize</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">gridSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField11setGridSizeE6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the size of the grid along each dimension. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField13setResolutionEd">
+<span id="_CPPv3N5minim10PhaseField13setResolutionEd"></span><span id="_CPPv2N5minim10PhaseField13setResolutionEd"></span><span id="minim::PhaseField::setResolution__double"></span><span class="target" id="classminim_1_1PhaseField_1a3a6b188241a31a6ae624036238156415"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setResolution</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resolution</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField13setResolutionEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the grid resolution. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-fluid-interfaces">
+<h2>Fluid interfaces<a class="headerlink" href="#minim-phasefield-fluid-interfaces" title="Link to this heading"></a></h2>
+<p>Order: 1-2, 1-3, …, 1-N, 2-3 (continue to (N-1)-N for N-comp). </p>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField13interfaceSizeE">
+<span id="_CPPv3N5minim10PhaseField13interfaceSizeE"></span><span id="_CPPv2N5minim10PhaseField13interfaceSizeE"></span><span id="minim::PhaseField::interfaceSize__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a877ef2bd79aacc760980c3f476b4be07"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">interfaceSize</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField13interfaceSizeE" title="Link to this definition"></a><br /></dt>
+<dd><p>The diffuse interface size of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField14surfaceTensionE">
+<span id="_CPPv3N5minim10PhaseField14surfaceTensionE"></span><span id="_CPPv2N5minim10PhaseField14surfaceTensionE"></span><span id="minim::PhaseField::surfaceTension__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1abfb65e41cf6405e49395d3f17a99e30f"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">surfaceTension</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField14surfaceTensionE" title="Link to this definition"></a><br /></dt>
+<dd><p>The surface tension of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField16setInterfaceSizeEd">
+<span id="_CPPv3N5minim10PhaseField16setInterfaceSizeEd"></span><span id="_CPPv2N5minim10PhaseField16setInterfaceSizeEd"></span><span id="minim::PhaseField::setInterfaceSize__double"></span><span class="target" id="classminim_1_1PhaseField_1af669d0c6fe06ecba4b009cfe627d1e87"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setInterfaceSize</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">interfaceSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField16setInterfaceSizeEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the interface size for all fluid pairs. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField16setInterfaceSizeE6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField16setInterfaceSizeE6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField16setInterfaceSizeE6vectorIdE"></span><span id="minim::PhaseField::setInterfaceSize__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1abec9e02a2371231b0f8a1fca0d88d061"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setInterfaceSize</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">interfaceSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField16setInterfaceSizeE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the interface size of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField17setSurfaceTensionEd">
+<span id="_CPPv3N5minim10PhaseField17setSurfaceTensionEd"></span><span id="_CPPv2N5minim10PhaseField17setSurfaceTensionEd"></span><span id="minim::PhaseField::setSurfaceTension__double"></span><span class="target" id="classminim_1_1PhaseField_1ab6bd044dcdac3e5a1502085ebc031901"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setSurfaceTension</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">surfaceTension</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the surface tension for all fluid pairs. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField17setSurfaceTensionE6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField17setSurfaceTensionE6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField17setSurfaceTensionE6vectorIdE"></span><span id="minim::PhaseField::setSurfaceTension__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a3100d2a75750667fefd616207be8dad4"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setSurfaceTension</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">surfaceTension</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the surface tension of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE">
+<span id="_CPPv3N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE"></span><span id="_CPPv2N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE"></span><span class="target" id="classminim_1_1PhaseField_1a6e480ff2a1339f921bb13827bb3a54e5"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setSurfaceTension</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">surfaceTensionFn</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the surface tension via a function of the two fluid types. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-density-constraint">
+<h2>Density constraint<a class="headerlink" href="#minim-phasefield-density-constraint" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField17densityConstraintE">
+<span id="_CPPv3N5minim10PhaseField17densityConstraintE"></span><span id="_CPPv2N5minim10PhaseField17densityConstraintE"></span><span id="minim::PhaseField::densityConstraint__i"></span><span class="target" id="classminim_1_1PhaseField_1a5a9f3c51530f3019d2d8756db2a81f0b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">densityConstraint</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField17densityConstraintE" title="Link to this definition"></a><br /></dt>
+<dd><p>The density constraint method: 0 for hard constraint (default). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField12densityConstE">
+<span id="_CPPv3N5minim10PhaseField12densityConstE"></span><span id="_CPPv2N5minim10PhaseField12densityConstE"></span><span id="minim::PhaseField::densityConst__double"></span><span class="target" id="classminim_1_1PhaseField_1a489d81436f3339e8f281edf23fcfb3c4"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">densityConst</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField12densityConstE" title="Link to this definition"></a><br /></dt>
+<dd><p>The strength of the soft density constraint. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField20setDensityConstraintENSt6stringE">
+<span id="_CPPv3N5minim10PhaseField20setDensityConstraintENSt6stringE"></span><span id="_CPPv2N5minim10PhaseField20setDensityConstraintENSt6stringE"></span><span id="minim::PhaseField::setDensityConstraint__ss"></span><span class="target" id="classminim_1_1PhaseField_1ab7d843dd85370241636f7d0527f0e178"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setDensityConstraint</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">method</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField20setDensityConstraintENSt6stringE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the density constraint method (“hard” or “soft”). </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-volume-and-pressure-constraints">
+<h2>Volume and pressure constraints<a class="headerlink" href="#minim-phasefield-volume-and-pressure-constraints" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField11volumeFixedE">
+<span id="_CPPv3N5minim10PhaseField11volumeFixedE"></span><span id="_CPPv2N5minim10PhaseField11volumeFixedE"></span><span id="minim::PhaseField::volumeFixed__b"></span><span class="target" id="classminim_1_1PhaseField_1aeb18a38ae0f9676e88661a315ce37f23"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">volumeFixed</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField11volumeFixedE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the total fluid volume is fixed. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField8volConstE">
+<span id="_CPPv3N5minim10PhaseField8volConstE"></span><span id="_CPPv2N5minim10PhaseField8volConstE"></span><span id="minim::PhaseField::volConst__double"></span><span class="target" id="classminim_1_1PhaseField_1ad64031d11717bd13291de661ca867c3a"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">volConst</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.01</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField8volConstE" title="Link to this definition"></a><br /></dt>
+<dd><p>The strength of the volume constraint. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField8pressureE">
+<span id="_CPPv3N5minim10PhaseField8pressureE"></span><span id="_CPPv2N5minim10PhaseField8pressureE"></span><span id="minim::PhaseField::pressure__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a667804fa16d7e8d46a13b78b270e0f23"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pressure</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField8pressureE" title="Link to this definition"></a><br /></dt>
+<dd><p>The target pressure of each fluid. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField6volumeE">
+<span id="_CPPv3N5minim10PhaseField6volumeE"></span><span id="_CPPv2N5minim10PhaseField6volumeE"></span><span id="minim::PhaseField::volume__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a2d143fe750c122c9213dcf7cbb81ba27"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">volume</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField6volumeE" title="Link to this definition"></a><br /></dt>
+<dd><p>The target volume of each fluid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField11setPressureE6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField11setPressureE6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField11setPressureE6vectorIdE"></span><span id="minim::PhaseField::setPressure__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1accb352a524607635185057f6ff24b825"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setPressure</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pressure</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField11setPressureE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the target pressure of each fluid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField9setVolumeE6vectorIdEd">
+<span id="_CPPv3N5minim10PhaseField9setVolumeE6vectorIdEd"></span><span id="_CPPv2N5minim10PhaseField9setVolumeE6vectorIdEd"></span><span id="minim::PhaseField::setVolume__vector:double:.double"></span><span class="target" id="classminim_1_1PhaseField_1aa94b4642531e77159e46551dd7ab3718"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setVolume</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">volume</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">volConst</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.01</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField9setVolumeE6vectorIdEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the target volume of each fluid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField14setVolumeFixedEbd">
+<span id="_CPPv3N5minim10PhaseField14setVolumeFixedEbd"></span><span id="_CPPv2N5minim10PhaseField14setVolumeFixedEbd"></span><span id="minim::PhaseField::setVolumeFixed__b.double"></span><span class="target" id="classminim_1_1PhaseField_1aa2fb1d01e95b8240e97fdd241f0c77c2"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setVolumeFixed</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">volumeFixed</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">volConst</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.01</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField14setVolumeFixedEbd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set whether the total fluid volume is fixed. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-solid-nodes">
+<h2>Solid nodes<a class="headerlink" href="#minim-phasefield-solid-nodes" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField5solidE">
+<span id="_CPPv3N5minim10PhaseField5solidE"></span><span id="_CPPv2N5minim10PhaseField5solidE"></span><span id="minim::PhaseField::solid__vector:c:"></span><span class="target" id="classminim_1_1PhaseField_1aed0516af3f912b41023b072abb7d8b16"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">solid</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField5solidE" title="Link to this definition"></a><br /></dt>
+<dd><p>Which grid nodes are solid. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField12contactAngleE">
+<span id="_CPPv3N5minim10PhaseField12contactAngleE"></span><span id="_CPPv2N5minim10PhaseField12contactAngleE"></span><span id="minim::PhaseField::contactAngle__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a8be407f193969c1f36c500364f491b41"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">contactAngle</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField12contactAngleE" title="Link to this definition"></a><br /></dt>
+<dd><p>The wall contact angle of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField8setSolidE6vectorIcE">
+<span id="_CPPv3N5minim10PhaseField8setSolidE6vectorIcE"></span><span id="_CPPv2N5minim10PhaseField8setSolidE6vectorIcE"></span><span id="minim::PhaseField::setSolid__vector:c:"></span><span class="target" id="classminim_1_1PhaseField_1a0f1ff7a89839ea7aec45281e0a75594d"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setSolid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">solid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField8setSolidE6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set which grid nodes are solid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE">
+<span id="_CPPv3N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE"></span><span id="_CPPv2N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE"></span><span class="target" id="classminim_1_1PhaseField_1a5ab053828224a9a7f67a5c39b3946e8e"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setSolid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">bool</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">solidFn</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set which grid nodes are solid via a function of the grid indices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField15setContactAngleEd">
+<span id="_CPPv3N5minim10PhaseField15setContactAngleEd"></span><span id="_CPPv2N5minim10PhaseField15setContactAngleEd"></span><span id="minim::PhaseField::setContactAngle__double"></span><span class="target" id="classminim_1_1PhaseField_1afd61e2ab30329472627027811b25536e"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setContactAngle</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">contactAngle</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField15setContactAngleEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the wall contact angle for all fluid pairs. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField15setContactAngleE6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField15setContactAngleE6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField15setContactAngleE6vectorIdE"></span><span id="minim::PhaseField::setContactAngle__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a3390f5867b1fc0fae3dc34e09c87a752"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setContactAngle</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">contactAngle</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField15setContactAngleE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the wall contact angle of each fluid pair. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE">
+<span id="_CPPv3N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE"></span><span id="_CPPv2N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE"></span><span class="target" id="classminim_1_1PhaseField_1a4f8a5c8a18fa15a7272493319a7d2720"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setContactAngle</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">contactAngleFn</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the wall contact angle via a function of the grid indices and fluid pair. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-external-force">
+<h2>External force<a class="headerlink" href="#minim-phasefield-external-force" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField5forceE">
+<span id="_CPPv3N5minim10PhaseField5forceE"></span><span id="_CPPv2N5minim10PhaseField5forceE"></span><span id="minim::PhaseField::force__vector:vector:double::"></span><span class="target" id="classminim_1_1PhaseField_1a10a6fe2df2d5303e5869729effd65b47"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">force</span></span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField5forceE" title="Link to this definition"></a><br /></dt>
+<dd><p>An external force applied to the fluids. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField8setForceE6vectorIdE6vectorIiE">
+<span id="_CPPv3N5minim10PhaseField8setForceE6vectorIdE6vectorIiE"></span><span id="_CPPv2N5minim10PhaseField8setForceE6vectorIdE6vectorIiE"></span><span id="minim::PhaseField::setForce__vector:double:.vector:i:"></span><span class="target" id="classminim_1_1PhaseField_1a63b443a6241a7200026610872918d81d"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setForce</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">force</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFluid</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField8setForceE6vectorIdE6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set an external force on the given fluid (default: all). </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-diffuse-solid-method">
+<h2>Diffuse solid method<a class="headerlink" href="#minim-phasefield-diffuse-solid-method" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField11setFixFluidEib">
+<span id="_CPPv3N5minim10PhaseField11setFixFluidEib"></span><span id="_CPPv2N5minim10PhaseField11setFixFluidEib"></span><span id="minim::PhaseField::setFixFluid__i.b"></span><span class="target" id="classminim_1_1PhaseField_1a87feafeee829c2b3516078acb86c060f"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setFixFluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFluid</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fix</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField11setFixFluidEib" title="Link to this definition"></a><br /></dt>
+<dd><p>Set whether the given fluid is fixed in place. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField14setConfinementE6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField14setConfinementE6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField14setConfinementE6vectorIdE"></span><span id="minim::PhaseField::setConfinement__vector:double:"></span><span class="target" id="classminim_1_1PhaseField_1a94ee233e476a855a35a9d5c4a2597097"></span><a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setConfinement</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">strength</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField14setConfinementE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the confinement strength of each fluid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcEib">
+<span id="_CPPv3N5minim10PhaseField12diffuseSolidE6vectorIcEib"></span><span id="_CPPv2N5minim10PhaseField12diffuseSolidE6vectorIcEib"></span><span id="minim::PhaseField::diffuseSolid__vector:c:.i.b"></span><span class="target" id="classminim_1_1PhaseField_1ada6661f99bff4085bf7eed1b6b0376fb"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">diffuseSolid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">solid</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFluid</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">twoStep</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcEib" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute a diffuse representation of the solid, usable as initial coordinates. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib">
+<span id="_CPPv3N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib"></span><span id="_CPPv2N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib"></span><span id="minim::PhaseField::diffuseSolid__vector:c:.PhaseField.i.b"></span><span class="target" id="classminim_1_1PhaseField_1ae1d3b2924c8786e2b0cc4701cc1af975"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">diffuseSolid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">solid</span></span>, <a class="reference internal" href="#_CPPv4N5minim10PhaseFieldE" title="minim::PhaseField"><span class="n"><span class="pre">PhaseField</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">potential</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFluid</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">twoStep</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute a diffuse representation of the solid using the given potential’s grid. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib">
+<span id="_CPPv3N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib"></span><span id="_CPPv2N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib"></span><span id="minim::PhaseField::diffuseSolid__vector:c:.vector:i:.i.i.b"></span><span class="target" id="classminim_1_1PhaseField_1a1499ecc5e9048a5b14c7a8cb54d717ba"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">diffuseSolid</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">solid</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">gridSize</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nFluid</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFluid</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">twoStep</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute a diffuse representation of the solid using the given grid. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-phasefield-overrides">
+<h2>Overrides<a class="headerlink" href="#minim-phasefield-overrides" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField4initERK6vectorIdE">
+<span id="_CPPv3N5minim10PhaseField4initERK6vectorIdE"></span><span id="_CPPv2N5minim10PhaseField4initERK6vectorIdE"></span><span id="minim::PhaseField::init__vector:double:CR"></span><span class="target" id="classminim_1_1PhaseField_1aa461b34abf779c312fe6fa7fb8796f92"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField4initERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the potential with the coordinates of a new state. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator">
+<span id="_CPPv3N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator"></span><span id="_CPPv2N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator"></span><span id="minim::PhaseField::initLocal__vector:double:CR.CommunicatorCR"></span><span class="target" id="classminim_1_1PhaseField_1a40c1ccd17de9392117edb949d939d4c1"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initLocal</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the potential with local (distributed) data. </p>
+<p>Take care using this, if the potential is cloned any distributed parameters will be copied as they are. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">
+<span id="_CPPv3NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="_CPPv2NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="minim::PhaseField::energyGradient__vector:double:CR.CommunicatorCR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1PhaseField_1a7d4fe331b89697a018f6c1e8738b029e"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The coordinates to compute the energy and gradient of. </p></li>
+<li><p><strong>comm</strong> – The communicator, used for distributed calculations. </p></li>
+<li><p><strong>e</strong> – Output: the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient of the total energy. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator">
+<span id="_CPPv3NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator"></span><span id="_CPPv2NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator"></span><span id="minim::PhaseField::energyComponents__vector:double:CR.CommunicatorCRC"></span><span class="target" id="classminim_1_1PhaseField_1a12e789f49ead931c95a2e7dd980153af"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">map</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energyComponents</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the named components of the energy, e.g. for analysis. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ljnd.html" class="btn btn-neutral float-left" title="Lennard-Jones" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="phase_field_unstructured.html" class="btn btn-neutral float-right" title="PhaseFieldUnstructured" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

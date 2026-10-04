@@ -1,0 +1,1190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Core API &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Communication API" href="communication_api.html" />
+    <link rel="prev" title="PhaseFieldUnstructured" href="potentials/phase_field_unstructured.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim5StateE">State</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">State()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State4ndofE"><code class="docutils literal notranslate"><span class="pre">ndof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State11convergenceE"><code class="docutils literal notranslate"><span class="pre">convergence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State3potE"><code class="docutils literal notranslate"><span class="pre">pot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State4commE"><code class="docutils literal notranslate"><span class="pre">comm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5State12usesThisProcE"><code class="docutils literal notranslate"><span class="pre">usesThisProc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-state-failure">Failure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5State8isFailedE"><code class="docutils literal notranslate"><span class="pre">isFailed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5State6failedEv"><code class="docutils literal notranslate"><span class="pre">failed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-state-energy-and-gradient">Energy and gradient</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State6energyEv"><code class="docutils literal notranslate"><span class="pre">energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State6energyERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State8gradientEv"><code class="docutils literal notranslate"><span class="pre">gradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State8gradientERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">gradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State14energyGradientEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State15componentEnergyEi"><code class="docutils literal notranslate"><span class="pre">componentEnergy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-state-coordinates">Coordinates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5StateixEi"><code class="docutils literal notranslate"><span class="pre">operator[]()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State6coordsEv"><code class="docutils literal notranslate"><span class="pre">coords()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5State6coordsERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">coords()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-state-parallel-functions">Parallel functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State11blockCoordsEv"><code class="docutils literal notranslate"><span class="pre">blockCoords()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5State11blockCoordsERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockCoords()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State11blockEnergyEv"><code class="docutils literal notranslate"><span class="pre">blockEnergy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State11blockEnergyERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockEnergy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State13blockGradientEv"><code class="docutils literal notranslate"><span class="pre">blockGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State13blockGradientERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State19blockEnergyGradientEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State10procEnergyEv"><code class="docutils literal notranslate"><span class="pre">procEnergy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State10procEnergyERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">procEnergy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State12procGradientEv"><code class="docutils literal notranslate"><span class="pre">procGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State12procGradientERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">procGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State18procEnergyGradientEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">procEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">procEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State9allEnergyEv"><code class="docutils literal notranslate"><span class="pre">allEnergy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State11allGradientEv"><code class="docutils literal notranslate"><span class="pre">allGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State17allEnergyGradientEPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">allEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State9allCoordsEv"><code class="docutils literal notranslate"><span class="pre">allCoords()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim5State11communicateEv"><code class="docutils literal notranslate"><span class="pre">communicate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-state-constraints">Constraints</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim5State16applyConstraintsER6vectorIdE"><code class="docutils literal notranslate"><span class="pre">applyConstraints()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim9MinimiserE">Minimiser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim9Minimiser5cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser10setMaxIterEi"><code class="docutils literal notranslate"><span class="pre">setMaxIter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser13setLinesearchENSt6stringE"><code class="docutils literal notranslate"><span class="pre">setLinesearch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE"><code class="docutils literal notranslate"><span class="pre">minimise()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser8minimiseER5StateNSt6stringE"><code class="docutils literal notranslate"><span class="pre">minimise()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser4initER5State"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser9iterationER5State"><code class="docutils literal notranslate"><span class="pre">iteration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser16checkConvergenceERK5State"><code class="docutils literal notranslate"><span class="pre">checkConvergence()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser7maxIterE"><code class="docutils literal notranslate"><span class="pre">maxIter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Minimiser10linesearchE"><code class="docutils literal notranslate"><span class="pre">linesearch</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim9PotentialE">Potential</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential12ParallelTypeE"><code class="docutils literal notranslate"><span class="pre">ParallelType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential12ParallelType6SERIALE"><code class="docutils literal notranslate"><span class="pre">SERIAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential12ParallelType12UNSTRUCTUREDE"><code class="docutils literal notranslate"><span class="pre">UNSTRUCTURED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential12ParallelType4GRIDE"><code class="docutils literal notranslate"><span class="pre">GRID</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential9PotentialE5EFunc5GFunc"><code class="docutils literal notranslate"><span class="pre">Potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential9PotentialE6EGFunc"><code class="docutils literal notranslate"><span class="pre">Potential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim9Potential6energyERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim9Potential8gradientERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">gradient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">energyGradient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential8newStateEiRK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">newState()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential8newStateERK6vectorIdERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">newState()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential4initERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential9initLocalERK6vectorIdERK12Communicator"><code class="docutils literal notranslate"><span class="pre">initLocal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim9Potential5cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential11convergenceE"><code class="docutils literal notranslate"><span class="pre">convergence</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential10ConstraintE"><code class="docutils literal notranslate"><span class="pre">minim::Potential::Constraint</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential10Constraint4idofE"><code class="docutils literal notranslate"><span class="pre">idof</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential10Constraint8normalFnE"><code class="docutils literal notranslate"><span class="pre">normalFn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential10Constraint10correctionE"><code class="docutils literal notranslate"><span class="pre">correction</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9Potential7ElementE"><code class="docutils literal notranslate"><span class="pre">minim::Potential::Element</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential7Element4typeE"><code class="docutils literal notranslate"><span class="pre">type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential7Element4idofE"><code class="docutils literal notranslate"><span class="pre">idof</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential7Element10parametersE"><code class="docutils literal notranslate"><span class="pre">parameters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-potential-constraints">Constraints</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential11constraintsE"><code class="docutils literal notranslate"><span class="pre">constraints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential14setConstraintsE6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setConstraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setConstraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE"><code class="docutils literal notranslate"><span class="pre">setConstraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE"><code class="docutils literal notranslate"><span class="pre">applyConstraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential18correctConstraintsER6vectorIdE"><code class="docutils literal notranslate"><span class="pre">correctConstraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential7isFixedEi"><code class="docutils literal notranslate"><span class="pre">isFixed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential7isFixedERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">isFixed()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-potential-energy-elements">Energy elements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential11distributedE"><code class="docutils literal notranslate"><span class="pre">distributed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential8elementsE"><code class="docutils literal notranslate"><span class="pre">elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential11setElementsE6vectorI7ElementE"><code class="docutils literal notranslate"><span class="pre">setElements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential11setElementsE8vector2dIiE"><code class="docutils literal notranslate"><span class="pre">setElements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE"><code class="docutils literal notranslate"><span class="pre">setElements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">elementEnergyGradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">blockEnergyGradient()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-potential-grid-parameters">Grid parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential10dofPerNodeE"><code class="docutils literal notranslate"><span class="pre">dofPerNode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential9haloWidthE"><code class="docutils literal notranslate"><span class="pre">haloWidth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential8gridSizeE"><code class="docutils literal notranslate"><span class="pre">gridSize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential9commArrayE"><code class="docutils literal notranslate"><span class="pre">commArray</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9Potential12setCommArrayE6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setCommArray()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Core API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/core_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="core-api">
+<span id="api"></span><h1>Core API<a class="headerlink" href="#core-api" title="Link to this heading"></a></h1>
+<section id="_CPPv4N5minim5StateE">
+<span id="_CPPv3N5minim5StateE"></span><span id="_CPPv2N5minim5StateE"></span><span id="minim::State"></span><h2>State<a class="headerlink" href="#_CPPv4N5minim5StateE" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1State"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">State</span></span></span><br /></dt>
+<dd><p>The state of a minimisation. </p>
+<p>Holds the coordinates, potential, and communicator, and provides methods to compute energies and gradients.</p>
+<p>A state may be distributed over any subset of the available MPI ranks (all ranks by default). Each rank holds the local data for the degrees of freedom it requires. The block is the set of degrees of freedom allocated primarily to that rank, and the proc data is the block plus the halo of degrees of freedom, owned by neighbouring ranks, that are needed to compute the energy and gradient of the block. The local data therefore has size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>.</p>
+<p>The plain energy and gradient functions are intended for end users: they accept either the full set of coordinates or the local proc data, and return the total energy and gradient over the whole system. The remaining parallel functions are intended for writing new minimisation algorithms that make use of the distributed data. </p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE">
+<span id="_CPPv3N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE"></span><span id="_CPPv2N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE"></span><span id="minim::State::State__PotentialCR.vector:double:CR.vector:i:CR"></span><span class="target" id="classminim_1_1State_1a4d12e968911e2b4d9647eee87ef1fabf"></span><span class="sig-name descname"><span class="n"><span class="pre">State</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">pot</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ranks</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a state from a potential and initial coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pot</strong> – The potential to be minimised. </p></li>
+<li><p><strong>coords</strong> – The initial coordinates. </p></li>
+<li><p><strong>ranks</strong> – The MPI ranks to distribute the state over (default: all ranks). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State4ndofE">
+<span id="_CPPv3N5minim5State4ndofE"></span><span id="_CPPv2N5minim5State4ndofE"></span><span id="minim::State::ndof__s"></span><span class="target" id="classminim_1_1State_1a031c4e4739681acee964b1bbdb4adffa"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndof</span></span></span><a class="headerlink" href="#_CPPv4N5minim5State4ndofE" title="Link to this definition"></a><br /></dt>
+<dd><p>The total number of degrees of freedom. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State11convergenceE">
+<span id="_CPPv3N5minim5State11convergenceE"></span><span id="_CPPv2N5minim5State11convergenceE"></span><span id="minim::State::convergence__double"></span><span class="target" id="classminim_1_1State_1a1090e4eeabc580d53c1634bb27673c34"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">convergence</span></span></span><a class="headerlink" href="#_CPPv4N5minim5State11convergenceE" title="Link to this definition"></a><br /></dt>
+<dd><p>Convergence criterion: the minimisation is converged when the energy gradient falls below this value. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State3potE">
+<span id="_CPPv3N5minim5State3potE"></span><span id="_CPPv2N5minim5State3potE"></span><span id="minim::State::pot__std::unique_ptr:Potential:"></span><span class="target" id="classminim_1_1State_1aa79f3b43f227d2c55f710586490cbc9b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pot</span></span></span><a class="headerlink" href="#_CPPv4N5minim5State3potE" title="Link to this definition"></a><br /></dt>
+<dd><p>The potential to be minimised. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State4commE">
+<span id="_CPPv3N5minim5State4commE"></span><span id="_CPPv2N5minim5State4commE"></span><span id="minim::State::comm__std::unique_ptr:Communicator:"></span><span class="target" id="classminim_1_1State_1ac003a4f6f323bfdd0f9ca6471dce14e9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">comm</span></span></span><a class="headerlink" href="#_CPPv4N5minim5State4commE" title="Link to this definition"></a><br /></dt>
+<dd><p>The communicator, handling distribution over MPI processes. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State12usesThisProcE">
+<span id="_CPPv3N5minim5State12usesThisProcE"></span><span id="_CPPv2N5minim5State12usesThisProcE"></span><span id="minim::State::usesThisProc__b"></span><span class="target" id="classminim_1_1State_1ad39fa58aea4449c5c6274d7276f074ee"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">usesThisProc</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><a class="headerlink" href="#_CPPv4N5minim5State12usesThisProcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the current MPI rank is used by the state. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<section id="minim-state-failure">
+<h3>Failure<a class="headerlink" href="#minim-state-failure" title="Link to this heading"></a></h3>
+<p>Early termination of the minimisation. </p>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State8isFailedE">
+<span id="_CPPv3N5minim5State8isFailedE"></span><span id="_CPPv2N5minim5State8isFailedE"></span><span id="minim::State::isFailed__b"></span><span class="target" id="classminim_1_1State_1af38e28be32a25d5e0ea0a20f0f79cabe"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isFailed</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4N5minim5State8isFailedE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the minimisation has failed and should be terminated early. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State6failedEv">
+<span id="_CPPv3N5minim5State6failedEv"></span><span id="_CPPv2N5minim5State6failedEv"></span><span id="minim::State::failed"></span><span class="target" id="classminim_1_1State_1aef09a63e9c9880f02019a8af079ec977"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">failed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5State6failedEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Mark the state as failed, causing the minimiser to terminate early. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-state-energy-and-gradient">
+<h3>Energy and gradient<a class="headerlink" href="#minim-state-energy-and-gradient" title="Link to this heading"></a></h3>
+<p>Compute the total energy and gradient over the whole system.</p>
+<dl class="cpp class">
+<dd><p>These are the functions intended for end users; any MPI communication required is handled internally. </p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State6energyEv">
+<span id="_CPPv3NK5minim5State6energyEv"></span><span id="_CPPv2NK5minim5State6energyEv"></span><span id="minim::State::energyC"></span><span class="target" id="classminim_1_1State_1afcfbac66b64e83728c874ead6e851958"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State6energyEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The total energy (0 on ranks not used by the state). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State6energyERK6vectorIdE">
+<span id="_CPPv3NK5minim5State6energyERK6vectorIdE"></span><span id="_CPPv2NK5minim5State6energyERK6vectorIdE"></span><span id="minim::State::energy__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1ade9aa31651bd27bdc4216859c390093e"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energy</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State6energyERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The coordinates to compute the energy of: either the full set of degrees of freedom, or the local proc data. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The total energy, identical on all ranks used by the state (0 on unused ranks). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State8gradientEv">
+<span id="_CPPv3NK5minim5State8gradientEv"></span><span id="_CPPv2NK5minim5State8gradientEv"></span><span id="minim::State::gradientC"></span><span class="target" id="classminim_1_1State_1a41267b68d146daa2682635b4ae552b0d"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gradient</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State8gradientEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient of the total energy of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The gradient over all degrees of freedom (empty on ranks not used by the state). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State8gradientERK6vectorIdE">
+<span id="_CPPv3NK5minim5State8gradientERK6vectorIdE"></span><span id="_CPPv2NK5minim5State8gradientERK6vectorIdE"></span><span id="minim::State::gradient__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1a8daf9129e9a192efff733340b31e1634"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State8gradientERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient of the total energy of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The coordinates to compute the gradient of: either the full set of degrees of freedom, or the local proc data. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The gradient over all degrees of freedom, identical on all ranks used by the state (empty on unused ranks). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State14energyGradientEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State14energyGradientEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State14energyGradientEPdP6vectorIdE"></span><span id="minim::State::energyGradient__doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1afebeb5630977ae5c7ecf26528dc61803"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energyGradient</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State14energyGradientEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy and gradient of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> – Output: the total energy (may be null). </p></li>
+<li><p><strong>g</strong> – Output: the gradient over all degrees of freedom (may be null). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="minim::State::energyGradient__vector:double:CR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1a71410d11ee09f55618d2e707f4799f96"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy and gradient of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The coordinates to compute the energy and gradient of: either the full set of degrees of freedom, or the local proc data. </p></li>
+<li><p><strong>e</strong> – Output: the total energy (may be null). </p></li>
+<li><p><strong>g</strong> – Output: the gradient over all degrees of freedom (may be null). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State15componentEnergyEi">
+<span id="_CPPv3NK5minim5State15componentEnergyEi"></span><span id="_CPPv2NK5minim5State15componentEnergyEi"></span><span id="minim::State::componentEnergy__iC"></span><span class="target" id="classminim_1_1State_1af8b7924736efa968f622b815b04bcde1"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">componentEnergy</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">component</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State15componentEnergyEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy of a single component of the potential, e.g. </p>
+<p>for analysing the different contributions to the total energy.</p>
+<p>Unlike <a class="reference internal" href="#classminim_1_1State_1afcfbac66b64e83728c874ead6e851958"><span class="std std-ref">energy()</span></a>, the result is not summed over the ranks used by the state: each rank returns the contribution of the elements it holds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>component</strong> – The index of the component. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The energy of the component. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-state-coordinates">
+<h3>Coordinates<a class="headerlink" href="#minim-state-coordinates" title="Link to this heading"></a></h3>
+<p>Read and assign the coordinates of the whole system. </p>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5StateixEi">
+<span id="_CPPv3N5minim5StateixEi"></span><span id="_CPPv2N5minim5StateixEi"></span><span id="minim::State::subscript-operator__i"></span><span class="target" id="classminim_1_1State_1a4254cc089e5546deb5855680040f77b3"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">[]</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">i</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5StateixEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Get a single coordinate by its global index. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>i</strong> – The global index of the degree of freedom. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value of the coordinate. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State6coordsEv">
+<span id="_CPPv3NK5minim5State6coordsEv"></span><span id="_CPPv2NK5minim5State6coordsEv"></span><span id="minim::State::coordsC"></span><span class="target" id="classminim_1_1State_1a166308580facd56bc91f79093789c7fa"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">coords</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State6coordsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the full set of coordinates of the state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>All coordinates, identical on all ranks used by the state. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State6coordsERK6vectorIdE">
+<span id="_CPPv3N5minim5State6coordsERK6vectorIdE"></span><span id="_CPPv2N5minim5State6coordsERK6vectorIdE"></span><span id="minim::State::coords__vector:double:CR"></span><span class="target" id="classminim_1_1State_1a7de25a46e5d94bdc43d121f488d93fca"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">coords</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5State6coordsERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the coordinates of the state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The new coordinates, given as the full set of degrees of freedom (distributed over the ranks used by the state). </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-state-parallel-functions">
+<h3>Parallel functions<a class="headerlink" href="#minim-state-parallel-functions" title="Link to this heading"></a></h3>
+<p>Compute with the distributed data.</p>
+<dl class="cpp class">
+<dd><p>These are intended for writing new minimisation algorithms; see the class description for the block / proc terminology. </p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State11blockCoordsEv">
+<span id="_CPPv3NK5minim5State11blockCoordsEv"></span><span id="_CPPv2NK5minim5State11blockCoordsEv"></span><span id="minim::State::blockCoordsC"></span><span class="target" id="classminim_1_1State_1af0c8ebcf2f1754c26d0e93555a2931c7"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">blockCoords</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State11blockCoordsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the local coordinates held by this processor (its block plus halo). </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The local proc data, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State11blockCoordsERK6vectorIdE">
+<span id="_CPPv3N5minim5State11blockCoordsERK6vectorIdE"></span><span id="_CPPv2N5minim5State11blockCoordsERK6vectorIdE"></span><span id="minim::State::blockCoords__vector:double:CR"></span><span class="target" id="classminim_1_1State_1a8070b0b5a991736c33cda2f18dfe79a4"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockCoords</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5State11blockCoordsERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the local coordinates held by this processor. </p>
+<p>The halo region is set exactly as given; call <a class="reference internal" href="#classminim_1_1State_1a1eb6d0d09d21741de62bbe161bd8f98a"><span class="std std-ref">communicate()</span></a> afterwards if it needs updating from the neighbouring blocks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The new local coordinates, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State11blockEnergyEv">
+<span id="_CPPv3NK5minim5State11blockEnergyEv"></span><span id="_CPPv2NK5minim5State11blockEnergyEv"></span><span id="minim::State::blockEnergyC"></span><span class="target" id="classminim_1_1State_1a71de797fc14671ee405e7fd0fae30154"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockEnergy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State11blockEnergyEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy contribution of this processor’s block of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The block’s contribution to the total energy: the total is the sum of the block energies over all ranks used by the state. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State11blockEnergyERK6vectorIdE">
+<span id="_CPPv3NK5minim5State11blockEnergyERK6vectorIdE"></span><span id="_CPPv2NK5minim5State11blockEnergyERK6vectorIdE"></span><span id="minim::State::blockEnergy__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1ad6416b7b95200176b3998d33c1826005"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockEnergy</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State11blockEnergyERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy contribution of this processor’s block of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The local proc data to compute the energy of. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The block’s contribution to the total energy: the total is the sum of the block energies over all ranks used by the state. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State13blockGradientEv">
+<span id="_CPPv3NK5minim5State13blockGradientEv"></span><span id="_CPPv2NK5minim5State13blockGradientEv"></span><span id="minim::State::blockGradientC"></span><span class="target" id="classminim_1_1State_1a980cab5ed0858f5f46c62a0dffa3e6f2"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockGradient</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State13blockGradientEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient contribution of this processor’s block of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. The block entries give the total gradient for those degrees of freedom, but the halo entries are not guaranteed to be correct; use <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a> if the halo entries are also required. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State13blockGradientERK6vectorIdE">
+<span id="_CPPv3NK5minim5State13blockGradientERK6vectorIdE"></span><span id="_CPPv2NK5minim5State13blockGradientERK6vectorIdE"></span><span id="minim::State::blockGradient__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1afae8feef6dec68e0581eb118cb6e9472"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State13blockGradientERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient contribution of this processor’s block of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The local proc data to compute the gradient of. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. The block entries give the total gradient for those degrees of freedom, but the halo entries are not guaranteed to be correct; use <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a> if the halo entries are also required. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State19blockEnergyGradientEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State19blockEnergyGradientEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State19blockEnergyGradientEPdP6vectorIdE"></span><span id="minim::State::blockEnergyGradient__doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1a0cea11062dbbda00587c11853ef94655"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State19blockEnergyGradientEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient contributions of this processor’s block of the current state. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> – Output: the block’s contribution to the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>, as given by <a class="reference internal" href="#classminim_1_1State_1a980cab5ed0858f5f46c62a0dffa3e6f2"><span class="std std-ref">blockGradient()</span></a>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="minim::State::blockEnergyGradient__vector:double:CR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1a7ced9226331180d01b4cdacb2edb66d5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient contributions of this processor’s block of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The local proc data to compute the energy and gradient of. </p></li>
+<li><p><strong>e</strong> – Output: the block’s contribution to the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>, as given by <a class="reference internal" href="#classminim_1_1State_1a980cab5ed0858f5f46c62a0dffa3e6f2"><span class="std std-ref">blockGradient()</span></a>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State10procEnergyEv">
+<span id="_CPPv3NK5minim5State10procEnergyEv"></span><span id="_CPPv2NK5minim5State10procEnergyEv"></span><span id="minim::State::procEnergyC"></span><span class="target" id="classminim_1_1State_1a451fb0c8724b12fe348b052996f068ef"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procEnergy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State10procEnergyEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy contribution of the coordinates assigned to this processor. </p>
+<p>This is identical to <a class="reference internal" href="#classminim_1_1State_1a71de797fc14671ee405e7fd0fae30154"><span class="std std-ref">blockEnergy()</span></a>; it is provided for symmetry with <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The processor’s contribution to the total energy. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State10procEnergyERK6vectorIdE">
+<span id="_CPPv3NK5minim5State10procEnergyERK6vectorIdE"></span><span id="_CPPv2NK5minim5State10procEnergyERK6vectorIdE"></span><span id="minim::State::procEnergy__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1a03a85d80b201017faefec61923b0425b"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procEnergy</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State10procEnergyERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy contribution of the given coordinates assigned to this processor. </p>
+<p>This is identical to <a class="reference internal" href="#classminim_1_1State_1a71de797fc14671ee405e7fd0fae30154"><span class="std std-ref">blockEnergy()</span></a>; it is provided for symmetry with <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The local proc data to compute the energy of. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The processor’s contribution to the total energy. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State12procGradientEv">
+<span id="_CPPv3NK5minim5State12procGradientEv"></span><span id="_CPPv2NK5minim5State12procGradientEv"></span><span id="minim::State::procGradientC"></span><span class="target" id="classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procGradient</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State12procGradientEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient of the current state over this processor’s data. </p>
+<p>This is <a class="reference internal" href="#classminim_1_1State_1a980cab5ed0858f5f46c62a0dffa3e6f2"><span class="std std-ref">blockGradient()</span></a> followed by a halo communication, so that the returned gradient is correct over the whole proc region (block plus halo). This allows minimisation steps to be applied locally to the proc data without further communication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State12procGradientERK6vectorIdE">
+<span id="_CPPv3NK5minim5State12procGradientERK6vectorIdE"></span><span id="_CPPv2NK5minim5State12procGradientERK6vectorIdE"></span><span id="minim::State::procGradient__vector:double:CRC"></span><span class="target" id="classminim_1_1State_1ab9ae9da7be4458f1821e065f7c172152"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State12procGradientERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient of the given coordinates over this processor’s data. </p>
+<p>This is <a class="reference internal" href="#classminim_1_1State_1a980cab5ed0858f5f46c62a0dffa3e6f2"><span class="std std-ref">blockGradient()</span></a> followed by a halo communication, so that the returned gradient is correct over the whole proc region (block plus halo). This allows minimisation steps to be applied locally to the proc data without further communication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coords</strong> – The local proc data to compute the gradient of. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State18procEnergyGradientEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State18procEnergyGradientEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State18procEnergyGradientEPdP6vectorIdE"></span><span id="minim::State::procEnergyGradient__doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1a1927f85bf13609716d10f0a0702e6032"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State18procEnergyGradientEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of the current state over this processor’s data. </p>
+<p>This is <a class="reference internal" href="#classminim_1_1State_1a0cea11062dbbda00587c11853ef94655"><span class="std std-ref">blockEnergyGradient()</span></a> followed by the halo communication of <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a>: the energy is the processor’s contribution to the total, and the gradient is correct over the whole proc region (block plus halo).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> – Output: the processor’s contribution to the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE"></span><span id="minim::State::procEnergyGradient__vector:double:CR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1ab42498a10e014ecc3899d31860c92634"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">procEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of the given coordinates over this processor’s data. </p>
+<p>This is <a class="reference internal" href="#classminim_1_1State_1a0cea11062dbbda00587c11853ef94655"><span class="std std-ref">blockEnergyGradient()</span></a> followed by the halo communication of <a class="reference internal" href="#classminim_1_1State_1ac30c5cc94dc70c1ce7125dcae7f6dbf4"><span class="std std-ref">procGradient()</span></a>: the energy is the processor’s contribution to the total, and the gradient is correct over the whole proc region (block plus halo).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The local proc data to compute the energy and gradient of. </p></li>
+<li><p><strong>e</strong> – Output: the processor’s contribution to the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient in the local proc layout, of size <a class="reference internal" href="communication_api.html#classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"><span class="std std-ref">Communicator::nproc</span></a>. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State9allEnergyEv">
+<span id="_CPPv3NK5minim5State9allEnergyEv"></span><span id="_CPPv2NK5minim5State9allEnergyEv"></span><span id="minim::State::allEnergyC"></span><span class="target" id="classminim_1_1State_1a0a3edd0d129c515ade09984539d6a942"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allEnergy</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State9allEnergyEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy of the current state, returning the result on all MPI ranks. </p>
+<p>Unlike <a class="reference internal" href="#classminim_1_1State_1afcfbac66b64e83728c874ead6e851958"><span class="std std-ref">energy()</span></a>, which returns the result only on the ranks used by the state, this broadcasts it to every rank. This is needed when the state is distributed over a subset of the ranks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The total energy. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State11allGradientEv">
+<span id="_CPPv3NK5minim5State11allGradientEv"></span><span id="_CPPv2NK5minim5State11allGradientEv"></span><span id="minim::State::allGradientC"></span><span class="target" id="classminim_1_1State_1a1f2ef1870c0c35743d3d229c0c5d2bf3"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allGradient</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State11allGradientEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the gradient of the total energy of the current state, returning the result on all MPI ranks. </p>
+<p>Unlike <a class="reference internal" href="#classminim_1_1State_1a41267b68d146daa2682635b4ae552b0d"><span class="std std-ref">gradient()</span></a>, which returns the result only on the ranks used by the state, this broadcasts it to every rank. This is needed when the state is distributed over a subset of the ranks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The gradient over all degrees of freedom. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State17allEnergyGradientEPdP6vectorIdE">
+<span id="_CPPv3NK5minim5State17allEnergyGradientEPdP6vectorIdE"></span><span id="_CPPv2NK5minim5State17allEnergyGradientEPdP6vectorIdE"></span><span id="minim::State::allEnergyGradient__doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1State_1ac82f4573b9b7aff048aeacbfc88e7c7d"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State17allEnergyGradientEPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the total energy and gradient of the current state, returning the results on all MPI ranks. </p>
+<p>Unlike <a class="reference internal" href="#classminim_1_1State_1afebeb5630977ae5c7ecf26528dc61803"><span class="std std-ref">energyGradient()</span></a>, which returns the results only on the ranks used by the state, this broadcasts them to every rank. This is needed when the state is distributed over a subset of the ranks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>e</strong> – Output: the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient over all degrees of freedom. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State9allCoordsEv">
+<span id="_CPPv3NK5minim5State9allCoordsEv"></span><span id="_CPPv2NK5minim5State9allCoordsEv"></span><span id="minim::State::allCoordsC"></span><span class="target" id="classminim_1_1State_1a64286e220f46364208265fc22fdc4264"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">allCoords</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State9allCoordsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the full set of coordinates, returning them on all MPI ranks. </p>
+<p>Unlike <a class="reference internal" href="#classminim_1_1State_1a166308580facd56bc91f79093789c7fa"><span class="std std-ref">coords()</span></a>, which returns the coordinates only on the ranks used by the state, this broadcasts them to every rank. This is needed when the state is distributed over a subset of the ranks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>All coordinates. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5State11communicateEv">
+<span id="_CPPv3N5minim5State11communicateEv"></span><span id="_CPPv2N5minim5State11communicateEv"></span><span id="minim::State::communicate"></span><span class="target" id="classminim_1_1State_1a1eb6d0d09d21741de62bbe161bd8f98a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">communicate</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5State11communicateEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Communicate the local coordinates between processors. </p>
+<p>Updates the halo region of the local proc data using the block data of the neighbouring ranks. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-state-constraints">
+<h3>Constraints<a class="headerlink" href="#minim-state-constraints" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim5State16applyConstraintsER6vectorIdE">
+<span id="_CPPv3NK5minim5State16applyConstraintsER6vectorIdE"></span><span id="_CPPv2NK5minim5State16applyConstraintsER6vectorIdE"></span><span id="minim::State::applyConstraints__vector:double:RC"></span><span class="target" id="classminim_1_1State_1a8366d41b247b234d3ad4ce18d9fd2ab5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">applyConstraints</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim5State16applyConstraintsER6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Apply any constraints from the potential to the given data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – The data to apply the constraints to. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+<section id="_CPPv4N5minim9MinimiserE">
+<span id="_CPPv3N5minim9MinimiserE"></span><span id="_CPPv2N5minim9MinimiserE"></span><span id="minim::Minimiser"></span><h2>Minimiser<a class="headerlink" href="#_CPPv4N5minim9MinimiserE" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Minimiser"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Minimiser</span></span></span><br /></dt>
+<dd><p>Abstract base class for minimisation procedures. </p>
+<p>Holds the settings common to different minimisation algorithms and provides the <code class="docutils literal notranslate"><span class="pre">minimise</span></code> entry point. </p>
+<p>Subclassed by minim::NewMinimiser&lt; Anneal &gt;, minim::NewMinimiser&lt; Fire &gt;, minim::NewMinimiser&lt; GradDescent &gt;, minim::NewMinimiser&lt; Lbfgs &gt;, minim::NewMinimiser&lt; Derived &gt;</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Minimiser5cloneEv">
+<span id="_CPPv3NK5minim9Minimiser5cloneEv"></span><span id="_CPPv2NK5minim9Minimiser5cloneEv"></span><span id="minim::Minimiser::cloneC"></span><span class="target" id="classminim_1_1Minimiser_1abe2811a72feb662691ca734fa4b5dd3f"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9MinimiserE" title="minim::Minimiser"><span class="n"><span class="pre">Minimiser</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim9Minimiser5cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the minimiser. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser10setMaxIterEi">
+<span id="_CPPv3N5minim9Minimiser10setMaxIterEi"></span><span id="_CPPv2N5minim9Minimiser10setMaxIterEi"></span><span id="minim::Minimiser::setMaxIter__i"></span><span class="target" id="classminim_1_1Minimiser_1a1c81396eb61dddb8a93442a2ba156ab4"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim9MinimiserE" title="minim::Minimiser"><span class="n"><span class="pre">Minimiser</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser10setMaxIterEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum number of iterations. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser13setLinesearchENSt6stringE">
+<span id="_CPPv3N5minim9Minimiser13setLinesearchENSt6stringE"></span><span id="_CPPv2N5minim9Minimiser13setLinesearchENSt6stringE"></span><span id="minim::Minimiser::setLinesearch__ss"></span><span class="target" id="classminim_1_1Minimiser_1a284d2054b7da376e44305360adc94dad"></span><a class="reference internal" href="#_CPPv4N5minim9MinimiserE" title="minim::Minimiser"><span class="n"><span class="pre">Minimiser</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setLinesearch</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">method</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser13setLinesearchENSt6stringE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the line search method. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE">
+<span id="_CPPv3N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE"></span><span id="_CPPv2N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE"></span><span class="target" id="classminim_1_1Minimiser_1a912d9d081ebf2b3009eea80ebff99bb9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">minimise</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">void</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">adjustState</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Minimise a state with an optional function to be run each iteration. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> – The state to be minimised. </p></li>
+<li><p><strong>adjustState</strong> – Optional function run each iteration. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The final coordinates. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser8minimiseER5StateNSt6stringE">
+<span id="_CPPv3N5minim9Minimiser8minimiseER5StateNSt6stringE"></span><span id="_CPPv2N5minim9Minimiser8minimiseER5StateNSt6stringE"></span><span id="minim::Minimiser::minimise__StateR.ss"></span><span class="target" id="classminim_1_1Minimiser_1acfe1b4a14e25995be6ba5d27d69d0320"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">minimise</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">logType</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser8minimiseER5StateNSt6stringE" title="Link to this definition"></a><br /></dt>
+<dd><p>Minimise with a predefined log function. </p>
+<p>Format: [fields]-[iter], e.g. “e-100” logs the energy every 100 iterations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> – The state to be minimised. </p></li>
+<li><p><strong>logType</strong> – The log format. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The final coordinates. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser4initER5State">
+<span id="_CPPv3N5minim9Minimiser4initER5State"></span><span id="_CPPv2N5minim9Minimiser4initER5State"></span><span id="minim::Minimiser::init__StateR"></span><span class="target" id="classminim_1_1Minimiser_1a6096298d8e4589a7b5aab1c08739bc7c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser4initER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the minimiser before the first iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser9iterationER5State">
+<span id="_CPPv3N5minim9Minimiser9iterationER5State"></span><span id="_CPPv2N5minim9Minimiser9iterationER5State"></span><span id="minim::Minimiser::iteration__StateR"></span><span class="target" id="classminim_1_1Minimiser_1a69f88ad1458dbcb147c0774c2ca9721f"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5minim9Minimiser9iterationER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Perform a single minimisation iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser16checkConvergenceERK5State">
+<span id="_CPPv3N5minim9Minimiser16checkConvergenceERK5State"></span><span id="_CPPv2N5minim9Minimiser16checkConvergenceERK5State"></span><span id="minim::Minimiser::checkConvergence__StateCR"></span><span class="target" id="classminim_1_1Minimiser_1ace2e3d4c5c3808096160782598d8ec3f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Minimiser16checkConvergenceERK5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Check whether the minimisation is converged. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser7maxIterE">
+<span id="_CPPv3N5minim9Minimiser7maxIterE"></span><span id="_CPPv2N5minim9Minimiser7maxIterE"></span><span id="minim::Minimiser::maxIter__i"></span><span class="target" id="classminim_1_1Minimiser_1a616aff28ac3d8aa0c56ffefc8bfd5d74"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">maxIter</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">100000</span></span><a class="headerlink" href="#_CPPv4N5minim9Minimiser7maxIterE" title="Link to this definition"></a><br /></dt>
+<dd><p>Maximum number of iterations before terminating. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Minimiser10linesearchE">
+<span id="_CPPv3N5minim9Minimiser10linesearchE"></span><span id="_CPPv2N5minim9Minimiser10linesearchE"></span><span id="minim::Minimiser::linesearch__ss"></span><span class="target" id="classminim_1_1Minimiser_1ab2737b9e700368500854cd52f1d50dc2"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">linesearch</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;backtracking&quot;</span></span><a class="headerlink" href="#_CPPv4N5minim9Minimiser10linesearchE" title="Link to this definition"></a><br /></dt>
+<dd><p>The line search method to use. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="_CPPv4N5minim9PotentialE">
+<span id="_CPPv3N5minim9PotentialE"></span><span id="_CPPv2N5minim9PotentialE"></span><span id="minim::Potential"></span><h2>Potential<a class="headerlink" href="#_CPPv4N5minim9PotentialE" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Potential"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Potential</span></span></span><br /></dt>
+<dd><p>Abstract base class for system potentials. </p>
+<p>The potential computes the energy and gradient of a set of coordinates. It can be constructed from user-supplied functions, or derived from to create more complex potentials. </p>
+<p>Subclassed by minim::NewPotential&lt; BarAndHinge &gt;, minim::NewPotential&lt; LjNd &gt;, minim::NewPotential&lt; PhaseField &gt;, minim::NewPotential&lt; PhaseFieldUnstructured &gt;, minim::NewPotential&lt; Derived &gt;</p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-types">Public Types</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential12ParallelTypeE">
+<span id="_CPPv3N5minim9Potential12ParallelTypeE"></span><span id="_CPPv2N5minim9Potential12ParallelTypeE"></span><span class="target" id="classminim_1_1Potential_1a0316f95adbe558bf02fe958e367c90e5"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ParallelType</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential12ParallelTypeE" title="Link to this definition"></a><br /></dt>
+<dd><p>The type of parallelisation used by the potential. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential12ParallelType6SERIALE">
+<span id="_CPPv3N5minim9Potential12ParallelType6SERIALE"></span><span id="_CPPv2N5minim9Potential12ParallelType6SERIALE"></span><span class="target" id="classminim_1_1Potential_1a0316f95adbe558bf02fe958e367c90e5ae3090fbfe91fdf90e25a4053a0e50511"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SERIAL</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential12ParallelType6SERIALE" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential12ParallelType12UNSTRUCTUREDE">
+<span id="_CPPv3N5minim9Potential12ParallelType12UNSTRUCTUREDE"></span><span id="_CPPv2N5minim9Potential12ParallelType12UNSTRUCTUREDE"></span><span class="target" id="classminim_1_1Potential_1a0316f95adbe558bf02fe958e367c90e5a7ef9644e07e335e15f6bae04244552f2"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UNSTRUCTURED</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential12ParallelType12UNSTRUCTUREDE" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential12ParallelType4GRIDE">
+<span id="_CPPv3N5minim9Potential12ParallelType4GRIDE"></span><span id="_CPPv2N5minim9Potential12ParallelType4GRIDE"></span><span class="target" id="classminim_1_1Potential_1a0316f95adbe558bf02fe958e367c90e5ab367d94d85763856e1c6b93f12210b1b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GRID</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential12ParallelType4GRIDE" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential9PotentialE5EFunc5GFunc">
+<span id="_CPPv3N5minim9Potential9PotentialE5EFunc5GFunc"></span><span id="_CPPv2N5minim9Potential9PotentialE5EFunc5GFunc"></span><span id="minim::Potential::Potential__EFunc.GFunc"></span><span class="target" id="classminim_1_1Potential_1af6108d71d59d6736bf0adecd43d09de0"></span><span class="sig-name descname"><span class="n"><span class="pre">Potential</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">EFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">energy</span></span>, <span class="n"><span class="pre">GFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">gradient</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential9PotentialE5EFunc5GFunc" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a potential from separate energy and gradient functions. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential9PotentialE6EGFunc">
+<span id="_CPPv3N5minim9Potential9PotentialE6EGFunc"></span><span id="_CPPv2N5minim9Potential9PotentialE6EGFunc"></span><span id="minim::Potential::Potential__EGFunc"></span><span class="target" id="classminim_1_1Potential_1a8dfa59f59eefd22b45fa24a1bbf215c1"></span><span class="sig-name descname"><span class="n"><span class="pre">Potential</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">EGFunc</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">energyGradient</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential9PotentialE6EGFunc" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a potential from a combined energy and gradient function. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential6energyERK6vectorIdE">
+<span id="_CPPv3NK5minim9Potential6energyERK6vectorIdE"></span><span id="_CPPv2NK5minim9Potential6energyERK6vectorIdE"></span><span id="minim::Potential::energy__vector:double:CRC"></span><span class="target" id="classminim_1_1Potential_1a468da3d1dcd518b13da90292e268bf23"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energy</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential6energyERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy of the given coordinates. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential8gradientERK6vectorIdE">
+<span id="_CPPv3NK5minim9Potential8gradientERK6vectorIdE"></span><span id="_CPPv2NK5minim9Potential8gradientERK6vectorIdE"></span><span id="minim::Potential::gradient__vector:double:CRC"></span><span class="target" id="classminim_1_1Potential_1a3f3f822d54b2b45996ddbf3c7a4464f5"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential8gradientERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy gradient of the given coordinates. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">
+<span id="_CPPv3NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="_CPPv2NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="minim::Potential::energyGradient__vector:double:CR.CommunicatorCR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1Potential_1ab0be8055605c4fd1c9a45f67f5e3d811"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">energyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of the given coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The coordinates to compute the energy and gradient of. </p></li>
+<li><p><strong>comm</strong> – The communicator, used for distributed calculations. </p></li>
+<li><p><strong>e</strong> – Output: the total energy. </p></li>
+<li><p><strong>g</strong> – Output: the gradient of the total energy. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential8newStateEiRK6vectorIiE">
+<span id="_CPPv3N5minim9Potential8newStateEiRK6vectorIiE"></span><span id="_CPPv2N5minim9Potential8newStateEiRK6vectorIiE"></span><span id="minim::Potential::newState__i.vector:i:CR"></span><span class="target" id="classminim_1_1Potential_1aad49b670c5e6bf9962d7a97b132c2de4"></span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">newState</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndof</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ranks</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential8newStateEiRK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a new state of the given number of degrees of freedom. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ndof</strong> – The number of degrees of freedom. </p></li>
+<li><p><strong>ranks</strong> – The MPI ranks to distribute the state over (default: all ranks). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential8newStateERK6vectorIdERK6vectorIiE">
+<span id="_CPPv3N5minim9Potential8newStateERK6vectorIdERK6vectorIiE"></span><span id="_CPPv2N5minim9Potential8newStateERK6vectorIdERK6vectorIiE"></span><span id="minim::Potential::newState__vector:double:CR.vector:i:CR"></span><span class="target" id="classminim_1_1Potential_1aceddbbe1a321f1ea3e711deb68af7813"></span><a class="reference internal" href="#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">newState</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ranks</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential8newStateERK6vectorIdERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a new state from initial coordinates. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coords</strong> – The initial coordinates. </p></li>
+<li><p><strong>ranks</strong> – The MPI ranks to distribute the state over (default: all ranks). </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential4initERK6vectorIdE">
+<span id="_CPPv3N5minim9Potential4initERK6vectorIdE"></span><span id="_CPPv2N5minim9Potential4initERK6vectorIdE"></span><span id="minim::Potential::init__vector:double:CR"></span><span class="target" id="classminim_1_1Potential_1a14b2d91feafada5732e3dd0e20859ae7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential4initERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the potential with the coordinates of a new state. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential9initLocalERK6vectorIdERK12Communicator">
+<span id="_CPPv3N5minim9Potential9initLocalERK6vectorIdERK12Communicator"></span><span id="_CPPv2N5minim9Potential9initLocalERK6vectorIdERK12Communicator"></span><span id="minim::Potential::initLocal__vector:double:CR.CommunicatorCR"></span><span class="target" id="classminim_1_1Potential_1a75daf7df5f17fce60b9a9ff5bb64a85c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">initLocal</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential9initLocalERK6vectorIdERK12Communicator" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the potential with local (distributed) data. </p>
+<p>Take care using this, if the potential is cloned any distributed parameters will be copied as they are. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential5cloneEv">
+<span id="_CPPv3NK5minim9Potential5cloneEv"></span><span id="_CPPv2NK5minim9Potential5cloneEv"></span><span id="minim::Potential::cloneC"></span><span class="target" id="classminim_1_1Potential_1a052817374b7ec92461134c088cfbaca8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential5cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the potential. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11convergenceE">
+<span id="_CPPv3N5minim9Potential11convergenceE"></span><span id="_CPPv2N5minim9Potential11convergenceE"></span><span id="minim::Potential::convergence__double"></span><span class="target" id="classminim_1_1Potential_1a1ddbbec6c9293ff4038aafe00657ade3"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">convergence</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1e-6</span></span><a class="headerlink" href="#_CPPv4N5minim9Potential11convergenceE" title="Link to this definition"></a><br /></dt>
+<dd><p>Convergence criterion used when creating a new state. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential10ConstraintE">
+<span id="_CPPv3N5minim9Potential10ConstraintE"></span><span id="_CPPv2N5minim9Potential10ConstraintE"></span><span id="minim::Potential::Constraint"></span><span class="target" id="structminim_1_1Potential_1_1Constraint"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Constraint</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential10ConstraintE" title="Link to this definition"></a><br /></dt>
+<dd><p>A constraint on a set of degrees of freedom. </p>
+<p>Constrains the given degrees of freedom to move only along a normal direction, optionally with a correction function. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential10Constraint4idofE">
+<span id="_CPPv3N5minim9Potential10Constraint4idofE"></span><span id="_CPPv2N5minim9Potential10Constraint4idofE"></span><span id="minim::Potential::Constraint::idof__vector:i:"></span><span class="target" id="structminim_1_1Potential_1_1Constraint_1a867533e8479035bce897144890124bcc"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">idof</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential10Constraint4idofE" title="Link to this definition"></a><br /></dt>
+<dd><p>The degrees of freedom the constraint applies to. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential10Constraint8normalFnE">
+<span id="_CPPv3N5minim9Potential10Constraint8normalFnE"></span><span id="_CPPv2N5minim9Potential10Constraint8normalFnE"></span><span id="minim::Potential::Constraint::normalFn__NormalFn"></span><span class="target" id="structminim_1_1Potential_1_1Constraint_1ab73ea080448a3a2fe1afd5f83a5ba726"></span><span class="n"><span class="pre">NormalFn</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">normalFn</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential10Constraint8normalFnE" title="Link to this definition"></a><br /></dt>
+<dd><p>Function returning the constrained components of the normal vector. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential10Constraint10correctionE">
+<span id="_CPPv3N5minim9Potential10Constraint10correctionE"></span><span id="_CPPv2N5minim9Potential10Constraint10correctionE"></span><span id="minim::Potential::Constraint::correction__CorrectionFn"></span><span class="target" id="structminim_1_1Potential_1_1Constraint_1aa85bbf311d1a7a7db7285e81d9467a5b"></span><span class="n"><span class="pre">CorrectionFn</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">correction</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><a class="headerlink" href="#_CPPv4N5minim9Potential10Constraint10correctionE" title="Link to this definition"></a><br /></dt>
+<dd><p>Optional function to correct the coordinates to satisfy the constraint. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential7ElementE">
+<span id="_CPPv3N5minim9Potential7ElementE"></span><span id="_CPPv2N5minim9Potential7ElementE"></span><span id="minim::Potential::Element"></span><span class="target" id="structminim_1_1Potential_1_1Element"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Element</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential7ElementE" title="Link to this definition"></a><br /></dt>
+<dd><p>A single energy element, used for parallelisation of unstructured potentials. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential7Element4typeE">
+<span id="_CPPv3N5minim9Potential7Element4typeE"></span><span id="_CPPv2N5minim9Potential7Element4typeE"></span><span id="minim::Potential::Element::type__i"></span><span class="target" id="structminim_1_1Potential_1_1Element_1ad8a6afeb7bf6a28cdc737dd438a25be9"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential7Element4typeE" title="Link to this definition"></a><br /></dt>
+<dd><p>The element type, used to select the energy calculation. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential7Element4idofE">
+<span id="_CPPv3N5minim9Potential7Element4idofE"></span><span id="_CPPv2N5minim9Potential7Element4idofE"></span><span id="minim::Potential::Element::idof__vector:i:"></span><span class="target" id="structminim_1_1Potential_1_1Element_1a17d48b0d4550aff06ed7ad1735903a02"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">idof</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential7Element4idofE" title="Link to this definition"></a><br /></dt>
+<dd><p>The degrees of freedom in the element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential7Element10parametersE">
+<span id="_CPPv3N5minim9Potential7Element10parametersE"></span><span id="_CPPv2N5minim9Potential7Element10parametersE"></span><span id="minim::Potential::Element::parameters__vector:double:"></span><span class="target" id="structminim_1_1Potential_1_1Element_1a059f61e6236a87fb338c21c1ca8ab088"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">parameters</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential7Element10parametersE" title="Link to this definition"></a><br /></dt>
+<dd><p>Any parameters of the element. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<section id="minim-potential-constraints">
+<h3>Constraints<a class="headerlink" href="#minim-potential-constraints" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11constraintsE">
+<span id="_CPPv3N5minim9Potential11constraintsE"></span><span id="_CPPv2N5minim9Potential11constraintsE"></span><span id="minim::Potential::constraints__vector:Constraint:"></span><span class="target" id="classminim_1_1Potential_1a77bce020e0b702a8526fdf64c00aa3ae"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9Potential10ConstraintE" title="minim::Potential::Constraint"><span class="n"><span class="pre">Constraint</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">constraints</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential11constraintsE" title="Link to this definition"></a><br /></dt>
+<dd><p>The constraints applied to the state. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential14setConstraintsE6vectorIiE">
+<span id="_CPPv3N5minim9Potential14setConstraintsE6vectorIiE"></span><span id="_CPPv2N5minim9Potential14setConstraintsE6vectorIiE"></span><span id="minim::Potential::setConstraints__vector:i:"></span><span class="target" id="classminim_1_1Potential_1a59aba735a3ec44fd11b655ba7bfa36be"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setConstraints</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">iFix</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential14setConstraintsE6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Constrain the given degrees of freedom to be fixed. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE">
+<span id="_CPPv3N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE"></span><span id="_CPPv2N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE"></span><span id="minim::Potential::setConstraints__vector2d:i:.vector:double:"></span><span class="target" id="classminim_1_1Potential_1a474521963c27b6c4fdac367133d707f7"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setConstraints</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idofs</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">normal</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Constrain the given degrees of freedom to a linear constraint. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE">
+<span id="_CPPv3N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE"></span><span id="_CPPv2N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE"></span><span id="minim::Potential::setConstraints__vector2d:i:.Constraint::NormalFn.Constraint::CorrectionFn"></span><span class="target" id="classminim_1_1Potential_1a56925fc6952483dcb0783cf7804c3843"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setConstraints</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idofs</span></span>, <a class="reference internal" href="#_CPPv4N5minim9Potential10ConstraintE" title="minim::Potential::Constraint"><span class="n"><span class="pre">Constraint</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NormalFn</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">normal</span></span>, <a class="reference internal" href="#_CPPv4N5minim9Potential10ConstraintE" title="minim::Potential::Constraint"><span class="n"><span class="pre">Constraint</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">CorrectionFn</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">correction</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE" title="Link to this definition"></a><br /></dt>
+<dd><p>Constrain the given degrees of freedom with a custom normal and correction function. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE">
+<span id="_CPPv3NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE"></span><span id="_CPPv2NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE"></span><span id="minim::Potential::applyConstraints__vector:double:CR.CommunicatorCR.vector:double:RC"></span><span class="target" id="classminim_1_1Potential_1a99b8271e6a0b39359c450a92a2bf6729"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">applyConstraints</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">step</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Apply the constraints to a proposed step. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential18correctConstraintsER6vectorIdE">
+<span id="_CPPv3NK5minim9Potential18correctConstraintsER6vectorIdE"></span><span id="_CPPv2NK5minim9Potential18correctConstraintsER6vectorIdE"></span><span id="minim::Potential::correctConstraints__vector:double:RC"></span><span class="target" id="classminim_1_1Potential_1a38ea5670a644c9432245262fb616adce"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">correctConstraints</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential18correctConstraintsER6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Correct the coordinates to satisfy the constraints. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential7isFixedEi">
+<span id="_CPPv3NK5minim9Potential7isFixedEi"></span><span id="_CPPv2NK5minim9Potential7isFixedEi"></span><span id="minim::Potential::isFixed__iC"></span><span class="target" id="classminim_1_1Potential_1adda22f118400947f967de9479b4bd1e2"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isFixed</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential7isFixedEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the given degree of freedom is fixed. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential7isFixedERK6vectorIiE">
+<span id="_CPPv3NK5minim9Potential7isFixedERK6vectorIiE"></span><span id="_CPPv2NK5minim9Potential7isFixedERK6vectorIiE"></span><span id="minim::Potential::isFixed__vector:i:CRC"></span><span class="target" id="classminim_1_1Potential_1ad551c94cc9e4d688cf6b6f09e6a2dfff"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isFixed</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">indicies</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential7isFixedERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether each of the given degrees of freedom is fixed. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-potential-energy-elements">
+<h3>Energy elements<a class="headerlink" href="#minim-potential-energy-elements" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11distributedE">
+<span id="_CPPv3N5minim9Potential11distributedE"></span><span id="_CPPv2N5minim9Potential11distributedE"></span><span id="minim::Potential::distributed__b"></span><span class="target" id="classminim_1_1Potential_1aeb4b99e38584a85de3210e5af77dc57c"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">distributed</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4N5minim9Potential11distributedE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the potential’s elements are distributed over processors. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential8elementsE">
+<span id="_CPPv3N5minim9Potential8elementsE"></span><span id="_CPPv2N5minim9Potential8elementsE"></span><span id="minim::Potential::elements__vector:Element:"></span><span class="target" id="classminim_1_1Potential_1aab550bd9b86ebfabbdc938b12a2de1e7"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9Potential7ElementE" title="minim::Potential::Element"><span class="n"><span class="pre">Element</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elements</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential8elementsE" title="Link to this definition"></a><br /></dt>
+<dd><p>The energy elements used for parallelisation. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11setElementsE6vectorI7ElementE">
+<span id="_CPPv3N5minim9Potential11setElementsE6vectorI7ElementE"></span><span id="_CPPv2N5minim9Potential11setElementsE6vectorI7ElementE"></span><span id="minim::Potential::setElements__vector:Element:"></span><span class="target" id="classminim_1_1Potential_1a5586e94166a4235439428fa7a762fa8e"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setElements</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim9Potential7ElementE" title="minim::Potential::Element"><span class="n"><span class="pre">Element</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">elements</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential11setElementsE6vectorI7ElementE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the elements for an unstructured potential. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11setElementsE8vector2dIiE">
+<span id="_CPPv3N5minim9Potential11setElementsE8vector2dIiE"></span><span id="_CPPv2N5minim9Potential11setElementsE8vector2dIiE"></span><span id="minim::Potential::setElements__vector2d:i:"></span><span class="target" id="classminim_1_1Potential_1afa8a7409529fdb17e1e57088cdde2894"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setElements</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idofs</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential11setElementsE8vector2dIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the elements for an unstructured potential from degrees of freedom. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE">
+<span id="_CPPv3N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE"></span><span id="_CPPv2N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE"></span><span id="minim::Potential::setElements__vector2d:i:.vector:i:.vector2d:double:"></span><span class="target" id="classminim_1_1Potential_1ad12e2895c9710df6651a8df86fd1972f"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setElements</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">idofs</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">types</span></span>, <span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">parameters</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the elements for an unstructured potential from degrees of freedom, types, and parameters. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">
+<span id="_CPPv3NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"></span><span id="_CPPv2NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"></span><span id="minim::Potential::elementEnergyGradient__vector:double:CR.ElementCR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1Potential_1a872055f1f637fed1e2c370fbcab6e198"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elementEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim9Potential7ElementE" title="minim::Potential::Element"><span class="n"><span class="pre">Element</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">el</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of a single element. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">
+<span id="_CPPv3NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="_CPPv2NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE"></span><span id="minim::Potential::blockEnergyGradient__vector:double:CR.CommunicatorCR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1Potential_1a6f25dc28455d0bca0d3fc026536f23d8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">blockEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">comm</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of the local block. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-potential-grid-parameters">
+<h3>Grid parameters<a class="headerlink" href="#minim-potential-grid-parameters" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential10dofPerNodeE">
+<span id="_CPPv3N5minim9Potential10dofPerNodeE"></span><span id="_CPPv2N5minim9Potential10dofPerNodeE"></span><span id="minim::Potential::dofPerNode__i"></span><span class="target" id="classminim_1_1Potential_1ac2525c86c93c6dd266031499a568106a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dofPerNode</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim9Potential10dofPerNodeE" title="Link to this definition"></a><br /></dt>
+<dd><p>Number of degrees of freedom per grid node. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential9haloWidthE">
+<span id="_CPPv3N5minim9Potential9haloWidthE"></span><span id="_CPPv2N5minim9Potential9haloWidthE"></span><span id="minim::Potential::haloWidth__i"></span><span class="target" id="classminim_1_1Potential_1aeddaaf62734208b98c809e9aaf750905"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">haloWidth</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim9Potential9haloWidthE" title="Link to this definition"></a><br /></dt>
+<dd><p>Width of the halo region for grid potentials. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential8gridSizeE">
+<span id="_CPPv3N5minim9Potential8gridSizeE"></span><span id="_CPPv2N5minim9Potential8gridSizeE"></span><span id="minim::Potential::gridSize__vector:i:"></span><span class="target" id="classminim_1_1Potential_1aac5ec36c9a2a009974c5224dec8e0aaf"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gridSize</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential8gridSizeE" title="Link to this definition"></a><br /></dt>
+<dd><p>Size of the grid along each dimension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential9commArrayE">
+<span id="_CPPv3N5minim9Potential9commArrayE"></span><span id="_CPPv2N5minim9Potential9commArrayE"></span><span id="minim::Potential::commArray__vector:i:"></span><span class="target" id="classminim_1_1Potential_1aad4cb1c2157a60c85265e9cc04da28b3"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">commArray</span></span></span><a class="headerlink" href="#_CPPv4N5minim9Potential9commArrayE" title="Link to this definition"></a><br /></dt>
+<dd><p>The number of processors along each grid dimension. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9Potential12setCommArrayE6vectorIiE">
+<span id="_CPPv3N5minim9Potential12setCommArrayE6vectorIiE"></span><span id="_CPPv2N5minim9Potential12setCommArrayE6vectorIiE"></span><span id="minim::Potential::setCommArray__vector:i:"></span><span class="target" id="classminim_1_1Potential_1a0952e6d3c451168b796459967aeb9989"></span><a class="reference internal" href="#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setCommArray</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">commArray</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9Potential12setCommArrayE6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the number of processors along each grid dimension. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="potentials/phase_field_unstructured.html" class="btn btn-neutral float-left" title="PhaseFieldUnstructured" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="communication_api.html" class="btn btn-neutral float-right" title="Communication API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

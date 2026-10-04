@@ -1,0 +1,244 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anneal &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fire" href="fire.html" />
+    <link rel="prev" title="Algorithms" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Anneal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal6AnnealEdd"><code class="docutils literal notranslate"><span class="pre">Anneal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal15setDisplacementEd"><code class="docutils literal notranslate"><span class="pre">setDisplacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal11setTempInitEd"><code class="docutils literal notranslate"><span class="pre">setTempInit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal14setCoolingRateEd"><code class="docutils literal notranslate"><span class="pre">setCoolingRate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE"><code class="docutils literal notranslate"><span class="pre">setCoolingSchedule()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal10setMaxIterEi"><code class="docutils literal notranslate"><span class="pre">setMaxIter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal16setMaxRejectionsEi"><code class="docutils literal notranslate"><span class="pre">setMaxRejections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal4initER5State"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal9iterationER5State"><code class="docutils literal notranslate"><span class="pre">iteration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal16checkConvergenceERK5State"><code class="docutils literal notranslate"><span class="pre">checkConvergence()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal12displacementE"><code class="docutils literal notranslate"><span class="pre">displacement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal8tempInitE"><code class="docutils literal notranslate"><span class="pre">tempInit</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal11coolingRateE"><code class="docutils literal notranslate"><span class="pre">coolingRate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal15coolingScheduleE"><code class="docutils literal notranslate"><span class="pre">coolingSchedule</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6Anneal13maxRejectionsE"><code class="docutils literal notranslate"><span class="pre">maxRejections</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fire.html">Fire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grad_descent.html">GradDescent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lbfgs.html">Lbfgs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Algorithms</a></li>
+      <li class="breadcrumb-item active">Anneal</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/algorithms/anneal.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="_CPPv4N5minim6AnnealE">
+<span id="_CPPv3N5minim6AnnealE"></span><span id="_CPPv2N5minim6AnnealE"></span><span id="minim::Anneal"></span><span id="anneal"></span><h1>Anneal<a class="headerlink" href="#_CPPv4N5minim6AnnealE" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Anneal"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Anneal</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="../utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NewMinimiser</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /></dt>
+<dd><p>Simulated annealing minimisation. </p>
+<p>Randomly perturbs the state each iteration, accepting or rejecting moves by the Metropolis criterion at the current temperature. The temperature decreases over the minimisation, by a cooling rate or a custom schedule, so that increasingly only downhill moves are taken.</p>
+<p>Useful for finding global minma unlike other minimiser which typically look for local minima. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal6AnnealEdd">
+<span id="_CPPv3N5minim6Anneal6AnnealEdd"></span><span id="_CPPv2N5minim6Anneal6AnnealEdd"></span><span id="minim::Anneal::Anneal__double.double"></span><span class="target" id="classminim_1_1Anneal_1af7f5d95c886ecdfe0934513dcd77fb3a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Anneal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">tempInit</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">displacement</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal6AnnealEdd" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct with an initial temperature and displacement. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal15setDisplacementEd">
+<span id="_CPPv3N5minim6Anneal15setDisplacementEd"></span><span id="_CPPv2N5minim6Anneal15setDisplacementEd"></span><span id="minim::Anneal::setDisplacement__double"></span><span class="target" id="classminim_1_1Anneal_1aa5f9311e7ba15823b2a8b2c7a6b3ebf7"></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setDisplacement</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">displacement</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal15setDisplacementEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the displacement used for random moves. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal11setTempInitEd">
+<span id="_CPPv3N5minim6Anneal11setTempInitEd"></span><span id="_CPPv2N5minim6Anneal11setTempInitEd"></span><span id="minim::Anneal::setTempInit__double"></span><span class="target" id="classminim_1_1Anneal_1acce8504cea83c6d4466819b144f3b817"></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setTempInit</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">tempInit</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal11setTempInitEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the initial temperature. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal14setCoolingRateEd">
+<span id="_CPPv3N5minim6Anneal14setCoolingRateEd"></span><span id="_CPPv2N5minim6Anneal14setCoolingRateEd"></span><span id="minim::Anneal::setCoolingRate__double"></span><span class="target" id="classminim_1_1Anneal_1ae1b18ce6212dbd742897b4745f911de0"></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setCoolingRate</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">coolingRate</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal14setCoolingRateEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the factor by which the temperature decreases each iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE">
+<span id="_CPPv3N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE"></span><span id="_CPPv2N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE"></span><span class="target" id="classminim_1_1Anneal_1a8d3d535f7043ce676733864b9e2e7fe2"></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setCoolingSchedule</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">coolingSchedule</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set a custom cooling schedule as a function of the iteration number. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal10setMaxIterEi">
+<span id="_CPPv3N5minim6Anneal10setMaxIterEi"></span><span id="_CPPv2N5minim6Anneal10setMaxIterEi"></span><span id="minim::Anneal::setMaxIter__i"></span><span class="target" id="classminim_1_1Anneal_1af2138631f26b624f2f9c45e9bf8bd3e4"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal10setMaxIterEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum number of iterations. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal16setMaxRejectionsEi">
+<span id="_CPPv3N5minim6Anneal16setMaxRejectionsEi"></span><span id="_CPPv2N5minim6Anneal16setMaxRejectionsEi"></span><span id="minim::Anneal::setMaxRejections__i"></span><span class="target" id="classminim_1_1Anneal_1ac3ef4d882ab8fd609f08f84f3d27c93d"></span><a class="reference internal" href="#_CPPv4N5minim6AnnealE" title="minim::Anneal"><span class="n"><span class="pre">Anneal</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxRejections</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxRejections</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal16setMaxRejectionsEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum number of consecutive rejected moves before terminating. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal4initER5State">
+<span id="_CPPv3N5minim6Anneal4initER5State"></span><span id="_CPPv2N5minim6Anneal4initER5State"></span><span id="minim::Anneal::init__StateR"></span><span class="target" id="classminim_1_1Anneal_1a6b6e1a13ae5fd35dec1f665f30fe24da"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal4initER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the minimiser before the first iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal9iterationER5State">
+<span id="_CPPv3N5minim6Anneal9iterationER5State"></span><span id="_CPPv2N5minim6Anneal9iterationER5State"></span><span id="minim::Anneal::iteration__StateR"></span><span class="target" id="classminim_1_1Anneal_1a0dd1946305942cd2d0eb4b0c33e7285f"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6Anneal9iterationER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Perform a single minimisation iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal16checkConvergenceERK5State">
+<span id="_CPPv3N5minim6Anneal16checkConvergenceERK5State"></span><span id="_CPPv2N5minim6Anneal16checkConvergenceERK5State"></span><span id="minim::Anneal::checkConvergence__StateCR"></span><span class="target" id="classminim_1_1Anneal_1aabb1425273eccc86bdf011889c3698f4"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal16checkConvergenceERK5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Check whether the minimisation is converged. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal12displacementE">
+<span id="_CPPv3N5minim6Anneal12displacementE"></span><span id="_CPPv2N5minim6Anneal12displacementE"></span><span id="minim::Anneal::displacement__double"></span><span class="target" id="classminim_1_1Anneal_1a4e51bb6c4d8a2a399bc027cc374457f4"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">displacement</span></span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal12displacementE" title="Link to this definition"></a><br /></dt>
+<dd><p>The displacement used for random moves. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal8tempInitE">
+<span id="_CPPv3N5minim6Anneal8tempInitE"></span><span id="_CPPv2N5minim6Anneal8tempInitE"></span><span id="minim::Anneal::tempInit__double"></span><span class="target" id="classminim_1_1Anneal_1a07b634bd60323407e94393f09cd406cf"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tempInit</span></span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal8tempInitE" title="Link to this definition"></a><br /></dt>
+<dd><p>The initial temperature. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal11coolingRateE">
+<span id="_CPPv3N5minim6Anneal11coolingRateE"></span><span id="_CPPv2N5minim6Anneal11coolingRateE"></span><span id="minim::Anneal::coolingRate__double"></span><span class="target" id="classminim_1_1Anneal_1a3459d0529555be9a3671b76db76e8aaa"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">coolingRate</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal11coolingRateE" title="Link to this definition"></a><br /></dt>
+<dd><p>The factor by which the temperature decreases each iteration. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal15coolingScheduleE">
+<span id="_CPPv3N5minim6Anneal15coolingScheduleE"></span><span id="_CPPv2N5minim6Anneal15coolingScheduleE"></span><span class="target" id="classminim_1_1Anneal_1ae850815f505b5e05eb7a63c07d525cf5"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">coolingSchedule</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal15coolingScheduleE" title="Link to this definition"></a><br /></dt>
+<dd><p>A custom cooling schedule, as a function of the iteration number. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6Anneal13maxRejectionsE">
+<span id="_CPPv3N5minim6Anneal13maxRejectionsE"></span><span id="_CPPv2N5minim6Anneal13maxRejectionsE"></span><span id="minim::Anneal::maxRejections__i"></span><span class="target" id="classminim_1_1Anneal_1a7610d9924987944e86c27cdc6142a8f4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">maxRejections</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5minim6Anneal13maxRejectionsE" title="Link to this definition"></a><br /></dt>
+<dd><p>Maximum number of consecutive rejected moves before terminating (0: disabled). </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fire.html" class="btn btn-neutral float-right" title="Fire" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

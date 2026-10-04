@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parallelisation &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Algorithms" href="algorithms/index.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Parallelisation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-with-mpi">Running with MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-openmp">Using OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-under-slurm">Running under Slurm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-the-parallelisation-is-implemented">How the parallelisation is implemented</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-distribution">Data distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#communication">Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hybrid-mpi-openmp">Hybrid MPI + OpenMP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Parallelisation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/parallelisation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="parallelisation">
+<span id="id1"></span><h1>Parallelisation<a class="headerlink" href="#parallelisation" title="Link to this heading"></a></h1>
+<p>Minim can be parallelised at two levels:</p>
+<ul class="simple">
+<li><p><strong>MPI</strong> distributes a state across multiple processors, which may be on
+different nodes of a cluster. This is the primary form of
+parallelisation and is used to study large systems.</p></li>
+<li><p><strong>OpenMP</strong> shares the work of a single processor between multiple
+threads on the same node. This is used to speed up a few key
+operations without any communication cost.</p></li>
+</ul>
+<p>Both are enabled by default when the library is built with <code class="docutils literal notranslate"><span class="pre">make</span></code>.</p>
+<section id="running-with-mpi">
+<h2>Running with MPI<a class="headerlink" href="#running-with-mpi" title="Link to this heading"></a></h2>
+<p>Parallelisation is enabled at compile time with the <code class="docutils literal notranslate"><span class="pre">-DPARALLEL</span></code> flag,
+which the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> includes by default, so no extra setup is needed.
+Since MPI requires initialising, user programs must call
+<code class="docutils literal notranslate"><span class="pre">mpi.init</span></code> before creating any states:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">mpi</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The number of mpi ranks and the current rank can be reference by
+<code class="docutils literal notranslate"><span class="pre">mpi.size</span></code> and <code class="docutils literal notranslate"><span class="pre">mpi.rank</span></code>, respectively.</p>
+<p>A program is then run in the usual way with <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mpirun</span><span class="w"> </span><span class="o">-</span><span class="n">np</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">run</span><span class="p">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>Everything proceeds identically whether the program is run on one
+processor or many: the energy and gradient functions always return the
+total values over the whole system, and the coordinates can always be
+read and written in full. The parallelisation is abstracted away by the
+state’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Communicator</span></code>, which handles all of the
+communication between processors in the background.</p>
+<p>The degrees of freedom of each <code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code> are distributed
+over the processors automatically when the state is created; there is no
+need to manually split the data. All of the built-in minimisers and
+potentials work in parallel without modification. By default a state is
+spread over all of the MPI ranks, but a subset can also be used by
+passing the <code class="docutils literal notranslate"><span class="pre">ranks</span></code> argument to its constructor, which allows
+different states to be minimised simultaneously on different processors.</p>
+<p>For grid potentials, the number of processors along each grid dimension
+can be controlled with <code class="docutils literal notranslate"><span class="pre">setCommArray</span></code>, e.g.:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">PhaseField</span><span class="w"> </span><span class="n">pot</span><span class="p">;</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setGridSize</span><span class="p">({</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">});</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setCommArray</span><span class="p">({</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">});</span>
+</pre></div>
+</div>
+<p>which splits the grid over a 2×2 array of processors (and so requires at
+least four ranks). By default it will attempt to automatically set the
+number along each dimension to make the sub-grids as cubic as possible.</p>
+</section>
+<section id="using-openmp">
+<h2>Using OpenMP<a class="headerlink" href="#using-openmp" title="Link to this heading"></a></h2>
+<p>OpenMP is enabled at compile time with the <code class="docutils literal notranslate"><span class="pre">-fopenmp</span></code> flag, which the
+<code class="docutils literal notranslate"><span class="pre">Makefile</span></code> includes by default. It is used to parallelise some of the
+more intensive computations that are local to each processor, such as
+element loops in the phase field potentials, the vector operations used
+by L-BFGS, and the dot products of grid data.</p>
+<p>The number of threads is controlled in the usual way with the
+<code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> environment variable:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">OMP_NUM_THREADS</span><span class="o">=</span><span class="mi">4</span><span class="w"> </span><span class="n">mpirun</span><span class="w"> </span><span class="o">-</span><span class="n">np</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">run</span><span class="p">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>which runs four MPI ranks with four OpenMP threads each.</p>
+</section>
+<section id="running-under-slurm">
+<h2>Running under Slurm<a class="headerlink" href="#running-under-slurm" title="Link to this heading"></a></h2>
+<p>On a cluster managed by Slurm, the three modes of running are:</p>
+<p><strong>MPI only</strong> — one MPI rank per core, no OpenMP threads. Use
+<code class="docutils literal notranslate"><span class="pre">--ntasks</span></code> to request the number of ranks and launch with <code class="docutils literal notranslate"><span class="pre">srun</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=32</span>
+<span class="c1">#SBATCH --time=01:00:00</span>
+
+srun<span class="w"> </span>./run.exe
+</pre></div>
+</div>
+<p><strong>OpenMP only</strong> — a single MPI rank with several threads. Use
+<code class="docutils literal notranslate"><span class="pre">--ntasks=1</span></code> with <code class="docutils literal notranslate"><span class="pre">--cpus-per-task</span></code> for the thread count, and set
+<code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> to match:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#SBATCH --nodes=1</span>
+<span class="c1">#SBATCH --ntasks=1</span>
+<span class="c1">#SBATCH --cpus-per-task=16</span>
+<span class="c1">#SBATCH --time=01:00:00</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_PER_TASK</span>
+srun<span class="w"> </span>./run.exe
+</pre></div>
+</div>
+<p><strong>Hybrid MPI + OpenMP</strong> — several ranks, each with several threads. The
+total core count is <code class="docutils literal notranslate"><span class="pre">--ntasks</span></code> times <code class="docutils literal notranslate"><span class="pre">--cpus-per-task</span></code>. Set
+<code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> to the number of threads <em>per rank</em>, and bind each
+rank (and its threads) to its own cores so that threads belonging to
+different ranks do not interfere:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#SBATCH --nodes=2</span>
+<span class="c1">#SBATCH --ntasks=8</span>
+<span class="c1">#SBATCH --cpus-per-task=8</span>
+<span class="c1">#SBATCH --time=01:00:00</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_PER_TASK</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_PROC_BIND</span><span class="o">=</span><span class="nb">true</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_PLACES</span><span class="o">=</span>cores
+srun<span class="w"> </span>--cpubind<span class="o">=</span>cores<span class="w"> </span>./run.exe
+</pre></div>
+</div>
+<p>The same layouts apply when launching with <code class="docutils literal notranslate"><span class="pre">mpirun</span></code> instead of
+<code class="docutils literal notranslate"><span class="pre">srun</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">32</span> <span class="pre">./run.exe</span></code>); inside a Slurm job,
+<code class="docutils literal notranslate"><span class="pre">mpirun</span></code> will usually detect the allocated ranks automatically.</p>
+<p>Beware of oversubscription: requesting more ranks or threads than the
+allocated cores will slow the program down. In particular, leaving
+<code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> unset may cause each rank to spawn as many threads
+as there are cores on the node, i.e. <code class="docutils literal notranslate"><span class="pre">ntasks</span></code>-fold more than intended.</p>
+</section>
+<section id="how-the-parallelisation-is-implemented">
+<h2>How the parallelisation is implemented<a class="headerlink" href="#how-the-parallelisation-is-implemented" title="Link to this heading"></a></h2>
+<section id="data-distribution">
+<h3>Data distribution<a class="headerlink" href="#data-distribution" title="Link to this heading"></a></h3>
+<p>Each state holds a <code class="xref py py-class docutils literal notranslate"><span class="pre">Communicator</span></code>, created automatically
+from its potential, which defines how the degrees of freedom are divided
+between the processors. Each processor is assigned one <em>block</em>: a set of
+degrees of freedom specific to that processor. To compute the energy and
+gradient of its block, a processor may also require degrees of freedom
+owned by its neighbours, so it additionally stores a <em>halo</em> of degrees
+of freedom from the neighbouring blocks. Together, the block plus halo
+form the <em>proc</em> data held by that processor.</p>
+<p>There are two types of communicator.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CommGrid</span></code> is used by potentials defined on a structured grid, where
+the grid is split into a <code class="docutils literal notranslate"><span class="pre">commArray</span></code> of sub-grids, one per processor,
+each surrounded by a halo of the given <code class="docutils literal notranslate"><span class="pre">haloWidth</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CommUnstructured</span></code> is used by element-based potentials such as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BarAndHinge</span></code>, where the degrees of freedom are split into
+equal-sized blocks in the order they are given. For these, the energy
+and gradient are broken into <em>elements</em>, each depending on only a few
+degrees of freedom, and each element is assigned to the processor that
+holds the most of its degrees of freedom. The remaining degrees of
+freedom of that element then lie in the halo. Defining a potential in
+terms of elements therefore allows the halo regions to be determined
+automatically. For quantities that cannot be split into elements, such
+as a system-wide volume constraint, a potential may instead define a
+<code class="docutils literal notranslate"><span class="pre">blockEnergyGradient</span></code> function that receives the communicator and
+performs its own communication.</p>
+<p>When creating a state, the communicator sets up the block and halo
+layout, remaps the elements to local indices, and creates MPI derived
+datatypes describing the halo and edge regions of the local data.</p>
+</section>
+<section id="communication">
+<h3>Communication<a class="headerlink" href="#communication" title="Link to this heading"></a></h3>
+<p>All communication is handled by the communicator. The key operations
+are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">communicate</span></code> sends the edges of each block into the halo regions of
+the neighbouring processors, updating stale halo data (e.g. after
+randomly perturbing the coordinates).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">communicateAccumulate</span></code> instead adds the values of a processor’s
+halo onto the corresponding entries of the neighbours’ blocks. This is
+how gradient contributions from elements that span two blocks are
+combined.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gather</span></code> and <code class="docutils literal notranslate"><span class="pre">scatter</span></code> convert between the global data and the
+local proc data.</p></li>
+<li><p>Reductions such as <code class="docutils literal notranslate"><span class="pre">sum</span></code>, <code class="docutils literal notranslate"><span class="pre">norm</span></code> and <code class="docutils literal notranslate"><span class="pre">dotProduct</span></code> compute a
+result from the local blocks and sum it over all processors, so every
+processor receives the total.</p></li>
+</ul>
+<p>Since halo entries are duplicated between processors, operations that
+combine data across processors (like <code class="docutils literal notranslate"><span class="pre">dotProduct</span></code>) only count each
+block’s entries once, excluding the halo.</p>
+<p>The state’s energy and gradient functions build on these operations.
+The block functions compute a single processor’s contribution without
+any communication, so summing the block energies over the processors
+gives the total. The plain <code class="docutils literal notranslate"><span class="pre">energy</span></code> / <code class="docutils literal notranslate"><span class="pre">gradient</span></code> functions do this
+summing (and the equivalent gather for the gradient) internally, which
+is why they can be used as if the program were serial. See the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code> documentation for the full set of functions and
+their parallel behaviour.</p>
+<p>Where MPI communication can be avoided, it is. For example, the
+gradient returned by <code class="docutils literal notranslate"><span class="pre">procGradient</span></code> is correct over the whole proc
+region (block plus halo), so the minimisers can take their steps using
+only local data and only need to communicate when the next gradient is
+required.</p>
+</section>
+<section id="hybrid-mpi-openmp">
+<h3>Hybrid MPI + OpenMP<a class="headerlink" href="#hybrid-mpi-openmp" title="Link to this heading"></a></h3>
+<p>OpenMP is used within a single processor to parallelise operations that
+require no communication, such as loops over the local energy elements
+and the vector arithmetic in L-BFGS. It is applied with <code class="docutils literal notranslate"><span class="pre">#pragma</span> <span class="pre">omp</span>
+<span class="pre">parallel</span> <span class="pre">for</span></code> directives, so it requires no changes to user code. The
+dot product over grid data is a special case: rather than excluding the
+halo entries one by one, each processor sums over its interior and the
+result is reduced over the processors with MPI.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="algorithms/index.html" class="btn btn-neutral float-right" title="Algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

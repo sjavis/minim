@@ -1,6 +1,4 @@
 .. _graddescent:
 
-Gradient Descent
-================
 
-.. doxygenclass:: GradDescent
+.. doxygenclass:: minim::GradDescent

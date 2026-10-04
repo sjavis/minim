@@ -13,8 +13,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=888ff710"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -43,7 +43,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
 </ul>
 
         </div>
@@ -73,8 +78,615 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
+ <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  
 </div>
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils_api.html#_CPPv45minim">minim (C++ type)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6AnnealE">minim::Anneal (C++ class)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal6AnnealEdd">minim::Anneal::Anneal (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal16checkConvergenceERK5State">minim::Anneal::checkConvergence (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal11coolingRateE">minim::Anneal::coolingRate (C++ member)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal15coolingScheduleE">minim::Anneal::coolingSchedule (C++ member)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal12displacementE">minim::Anneal::displacement (C++ member)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal4initER5State">minim::Anneal::init (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal9iterationER5State">minim::Anneal::iteration (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal13maxRejectionsE">minim::Anneal::maxRejections (C++ member)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal14setCoolingRateEd">minim::Anneal::setCoolingRate (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal18setCoolingScheduleENSt8functionIFdiEEE">minim::Anneal::setCoolingSchedule (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal15setDisplacementEd">minim::Anneal::setDisplacement (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal10setMaxIterEi">minim::Anneal::setMaxIter (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal16setMaxRejectionsEi">minim::Anneal::setMaxRejections (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal11setTempInitEd">minim::Anneal::setTempInit (C++ function)</a>
+</li>
+      <li><a href="algorithms/anneal.html#_CPPv4N5minim6Anneal8tempInitE">minim::Anneal::tempInit (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHingeE">minim::BarAndHinge (C++ class)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">minim::BarAndHinge::elementEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge4initERK6vectorIdE">minim::BarAndHinge::init (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge10lj_epsilonE">minim::BarAndHinge::lj_epsilon (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge8lj_sigmaE">minim::BarAndHinge::lj_sigma (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge7modulusE">minim::BarAndHinge::modulus (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge12poissonRatioE">minim::BarAndHinge::poissonRatio (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge11setBondListERK8vector2dIiE">minim::BarAndHinge::setBondList (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge8setForceERK6vectorIdE">minim::BarAndHinge::setForce (C++ function)</a>, <a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge8setForceERK8vector2dIdE">[1]</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge12setHingeListERK8vector2dIiE">minim::BarAndHinge::setHingeList (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge10setLength0ERK6vectorIdE">minim::BarAndHinge::setLength0 (C++ function)</a>, <a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge10setLength0Ed">[1]</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge10setModulusEd">minim::BarAndHinge::setModulus (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE">minim::BarAndHinge::setRigidity (C++ function)</a>, <a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge11setRigidityEdd">[1]</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge9setTheta0ERK6vectorIdE">minim::BarAndHinge::setTheta0 (C++ function)</a>, <a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge9setTheta0Ed">[1]</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge12setThicknessERK6vectorIdE">minim::BarAndHinge::setThickness (C++ function)</a>, <a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge12setThicknessEd">[1]</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge16setTriangulationERK8vector2dIiE">minim::BarAndHinge::setTriangulation (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge7setWallEb">minim::BarAndHinge::setWall (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge15setWallAdhesionEb">minim::BarAndHinge::setWallAdhesion (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge13setWallParamsEdd">minim::BarAndHinge::setWallParams (C++ function)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge12wallAdhesionE">minim::BarAndHinge::wallAdhesion (C++ member)</a>
+</li>
+      <li><a href="potentials/bar_and_hinge.html#_CPPv4N5minim11BarAndHinge6wallOnE">minim::BarAndHinge::wallOn (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim8CommGridE">minim::CommGrid (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim9CommGrid2E">minim::CommGrid2 (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim9CommGrid25cloneEv">minim::CommGrid2::clone (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim9CommGrid29CommGrid2Ei">minim::CommGrid2::CommGrid2 (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE">minim::CommGrid2::dotProduct (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim9CommGrid3E">minim::CommGrid3 (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim9CommGrid35cloneEv">minim::CommGrid3::clone (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim9CommGrid39CommGrid3Ei">minim::CommGrid3::CommGrid3 (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE">minim::CommGrid3::dotProduct (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIcE">minim::CommGrid::assignBlock (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIcE">minim::CommGrid::assignProc (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid5cloneEv">minim::CommGrid::clone (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim8CommGrid8CommGridEi">minim::CommGrid::CommGrid (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE">minim::CommGrid::dotProduct (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid8getBlockEi">minim::CommGrid::getBlock (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim8CommGrid11getLocalIdxEii">minim::CommGrid::getLocalIdx (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim8CommGrid9haloWidthE">minim::CommGrid::haloWidth (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim8CommGrid4nDimE">minim::CommGrid::nDim (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim8CommGrid5setupER9Potential6size_t6vectorIiE">minim::CommGrid::setup (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12CommunicatorE">minim::Communicator (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIcE">minim::Communicator::assignBlock (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator10assignProcERK6vectorIcE">minim::Communicator::assignProc (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator10assignProcERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator10assignProcERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator5bcastER6vectorIdEi">minim::Communicator::bcast (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator5bcastERdi">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator5bcastERii">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator5cloneEv">minim::Communicator::clone (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator11communicateER6vectorIdE">minim::Communicator::communicate (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator21communicateAccumulateER6vectorIdE">minim::Communicator::communicateAccumulate (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE">minim::Communicator::dotProduct (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator6gatherERK6vectorIdEi">minim::Communicator::gather (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator3getERK6vectorIdEi">minim::Communicator::get (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator8getBlockEi">minim::Communicator::getBlock (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator11getLocalIdxEii">minim::Communicator::getLocalIdx (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator6nblockE">minim::Communicator::nblock (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator4ndofE">minim::Communicator::ndof (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator4normERK6vectorIdE">minim::Communicator::norm (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator5nprocE">minim::Communicator::nproc (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator4rankEv">minim::Communicator::rank (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator5ranksE">minim::Communicator::ranks (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator7scatterERK6vectorIdEi">minim::Communicator::scatter (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator5setupER9Potential6size_t6vectorIiE">minim::Communicator::setup (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator4sizeEv">minim::Communicator::size (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim12Communicator3sumERK6vectorIdE">minim::Communicator::sum (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim12Communicator3sumEd">[1]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim12Communicator12usesThisProcE">minim::Communicator::usesThisProc (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim16CommUnstructuredE">minim::CommUnstructured (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIcE">minim::CommUnstructured::assignBlock (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIcE">minim::CommUnstructured::assignProc (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIdE">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIiE">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured5cloneEv">minim::CommUnstructured::clone (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim16CommUnstructured16CommUnstructuredEv">minim::CommUnstructured::CommUnstructured (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE">minim::CommUnstructured::dotProduct (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured8getBlockEi">minim::CommUnstructured::getBlock (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim16CommUnstructured11getLocalIdxEii">minim::CommUnstructured::getLocalIdx (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE">minim::CommUnstructured::setup (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4FireE">minim::Fire (C++ class)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire16checkConvergenceERK5State">minim::Fire::checkConvergence (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire5dtMaxE">minim::Fire::dtMax (C++ member)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire4FireEd">minim::Fire::Fire (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire4initER5State">minim::Fire::init (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire9iterationER5State">minim::Fire::iteration (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire8setDtMaxEd">minim::Fire::setDtMax (C++ function)</a>
+</li>
+      <li><a href="algorithms/fire.html#_CPPv4N5minim4Fire10setMaxIterEi">minim::Fire::setMaxIter (C++ function)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescentE">minim::GradDescent (C++ class)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescent16checkConvergenceERK5State">minim::GradDescent::checkConvergence (C++ function)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescent4initER5State">minim::GradDescent::init (C++ function)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescent9iterationER5State">minim::GradDescent::iteration (C++ function)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescent8setAlphaEd">minim::GradDescent::setAlpha (C++ function)</a>
+</li>
+      <li><a href="algorithms/grad_descent.html#_CPPv4N5minim11GradDescent10setMaxIterEi">minim::GradDescent::setMaxIter (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5LbfgsE">minim::Lbfgs (C++ class)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs16checkConvergenceERK5State">minim::Lbfgs::checkConvergence (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs4initER5State">minim::Lbfgs::init (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs9iterationER5State">minim::Lbfgs::iteration (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs11setInitStepEd">minim::Lbfgs::setInitStep (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs4setMEi">minim::Lbfgs::setM (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs10setMaxIterEi">minim::Lbfgs::setMaxIter (C++ function)</a>
+</li>
+      <li><a href="algorithms/lbfgs.html#_CPPv4N5minim5Lbfgs10setMaxStepEd">minim::Lbfgs::setMaxStep (C++ function)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4Lj2dE">minim::Lj2d (C++ class)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4Lj3dE">minim::Lj3d (C++ class)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNdE">minim::LjNd (C++ class)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4NK5minim4LjNd21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">minim::LjNd::elementEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd7epsilonE">minim::LjNd::epsilon (C++ member)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd4initERK6vectorIdE">minim::LjNd::init (C++ function)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd4LjNdEi">minim::LjNd::LjNd (C++ function)</a>, <a href="potentials/ljnd.html#_CPPv4N5minim4LjNd4LjNdEidd">[1]</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd4nDimE">minim::LjNd::nDim (C++ member)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd9nParticleE">minim::LjNd::nParticle (C++ member)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd10setEpsilonEd">minim::LjNd::setEpsilon (C++ function)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd8setSigmaEd">minim::LjNd::setSigma (C++ function)</a>
+</li>
+      <li><a href="potentials/ljnd.html#_CPPv4N5minim4LjNd5sigmaE">minim::LjNd::sigma (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9MinimiserE">minim::Minimiser (C++ class)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser16checkConvergenceERK5State">minim::Minimiser::checkConvergence (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Minimiser5cloneEv">minim::Minimiser::clone (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser4initER5State">minim::Minimiser::init (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser9iterationER5State">minim::Minimiser::iteration (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser10linesearchE">minim::Minimiser::linesearch (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser7maxIterE">minim::Minimiser::maxIter (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser8minimiseER5StateNSt6stringE">minim::Minimiser::minimise (C++ function)</a>, <a href="core_api.html#_CPPv4N5minim9Minimiser8minimiseER5StateNSt8functionIFviR5StateEEE">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser13setLinesearchENSt6stringE">minim::Minimiser::setLinesearch (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Minimiser10setMaxIterEi">minim::Minimiser::setMaxIter (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim3MpiE">minim::Mpi (C++ class)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim3mpiE">minim::mpi (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim3Mpi7barrierEv">minim::Mpi::barrier (C++ function)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim3Mpi5bcastER6vectorIdEii">minim::Mpi::bcast (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim3Mpi5bcastERdi">[1]</a>, <a href="communication_api.html#_CPPv4NK5minim3Mpi5bcastERii">[2]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE">minim::Mpi::dotProduct (C++ function)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="communication_api.html#_CPPv4N5minim3Mpi4initEPiPPPc">minim::Mpi::init (C++ function)</a>, <a href="communication_api.html#_CPPv4N5minim3Mpi4initEv">[1]</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim3Mpi4rankE">minim::Mpi::rank (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4N5minim3Mpi4sizeE">minim::Mpi::size (C++ member)</a>
+</li>
+      <li><a href="communication_api.html#_CPPv4NK5minim3Mpi3sumERK6vectorIdE">minim::Mpi::sum (C++ function)</a>, <a href="communication_api.html#_CPPv4NK5minim3Mpi3sumEd">[1]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseFieldE">minim::PhaseField (C++ class)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField12contactAngleE">minim::PhaseField::contactAngle (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField12densityConstE">minim::PhaseField::densityConst (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField17densityConstraintE">minim::PhaseField::densityConstraint (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE10PhaseFieldib">minim::PhaseField::diffuseSolid (C++ function)</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcE6vectorIiEiib">[1]</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField12diffuseSolidE6vectorIcEib">[2]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4NK5minim10PhaseField16energyComponentsERK6vectorIdERK12Communicator">minim::PhaseField::energyComponents (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4NK5minim10PhaseField14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">minim::PhaseField::energyGradient (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField5forceE">minim::PhaseField::force (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField4initERK6vectorIdE">minim::PhaseField::init (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField9initLocalERK6vectorIdERK12Communicator">minim::PhaseField::initLocal (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField13interfaceSizeE">minim::PhaseField::interfaceSize (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField6nFluidE">minim::PhaseField::nFluid (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField8pressureE">minim::PhaseField::pressure (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField10resolutionE">minim::PhaseField::resolution (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField14setConfinementE6vectorIdE">minim::PhaseField::setConfinement (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField15setContactAngleE6vectorIdE">minim::PhaseField::setContactAngle (C++ function)</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField15setContactAngleENSt8functionIFdiiiEEE">[1]</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField15setContactAngleEd">[2]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField20setDensityConstraintENSt6stringE">minim::PhaseField::setDensityConstraint (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField11setFixFluidEib">minim::PhaseField::setFixFluid (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField8setForceE6vectorIdE6vectorIiE">minim::PhaseField::setForce (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField11setGridSizeE6vectorIiE">minim::PhaseField::setGridSize (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField16setInterfaceSizeE6vectorIdE">minim::PhaseField::setInterfaceSize (C++ function)</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField16setInterfaceSizeEd">[1]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField9setNFluidEi">minim::PhaseField::setNFluid (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField11setPressureE6vectorIdE">minim::PhaseField::setPressure (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField13setResolutionEd">minim::PhaseField::setResolution (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField8setSolidE6vectorIcE">minim::PhaseField::setSolid (C++ function)</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField8setSolidENSt8functionIFbiiiEEE">[1]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField17setSurfaceTensionE6vectorIdE">minim::PhaseField::setSurfaceTension (C++ function)</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField17setSurfaceTensionENSt8functionIF6vectorIdEiiiEEE">[1]</a>, <a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField17setSurfaceTensionEd">[2]</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField9setVolumeE6vectorIdEd">minim::PhaseField::setVolume (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField14setVolumeFixedEbd">minim::PhaseField::setVolumeFixed (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField5solidE">minim::PhaseField::solid (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField14surfaceTensionE">minim::PhaseField::surfaceTension (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField8volConstE">minim::PhaseField::volConst (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField6volumeE">minim::PhaseField::volume (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field.html#_CPPv4N5minim10PhaseField11volumeFixedE">minim::PhaseField::volumeFixed (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructuredE">minim::PhaseFieldUnstructured (C++ class)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4NK5minim22PhaseFieldUnstructured19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">minim::PhaseFieldUnstructured::blockEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured12contactAngleE">minim::PhaseFieldUnstructured::contactAngle (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured12densityConstE">minim::PhaseFieldUnstructured::densityConst (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured17densityConstraintE">minim::PhaseFieldUnstructured::densityConstraint (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured12diffuseSolidE6vectorIcE22PhaseFieldUnstructuredib">minim::PhaseFieldUnstructured::diffuseSolid (C++ function)</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured12diffuseSolidE6vectorIcE6vectorIiEiib">[1]</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured12diffuseSolidE6vectorIcEib">[2]</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4NK5minim22PhaseFieldUnstructured21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">minim::PhaseFieldUnstructured::elementEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured5forceE">minim::PhaseFieldUnstructured::force (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured4initERK6vectorIdE">minim::PhaseFieldUnstructured::init (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured9initLocalERK6vectorIdERK12Communicator">minim::PhaseFieldUnstructured::initLocal (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured13interfaceSizeE">minim::PhaseFieldUnstructured::interfaceSize (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured6nFluidE">minim::PhaseFieldUnstructured::nFluid (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured8pressureE">minim::PhaseFieldUnstructured::pressure (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured10resolutionE">minim::PhaseFieldUnstructured::resolution (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured14setConfinementE6vectorIdE">minim::PhaseFieldUnstructured::setConfinement (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured15setContactAngleE6vectorIdE">minim::PhaseFieldUnstructured::setContactAngle (C++ function)</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured15setContactAngleENSt8functionIFdiiiEEE">[1]</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured20setDensityConstraintENSt6stringE">minim::PhaseFieldUnstructured::setDensityConstraint (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured11setFixFluidEib">minim::PhaseFieldUnstructured::setFixFluid (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured8setForceE6vectorIdE6vectorIiE">minim::PhaseFieldUnstructured::setForce (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured11setGridSizeE6vectorIiE">minim::PhaseFieldUnstructured::setGridSize (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured16setInterfaceSizeE6vectorIdE">minim::PhaseFieldUnstructured::setInterfaceSize (C++ function)</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured16setInterfaceSizeEd">[1]</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured9setNFluidEi">minim::PhaseFieldUnstructured::setNFluid (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured11setPressureE6vectorIdE">minim::PhaseFieldUnstructured::setPressure (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured13setResolutionEd">minim::PhaseFieldUnstructured::setResolution (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured8setSolidE6vectorIcE">minim::PhaseFieldUnstructured::setSolid (C++ function)</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured8setSolidENSt8functionIFbiiiEEE">[1]</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured17setSurfaceTensionE6vectorIdE">minim::PhaseFieldUnstructured::setSurfaceTension (C++ function)</a>, <a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured17setSurfaceTensionEd">[1]</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured9setVolumeE6vectorIdEd">minim::PhaseFieldUnstructured::setVolume (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured14setVolumeFixedEbd">minim::PhaseFieldUnstructured::setVolumeFixed (C++ function)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured5solidE">minim::PhaseFieldUnstructured::solid (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured14surfaceTensionE">minim::PhaseFieldUnstructured::surfaceTension (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured8volConstE">minim::PhaseFieldUnstructured::volConst (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured6volumeE">minim::PhaseFieldUnstructured::volume (C++ member)</a>
+</li>
+      <li><a href="potentials/phase_field_unstructured.html#_CPPv4N5minim22PhaseFieldUnstructured11volumeFixedE">minim::PhaseFieldUnstructured::volumeFixed (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9PotentialE">minim::Potential (C++ class)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential16applyConstraintsERK6vectorIdERK12CommunicatorR6vectorIdE">minim::Potential::applyConstraints (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential19blockEnergyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">minim::Potential::blockEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential5cloneEv">minim::Potential::clone (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential9commArrayE">minim::Potential::commArray (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential10ConstraintE">minim::Potential::Constraint (C++ struct)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential10Constraint10correctionE">minim::Potential::Constraint::correction (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential10Constraint4idofE">minim::Potential::Constraint::idof (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential10Constraint8normalFnE">minim::Potential::Constraint::normalFn (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential11constraintsE">minim::Potential::constraints (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential11convergenceE">minim::Potential::convergence (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential18correctConstraintsER6vectorIdE">minim::Potential::correctConstraints (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential11distributedE">minim::Potential::distributed (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential10dofPerNodeE">minim::Potential::dofPerNode (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential7ElementE">minim::Potential::Element (C++ struct)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential7Element4idofE">minim::Potential::Element::idof (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential7Element10parametersE">minim::Potential::Element::parameters (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential7Element4typeE">minim::Potential::Element::type (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">minim::Potential::elementEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential8elementsE">minim::Potential::elements (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential6energyERK6vectorIdE">minim::Potential::energy (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential14energyGradientERK6vectorIdERK12CommunicatorPdP6vectorIdE">minim::Potential::energyGradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential8gradientERK6vectorIdE">minim::Potential::gradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential8gridSizeE">minim::Potential::gridSize (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential9haloWidthE">minim::Potential::haloWidth (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential4initERK6vectorIdE">minim::Potential::init (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential9initLocalERK6vectorIdERK12Communicator">minim::Potential::initLocal (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim9Potential7isFixedERK6vectorIiE">minim::Potential::isFixed (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim9Potential7isFixedEi">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential8newStateERK6vectorIdERK6vectorIiE">minim::Potential::newState (C++ function)</a>, <a href="core_api.html#_CPPv4N5minim9Potential8newStateEiRK6vectorIiE">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential12ParallelTypeE">minim::Potential::ParallelType (C++ enum)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential12ParallelType4GRIDE">minim::Potential::ParallelType::GRID (C++ enumerator)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential12ParallelType6SERIALE">minim::Potential::ParallelType::SERIAL (C++ enumerator)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential12ParallelType12UNSTRUCTUREDE">minim::Potential::ParallelType::UNSTRUCTURED (C++ enumerator)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential9PotentialE5EFunc5GFunc">minim::Potential::Potential (C++ function)</a>, <a href="core_api.html#_CPPv4N5minim9Potential9PotentialE6EGFunc">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential12setCommArrayE6vectorIiE">minim::Potential::setCommArray (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential14setConstraintsE6vectorIiE">minim::Potential::setConstraints (C++ function)</a>, <a href="core_api.html#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiE6vectorIdE">[1]</a>, <a href="core_api.html#_CPPv4N5minim9Potential14setConstraintsE8vector2dIiEN10Constraint8NormalFnEN10Constraint12CorrectionFnE">[2]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim9Potential11setElementsE6vectorI7ElementE">minim::Potential::setElements (C++ function)</a>, <a href="core_api.html#_CPPv4N5minim9Potential11setElementsE8vector2dIiE">[1]</a>, <a href="core_api.html#_CPPv4N5minim9Potential11setElementsE8vector2dIiE6vectorIiE8vector2dIdE">[2]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4N5minim6RangeIE">minim::RangeI (C++ class)</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEE">minim::RangeI::RangeI (C++ function)</a>, <a href="utils_api.html#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE">[1]</a>, <a href="utils_api.html#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEEi">[2]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4N5minim6RangeXE">minim::RangeX (C++ class)</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEE">minim::RangeX::RangeX (C++ function)</a>, <a href="utils_api.html#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE">[1]</a>, <a href="utils_api.html#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEEi">[2]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5StateE">minim::State (C++ class)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State9allCoordsEv">minim::State::allCoords (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State9allEnergyEv">minim::State::allEnergy (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State17allEnergyGradientEPdP6vectorIdE">minim::State::allEnergyGradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State11allGradientEv">minim::State::allGradient (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State16applyConstraintsER6vectorIdE">minim::State::applyConstraints (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State11blockCoordsERK6vectorIdE">minim::State::blockCoords (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State11blockCoordsEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State11blockEnergyERK6vectorIdE">minim::State::blockEnergy (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State11blockEnergyEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State19blockEnergyGradientEPdP6vectorIdE">minim::State::blockEnergyGradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State19blockEnergyGradientERK6vectorIdEPdP6vectorIdE">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State13blockGradientERK6vectorIdE">minim::State::blockGradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State13blockGradientEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State4commE">minim::State::comm (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State11communicateEv">minim::State::communicate (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State15componentEnergyEi">minim::State::componentEnergy (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State11convergenceE">minim::State::convergence (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State6coordsERK6vectorIdE">minim::State::coords (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State6coordsEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State6energyERK6vectorIdE">minim::State::energy (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State6energyEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State14energyGradientEPdP6vectorIdE">minim::State::energyGradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State14energyGradientERK6vectorIdEPdP6vectorIdE">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State6failedEv">minim::State::failed (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State8gradientERK6vectorIdE">minim::State::gradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State8gradientEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State8isFailedE">minim::State::isFailed (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State4ndofE">minim::State::ndof (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5StateixEi">minim::State::operator[] (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State3potE">minim::State::pot (C++ member)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State10procEnergyERK6vectorIdE">minim::State::procEnergy (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State10procEnergyEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State18procEnergyGradientEPdP6vectorIdE">minim::State::procEnergyGradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State18procEnergyGradientERK6vectorIdEPdP6vectorIdE">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4NK5minim5State12procGradientERK6vectorIdE">minim::State::procGradient (C++ function)</a>, <a href="core_api.html#_CPPv4NK5minim5State12procGradientEv">[1]</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State5StateERK9PotentialRK6vectorIdERK6vectorIiE">minim::State::State (C++ function)</a>
+</li>
+      <li><a href="core_api.html#_CPPv4N5minim5State12usesThisProcE">minim::State::usesThisProc (C++ member)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils_api.html#_CPPv4I00EmlDa1TRK6vectorI1UE">operator* (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EmlDaRK6vectorI1TE1U">[1]</a>, <a href="utils_api.html#_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE">[2]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EmLRDaR6vectorI1TE1U">operator*= (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE">[1]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EplDa1TRK6vectorI1UE">operator+ (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EplDaRK6vectorI1TE1U">[1]</a>, <a href="utils_api.html#_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE">[2]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EpLRDaR6vectorI1TE1U">operator+= (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils_api.html#_CPPv4I00EmiDa1TRK6vectorI1UE">operator- (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EmiDaRK6vectorI1TE1U">[1]</a>, <a href="utils_api.html#_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE">[2]</a>, <a href="utils_api.html#_CPPv4I0EmiDaRK6vectorI1TE">[3]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EmIRDaR6vectorI1TE1U">operator-= (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE">[1]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EdvDa1TRK6vectorI1UE">operator/ (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EdvDaRK6vectorI1TE1U">[1]</a>, <a href="utils_api.html#_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE">[2]</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I00EdVRDaR6vectorI1TE1U">operator/= (C++ function)</a>, <a href="utils_api.html#_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils_api.html#_CPPv43vec">vec (C++ type)</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I0EN3vec3allEbRK6vectorI1TE">vec::all (C++ function)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils_api.html#_CPPv4I0EN3vec3anyEbRK6vectorI1TE">vec::any (C++ function)</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T">vec::insert_unique (C++ function)</a>
+</li>
+      <li><a href="utils_api.html#_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T">vec::isIn (C++ function)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 
 
            </div>

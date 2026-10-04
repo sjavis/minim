@@ -14,12 +14,12 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=888ff710"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Algorithms" href="algorithms/index.html" />
+    <link rel="next" title="Parallelisation" href="parallelisation.html" />
     <link rel="prev" title="Minim" href="index.html" /> 
 </head>
 
@@ -45,8 +45,20 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-first-program">A first program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-a-potential">Configuring a potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging-during-minimisation">Logging during minimisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallelisation">Parallelisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
 </ul>
 
         </div>
@@ -75,6 +87,88 @@
              
   <section id="quick-start">
 <span id="quickstart"></span><h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Download the repository and call <code class="docutils literal notranslate"><span class="pre">make</span></code> in the root directory to compile
+the library:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
+</pre></div>
+</div>
+<p>To use in a program, include the <code class="docutils literal notranslate"><span class="pre">minim.h</span></code> header file and compile with the
+<code class="docutils literal notranslate"><span class="pre">-lminim</span></code> flag:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">mpic</span><span class="o">++</span><span class="w"> </span><span class="o">-</span><span class="n">I$</span><span class="p">(</span><span class="n">MINIM</span><span class="p">)</span><span class="o">/</span><span class="n">include</span><span class="w"> </span><span class="o">-</span><span class="n">L$</span><span class="p">(</span><span class="n">MINIM</span><span class="p">)</span><span class="o">/</span><span class="n">bin</span><span class="w"> </span><span class="o">-</span><span class="n">lminim</span><span class="w"> </span><span class="o">-</span><span class="n">DPARALLEL</span><span class="w"> </span><span class="n">script</span><span class="p">.</span><span class="n">cpp</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">run</span><span class="p">.</span><span class="n">exe</span>
+</pre></div>
+</div>
+<p>Refer to the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder for simple demonstrations of how to use the
+library.</p>
+</section>
+<section id="a-first-program">
+<h2>A first program<a class="headerlink" href="#a-first-program" title="Link to this heading"></a></h2>
+<p>A minimisation consists of a potential, a state, and a minimiser.
+The potential defines the energy, the state holds the coordinates, and the
+minimiser performs the iterations.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;minim.h&quot;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">minim</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">mpi</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Define the system</span>
+<span class="w">  </span><span class="n">Lj3d</span><span class="w"> </span><span class="n">potential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lj3d</span><span class="p">();</span>
+<span class="w">  </span><span class="n">State</span><span class="w"> </span><span class="n">state</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">});</span>
+<span class="w">  </span><span class="n">state</span><span class="p">.</span><span class="n">convergence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-4</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Minimise</span>
+<span class="w">  </span><span class="n">Lbfgs</span><span class="w"> </span><span class="n">min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Lbfgs</span><span class="p">();</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="p">.</span><span class="n">minimise</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;Complete after&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">min</span><span class="p">.</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;iterations.&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The available minimisers are <a class="reference internal" href="algorithms/lbfgs.html"><span class="doc">L-BFGS</span></a>,
+<a class="reference internal" href="algorithms/fire.html"><span class="doc">FIRE</span></a>, <a class="reference internal" href="algorithms/grad_descent.html"><span class="doc">gradient descent</span></a> and <a class="reference internal" href="algorithms/anneal.html"><span class="doc">simulated annealing</span></a>.</p>
+<p>See also the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory for other simple example scripts.</p>
+</section>
+<section id="configuring-a-potential">
+<h2>Configuring a potential<a class="headerlink" href="#configuring-a-potential" title="Link to this heading"></a></h2>
+<p>Potentials are configured via a fluent interface of setter methods.
+For example, a droplet on a surface using the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PhaseField</span></code> potential:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">PhaseField</span><span class="w"> </span><span class="n">pot</span><span class="p">;</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setGridSize</span><span class="p">({</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">});</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setSolid</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">z</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="o">==</span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setContactAngle</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span>
+<span class="n">pot</span><span class="p">.</span><span class="n">setVolumeFixed</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+
+<span class="n">State</span><span class="w"> </span><span class="nf">state</span><span class="p">(</span><span class="n">pot</span><span class="p">,</span><span class="w"> </span><span class="n">initCoords</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="potentials/index.html"><span class="doc">potentials</span></a> pages for the available
+potentials and their parameters.</p>
+</section>
+<section id="logging-during-minimisation">
+<h2>Logging during minimisation<a class="headerlink" href="#logging-during-minimisation" title="Link to this heading"></a></h2>
+<p>Pass a log format to <code class="docutils literal notranslate"><span class="pre">minimise</span></code> to print information during the
+minimisation.
+The format is <code class="docutils literal notranslate"><span class="pre">[fields]-[iter]</span></code>, where fields can include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">e</span></code> — the energy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g</span></code> — the gradient norm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eg</span></code> — both</p></li>
+</ul>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">min.minimise(state,</span> <span class="pre">&quot;eg-100&quot;)</span></code> prints the energy and
+gradient norm every 100 iterations.</p>
+</section>
+<section id="parallelisation">
+<h2>Parallelisation<a class="headerlink" href="#parallelisation" title="Link to this heading"></a></h2>
+<p>Minim can distribute a state over multiple MPI processes and share the
+work of each processor over multiple OpenMP threads.
+See <a class="reference internal" href="parallelisation.html"><span class="doc">Parallelisation</span></a> for how to run in parallel, including under
+Slurm, and how the parallelisation is implemented.</p>
+</section>
 </section>
 
 
@@ -82,7 +176,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Minim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="algorithms/index.html" class="btn btn-neutral float-right" title="Algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="parallelisation.html" class="btn btn-neutral float-right" title="Parallelisation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

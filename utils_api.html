@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utils API &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Communication API" href="communication_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#printing">Printing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv45minim"><code class="docutils literal notranslate"><span class="pre">minim</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#vector-operations">Vector operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EplDa1TRK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator+()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator+()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator+()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator+=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator+=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I0EmiDaRK6vectorI1TE"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmiDa1TRK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator-()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator-=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator-=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmlDa1TRK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator*()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator*()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator*()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator*=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator*=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EdvDa1TRK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator/()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator/()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator/()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TE1U"><code class="docutils literal notranslate"><span class="pre">operator/=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE"><code class="docutils literal notranslate"><span class="pre">operator/=()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv43vec"><code class="docutils literal notranslate"><span class="pre">vec</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4I0EN3vec3anyEbRK6vectorI1TE"><code class="docutils literal notranslate"><span class="pre">any()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4I0EN3vec3allEbRK6vectorI1TE"><code class="docutils literal notranslate"><span class="pre">all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T"><code class="docutils literal notranslate"><span class="pre">isIn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T"><code class="docutils literal notranslate"><span class="pre">insert_unique()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ranges">Ranges</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6RangeXE">RangeX</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEE"><code class="docutils literal notranslate"><span class="pre">RangeX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEEi"><code class="docutils literal notranslate"><span class="pre">RangeX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE"><code class="docutils literal notranslate"><span class="pre">RangeX()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim6RangeIE">RangeI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEE"><code class="docutils literal notranslate"><span class="pre">RangeI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEEi"><code class="docutils literal notranslate"><span class="pre">RangeI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE"><code class="docutils literal notranslate"><span class="pre">RangeI()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Utils API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utils_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-api">
+<span id="id1"></span><h1>Utils API<a class="headerlink" href="#utils-api" title="Link to this heading"></a></h1>
+<p>Helper utilities for common operations.
+The MPI helper is documented separately in <a class="reference internal" href="communication_api.html#communication-api"><span class="std std-ref">Communication API</span></a>.</p>
+<section id="printing">
+<h2>Printing<a class="headerlink" href="#printing" title="Link to this heading"></a></h2>
+<p>The print functions can print any combination of arguments of different
+types, including entire vectors.
+<code class="docutils literal notranslate"><span class="pre">print</span></code> outputs from the root processor only, so it is the usual
+choice for program output, while <code class="docutils literal notranslate"><span class="pre">printAll</span></code> and <code class="docutils literal notranslate"><span class="pre">printAllPlain</span></code>
+output from every processor, prefixed with the processor rank or not.</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45minim">
+<span id="_CPPv35minim"></span><span id="_CPPv25minim"></span><span id="minim"></span><span class="target" id="namespaceminim"></span><span class="k"><span class="pre">namespace</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">minim</span></span></span><a class="headerlink" href="#_CPPv45minim" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</section>
+<section id="vector-operations">
+<h2>Vector operations<a class="headerlink" href="#vector-operations" title="Link to this heading"></a></h2>
+<p>Element-wise arithmetic between vectors and scalars is provided by
+operator overloads, e.g. <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">*</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">+=</span> <span class="pre">b</span></code> all work
+as expected for vectors.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">vec</span></code> namespace contains further vector operations in the style
+of NumPy, such as <code class="docutils literal notranslate"><span class="pre">vec::dotProduct</span></code>, <code class="docutils literal notranslate"><span class="pre">vec::sum</span></code>, <code class="docutils literal notranslate"><span class="pre">vec::norm</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vec::slice</span></code>.</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EplDa1TRK6vectorI1UE">
+<span id="_CPPv3I00Epl1TRK6vectorI1UE"></span><span id="_CPPv2I00Epl1TRK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a82b9646d9379b5ec28859ff8c38b671e"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00EplDa1TRK6vectorI1UE" title="operator+::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EplDa1TRK6vectorI1UE" title="operator+::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EplDa1TRK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise addition of a scalar and a vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EplDaRK6vectorI1TE1U">
+<span id="_CPPv3I00EplRK6vectorI1TE1U"></span><span id="_CPPv2I00EplRK6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a9d89ed212f372d2769d2b7681020beeb"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TE1U" title="operator+::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TE1U" title="operator+::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EplDaRK6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise addition of a vector and a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EplRK6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EplRK6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a4aa7480b7344c4aa19b1355d462a87ef"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE" title="operator+::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE" title="operator+::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EplDaRK6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise addition of two vectors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EpLRDaR6vectorI1TE1U">
+<span id="_CPPv3I00EpLR6vectorI1TE1U"></span><span id="_CPPv2I00EpLR6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1adda5a4b774c5c2aa19028825666a6e7c"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TE1U" title="operator+=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TE1U" title="operator+=::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EpLRDaR6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Add a scalar to each element of the vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EpLR6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EpLR6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1aa2a4289d8816ee51e74cfda081bf027f"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">+=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE" title="operator+=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE" title="operator+=::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EpLRDaR6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Add the elements of another vector to this one. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EmiDaRK6vectorI1TE">
+<span id="_CPPv3I0EmiRK6vectorI1TE"></span><span id="_CPPv2I0EmiRK6vectorI1TE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1aab4926305ec8ea982dc3a8debc7838ba"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EmiDaRK6vectorI1TE" title="operator-::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EmiDaRK6vectorI1TE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise negation of a vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmiDa1TRK6vectorI1UE">
+<span id="_CPPv3I00Emi1TRK6vectorI1UE"></span><span id="_CPPv2I00Emi1TRK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1abf9f7491a11bce862057c49286429e82"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00EmiDa1TRK6vectorI1UE" title="operator-::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmiDa1TRK6vectorI1UE" title="operator-::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmiDa1TRK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise subtraction of a vector from a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmiDaRK6vectorI1TE1U">
+<span id="_CPPv3I00EmiRK6vectorI1TE1U"></span><span id="_CPPv2I00EmiRK6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1ab45a0808ccd1ab8e0e87ce5a9ca5378b"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TE1U" title="operator-::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TE1U" title="operator-::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmiDaRK6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise subtraction of a scalar from a vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EmiRK6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EmiRK6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1aa5511a6d389e43bcfa206023dc3d59b3"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE" title="operator-::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE" title="operator-::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmiDaRK6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise subtraction of two vectors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmIRDaR6vectorI1TE1U">
+<span id="_CPPv3I00EmIR6vectorI1TE1U"></span><span id="_CPPv2I00EmIR6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1ac14eaec3d63ce6936a1997ceff0ab678"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TE1U" title="operator-=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TE1U" title="operator-=::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmIRDaR6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Subtract a scalar from each element of the vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EmIR6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EmIR6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a1101ee7430c5bab7ce17e13cd392874b"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE" title="operator-=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE" title="operator-=::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmIRDaR6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Subtract the elements of another vector from this one. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmlDa1TRK6vectorI1UE">
+<span id="_CPPv3I00Eml1TRK6vectorI1UE"></span><span id="_CPPv2I00Eml1TRK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a7051782906a6297af3a989beebe18012"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00EmlDa1TRK6vectorI1UE" title="operator*::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmlDa1TRK6vectorI1UE" title="operator*::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmlDa1TRK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise multiplication of a scalar and a vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmlDaRK6vectorI1TE1U">
+<span id="_CPPv3I00EmlRK6vectorI1TE1U"></span><span id="_CPPv2I00EmlRK6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a811095329133fe3cd4c3d547e3823558"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TE1U" title="operator*::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TE1U" title="operator*::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmlDaRK6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise multiplication of a vector and a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EmlRK6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EmlRK6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a381dadfde316b8016e8f9ed80461df8b"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE" title="operator*::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE" title="operator*::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmlDaRK6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise multiplication of two vectors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmLRDaR6vectorI1TE1U">
+<span id="_CPPv3I00EmLR6vectorI1TE1U"></span><span id="_CPPv2I00EmLR6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a62ed66163bd7e346e287b00dc338f467"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TE1U" title="operator*=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TE1U" title="operator*=::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmLRDaR6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Multiply each element of the vector by a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EmLR6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EmLR6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1acc36f480674ab83a506c61a1ce5877b1"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE" title="operator*=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE" title="operator*=::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EmLRDaR6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Multiply the elements of this vector by those of another. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EdvDa1TRK6vectorI1UE">
+<span id="_CPPv3I00Edv1TRK6vectorI1UE"></span><span id="_CPPv2I00Edv1TRK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a6370decf40c5c362d62d9a75bc5e0931"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00EdvDa1TRK6vectorI1UE" title="operator/::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdvDa1TRK6vectorI1UE" title="operator/::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EdvDa1TRK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise division of a scalar by a vector. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EdvDaRK6vectorI1TE1U">
+<span id="_CPPv3I00EdvRK6vectorI1TE1U"></span><span id="_CPPv2I00EdvRK6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a64cfef4dc62b2bdce93f95bee537c46d"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TE1U" title="operator/::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TE1U" title="operator/::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EdvDaRK6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise division of a vector by a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EdvRK6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EdvRK6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a244bf066ad282242caf1a81d3c61934d"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE" title="operator/::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE" title="operator/::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EdvDaRK6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Element-wise division of two vectors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EdVRDaR6vectorI1TE1U">
+<span id="_CPPv3I00EdVR6vectorI1TE1U"></span><span id="_CPPv2I00EdVR6vectorI1TE1U"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1aeea5334a13206794e2defd6c55eec314"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TE1U" title="operator/=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TE1U" title="operator/=::U"><span class="n"><span class="pre">U</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EdVRDaR6vectorI1TE1U" title="Link to this definition"></a><br /></dt>
+<dd><p>Divide each element of the vector by a scalar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE">
+<span id="_CPPv3I00EdVR6vectorI1TERK6vectorI1UE"></span><span id="_CPPv2I00EdVR6vectorI1TERK6vectorI1UE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">U</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="vec_8h_1a2be5926bc1155cab291b005e19f01f63"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">/=</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE" title="operator/=::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE" title="operator/=::U"><span class="n"><span class="pre">U</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EdVRDaR6vectorI1TERK6vectorI1UE" title="Link to this definition"></a><br /></dt>
+<dd><p>Divide the elements of this vector by those of another. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv43vec">
+<span id="_CPPv33vec"></span><span id="_CPPv23vec"></span><span id="vec"></span><span class="target" id="namespacevec"></span><span class="k"><span class="pre">namespace</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">vec</span></span></span><a class="headerlink" href="#_CPPv43vec" title="Link to this definition"></a><br /></dt>
+<dd><p>Vector operations and helpers, in the style of NumPy. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN3vec3anyEbRK6vectorI1TE">
+<span id="_CPPv3I0EN3vec3anyERK6vectorI1TE"></span><span id="_CPPv2I0EN3vec3anyERK6vectorI1TE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacevec_1aacb3770b003a8523de344e4cfe6cdac3"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">any</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN3vec3anyEbRK6vectorI1TE" title="vec::any::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN3vec3anyEbRK6vectorI1TE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether any element is truthy. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN3vec3allEbRK6vectorI1TE">
+<span id="_CPPv3I0EN3vec3allERK6vectorI1TE"></span><span id="_CPPv2I0EN3vec3allERK6vectorI1TE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacevec_1ab75156bb3d65021cc53b0e8749e71975"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">all</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN3vec3allEbRK6vectorI1TE" title="vec::all::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN3vec3allEbRK6vectorI1TE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether all elements are truthy. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T">
+<span id="_CPPv3I0EN3vec4isInERK6vectorI1TE1T"></span><span id="_CPPv2I0EN3vec4isInERK6vectorI1TE1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacevec_1a2f862e17d199ec0b21a2c092daaef043"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isIn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T" title="vec::isIn::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">vec</span></span>, <a class="reference internal" href="#_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T" title="vec::isIn::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN3vec4isInEbRK6vectorI1TE1T" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the vector contains the given value. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T">
+<span id="_CPPv3I0EN3vec13insert_uniqueER6vectorI1TE1T"></span><span id="_CPPv2I0EN3vec13insert_uniqueER6vectorI1TE1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacevec_1ab3a6588b9ce8df59a5c4e92bbecc58aa"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert_unique</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T" title="vec::insert_unique::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">vec</span></span>, <a class="reference internal" href="#_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T" title="vec::insert_unique::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN3vec13insert_uniqueEvR6vectorI1TE1T" title="Link to this definition"></a><br /></dt>
+<dd><p>Insert a value into a vector if not already present. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="ranges">
+<h2>Ranges<a class="headerlink" href="#ranges" title="Link to this heading"></a></h2>
+<p>The range classes provide iterators over a multi-dimensional grid,
+optionally with a halo.
+<code class="docutils literal notranslate"><span class="pre">RangeX</span></code> yields the grid indices at each position, while <code class="docutils literal notranslate"><span class="pre">RangeI</span></code>
+yields the flat index, e.g.:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">RangeX</span><span class="p">({</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">},</span><span class="w"> </span><span class="n">halo</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// x is the vector of grid indices, including the halo</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="_CPPv4N5minim6RangeXE">
+<span id="_CPPv3N5minim6RangeXE"></span><span id="_CPPv2N5minim6RangeXE"></span><span id="minim::RangeX"></span><h3>RangeX<a class="headerlink" href="#_CPPv4N5minim6RangeXE" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1RangeX"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeX</span></span></span><br /></dt>
+<dd><p>A range over a multi-dimensional grid, yielding the grid indices. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEE">
+<span id="_CPPv3N5minim6RangeX6RangeXENSt6vectorIiEE"></span><span id="_CPPv2N5minim6RangeX6RangeXENSt6vectorIiEE"></span><span id="minim::RangeX::RangeX__std::vector:i:"></span><span class="target" id="classminim_1_1RangeX_1a3f90a06fb75530a58e27d94c9871c063"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid of the given size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEEi">
+<span id="_CPPv3N5minim6RangeX6RangeXENSt6vectorIiEEi"></span><span id="_CPPv2N5minim6RangeX6RangeXENSt6vectorIiEEi"></span><span id="minim::RangeX::RangeX__std::vector:i:.i"></span><span class="target" id="classminim_1_1RangeX_1a033361e89d0121e5e9bcd8e1be07ba19"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">halo</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid with a halo of the given width. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE">
+<span id="_CPPv3N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE"></span><span id="_CPPv2N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE"></span><span id="minim::RangeX::RangeX__std::vector:i:.std::vector:i:"></span><span class="target" id="classminim_1_1RangeX_1af2507d9fe096e2e72ac2d9eee5634a53"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeX</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xHalo</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeX6RangeXENSt6vectorIiEENSt6vectorIiEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid with the given halo widths. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="_CPPv4N5minim6RangeIE">
+<span id="_CPPv3N5minim6RangeIE"></span><span id="_CPPv2N5minim6RangeIE"></span><span id="minim::RangeI"></span><h3>RangeI<a class="headerlink" href="#_CPPv4N5minim6RangeIE" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1RangeI"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeI</span></span></span><br /></dt>
+<dd><p>A range over a multi-dimensional grid, yielding the flat index. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEE">
+<span id="_CPPv3N5minim6RangeI6RangeIENSt6vectorIiEE"></span><span id="_CPPv2N5minim6RangeI6RangeIENSt6vectorIiEE"></span><span id="minim::RangeI::RangeI__std::vector:i:"></span><span class="target" id="classminim_1_1RangeI_1afa70b343e57b89461639b1e35946cc73"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeI</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid of the given size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEEi">
+<span id="_CPPv3N5minim6RangeI6RangeIENSt6vectorIiEEi"></span><span id="_CPPv2N5minim6RangeI6RangeIENSt6vectorIiEEi"></span><span id="minim::RangeI::RangeI__std::vector:i:.i"></span><span class="target" id="classminim_1_1RangeI_1a4dea5267162482d0a2746830ea4c9207"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeI</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">halo</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid with a halo of the given width. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE">
+<span id="_CPPv3N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE"></span><span id="_CPPv2N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE"></span><span id="minim::RangeI::RangeI__std::vector:i:.std::vector:i:"></span><span class="target" id="classminim_1_1RangeI_1aca69157742fb33405f96ec9c5d9aef67"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RangeI</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xSize</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">xHalo</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim6RangeI6RangeIENSt6vectorIiEENSt6vectorIiEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a range over a grid with the given halo widths. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="communication_api.html" class="btn btn-neutral float-left" title="Communication API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

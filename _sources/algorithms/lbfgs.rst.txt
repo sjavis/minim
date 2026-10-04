@@ -1,6 +1,4 @@
 .. _algorithms_lbfgs:
 
-L-BFGS
-======
 
-.. doxygenclass:: Lbfgs
+.. doxygenclass:: minim::Lbfgs

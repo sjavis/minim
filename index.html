@@ -14,8 +14,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=888ff710"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -45,7 +45,12 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
 </ul>
 
         </div>
@@ -74,14 +79,59 @@
              
   <section id="minim">
 <h1>Minim<a class="headerlink" href="#minim" title="Link to this heading"></a></h1>
-<p>Minim is a C++ library for minimisation problems. It contains a variety of algorithms such as gradient descent and LBFGS.</p>
+<p>Minim is a C++ library for energy minimisation problems.
+It contains a variety of algorithms, such as gradient descent, L-BFGS, FIRE
+and simulated annealing, and a selection of system potentials.
+These can utilise MPI parallelisation using built-in frameworks.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#a-first-program">A first program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#configuring-a-potential">Configuring a potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#logging-during-minimisation">Logging during minimisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#parallelisation">Parallelisation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parallelisation.html#running-with-mpi">Running with MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelisation.html#using-openmp">Using OpenMP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelisation.html#running-under-slurm">Running under Slurm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelisation.html#how-the-parallelisation-is-implemented">How the parallelisation is implemented</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="algorithms/grad_descent.html">Gradient Descent</a></li>
-<li class="toctree-l2"><a class="reference internal" href="algorithms/lbfgs.html">L-BFGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/anneal.html">Anneal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/fire.html">Fire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/grad_descent.html">GradDescent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms/lbfgs.html">Lbfgs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="potentials/bar_and_hinge.html">BarAndHinge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="potentials/ljnd.html">Lennard-Jones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="potentials/phase_field.html">PhaseField</a></li>
+<li class="toctree-l2"><a class="reference internal" href="potentials/phase_field_unstructured.html">PhaseFieldUnstructured</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="core_api.html#_CPPv4N5minim5StateE">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_api.html#_CPPv4N5minim9MinimiserE">Minimiser</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core_api.html#_CPPv4N5minim9PotentialE">Potential</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="communication_api.html">Communication API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="communication_api.html#_CPPv4N5minim3mpiE"><code class="docutils literal notranslate"><span class="pre">mpi</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="communication_api.html#_CPPv4N5minim3MpiE">Mpi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communication_api.html#_CPPv4N5minim12CommunicatorE">Communicator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="communication_api.html#communicator-subclasses">Communicator subclasses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils_api.html#printing">Printing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils_api.html#vector-operations">Vector operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils_api.html#ranges">Ranges</a></li>
 </ul>
 </li>
 </ul>

@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarAndHinge &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lennard-Jones" href="ljnd.html" />
+    <link rel="prev" title="Potentials" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Potentials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BarAndHinge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minim-barandhinge-elastic-properties">Elastic properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge7modulusE"><code class="docutils literal notranslate"><span class="pre">modulus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge12poissonRatioE"><code class="docutils literal notranslate"><span class="pre">poissonRatio</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge10setModulusEd"><code class="docutils literal notranslate"><span class="pre">setModulus()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge12setThicknessEd"><code class="docutils literal notranslate"><span class="pre">setThickness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge12setThicknessERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setThickness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge11setRigidityEdd"><code class="docutils literal notranslate"><span class="pre">setRigidity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setRigidity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge10setLength0Ed"><code class="docutils literal notranslate"><span class="pre">setLength0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge10setLength0ERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setLength0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge9setTheta0Ed"><code class="docutils literal notranslate"><span class="pre">setTheta0()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge9setTheta0ERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setTheta0()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-barandhinge-substrate-interaction">Substrate interaction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge6wallOnE"><code class="docutils literal notranslate"><span class="pre">wallOn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge12wallAdhesionE"><code class="docutils literal notranslate"><span class="pre">wallAdhesion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge10lj_epsilonE"><code class="docutils literal notranslate"><span class="pre">lj_epsilon</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge8lj_sigmaE"><code class="docutils literal notranslate"><span class="pre">lj_sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge7setWallEb"><code class="docutils literal notranslate"><span class="pre">setWall()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge15setWallAdhesionEb"><code class="docutils literal notranslate"><span class="pre">setWallAdhesion()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge13setWallParamsEdd"><code class="docutils literal notranslate"><span class="pre">setWallParams()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-barandhinge-structure">Structure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge16setTriangulationERK8vector2dIiE"><code class="docutils literal notranslate"><span class="pre">setTriangulation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge11setBondListERK8vector2dIiE"><code class="docutils literal notranslate"><span class="pre">setBondList()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge12setHingeListERK8vector2dIiE"><code class="docutils literal notranslate"><span class="pre">setHingeList()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-barandhinge-external-force">External force</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge8setForceERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">setForce()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge8setForceERK8vector2dIdE"><code class="docutils literal notranslate"><span class="pre">setForce()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-barandhinge-overrides">Overrides</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim11BarAndHinge4initERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"><code class="docutils literal notranslate"><span class="pre">elementEnergyGradient()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ljnd.html">Lennard-Jones</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phase_field.html">PhaseField</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phase_field_unstructured.html">PhaseFieldUnstructured</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Potentials</a></li>
+      <li class="breadcrumb-item active">BarAndHinge</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/potentials/bar_and_hinge.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="_CPPv4N5minim11BarAndHingeE">
+<span id="_CPPv3N5minim11BarAndHingeE"></span><span id="_CPPv2N5minim11BarAndHingeE"></span><span id="minim::BarAndHinge"></span><span id="barandhinge"></span><h1>BarAndHinge<a class="headerlink" href="#_CPPv4N5minim11BarAndHingeE" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1BarAndHinge"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BarAndHinge</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="../utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NewPotential</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /></dt>
+<dd><p>The bar-and-hinge model for thin sheet buckling. </p>
+<p>Represents an elastic sheet as a triangulated surface: bars (edges) stretch with energy <span class="math notranslate nohighlight">\( k (l - l_0)^2 / 2 \)</span>, and hinges (pairs of adjacent triangles) bend with energy <span class="math notranslate nohighlight">\( k (\theta - \theta_0)^2 / 2 \)</span>. Optionally includes substrate and external force interactions.</p>
+<p>The bar and hinge lists are generated from a triangulation, or can be given explicitly. Rest lengths and angles are taken from the initial coordinates unless set. </p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+</dd></dl>
+
+<section id="minim-barandhinge-elastic-properties">
+<h2>Elastic properties<a class="headerlink" href="#minim-barandhinge-elastic-properties" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge7modulusE">
+<span id="_CPPv3N5minim11BarAndHinge7modulusE"></span><span id="_CPPv2N5minim11BarAndHinge7modulusE"></span><span id="minim::BarAndHinge::modulus__double"></span><span class="target" id="classminim_1_1BarAndHinge_1af580152e780c615b70cbc1b4d33b7167"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">modulus</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge7modulusE" title="Link to this definition"></a><br /></dt>
+<dd><p>The elastic modulus. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge12poissonRatioE">
+<span id="_CPPv3N5minim11BarAndHinge12poissonRatioE"></span><span id="_CPPv2N5minim11BarAndHinge12poissonRatioE"></span><span id="minim::BarAndHinge::poissonRatio__double"></span><span class="target" id="classminim_1_1BarAndHinge_1a41a578b981a39c5adf95f7b76ec1a71d"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">poissonRatio</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.3</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge12poissonRatioE" title="Link to this definition"></a><br /></dt>
+<dd><p>The Poisson ratio of the material. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge10setModulusEd">
+<span id="_CPPv3N5minim11BarAndHinge10setModulusEd"></span><span id="_CPPv2N5minim11BarAndHinge10setModulusEd"></span><span id="minim::BarAndHinge::setModulus__double"></span><span class="target" id="classminim_1_1BarAndHinge_1a7901959c257beddc0ddac304690f274b"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setModulus</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">modulus</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge10setModulusEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the elastic modulus. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge12setThicknessEd">
+<span id="_CPPv3N5minim11BarAndHinge12setThicknessEd"></span><span id="_CPPv2N5minim11BarAndHinge12setThicknessEd"></span><span id="minim::BarAndHinge::setThickness__double"></span><span class="target" id="classminim_1_1BarAndHinge_1a97f97195c724258fe33819eab59d3a0c"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setThickness</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">thickness</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge12setThicknessEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the sheet thickness. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge12setThicknessERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge12setThicknessERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge12setThicknessERK6vectorIdE"></span><span id="minim::BarAndHinge::setThickness__vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1a4729f23c53bf174b7e3f9f3687412cce"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setThickness</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">thickness</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge12setThicknessERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the sheet thickness per bar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge11setRigidityEdd">
+<span id="_CPPv3N5minim11BarAndHinge11setRigidityEdd"></span><span id="_CPPv2N5minim11BarAndHinge11setRigidityEdd"></span><span id="minim::BarAndHinge::setRigidity__double.double"></span><span class="target" id="classminim_1_1BarAndHinge_1ae24de9076a1f200d62b20acb6e0be0ee"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setRigidity</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">kBond</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">kHinge</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge11setRigidityEdd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the stretching and bending rigidities. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE"></span><span id="minim::BarAndHinge::setRigidity__vector:double:CR.vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1ad42362639b61ce128fbff74a625f67a1"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setRigidity</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">kBond</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">kHinge</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge11setRigidityERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the stretching and bending rigidities per bar and hinge. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge10setLength0Ed">
+<span id="_CPPv3N5minim11BarAndHinge10setLength0Ed"></span><span id="_CPPv2N5minim11BarAndHinge10setLength0Ed"></span><span id="minim::BarAndHinge::setLength0__double"></span><span class="target" id="classminim_1_1BarAndHinge_1a853c441f99de69d23df3df549c9ab0e1"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setLength0</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length0</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge10setLength0Ed" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the rest length of the bars. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge10setLength0ERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge10setLength0ERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge10setLength0ERK6vectorIdE"></span><span id="minim::BarAndHinge::setLength0__vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1a7fb62dd8c9eebdd8258e59a15b5c138e"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setLength0</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">length0</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge10setLength0ERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the rest length of each bar. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge9setTheta0Ed">
+<span id="_CPPv3N5minim11BarAndHinge9setTheta0Ed"></span><span id="_CPPv2N5minim11BarAndHinge9setTheta0Ed"></span><span id="minim::BarAndHinge::setTheta0__double"></span><span class="target" id="classminim_1_1BarAndHinge_1ac28257043375eab4fa4d57c7f92908d7"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setTheta0</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">theta0</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge9setTheta0Ed" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the rest angle of the hinges. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge9setTheta0ERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge9setTheta0ERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge9setTheta0ERK6vectorIdE"></span><span id="minim::BarAndHinge::setTheta0__vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1adc588c43455858a3ad2bee98739e8a1d"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setTheta0</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">theta0</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge9setTheta0ERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the rest angle of each hinge. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-barandhinge-substrate-interaction">
+<h2>Substrate interaction<a class="headerlink" href="#minim-barandhinge-substrate-interaction" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge6wallOnE">
+<span id="_CPPv3N5minim11BarAndHinge6wallOnE"></span><span id="_CPPv2N5minim11BarAndHinge6wallOnE"></span><span id="minim::BarAndHinge::wallOn__b"></span><span class="target" id="classminim_1_1BarAndHinge_1a6040488918d1f6116ae8727cc124e57e"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wallOn</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge6wallOnE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the substrate (wall) interaction is enabled. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge12wallAdhesionE">
+<span id="_CPPv3N5minim11BarAndHinge12wallAdhesionE"></span><span id="_CPPv2N5minim11BarAndHinge12wallAdhesionE"></span><span id="minim::BarAndHinge::wallAdhesion__b"></span><span class="target" id="classminim_1_1BarAndHinge_1ad769760347bd07193fd96fe238563cbc"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wallAdhesion</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge12wallAdhesionE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether adhesion to the substrate is enabled. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge10lj_epsilonE">
+<span id="_CPPv3N5minim11BarAndHinge10lj_epsilonE"></span><span id="_CPPv2N5minim11BarAndHinge10lj_epsilonE"></span><span id="minim::BarAndHinge::lj_epsilon__double"></span><span class="target" id="classminim_1_1BarAndHinge_1aada98c6212fd9a3757b8828e567abfe1"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">lj_epsilon</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1e-12</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge10lj_epsilonE" title="Link to this definition"></a><br /></dt>
+<dd><p>The energy parameter of the substrate interaction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge8lj_sigmaE">
+<span id="_CPPv3N5minim11BarAndHinge8lj_sigmaE"></span><span id="_CPPv2N5minim11BarAndHinge8lj_sigmaE"></span><span id="minim::BarAndHinge::lj_sigma__double"></span><span class="target" id="classminim_1_1BarAndHinge_1aa82d965f784cef9375094823f5883b15"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">lj_sigma</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1e-5</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge8lj_sigmaE" title="Link to this definition"></a><br /></dt>
+<dd><p>The length parameter of the substrate interaction. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge7setWallEb">
+<span id="_CPPv3N5minim11BarAndHinge7setWallEb"></span><span id="_CPPv2N5minim11BarAndHinge7setWallEb"></span><span id="minim::BarAndHinge::setWall__b"></span><span class="target" id="classminim_1_1BarAndHinge_1a0676a7162419cd9c746f486a8b4d68cd"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setWall</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">wallOn</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge7setWallEb" title="Link to this definition"></a><br /></dt>
+<dd><p>Enable or disable the substrate (wall) interaction. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge15setWallAdhesionEb">
+<span id="_CPPv3N5minim11BarAndHinge15setWallAdhesionEb"></span><span id="_CPPv2N5minim11BarAndHinge15setWallAdhesionEb"></span><span id="minim::BarAndHinge::setWallAdhesion__b"></span><span class="target" id="classminim_1_1BarAndHinge_1a6437b1762544181ab01b42fd96421e95"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setWallAdhesion</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">wallAdhesion</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge15setWallAdhesionEb" title="Link to this definition"></a><br /></dt>
+<dd><p>Enable or disable adhesion to the substrate. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge13setWallParamsEdd">
+<span id="_CPPv3N5minim11BarAndHinge13setWallParamsEdd"></span><span id="_CPPv2N5minim11BarAndHinge13setWallParamsEdd"></span><span id="minim::BarAndHinge::setWallParams__double.double"></span><span class="target" id="classminim_1_1BarAndHinge_1a5632385a96c4b17048d4aad23357319e"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setWallParams</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">epsilon</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sigma</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge13setWallParamsEdd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the substrate interaction parameters. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-barandhinge-structure">
+<h2>Structure<a class="headerlink" href="#minim-barandhinge-structure" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge16setTriangulationERK8vector2dIiE">
+<span id="_CPPv3N5minim11BarAndHinge16setTriangulationERK8vector2dIiE"></span><span id="_CPPv2N5minim11BarAndHinge16setTriangulationERK8vector2dIiE"></span><span id="minim::BarAndHinge::setTriangulation__vector2d:i:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1ac65417dbbf82a85c4b400ad13e525478"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setTriangulation</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">triList</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge16setTriangulationERK8vector2dIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the triangulation used to generate the bar and hinge lists. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge11setBondListERK8vector2dIiE">
+<span id="_CPPv3N5minim11BarAndHinge11setBondListERK8vector2dIiE"></span><span id="_CPPv2N5minim11BarAndHinge11setBondListERK8vector2dIiE"></span><span id="minim::BarAndHinge::setBondList__vector2d:i:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1a192f3f824854bdd2f4cd93cea88175fc"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setBondList</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">bondList</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge11setBondListERK8vector2dIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the bars (edges) of the model, overriding the generated list. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge12setHingeListERK8vector2dIiE">
+<span id="_CPPv3N5minim11BarAndHinge12setHingeListERK8vector2dIiE"></span><span id="_CPPv2N5minim11BarAndHinge12setHingeListERK8vector2dIiE"></span><span id="minim::BarAndHinge::setHingeList__vector2d:i:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1abd66fd2139ebb94c01b9293f3a2bce91"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setHingeList</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">hingeList</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge12setHingeListERK8vector2dIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the hinges of the model, overriding the generated list. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-barandhinge-external-force">
+<h2>External force<a class="headerlink" href="#minim-barandhinge-external-force" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge8setForceERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge8setForceERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge8setForceERK6vectorIdE"></span><span id="minim::BarAndHinge::setForce__vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1ad61d9a228207050a9e6f80b2e14975db"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setForce</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">force</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge8setForceERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set an external force on the nodes. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge8setForceERK8vector2dIdE">
+<span id="_CPPv3N5minim11BarAndHinge8setForceERK8vector2dIdE"></span><span id="_CPPv2N5minim11BarAndHinge8setForceERK8vector2dIdE"></span><span id="minim::BarAndHinge::setForce__vector2d:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1a71691b4840f2f2903841d01a967ea480"></span><a class="reference internal" href="#_CPPv4N5minim11BarAndHingeE" title="minim::BarAndHinge"><span class="n"><span class="pre">BarAndHinge</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setForce</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector2d</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">force</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge8setForceERK8vector2dIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set an external force on the nodes per bar. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-barandhinge-overrides">
+<h2>Overrides<a class="headerlink" href="#minim-barandhinge-overrides" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim11BarAndHinge4initERK6vectorIdE">
+<span id="_CPPv3N5minim11BarAndHinge4initERK6vectorIdE"></span><span id="_CPPv2N5minim11BarAndHinge4initERK6vectorIdE"></span><span id="minim::BarAndHinge::init__vector:double:CR"></span><span class="target" id="classminim_1_1BarAndHinge_1a62ba5955461a663a83abe6cf8e2e6fea"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim11BarAndHinge4initERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the potential with the coordinates of a new state. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE">
+<span id="_CPPv3NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"></span><span id="_CPPv2NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE"></span><span id="minim::BarAndHinge::elementEnergyGradient__vector:double:CR.ElementCR.doubleP.vector:double:PC"></span><span class="target" id="classminim_1_1BarAndHinge_1a8355fb6372e1017c61b15f15ccc42dff"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elementEnergyGradient</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">coords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">Element</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">el</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">e</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">g</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim11BarAndHinge21elementEnergyGradientERK6vectorIdERK7ElementPdP6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the energy and gradient of a single element. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Potentials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ljnd.html" class="btn btn-neutral float-right" title="Lennard-Jones" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

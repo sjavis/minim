@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>L-BFGS &mdash; Minim  documentation</title>
+  <title>Lbfgs &mdash; Minim  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -14,12 +14,13 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=888ff710"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Gradient Descent" href="grad_descent.html" /> 
+    <link rel="next" title="Potentials" href="../potentials/index.html" />
+    <link rel="prev" title="GradDescent" href="grad_descent.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,11 +46,27 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parallelisation.html">Parallelisation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Algorithms</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="grad_descent.html">Gradient Descent</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">L-BFGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anneal.html">Anneal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fire.html">Fire</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grad_descent.html">GradDescent</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lbfgs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs4setMEi"><code class="docutils literal notranslate"><span class="pre">setM()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs10setMaxIterEi"><code class="docutils literal notranslate"><span class="pre">setMaxIter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs10setMaxStepEd"><code class="docutils literal notranslate"><span class="pre">setMaxStep()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs11setInitStepEd"><code class="docutils literal notranslate"><span class="pre">setInitStep()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs4initER5State"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs9iterationER5State"><code class="docutils literal notranslate"><span class="pre">iteration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim5Lbfgs16checkConvergenceERK5State"><code class="docutils literal notranslate"><span class="pre">checkConvergence()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core_api.html">Core API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../communication_api.html">Communication API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_api.html">Utils API</a></li>
 </ul>
 
         </div>
@@ -67,7 +84,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Algorithms</a></li>
-      <li class="breadcrumb-item active">L-BFGS</li>
+      <li class="breadcrumb-item active">Lbfgs</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/algorithms/lbfgs.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -77,19 +94,69 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="l-bfgs">
-<span id="algorithms-lbfgs"></span><h1>L-BFGS<a class="headerlink" href="#l-bfgs" title="Link to this heading"></a></h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>doxygenclass: Cannot find class “Lbfgs” in doxygen xml output for project “minim” from directory: _build/xml/</p>
+  <section id="_CPPv4N5minim5LbfgsE">
+<span id="_CPPv3N5minim5LbfgsE"></span><span id="_CPPv2N5minim5LbfgsE"></span><span id="minim::Lbfgs"></span><span id="algorithms-lbfgs"></span><h1>Lbfgs<a class="headerlink" href="#_CPPv4N5minim5LbfgsE" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Lbfgs"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Lbfgs</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="../utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NewMinimiser</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim5LbfgsE" title="minim::Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /></dt>
+<dd><p>LBFGS minimisation algorithm. </p>
+<p>Limited-memory Broyden-Fletcher-Goldfarb-Shanno. A quasi-Newton method that uses the last m iterations of position and gradient changes to approximate the inverse Hessian, giving Newton-like convergence without computing second derivatives.</p>
+<p>Converged when the RMS gradient falls below the state’s convergence criterion. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs4setMEi">
+<span id="_CPPv3N5minim5Lbfgs4setMEi"></span><span id="_CPPv2N5minim5Lbfgs4setMEi"></span><span id="minim::Lbfgs::setM__i"></span><span class="target" id="classminim_1_1Lbfgs_1a959e28070a290555449bec246c429f26"></span><a class="reference internal" href="#_CPPv4N5minim5LbfgsE" title="minim::Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setM</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">m</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs4setMEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the number of stored iterations m used to approximate the inverse Hessian (default: 5). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs10setMaxIterEi">
+<span id="_CPPv3N5minim5Lbfgs10setMaxIterEi"></span><span id="_CPPv2N5minim5Lbfgs10setMaxIterEi"></span><span id="minim::Lbfgs::setMaxIter__i"></span><span class="target" id="classminim_1_1Lbfgs_1a32c8a91fa8af2de47c152c1aa4c6242c"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5minim5LbfgsE" title="minim::Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxIter</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxIter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs10setMaxIterEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum number of iterations. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs10setMaxStepEd">
+<span id="_CPPv3N5minim5Lbfgs10setMaxStepEd"></span><span id="_CPPv2N5minim5Lbfgs10setMaxStepEd"></span><span id="minim::Lbfgs::setMaxStep__double"></span><span class="target" id="classminim_1_1Lbfgs_1aad696dc8bc02ba25bf5683799b459e7e"></span><a class="reference internal" href="#_CPPv4N5minim5LbfgsE" title="minim::Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setMaxStep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">maxStep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs10setMaxStepEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the maximum allowed step size (0: no limit). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs11setInitStepEd">
+<span id="_CPPv3N5minim5Lbfgs11setInitStepEd"></span><span id="_CPPv2N5minim5Lbfgs11setInitStepEd"></span><span id="minim::Lbfgs::setInitStep__double"></span><span class="target" id="classminim_1_1Lbfgs_1a84e5b971382aed62c5d4a462a6623e60"></span><a class="reference internal" href="#_CPPv4N5minim5LbfgsE" title="minim::Lbfgs"><span class="n"><span class="pre">Lbfgs</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">setInitStep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">initStep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs11setInitStepEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Set the initial step size used in the first iteration, when no curvature information is yet available (default: 1). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs4initER5State">
+<span id="_CPPv3N5minim5Lbfgs4initER5State"></span><span id="_CPPv2N5minim5Lbfgs4initER5State"></span><span id="minim::Lbfgs::init__StateR"></span><span class="target" id="classminim_1_1Lbfgs_1ab8610ecda5ebe6fa6db11de6fef41776"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs4initER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise the minimiser before the first iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs9iterationER5State">
+<span id="_CPPv3N5minim5Lbfgs9iterationER5State"></span><span id="_CPPv2N5minim5Lbfgs9iterationER5State"></span><span id="minim::Lbfgs::iteration__StateR"></span><span class="target" id="classminim_1_1Lbfgs_1a8e63e3bf7d2f85b86b6e57e9b976981a"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iteration</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs9iterationER5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Perform a single minimisation iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim5Lbfgs16checkConvergenceERK5State">
+<span id="_CPPv3N5minim5Lbfgs16checkConvergenceERK5State"></span><span id="_CPPv2N5minim5Lbfgs16checkConvergenceERK5State"></span><span id="minim::Lbfgs::checkConvergence__StateCR"></span><span class="target" id="classminim_1_1Lbfgs_1af8e646954c1b2267903fc8917a3b4dc6"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">checkConvergence</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="../core_api.html#_CPPv4N5minim5StateE" title="minim::State"><span class="n"><span class="pre">State</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim5Lbfgs16checkConvergenceERK5State" title="Link to this definition"></a><br /></dt>
+<dd><p>Check whether the minimisation is converged. </p>
+</dd></dl>
+
 </div>
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="grad_descent.html" class="btn btn-neutral float-left" title="Gradient Descent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="grad_descent.html" class="btn btn-neutral float-left" title="GradDescent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../potentials/index.html" class="btn btn-neutral float-right" title="Potentials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

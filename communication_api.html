@@ -1,0 +1,954 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Communication API &mdash; Minim  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utils API" href="utils_api.html" />
+    <link rel="prev" title="Core API" href="core_api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo2_text.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallelisation.html">Parallelisation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/index.html">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="potentials/index.html">Potentials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core_api.html">Core API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Communication API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim3mpiE"><code class="docutils literal notranslate"><span class="pre">mpi</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim3MpiE">Mpi</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim3Mpi4sizeE"><code class="docutils literal notranslate"><span class="pre">size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim3Mpi4rankE"><code class="docutils literal notranslate"><span class="pre">rank</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-mpi-initialisation">Initialisation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim3Mpi4initEv"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim3Mpi4initEPiPPPc"><code class="docutils literal notranslate"><span class="pre">init()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-mpi-mpi-reduction-functions">MPI reduction functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi3sumEd"><code class="docutils literal notranslate"><span class="pre">sum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi3sumERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">sum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-mpi-communication">Communication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi5bcastERii"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi5bcastERdi"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi5bcastER6vectorIdEii"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim3Mpi7barrierEv"><code class="docutils literal notranslate"><span class="pre">barrier()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE">Communicator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim12Communicator4rankEv"><code class="docutils literal notranslate"><span class="pre">rank()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim12Communicator4sizeEv"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4NK5minim12Communicator5cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator5setupER9Potential6size_t6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator4ndofE"><code class="docutils literal notranslate"><span class="pre">ndof</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator5nprocE"><code class="docutils literal notranslate"><span class="pre">nproc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator6nblockE"><code class="docutils literal notranslate"><span class="pre">nblock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator12usesThisProcE"><code class="docutils literal notranslate"><span class="pre">usesThisProc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim12Communicator5ranksE"><code class="docutils literal notranslate"><span class="pre">ranks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-communicator-assign-data">Assign data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-communicator-access-data">Access data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator8getBlockEi"><code class="docutils literal notranslate"><span class="pre">getBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator11getLocalIdxEii"><code class="docutils literal notranslate"><span class="pre">getLocalIdx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator3getERK6vectorIdEi"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-communicator-communication">Communication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator11communicateER6vectorIdE"><code class="docutils literal notranslate"><span class="pre">communicate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator21communicateAccumulateER6vectorIdE"><code class="docutils literal notranslate"><span class="pre">communicateAccumulate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator6gatherERK6vectorIdEi"><code class="docutils literal notranslate"><span class="pre">gather()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator7scatterERK6vectorIdEi"><code class="docutils literal notranslate"><span class="pre">scatter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator5bcastERii"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator5bcastERdi"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator5bcastER6vectorIdEi"><code class="docutils literal notranslate"><span class="pre">bcast()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#minim-communicator-mpi-reduction-functions">MPI reduction functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator3sumEd"><code class="docutils literal notranslate"><span class="pre">sum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator3sumERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">sum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator4normERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">norm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#communicator-subclasses">Communicator subclasses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim8CommGridE">CommGrid</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid8getBlockEi"><code class="docutils literal notranslate"><span class="pre">getBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid11getLocalIdxEii"><code class="docutils literal notranslate"><span class="pre">getLocalIdx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim8CommGrid8CommGridEi"><code class="docutils literal notranslate"><span class="pre">CommGrid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim8CommGrid5cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim8CommGrid5setupER9Potential6size_t6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim8CommGrid4nDimE"><code class="docutils literal notranslate"><span class="pre">nDim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim8CommGrid9haloWidthE"><code class="docutils literal notranslate"><span class="pre">haloWidth</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9CommGrid2E">CommGrid2</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9CommGrid29CommGrid2Ei"><code class="docutils literal notranslate"><span class="pre">CommGrid2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9CommGrid25cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim9CommGrid3E">CommGrid3</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim9CommGrid39CommGrid3Ei"><code class="docutils literal notranslate"><span class="pre">CommGrid3()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9CommGrid35cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#_CPPv4N5minim16CommUnstructuredE">CommUnstructured</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIiE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIcE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">assignProc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured8getBlockEi"><code class="docutils literal notranslate"><span class="pre">getBlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured11getLocalIdxEii"><code class="docutils literal notranslate"><span class="pre">getLocalIdx()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE"><code class="docutils literal notranslate"><span class="pre">dotProduct()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim16CommUnstructured16CommUnstructuredEv"><code class="docutils literal notranslate"><span class="pre">CommUnstructured()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4NK5minim16CommUnstructured5cloneEv"><code class="docutils literal notranslate"><span class="pre">clone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv4N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE"><code class="docutils literal notranslate"><span class="pre">setup()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils_api.html">Utils API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Minim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Communication API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/communication_api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="communication-api">
+<span id="id1"></span><h1>Communication API<a class="headerlink" href="#communication-api" title="Link to this heading"></a></h1>
+<p>The classes handling distribution over MPI processes.</p>
+<p>The global <code class="xref py py-class docutils literal notranslate"><span class="pre">mpi</span></code> object provides basic MPI operations over
+all processors, such as broadcasts and sums, and is used to initialise
+MPI at the start of a program.</p>
+<p>Each <code class="xref py py-class docutils literal notranslate"><span class="pre">State</span></code> holds a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Communicator</span></code>, created automatically from its potential,
+which handles the distribution of the state’s data over the processors
+it uses. It is rarely necessary to interact with the communicator
+directly, but it can be accessed via <code class="docutils literal notranslate"><span class="pre">state.comm</span></code> to make use of its
+data assignment and MPI reduction functions.</p>
+<p>See <a class="reference internal" href="parallelisation.html"><span class="doc">Parallelisation</span></a> for how the parallelisation works and how to
+use it.</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim3mpiE">
+<span id="_CPPv3N5minim3mpiE"></span><span id="_CPPv2N5minim3mpiE"></span><span id="minim::mpi__Mpi"></span><span class="target" id="mpi_8cpp_1ab2938c8bb535c50b515f7703bbadaf43"></span><a class="reference internal" href="#_CPPv4N5minim3MpiE" title="minim::Mpi"><span class="n"><span class="pre">Mpi</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><a class="reference internal" href="utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">mpi</span></span></span><a class="headerlink" href="#_CPPv4N5minim3mpiE" title="Link to this definition"></a><br /></dt>
+<dd><p>The global MPI helper instance. </p>
+<p>This is the only instance of <a class="reference internal" href="#classminim_1_1Mpi"><span class="std std-ref">Mpi</span></a> that should be used; it is shared by the whole library. </p>
+</dd></dl>
+
+<section id="_CPPv4N5minim3MpiE">
+<span id="_CPPv3N5minim3MpiE"></span><span id="_CPPv2N5minim3MpiE"></span><span id="minim::Mpi"></span><h2>Mpi<a class="headerlink" href="#_CPPv4N5minim3MpiE" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Mpi"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Mpi</span></span></span><br /></dt>
+<dd><p>A helper for MPI operations over all processors, without a communicator. </p>
+<p>Programs should not create their own instances of this class; use the global minim::mpi object, which is created automatically when the library is included. It is initialised by calling mpi.init() (or mpiInit()) at the start of the program, after which the size and rank members give the number of processors and the rank of the current processor.</p>
+<p>For operations specific to a state, use its <a class="reference internal" href="#classminim_1_1Communicator"><span class="std std-ref">Communicator</span></a> instead, which is restricted to the processors used by that state. </p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim3Mpi4sizeE">
+<span id="_CPPv3N5minim3Mpi4sizeE"></span><span id="_CPPv2N5minim3Mpi4sizeE"></span><span id="minim::Mpi::size__i"></span><span class="target" id="classminim_1_1Mpi_1a8f40aa903b2004d13ba8557e0ad0535d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N5minim3Mpi4sizeE" title="Link to this definition"></a><br /></dt>
+<dd><p>The number of processors. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim3Mpi4rankE">
+<span id="_CPPv3N5minim3Mpi4rankE"></span><span id="_CPPv2N5minim3Mpi4rankE"></span><span id="minim::Mpi::rank__i"></span><span class="target" id="classminim_1_1Mpi_1a24588daeaf427c058646a29b70f452ba"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rank</span></span></span><a class="headerlink" href="#_CPPv4N5minim3Mpi4rankE" title="Link to this definition"></a><br /></dt>
+<dd><p>The rank of this processor. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<section id="minim-mpi-initialisation">
+<h3>Initialisation<a class="headerlink" href="#minim-mpi-initialisation" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim3Mpi4initEv">
+<span id="_CPPv3N5minim3Mpi4initEv"></span><span id="_CPPv2N5minim3Mpi4initEv"></span><span id="minim::Mpi::init"></span><span class="target" id="classminim_1_1Mpi_1ab15015268836eb2861fa5631d49a52b9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim3Mpi4initEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise MPI, if not already initialised. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim3Mpi4initEPiPPPc">
+<span id="_CPPv3N5minim3Mpi4initEPiPPPc"></span><span id="_CPPv2N5minim3Mpi4initEPiPPPc"></span><span id="minim::Mpi::init__iP.cPPP"></span><span class="target" id="classminim_1_1Mpi_1a02cd940230d9c04fa361cf1fe5891dc3"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim3Mpi4initEPiPPPc" title="Link to this definition"></a><br /></dt>
+<dd><p>Initialise MPI with command line arguments. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-mpi-mpi-reduction-functions">
+<h3>MPI reduction functions<a class="headerlink" href="#minim-mpi-mpi-reduction-functions" title="Link to this heading"></a></h3>
+<p>Perform operations on local values before reducing the result over all processors.</p>
+<dl class="cpp class">
+<dd><p>Every processor receives the result. </p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi3sumEd">
+<span id="_CPPv3NK5minim3Mpi3sumEd"></span><span id="_CPPv2NK5minim3Mpi3sumEd"></span><span id="minim::Mpi::sum__doubleC"></span><span class="target" id="classminim_1_1Mpi_1aa91f3021040851f73562ac3907e369fc"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sum</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi3sumEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Sum a value over all processors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi3sumERK6vectorIdE">
+<span id="_CPPv3NK5minim3Mpi3sumERK6vectorIdE"></span><span id="_CPPv2NK5minim3Mpi3sumERK6vectorIdE"></span><span id="minim::Mpi::sum__vector:double:CRC"></span><span class="target" id="classminim_1_1Mpi_1a63ad4246c3cce47f4aac05c8579a264f"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sum</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi3sumERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Sum the elements of a vector over all processors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::Mpi::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1Mpi_1ae376cf8d38f00b1a37934b968594a09a"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi10dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-mpi-communication">
+<h3>Communication<a class="headerlink" href="#minim-mpi-communication" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi5bcastERii">
+<span id="_CPPv3NK5minim3Mpi5bcastERii"></span><span id="_CPPv2NK5minim3Mpi5bcastERii"></span><span id="minim::Mpi::bcast__iR.iC"></span><span class="target" id="classminim_1_1Mpi_1a54824d1c3411ccaeb3926d7b15578af2"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi5bcastERii" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast an integer from the given root processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi5bcastERdi">
+<span id="_CPPv3NK5minim3Mpi5bcastERdi"></span><span id="_CPPv2NK5minim3Mpi5bcastERdi"></span><span id="minim::Mpi::bcast__doubleR.iC"></span><span class="target" id="classminim_1_1Mpi_1a4756d5a8786487bb1a76a441beaf8367"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi5bcastERdi" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast a double from the given root processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi5bcastER6vectorIdEii">
+<span id="_CPPv3NK5minim3Mpi5bcastER6vectorIdEii"></span><span id="_CPPv2NK5minim3Mpi5bcastER6vectorIdEii"></span><span id="minim::Mpi::bcast__vector:double:R.i.iC"></span><span class="target" id="classminim_1_1Mpi_1ab4265b6e45a33a8feeb78f86d5dba212"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nData</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi5bcastER6vectorIdEii" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast a vector of doubles from the given root processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim3Mpi7barrierEv">
+<span id="_CPPv3NK5minim3Mpi7barrierEv"></span><span id="_CPPv2NK5minim3Mpi7barrierEv"></span><span id="minim::Mpi::barrierC"></span><span class="target" id="classminim_1_1Mpi_1a54b5c71dea29e64a626611fcbfa91f0c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">barrier</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim3Mpi7barrierEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Wait for all processors to reach this point. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+<section id="_CPPv4N5minim12CommunicatorE">
+<span id="_CPPv3N5minim12CommunicatorE"></span><span id="_CPPv2N5minim12CommunicatorE"></span><span id="minim::Communicator"></span><h2>Communicator<a class="headerlink" href="#_CPPv4N5minim12CommunicatorE" title="Link to this heading"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1Communicator"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Communicator</span></span></span><br /></dt>
+<dd><p>Handles the distribution of data over MPI processes. </p>
+<p>An abstract base class. Derived classes define how the degrees of freedom are divided into blocks and assigned to processors: <a class="reference internal" href="#classminim_1_1CommGrid"><span class="std std-ref">CommGrid</span></a> for data on a structured grid, and <a class="reference internal" href="#classminim_1_1CommUnstructured"><span class="std std-ref">CommUnstructured</span></a> for element-based data.</p>
+<p>The degrees of freedom are divided into blocks, one for each MPI rank used by the communicator. Each rank holds its block plus a halo of degrees of freedom, owned by neighbouring ranks, that are needed to compute the energy and gradient of the block. This processor data has size nproc. A communicator is created automatically when a <a class="reference internal" href="core_api.html#classminim_1_1State"><span class="std std-ref">State</span></a> is created, and handles all communication between the ranks used by the state. </p>
+<p>Subclassed by <a class="reference internal" href="#classminim_1_1CommGrid"><span class="std std-ref">minim::CommGrid</span></a>, <a class="reference internal" href="#classminim_1_1CommUnstructured"><span class="std std-ref">minim::CommUnstructured</span></a></p>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator4rankEv">
+<span id="_CPPv3NK5minim12Communicator4rankEv"></span><span id="_CPPv2NK5minim12Communicator4rankEv"></span><span id="minim::Communicator::rankC"></span><span class="target" id="classminim_1_1Communicator_1addac8c8637864c7244d65b813a16821c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rank</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator4rankEv" title="Link to this definition"></a><br /></dt>
+<dd><p>The MPI rank of this processor within the communicator (-1 if this processor is not used). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator4sizeEv">
+<span id="_CPPv3NK5minim12Communicator4sizeEv"></span><span id="_CPPv2NK5minim12Communicator4sizeEv"></span><span id="minim::Communicator::sizeC"></span><span class="target" id="classminim_1_1Communicator_1ac736247d9f2da5b012fbdd7a2cecc7c6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator4sizeEv" title="Link to this definition"></a><br /></dt>
+<dd><p>The number of MPI ranks used by the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator5cloneEv">
+<span id="_CPPv3NK5minim12Communicator5cloneEv"></span><span id="_CPPv2NK5minim12Communicator5cloneEv"></span><span id="minim::Communicator::cloneC"></span><span class="target" id="classminim_1_1Communicator_1a708745989dd411481b3273c9437b4560"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator5cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator5setupER9Potential6size_t6vectorIiE">
+<span id="_CPPv3N5minim12Communicator5setupER9Potential6size_t6vectorIiE"></span><span id="_CPPv2N5minim12Communicator5setupER9Potential6size_t6vectorIiE"></span><span id="minim::Communicator::setup__PotentialR.s.vector:i:"></span><span class="target" id="classminim_1_1Communicator_1a0f2ebb050a636bc1225fae579755fb35"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setup</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="core_api.html#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">pot</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndof</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ranks</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator5setupER9Potential6size_t6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set up the distribution of the given potential over the given ranks. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator4ndofE">
+<span id="_CPPv3N5minim12Communicator4ndofE"></span><span id="_CPPv2N5minim12Communicator4ndofE"></span><span id="minim::Communicator::ndof__s"></span><span class="target" id="classminim_1_1Communicator_1a15e09e962f7dfd1dbb7247df457ccdcf"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndof</span></span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator4ndofE" title="Link to this definition"></a><br /></dt>
+<dd><p>Total number of degrees of freedom. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator5nprocE">
+<span id="_CPPv3N5minim12Communicator5nprocE"></span><span id="_CPPv2N5minim12Communicator5nprocE"></span><span id="minim::Communicator::nproc__s"></span><span class="target" id="classminim_1_1Communicator_1abd39ad9ffbec1fde8dcd49f6f91b0f66"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nproc</span></span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator5nprocE" title="Link to this definition"></a><br /></dt>
+<dd><p>Number of degrees of freedom held by this processor (block plus halo). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator6nblockE">
+<span id="_CPPv3N5minim12Communicator6nblockE"></span><span id="_CPPv2N5minim12Communicator6nblockE"></span><span id="minim::Communicator::nblock__s"></span><span class="target" id="classminim_1_1Communicator_1a26fa4c777817e70847ebd4ddb6011442"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nblock</span></span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator6nblockE" title="Link to this definition"></a><br /></dt>
+<dd><p>Number of degrees of freedom assigned to this processor (excluding halo). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator12usesThisProcE">
+<span id="_CPPv3N5minim12Communicator12usesThisProcE"></span><span id="_CPPv2N5minim12Communicator12usesThisProcE"></span><span id="minim::Communicator::usesThisProc__b"></span><span class="target" id="classminim_1_1Communicator_1a29c0941afe2136347ac44d714d6742d9"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">usesThisProc</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator12usesThisProcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Whether the current processor is used by the communicator. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim12Communicator5ranksE">
+<span id="_CPPv3N5minim12Communicator5ranksE"></span><span id="_CPPv2N5minim12Communicator5ranksE"></span><span id="minim::Communicator::ranks__vector:i:"></span><span class="target" id="classminim_1_1Communicator_1af28b6340d29f4a5c9c6fd36d417af464"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ranks</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N5minim12Communicator5ranksE" title="Link to this definition"></a><br /></dt>
+<dd><p>The global MPI ranks used by the communicator. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<section id="minim-communicator-assign-data">
+<h3>Assign data<a class="headerlink" href="#minim-communicator-assign-data" title="Link to this heading"></a></h3>
+<p>Convert global data to the local block or processor data. </p>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator11assignBlockERK6vectorIiE">
+<span id="_CPPv3NK5minim12Communicator11assignBlockERK6vectorIiE"></span><span id="_CPPv2NK5minim12Communicator11assignBlockERK6vectorIiE"></span><span id="minim::Communicator::assignBlock__vector:i:CRC"></span><span class="target" id="classminim_1_1Communicator_1aaf5e9660ce332e8c93f38f6bb772118b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+<p>The layout of the returned data depends on the derived class: <a class="reference internal" href="#classminim_1_1CommUnstructured"><span class="std std-ref">CommUnstructured</span></a> returns just the block (size nblock), while <a class="reference internal" href="#classminim_1_1CommGrid"><span class="std std-ref">CommGrid</span></a> returns the processor data (size nproc), with the halo assigned if global data is given and zeroed otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The data to assign: either the full set of degrees of freedom, or the local block data. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local block data. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator11assignBlockERK6vectorIcE">
+<span id="_CPPv3NK5minim12Communicator11assignBlockERK6vectorIcE"></span><span id="_CPPv2NK5minim12Communicator11assignBlockERK6vectorIcE"></span><span id="minim::Communicator::assignBlock__vector:c:CRC"></span><span class="target" id="classminim_1_1Communicator_1ac353302f7236272f2880d3dd39493efc"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The data to assign: either the full set of degrees of freedom, or the local block data. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local block data. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator11assignBlockERK6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator11assignBlockERK6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator11assignBlockERK6vectorIdE"></span><span id="minim::Communicator::assignBlock__vector:double:CRC"></span><span class="target" id="classminim_1_1Communicator_1a612a41c269d61b5a1d09b0205854df5b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator11assignBlockERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The data to assign: either the full set of degrees of freedom, or the local block data. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local block data. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator10assignProcERK6vectorIiE">
+<span id="_CPPv3NK5minim12Communicator10assignProcERK6vectorIiE"></span><span id="_CPPv2NK5minim12Communicator10assignProcERK6vectorIiE"></span><span id="minim::Communicator::assignProc__vector:i:CRC"></span><span class="target" id="classminim_1_1Communicator_1a5b399c2c9c8ce1c552a0bcdfa2ee790a"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The full set of degrees of freedom (size ndof). </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local processor data (size nproc). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator10assignProcERK6vectorIcE">
+<span id="_CPPv3NK5minim12Communicator10assignProcERK6vectorIcE"></span><span id="_CPPv2NK5minim12Communicator10assignProcERK6vectorIcE"></span><span id="minim::Communicator::assignProc__vector:c:CRC"></span><span class="target" id="classminim_1_1Communicator_1ab38457bb222f10691a47b0ad1b46fccb"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The full set of degrees of freedom (size ndof). </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local processor data (size nproc). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator10assignProcERK6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator10assignProcERK6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator10assignProcERK6vectorIdE"></span><span id="minim::Communicator::assignProc__vector:double:CRC"></span><span class="target" id="classminim_1_1Communicator_1abbb4513c06521afbde16abaab97f792a"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator10assignProcERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>in</strong> – The full set of degrees of freedom (size ndof). </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local processor data (size nproc). </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-communicator-access-data">
+<h3>Access data<a class="headerlink" href="#minim-communicator-access-data" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator8getBlockEi">
+<span id="_CPPv3NK5minim12Communicator8getBlockEi"></span><span id="_CPPv2NK5minim12Communicator8getBlockEi"></span><span id="minim::Communicator::getBlock__iC"></span><span class="target" id="classminim_1_1Communicator_1aacdb5ef774a7d56a8f8032a8ede11aed"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getBlock</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator8getBlockEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the block (processor) that owns a given global index. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>loc</strong> – The global index of the degree of freedom. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the owning block. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator11getLocalIdxEii">
+<span id="_CPPv3NK5minim12Communicator11getLocalIdxEii"></span><span id="_CPPv2NK5minim12Communicator11getLocalIdxEii"></span><span id="minim::Communicator::getLocalIdx__i.iC"></span><span class="target" id="classminim_1_1Communicator_1a2be57c1d64689221837fc5dab9c9da39"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getLocalIdx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">block</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator11getLocalIdxEii" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the local index of a given global index, or -1 if the degree of freedom is not held by this processor. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loc</strong> – The global index of the degree of freedom. </p></li>
+<li><p><strong>block</strong> – The block to look within (default: the block owning the given index). </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local index, or -1 if not held by this processor. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator3getERK6vectorIdEi">
+<span id="_CPPv3NK5minim12Communicator3getERK6vectorIdEi"></span><span id="_CPPv2NK5minim12Communicator3getERK6vectorIdEi"></span><span id="minim::Communicator::get__vector:double:CR.iC"></span><span class="target" id="classminim_1_1Communicator_1a5b03444ca3e3247748ee90ef69848c2b"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4NK5minim12Communicator3getERK6vectorIdEi" title="minim::Communicator::get::vector"><span class="n"><span class="pre">vector</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">vector</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator3getERK6vectorIdEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the value at a global index from local (processor) data, communicating with the owning processor if needed. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> – The local processor data. </p></li>
+<li><p><strong>loc</strong> – The global index of the degree of freedom. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The value at the given index. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-communicator-communication">
+<h3>Communication<a class="headerlink" href="#minim-communicator-communication" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dd><dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator11communicateER6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator11communicateER6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator11communicateER6vectorIdE"></span><span id="minim::Communicator::communicate__vector:double:RC"></span><span class="target" id="classminim_1_1Communicator_1ab41bd747e12a5d157bb43bc3e4119050"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">communicate</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4NK5minim12Communicator11communicateER6vectorIdE" title="minim::Communicator::communicate::vector"><span class="n"><span class="pre">vector</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">vector</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator11communicateER6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Communicate the halo regions of the local data. </p>
+<p>Sends the edges of this processor’s block to the halo regions of the neighbouring processors, and receives this processor’s halo from the neighbours’ block edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> – The local data whose halo is to be updated. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator21communicateAccumulateER6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator21communicateAccumulateER6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator21communicateAccumulateER6vectorIdE"></span><span id="minim::Communicator::communicateAccumulate__vector:double:RC"></span><span class="target" id="classminim_1_1Communicator_1a97c187f9b97cd0cc3d8f7ec7735627a6"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">communicateAccumulate</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4NK5minim12Communicator21communicateAccumulateER6vectorIdE" title="minim::Communicator::communicateAccumulate::vector"><span class="n"><span class="pre">vector</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">vector</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator21communicateAccumulateER6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Communicate the halo regions, accumulating into the existing values. </p>
+<p>Adds the values of this processor’s halo region onto the corresponding block locations of the neighbouring processors. Used to accumulate contributions to the gradient from neighbouring processors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vector</strong> – The local data to accumulate from. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator6gatherERK6vectorIdEi">
+<span id="_CPPv3NK5minim12Communicator6gatherERK6vectorIdEi"></span><span id="_CPPv2NK5minim12Communicator6gatherERK6vectorIdEi"></span><span id="minim::Communicator::gather__vector:double:CR.iC"></span><span class="target" id="classminim_1_1Communicator_1af6cf872dd3f8a3c99ac42cddea5a0f40"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gather</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">block</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator6gatherERK6vectorIdEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Gather the local blocks to the given root processor (default: all). </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> – The local processor data; only the block region is used. </p></li>
+<li><p><strong>root</strong> – The rank to gather onto (default: all ranks). </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The full data (size ndof) on the gathering ranks, empty on the others. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator7scatterERK6vectorIdEi">
+<span id="_CPPv3NK5minim12Communicator7scatterERK6vectorIdEi"></span><span id="_CPPv2NK5minim12Communicator7scatterERK6vectorIdEi"></span><span id="minim::Communicator::scatter__vector:double:CR.iC"></span><span class="target" id="classminim_1_1Communicator_1a09fa7ac6961e6432cb4e31f949cb201f"></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">scatter</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator7scatterERK6vectorIdEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Scatter global data to the local processor data from the given root processor. </p>
+<p>If root is -1 (default), the data must already be present on all ranks, and each rank extracts its own portion without communication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – The full data (size ndof). </p></li>
+<li><p><strong>root</strong> – The rank holding the data (default: all ranks). </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The local processor data (size nproc). </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator5bcastERii">
+<span id="_CPPv3NK5minim12Communicator5bcastERii"></span><span id="_CPPv2NK5minim12Communicator5bcastERii"></span><span id="minim::Communicator::bcast__iR.iC"></span><span class="target" id="classminim_1_1Communicator_1af2395d3682561260d2a39cf30d0cca73"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator5bcastERii" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast an integer from the given root processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator5bcastERdi">
+<span id="_CPPv3NK5minim12Communicator5bcastERdi"></span><span id="_CPPv2NK5minim12Communicator5bcastERdi"></span><span id="minim::Communicator::bcast__doubleR.iC"></span><span class="target" id="classminim_1_1Communicator_1a8f6c498b80db4d45c0f2aa8de1edf303"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator5bcastERdi" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast a double from the given root processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator5bcastER6vectorIdEi">
+<span id="_CPPv3NK5minim12Communicator5bcastER6vectorIdEi"></span><span id="_CPPv2NK5minim12Communicator5bcastER6vectorIdEi"></span><span id="minim::Communicator::bcast__vector:double:R.iC"></span><span class="target" id="classminim_1_1Communicator_1aa1afecee22019b609d67d9f6a58c1c63"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bcast</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">root</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator5bcastER6vectorIdEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Broadcast a vector of doubles from the given root processor. </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+<section id="minim-communicator-mpi-reduction-functions">
+<h3>MPI reduction functions<a class="headerlink" href="#minim-communicator-mpi-reduction-functions" title="Link to this heading"></a></h3>
+<p>Perform operations on local vectors before reducing the result across all the processors used by the communicator.</p>
+<dl class="cpp class">
+<dd><p>Every rank receives the result. </p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator3sumEd">
+<span id="_CPPv3NK5minim12Communicator3sumEd"></span><span id="_CPPv2NK5minim12Communicator3sumEd"></span><span id="minim::Communicator::sum__doubleC"></span><span class="target" id="classminim_1_1Communicator_1a6fe98d69769529e7a0bb14efe31de736"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sum</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator3sumEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Sum a value over all processors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator3sumERK6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator3sumERK6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator3sumERK6vectorIdE"></span><span id="minim::Communicator::sum__vector:double:CRC"></span><span class="target" id="classminim_1_1Communicator_1af560c6ad5efe4d3e80c0849486213f96"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sum</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator3sumERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Sum the elements of a vector over all processors. </p>
+<p>Note that the whole local vector is summed, including any halo entries. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator4normERK6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator4normERK6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator4normERK6vectorIdE"></span><span id="minim::Communicator::norm__vector:double:CRC"></span><span class="target" id="classminim_1_1Communicator_1a3cd0724003d43868cd0746fffa636612"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">norm</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator4normERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the L2 norm of the vector over all processors. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::Communicator::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1Communicator_1ae7f6c2d0057ac83f6d29421fbac3a37c"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5minim12Communicator10dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors. </p>
+<p>Only the block entries contribute; halo entries are excluded (the default implementation uses the whole vector). </p>
+</dd></dl>
+
+</dd>
+</dl>
+</section>
+</section>
+<section id="communicator-subclasses">
+<h2>Communicator subclasses<a class="headerlink" href="#communicator-subclasses" title="Link to this heading"></a></h2>
+<p>The communicator type is chosen by the potential: grid potentials use
+<code class="docutils literal notranslate"><span class="pre">CommGrid</span></code>, while element-based potentials use <code class="docutils literal notranslate"><span class="pre">CommUnstructured</span></code>.</p>
+<section id="_CPPv4N5minim8CommGridE">
+<span id="_CPPv3N5minim8CommGridE"></span><span id="_CPPv2N5minim8CommGridE"></span><span id="minim::CommGrid"></span><h3>CommGrid<a class="headerlink" href="#_CPPv4N5minim8CommGridE" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1CommGrid"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><br /></dt>
+<dd><p>A communicator that distributes grid data over MPI processes. </p>
+<p>The grid is split into a commArray of sub-grids, one per processor, each surrounded by a halo of the given width. The final grid dimension is not parallelised. </p>
+<p>Subclassed by <a class="reference internal" href="#classminim_1_1CommGrid2"><span class="std std-ref">minim::CommGrid2</span></a>, <a class="reference internal" href="#classminim_1_1CommGrid3"><span class="std std-ref">minim::CommGrid3</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIiE">
+<span id="_CPPv3NK5minim8CommGrid11assignBlockERK6vectorIiE"></span><span id="_CPPv2NK5minim8CommGrid11assignBlockERK6vectorIiE"></span><span id="minim::CommGrid::assignBlock__vector:i:CRC"></span><span class="target" id="classminim_1_1CommGrid_1a5b3f565532b4ef1c627b12078b20d172"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIcE">
+<span id="_CPPv3NK5minim8CommGrid11assignBlockERK6vectorIcE"></span><span id="_CPPv2NK5minim8CommGrid11assignBlockERK6vectorIcE"></span><span id="minim::CommGrid::assignBlock__vector:c:CRC"></span><span class="target" id="classminim_1_1CommGrid_1aa1f28d56897890de08f4e2ad96dc815b"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIdE">
+<span id="_CPPv3NK5minim8CommGrid11assignBlockERK6vectorIdE"></span><span id="_CPPv2NK5minim8CommGrid11assignBlockERK6vectorIdE"></span><span id="minim::CommGrid::assignBlock__vector:double:CRC"></span><span class="target" id="classminim_1_1CommGrid_1ae06d79e6af48818aa789235f5a4d3371"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid11assignBlockERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid10assignProcERK6vectorIiE">
+<span id="_CPPv3NK5minim8CommGrid10assignProcERK6vectorIiE"></span><span id="_CPPv2NK5minim8CommGrid10assignProcERK6vectorIiE"></span><span id="minim::CommGrid::assignProc__vector:i:CRC"></span><span class="target" id="classminim_1_1CommGrid_1ab23649d008d4ccf89f6453784d0d0ada"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid10assignProcERK6vectorIcE">
+<span id="_CPPv3NK5minim8CommGrid10assignProcERK6vectorIcE"></span><span id="_CPPv2NK5minim8CommGrid10assignProcERK6vectorIcE"></span><span id="minim::CommGrid::assignProc__vector:c:CRC"></span><span class="target" id="classminim_1_1CommGrid_1ad329f98c72df19f40fa7283955429fd6"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid10assignProcERK6vectorIdE">
+<span id="_CPPv3NK5minim8CommGrid10assignProcERK6vectorIdE"></span><span id="_CPPv2NK5minim8CommGrid10assignProcERK6vectorIdE"></span><span id="minim::CommGrid::assignProc__vector:double:CRC"></span><span class="target" id="classminim_1_1CommGrid_1a946e06e8bc507bee5440392ecf33eb41"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid10assignProcERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid8getBlockEi">
+<span id="_CPPv3NK5minim8CommGrid8getBlockEi"></span><span id="_CPPv2NK5minim8CommGrid8getBlockEi"></span><span id="minim::CommGrid::getBlock__iC"></span><span class="target" id="classminim_1_1CommGrid_1ad8929aeb3cdb94b3b70e6a94c8c7c062"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getBlock</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid8getBlockEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the block (processor) that owns a given global index. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid11getLocalIdxEii">
+<span id="_CPPv3NK5minim8CommGrid11getLocalIdxEii"></span><span id="_CPPv2NK5minim8CommGrid11getLocalIdxEii"></span><span id="minim::CommGrid::getLocalIdx__i.iC"></span><span class="target" id="classminim_1_1CommGrid_1a1dfa840b5f1c62c967d303b5f3b231eb"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getLocalIdx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">block</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid11getLocalIdxEii" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the local index of a given global index, or -1 if not held by this processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::CommGrid::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1CommGrid_1a7b3c31893f5a72f32af12bd8ebd27832"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid10dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors, excluding the halo entries. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim8CommGrid8CommGridEi">
+<span id="_CPPv3N5minim8CommGrid8CommGridEi"></span><span id="_CPPv2N5minim8CommGrid8CommGridEi"></span><span id="minim::CommGrid::CommGrid__i"></span><span class="target" id="classminim_1_1CommGrid_1a809d331013f0c6b7236a2fe3fb776ea0"></span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">haloWidth</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim8CommGrid8CommGridEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a grid communicator with the given halo width. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim8CommGrid5cloneEv">
+<span id="_CPPv3NK5minim8CommGrid5cloneEv"></span><span id="_CPPv2NK5minim8CommGrid5cloneEv"></span><span id="minim::CommGrid::cloneC"></span><span class="target" id="classminim_1_1CommGrid_1a36368af593ad9a90a57c483ecb25fa85"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim8CommGrid5cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim8CommGrid5setupER9Potential6size_t6vectorIiE">
+<span id="_CPPv3N5minim8CommGrid5setupER9Potential6size_t6vectorIiE"></span><span id="_CPPv2N5minim8CommGrid5setupER9Potential6size_t6vectorIiE"></span><span id="minim::CommGrid::setup__PotentialR.s.vector:i:"></span><span class="target" id="classminim_1_1CommGrid_1a3fe31978232b62bdf574b868db700e8c"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setup</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="core_api.html#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">pot</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndof</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ranks</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim8CommGrid5setupER9Potential6size_t6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set up the distribution of the given potential over the given ranks. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim8CommGrid4nDimE">
+<span id="_CPPv3N5minim8CommGrid4nDimE"></span><span id="_CPPv2N5minim8CommGrid4nDimE"></span><span id="minim::CommGrid::nDim__i"></span><span class="target" id="classminim_1_1CommGrid_1a3c78fda60463de87733204b7f09de3fc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nDim</span></span></span><a class="headerlink" href="#_CPPv4N5minim8CommGrid4nDimE" title="Link to this definition"></a><br /></dt>
+<dd><p>The number of grid dimensions. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim8CommGrid9haloWidthE">
+<span id="_CPPv3N5minim8CommGrid9haloWidthE"></span><span id="_CPPv2N5minim8CommGrid9haloWidthE"></span><span id="minim::CommGrid::haloWidth__i"></span><span class="target" id="classminim_1_1CommGrid_1a65b4760d7803c5a84c537e12917dcf08"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">haloWidth</span></span></span><a class="headerlink" href="#_CPPv4N5minim8CommGrid9haloWidthE" title="Link to this definition"></a><br /></dt>
+<dd><p>The width of the halo region in grid nodes. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="_CPPv4N5minim9CommGrid2E">
+<span id="_CPPv3N5minim9CommGrid2E"></span><span id="_CPPv2N5minim9CommGrid2E"></span><span id="minim::CommGrid2"></span><h3>CommGrid2<a class="headerlink" href="#_CPPv4N5minim9CommGrid2E" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1CommGrid2"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid2</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5minim8CommGridE" title="minim::CommGrid"><span class="n"><span class="pre">CommGrid</span></span></a><br /></dt>
+<dd><p>A <a class="reference internal" href="#classminim_1_1CommGrid"><span class="std std-ref">CommGrid</span></a> with dimension-specific optimisations for 2D grids. </p>
+<p>Used automatically for 2D grids; it specialises the dot product with an OpenMP-parallel loop collapsed over the two dimensions. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9CommGrid29CommGrid2Ei">
+<span id="_CPPv3N5minim9CommGrid29CommGrid2Ei"></span><span id="_CPPv2N5minim9CommGrid29CommGrid2Ei"></span><span id="minim::CommGrid2::CommGrid2__i"></span><span class="target" id="classminim_1_1CommGrid2_1a52dd16f81ac6b8c328c5625089309938"></span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid2</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">haloWidth</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9CommGrid29CommGrid2Ei" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a 2D grid communicator with the given halo width. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9CommGrid25cloneEv">
+<span id="_CPPv3NK5minim9CommGrid25cloneEv"></span><span id="_CPPv2NK5minim9CommGrid25cloneEv"></span><span id="minim::CommGrid2::cloneC"></span><span class="target" id="classminim_1_1CommGrid2_1a7852ff72ad9c60e153f42f1e193a0f81"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim9CommGrid25cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::CommGrid2::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1CommGrid2_1abd008e6145158f5078953ccda035c435"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim9CommGrid210dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors, excluding the halo entries. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="_CPPv4N5minim9CommGrid3E">
+<span id="_CPPv3N5minim9CommGrid3E"></span><span id="_CPPv2N5minim9CommGrid3E"></span><span id="minim::CommGrid3"></span><h3>CommGrid3<a class="headerlink" href="#_CPPv4N5minim9CommGrid3E" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1CommGrid3"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid3</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5minim8CommGridE" title="minim::CommGrid"><span class="n"><span class="pre">CommGrid</span></span></a><br /></dt>
+<dd><p>A <a class="reference internal" href="#classminim_1_1CommGrid"><span class="std std-ref">CommGrid</span></a> with dimension-specific optimisations for 3D grids. </p>
+<p>Used automatically for 3D grids; it specialises the dot product with an OpenMP-parallel loop collapsed over the three dimensions. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim9CommGrid39CommGrid3Ei">
+<span id="_CPPv3N5minim9CommGrid39CommGrid3Ei"></span><span id="_CPPv2N5minim9CommGrid39CommGrid3Ei"></span><span id="minim::CommGrid3::CommGrid3__i"></span><span class="target" id="classminim_1_1CommGrid3_1a8c54cfb1b8046c8805c5bfcf44f2011a"></span><span class="sig-name descname"><span class="n"><span class="pre">CommGrid3</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">haloWidth</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim9CommGrid39CommGrid3Ei" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct a 3D grid communicator with the given halo width. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9CommGrid35cloneEv">
+<span id="_CPPv3NK5minim9CommGrid35cloneEv"></span><span id="_CPPv2NK5minim9CommGrid35cloneEv"></span><span id="minim::CommGrid3::cloneC"></span><span class="target" id="classminim_1_1CommGrid3_1aea219ef2c1c983a0e462fd1ebad5c6d0"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim9CommGrid35cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::CommGrid3::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1CommGrid3_1abd9004e4c02105dcc0963403d0785d82"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim9CommGrid310dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors, excluding the halo entries. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="_CPPv4N5minim16CommUnstructuredE">
+<span id="_CPPv3N5minim16CommUnstructuredE"></span><span id="_CPPv2N5minim16CommUnstructuredE"></span><span id="minim::CommUnstructured"></span><h3>CommUnstructured<a class="headerlink" href="#_CPPv4N5minim16CommUnstructuredE" title="Link to this heading"></a></h3>
+<dl class="cpp class">
+<dt class="sig sig-object cpp">
+<span class="target" id="classminim_1_1CommUnstructured"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CommUnstructured</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="utils_api.html#_CPPv45minim" title="minim"><span class="n"><span class="pre">minim</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><br /></dt>
+<dd><p>A communicator that distributes unstructured data over MPI processes. </p>
+<p>Used by element-based potentials. The degrees of freedom are split into equal-sized blocks in the order they are given, and the potential’s energy elements are each assigned to the processor that holds the most of their degrees of freedom. Any remaining degrees of freedom of an element lie in the halo. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIiE">
+<span id="_CPPv3NK5minim16CommUnstructured11assignBlockERK6vectorIiE"></span><span id="_CPPv2NK5minim16CommUnstructured11assignBlockERK6vectorIiE"></span><span id="minim::CommUnstructured::assignBlock__vector:i:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1a936bf374dcf02bece29481c98f3963c3"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIcE">
+<span id="_CPPv3NK5minim16CommUnstructured11assignBlockERK6vectorIcE"></span><span id="_CPPv2NK5minim16CommUnstructured11assignBlockERK6vectorIcE"></span><span id="minim::CommUnstructured::assignBlock__vector:c:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1a9686f10e7234a78088ba6336d614b478"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIdE">
+<span id="_CPPv3NK5minim16CommUnstructured11assignBlockERK6vectorIdE"></span><span id="_CPPv2NK5minim16CommUnstructured11assignBlockERK6vectorIdE"></span><span id="minim::CommUnstructured::assignBlock__vector:double:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1a2c4899a81f690a0265307b247779d9ed"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignBlock</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured11assignBlockERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local block from global or block data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIiE">
+<span id="_CPPv3NK5minim16CommUnstructured10assignProcERK6vectorIiE"></span><span id="_CPPv2NK5minim16CommUnstructured10assignProcERK6vectorIiE"></span><span id="minim::CommUnstructured::assignProc__vector:i:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1a9ef39fe9a8214f30f512ecb7a63113ef"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIcE">
+<span id="_CPPv3NK5minim16CommUnstructured10assignProcERK6vectorIcE"></span><span id="_CPPv2NK5minim16CommUnstructured10assignProcERK6vectorIcE"></span><span id="minim::CommUnstructured::assignProc__vector:c:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1abbe75b6c1c02e125869452a7d1026543"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIcE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIdE">
+<span id="_CPPv3NK5minim16CommUnstructured10assignProcERK6vectorIdE"></span><span id="_CPPv2NK5minim16CommUnstructured10assignProcERK6vectorIdE"></span><span id="minim::CommUnstructured::assignProc__vector:double:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1a2047181fe51d367d17783b578307d21d"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">assignProc</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured10assignProcERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Assign the local processor data (block plus halo) from global data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured8getBlockEi">
+<span id="_CPPv3NK5minim16CommUnstructured8getBlockEi"></span><span id="_CPPv2NK5minim16CommUnstructured8getBlockEi"></span><span id="minim::CommUnstructured::getBlock__iC"></span><span class="target" id="classminim_1_1CommUnstructured_1a6cd01c1517f48673399f9078665ecb61"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getBlock</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured8getBlockEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the block (processor) that owns a given global index. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured11getLocalIdxEii">
+<span id="_CPPv3NK5minim16CommUnstructured11getLocalIdxEii"></span><span id="_CPPv2NK5minim16CommUnstructured11getLocalIdxEii"></span><span id="minim::CommUnstructured::getLocalIdx__i.iC"></span><span class="target" id="classminim_1_1CommUnstructured_1af0e20a0f01d6bb28860a637696f4c1ea"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getLocalIdx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">loc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">block</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="o"><span class="pre">-</span></span><span class="m"><span class="pre">1</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured11getLocalIdxEii" title="Link to this definition"></a><br /></dt>
+<dd><p>Get the local index of a given global index, or -1 if not held by this processor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE">
+<span id="_CPPv3NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE"></span><span id="_CPPv2NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE"></span><span id="minim::CommUnstructured::dotProduct__vector:double:CR.vector:double:CRC"></span><span class="target" id="classminim_1_1CommUnstructured_1aa4002eefed59832086e6603a84380dc6"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dotProduct</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured10dotProductERK6vectorIdERK6vectorIdE" title="Link to this definition"></a><br /></dt>
+<dd><p>Compute the dot product of two vectors over all processors, using only the block entries. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim16CommUnstructured16CommUnstructuredEv">
+<span id="_CPPv3N5minim16CommUnstructured16CommUnstructuredEv"></span><span id="_CPPv2N5minim16CommUnstructured16CommUnstructuredEv"></span><span id="minim::CommUnstructured::CommUnstructured"></span><span class="target" id="classminim_1_1CommUnstructured_1adbd48e8e199764edd9ce97bebc890aab"></span><span class="sig-name descname"><span class="n"><span class="pre">CommUnstructured</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5minim16CommUnstructured16CommUnstructuredEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Construct an unstructured communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5minim16CommUnstructured5cloneEv">
+<span id="_CPPv3NK5minim16CommUnstructured5cloneEv"></span><span id="_CPPv2NK5minim16CommUnstructured5cloneEv"></span><span id="minim::CommUnstructured::cloneC"></span><span class="target" id="classminim_1_1CommUnstructured_1a9f2aae68a40102ba9c3e46d7cfc727f3"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5minim12CommunicatorE" title="minim::Communicator"><span class="n"><span class="pre">Communicator</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clone</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5minim16CommUnstructured5cloneEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Create a deep copy of the communicator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE">
+<span id="_CPPv3N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE"></span><span id="_CPPv2N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE"></span><span id="minim::CommUnstructured::setup__PotentialR.s.vector:i:"></span><span class="target" id="classminim_1_1CommUnstructured_1afced059620717e54a9efe923c462d00d"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setup</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="core_api.html#_CPPv4N5minim9PotentialE" title="minim::Potential"><span class="n"><span class="pre">Potential</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">pot</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndof</span></span>, <span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ranks</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5minim16CommUnstructured5setupER9Potential6size_t6vectorIiE" title="Link to this definition"></a><br /></dt>
+<dd><p>Set up the distribution of the given potential over the given ranks. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="core_api.html" class="btn btn-neutral float-left" title="Core API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils_api.html" class="btn btn-neutral float-right" title="Utils API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Sam Avis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
